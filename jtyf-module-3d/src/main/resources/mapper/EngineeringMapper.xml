@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.iocoder.jtyf.module.dimensions.mapper.EngineeringMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.iocoder.jtyf.module.dimensions.entity.Engineering">
+        <id column="id" property="id" />
+        <result column="project" property="project" />
+        <result column="name" property="name" />
+        <result column="nodes" property="nodes" />
+        <result column="com_points" property="comPoints" />
+        <result column="gis_info" property="gisInfo" />
+        <result column="platform_type" property="platformType" />
+        <result column="type" property="type" />
+        <result column="is_publish" property="isPublish" />
+        <result column="update_time" property="updateTime" />
+        <result column="upload_time" property="uploadTime" />
+        <result column="version" property="version" />
+        <result column="status" property="status" />
+        <result column="state_infos" property="stateInfos" />
+        <result column="release_state_uuid" property="releaseStateUuid" />
+        <result column="locked_game_object_list" property="lockedGameObjectList" />
+        <result column="camera_initial_position" property="cameraInitialPosition" />
+        <result column="camera_initial_euler" property="cameraInitialEuler" />
+        <result column="comm_com_jsons" property="commComJsons" />
+        <result column="scene_res_id" property="sceneResId" />
+        <result column="editor" property="editor" />
+        <result column="coms_instance" property="comsInstance" />
+        <result column="hotfix_components" property="hotfixComponents" />
+        <result column="dic_com_system_info" property="dicComSystemInfo" />
+        <result column="photo_address" property="photoAddress" />
+        <result column="create_user" property="createUser" />
+        <result column="update_user" property="updateUser" />
+        <result column="org_id_path" property="orgIdPath" />
+        <result column="app_id" property="appId" />
+        <result column="create_time" property="createTime" />
+        <result column="created_by" property="createdBy" />
+        <result column="last_modified_by" property="lastModifiedBy" />
+        <result column="scene_config_info" property="sceneConfigInfo" />
+        <result column="icon_infos" property="iconInfos" />
+    </resultMap>
+
+    <select id="findMaxId" resultType="Integer">
+        SELECT max(id) FROM project_engineering
+    </select>
+
+</mapper>

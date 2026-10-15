@@ -1,0 +1,100 @@
+{
+  "CameraComponent": [
+    {
+      "componentName": "CameraComponent",
+      "property": {
+        "LocalPosition": {
+          "x": 0.0,
+          "y": 300.0,
+          "z": -100.0
+        },
+        "LocalRotation": {
+          "x": 20.0000038,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "FieldOfView": 60.0,
+        "FocusPointOffset": 1.2,
+        "NearClippingPlanes": 0.3,
+        "FarClippingPlanes": 10000.0,
+        "MoveSpeed": 6.0,
+        "MoveAccelerationRate": 15.0,
+        "OrbitEnable": true,
+        "OrbitSensitivity": 0.2,
+        "ZoomEnable": true,
+        "PerspStandardZoomSensitivity": 1.0,
+        "OrthoStandardZoomSensitivity": 1.0,
+        "IsPanningEnabled": true,
+        "StandardPanSensitivity": 0.2,
+        "__type": "CameraComponent"
+      }
+    }
+  ],
+  "SkyBoxComponent": [
+    {
+      "componentName": "SkyBoxComponent",
+      "property": {
+        "SkyboxEnable": true,
+        "BackgroundStyle": 1,
+        "ExpanseVolumetricCloudSkyStyle": 0,
+        "PictureCheck": true,
+        "SkyPicture": 0,
+        "ColorType": true,
+        "Colors": [
+          {
+            "r": 127.5,
+            "g": 127.5,
+            "b": 127.5,
+            "a": 1.0
+          }
+        ],
+        "DLightEnable": true,
+        "DLightIntensity": 24305.0,
+        "DLightAngle": 48.1400032,
+        "DLightColor": {
+          "r": 255.0,
+          "g": 255.0,
+          "b": 255.0,
+          "a": 1.0
+        },
+        "__type": "SkyBoxComponent"
+      }
+    }
+  ],
+  "EffectComponent": [
+    {
+      "componentName": "EffectComponent",
+      "property": {
+        "ParticleFireEnable": false,
+        "ParticleFireColor": {
+          "r": 255.0,
+          "g": 255.0,
+          "b": 255.0,
+          "a": 1.0
+        },
+        "RunningLineEnable": false,
+        "RunningLineColor": {
+          "r": 255.0,
+          "g": 255.0,
+          "b": 255.0,
+          "a": 1.0
+        },
+        "SunshineEnable": false,
+        "SunshineColor": {
+          "r": 255.0,
+          "g": 255.0,
+          "b": 255.0,
+          "a": 1.0
+        },
+        "FogEnable": false,
+        "FogColor": {
+          "r": 255.0,
+          "g": 255.0,
+          "b": 255.0,
+          "a": 1.0
+        },
+        "__type": "EffectComponent"
+      }
+    }
+  ]
+}

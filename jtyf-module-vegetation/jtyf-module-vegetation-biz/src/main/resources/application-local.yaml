@@ -1,0 +1,16 @@
+spring:
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:8848
+      username: nacos
+      password: ${REDACTED_SECRET}
+      discovery:
+        namespace: dev
+        group: DEFAULT_GROUP
+      config:
+        namespace: dev
+        group: DEFAULT_GROUP
+
+logging:
+  file:
+    name: ${user.home}/logs/${spring.application.name}.log

@@ -1,0 +1,2 @@
+cn.iocoder.jtyf.framework.redis.config.JtyfRedisAutoConfiguration
+cn.iocoder.jtyf.framework.redis.config.JtyfCacheAutoConfiguration

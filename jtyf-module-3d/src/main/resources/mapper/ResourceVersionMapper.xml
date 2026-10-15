@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.iocoder.jtyf.module.dimensions.mapper.ResourceVersionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.iocoder.jtyf.module.dimensions.entity.ResourceVersion">
+        <id column="id" property="id" />
+        <result column="version_name" property="versionName" />
+        <result column="create_user" property="createUser" />
+        <result column="update_user" property="updateUser" />
+        <result column="create_time" property="createTime" />
+        <result column="created_by" property="createdBy" />
+        <result column="last_modified_by" property="lastModifiedBy" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+</mapper>

@@ -1,0 +1,4 @@
+cn.iocoder.jtyf.framework.idempotent.config.JtyfIdempotentConfiguration
+cn.iocoder.jtyf.framework.lock4j.config.JtyfLock4jConfiguration
+cn.iocoder.jtyf.framework.ratelimiter.config.JtyfRateLimiterConfiguration
+cn.iocoder.jtyf.framework.signature.config.JtyfApiSignatureAutoConfiguration

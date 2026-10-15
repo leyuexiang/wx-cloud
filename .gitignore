@@ -1,0 +1,100 @@
+
+# 查看更多 .gitignore 配置 -> https://help.github.com/articles/ignoring-files/
+
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+.flattened-pom.xml
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+*.class
+target/*
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+/build/
+
+
+
+### admin-web ###
+
+# dependencies
+**/node_modules
+
+# roadhog-api-doc ignore
+/src/utils/request-temp.js
+_roadhog-api-doc
+
+# production
+/dist
+/.vscode
+
+# misc
+.DS_Store
+npm-debug.log*
+yarn-error.log
+
+/coverage
+.idea
+yarn.lock
+package-lock.json
+*bak
+.vscode
+
+# visual studio code
+.history
+*.log
+
+functions/mock
+.temp/**
+
+# umi
+.umi
+.umi-production
+
+# screenshot
+screenshot
+.firebase
+sessionStore
+
+
+/jtyf-gateway/target/
+/jtyf-module-system/jtyf-module-system-api/target/
+/jtyf-module-system/jtyf-module-system-biz/target/
+
+/images/
+/template/
+/v1.0.0/
+
+
+!/.flattened-pom.xml
+/jtyf-dependencies/.flattened-pom.xml
+/jtyf-gateway/.flattened-pom.xml
+/jtyf-framework/.flattened-pom.xml
+/jtyf-framework/jtyf-common/.flattened-pom.xml
+/jtyf-module-infra/.flattened-pom.xml
+/jtyf-module-system/.flattened-pom.xml
+/jtyf-module-system/jtyf-module-system-api/.flattened-pom.xml
+# 公开仓库构建产物和本地导出数据
+.flattened-pom.xml
+*.7z
+/db/system/9tyf-vue-pro.sql
+/db/3d/3d.sql
+/db/databind_test/databind_test.sql

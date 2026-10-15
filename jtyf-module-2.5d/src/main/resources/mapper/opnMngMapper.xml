@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.iocoder.jtyf.module.semi.controller.admin.operation.dao.opnMng">
+
+    <select id="getStatisticsInfo" statementType="CALLABLE" parameterType="hashmap">
+        {
+            CALL operation_statistics (
+                #{result.accountCount, mode=OUT, jdbcType=INTEGER},
+                #{result.total2d,      mode=OUT, jdbcType=INTEGER},
+                #{result.last302d,     mode=OUT, jdbcType=INTEGER},
+                #{result.last602d,     mode=OUT, jdbcType=INTEGER},
+                #{result.total3d,      mode=OUT, jdbcType=INTEGER},
+                #{result.last303d,     mode=OUT, jdbcType=INTEGER},
+                #{result.last603d,     mode=OUT, jdbcType=INTEGER},
+                #{result.totalV,       mode=OUT, jdbcType=INTEGER},
+                #{result.last30V,      mode=OUT, jdbcType=INTEGER},
+                #{result.last60V,      mode=OUT, jdbcType=INTEGER}
+            )
+        }
+    </select>
+
+    <select id="getAccountInfoTotal" parameterType="hashmap" resultType="integer">
+        SELECT
+            COUNT(0)
+        FROM
+            account
+        WHERE
+            1 = 1
+        <if test="accountInfo != null">
+          <if test="accountInfo.query != null and accountInfo.query != ''">
+            AND (
+                account     LIKE CONCAT('%', #{accountInfo.query}, '%')
+                OR phone    LIKE CONCAT('%', #{accountInfo.query}, '%')
+                OR email    LIKE CONCAT('%', #{accountInfo.query}, '%')
+                OR username LIKE CONCAT('%', #{accountInfo.query}, '%')
+            )
+          </if>
+          <if test="accountInfo.departmentId != null and accountInfo.departmentId != ''">
+            AND department_id = #{accountInfo.departmentId}
+          </if>
+          <if test="accountInfo.teamId != null and accountInfo.teamId != ''">
+            AND (JSON_CONTAINS(teams, CONCAT('["', #{accountInfo.teamId}, '"]')))
+          </if>
+        </if>
+        <choose>
+          <when test="deleted == 0">
+            AND deleted_at IS NULL
+          </when>
+          <when test="deleted == 1">
+            AND deleted_at IS NOT NULL
+          </when>
+        </choose>
+    </select>
+
+    <select id="getAccountInfoList" parameterType="hashmap" resultMap="accountMap">
+        WITH acc AS (
+            SELECT
+                id,
+                account,
+                phone,
+                email,
+                username,
+                password,
+                avatar_url,
+                rl.rnm              AS roleNm,
+                department_id,
+                tm.tid              AS teamId,
+                created_at,
+                updated_at,
+                deleted_at
+            FROM
+                account a,
+                JSON_TABLE(
+                    a.roles, 
+                    '$[*]' COLUMNS (rnm varchar(255) PATH '$')
+                ) rl,
+                JSON_TABLE(
+                    a.teams, 
+                    '$[*]' COLUMNS (tid varchar(255) PATH '$')
+                ) tm
+            WHERE
+                1 = 1
+            <if test="accountInfo != null">
+              <if test="accountInfo.query != null and accountInfo.query != ''">
+                AND (
+                    a.account     LIKE CONCAT('%', #{accountInfo.query}, '%')
+                    OR a.phone    LIKE CONCAT('%', #{accountInfo.query}, '%')
+                    OR a.email    LIKE CONCAT('%', #{accountInfo.query}, '%')
+                    OR a.username LIKE CONCAT('%', #{accountInfo.query}, '%')
+                )
+              </if>
+              <if test="accountInfo.departmentId != null and accountInfo.departmentId != ''">
+                AND a.department_id = #{accountInfo.departmentId}
+              </if>
+              <if test="accountInfo.teamId != null and accountInfo.teamId != ''">
+                AND (JSON_CONTAINS(a.teams, CONCAT('["', #{accountInfo.teamId}, '"]')))
+              </if>
+            </if>
+            <choose>
+              <when test="deleted == 0">
+                AND a.deleted_at IS NULL
+              </when>
+              <when test="deleted == 1">
+                AND a.deleted_at IS NOT NULL
+              </when>
+            </choose>
+                AND JSON_LENGTH(a.roles) > 0
+                AND JSON_LENGTH(a.teams) > 0
+           UNION
+           SELECT
+                id,
+                account,
+                phone,
+                email,
+                username,
+                password,
+                avatar_url,
+                rl.rnm              AS roleNm,
+                department_id,
+                NULL                AS teamId,
+                created_at,
+                updated_at,
+                deleted_at
+            FROM
+                account a,
+                JSON_TABLE(
+                    a.roles, 
+                    '$[*]' COLUMNS (rnm varchar(255) PATH '$')
+                ) rl
+            WHERE
+                1 = 1
+            <if test="accountInfo != null">
+              <if test="accountInfo.query != null and accountInfo.query != ''">
+                AND (
+                    a.account     LIKE CONCAT('%', #{accountInfo.query}, '%')
+                    OR a.phone    LIKE CONCAT('%', #{accountInfo.query}, '%')
+                    OR a.email    LIKE CONCAT('%', #{accountInfo.query}, '%')
+                    OR a.username LIKE CONCAT('%', #{accountInfo.query}, '%')
+                )
+              </if>
+              <if test="accountInfo.departmentId != null and accountInfo.departmentId != ''">
+                AND a.department_id = #{accountInfo.departmentId}
+              </if>
+              <if test="accountInfo.teamId != null and accountInfo.teamId != ''">
+                AND (JSON_CONTAINS(a.teams, CONCAT('["', #{accountInfo.teamId}, '"]')))
+              </if>
+            </if>
+            <choose>
+              <when test="deleted == 0">
+                AND a.deleted_at IS NULL
+              </when>
+              <when test="deleted == 1">
+                AND a.deleted_at IS NOT NULL
+              </when>
+            </choose>
+                AND JSON_LENGTH(a.roles) > 0
+                AND JSON_LENGTH(a.teams) = 0
+           UNION
+           SELECT
+                id,
+                account,
+                phone,
+                email,
+                username,
+                password,
+                avatar_url,
+                NULL                AS roleNm,
+                department_id,
+                tm.tid              AS teamId,
+                created_at,
+                updated_at,
+                deleted_at
+            FROM
+                account a,
+                JSON_TABLE(
+                    a.teams, 
+                    '$[*]' COLUMNS (tid varchar(255) PATH '$')
+                ) tm
+            WHERE
+                1 = 1
+            <if test="accountInfo != null">
+              <if test="accountInfo.query != null and accountInfo.query != ''">
+                AND (
+                    a.account     LIKE CONCAT('%', #{accountInfo.query}, '%')
+                    OR a.phone    LIKE CONCAT('%', #{accountInfo.query}, '%')
+                    OR a.email    LIKE CONCAT('%', #{accountInfo.query}, '%')
+                    OR a.username LIKE CONCAT('%', #{accountInfo.query}, '%')
+                )
+              </if>
+              <if test="accountInfo.departmentId != null and accountInfo.departmentId != ''">
+                AND a.department_id = #{accountInfo.departmentId}
+              </if>
+              <if test="accountInfo.teamId != null and accountInfo.teamId != ''">
+                AND (JSON_CONTAINS(a.teams, CONCAT('["', #{accountInfo.teamId}, '"]')))
+              </if>
+            </if>
+            <choose>
+              <when test="deleted == 0">
+                AND a.deleted_at IS NULL
+              </when>
+              <when test="deleted == 1">
+                AND a.deleted_at IS NOT NULL
+              </when>
+            </choose>
+                AND JSON_LENGTH(a.roles) = 0
+                AND JSON_LENGTH(a.teams) > 0
+           UNION
+           SELECT
+                id,
+                account,
+                phone,
+                email,
+                username,
+                password,
+                avatar_url,
+                NULL               AS roleNm,
+                department_id,
+                NULL               AS teamId,
+                created_at,
+                updated_at,
+                deleted_at
+            FROM
+                account a
+            WHERE
+                1 = 1
+            <if test="accountInfo != null">
+              <if test="accountInfo.query != null and accountInfo.query != ''">
+                AND (
+                    a.account     LIKE CONCAT('%', #{accountInfo.query}, '%')
+                    OR a.phone    LIKE CONCAT('%', #{accountInfo.query}, '%')
+                    OR a.email    LIKE CONCAT('%', #{accountInfo.query}, '%')
+                    OR a.username LIKE CONCAT('%', #{accountInfo.query}, '%')
+                )
+              </if>
+              <if test="accountInfo.departmentId != null and accountInfo.departmentId != ''">
+                AND a.department_id = #{accountInfo.departmentId}
+              </if>
+              <if test="accountInfo.teamId != null and accountInfo.teamId != ''">
+                AND (JSON_CONTAINS(a.teams, CONCAT('["', #{accountInfo.teamId}, '"]')))
+              </if>
+            </if>
+            <choose>
+              <when test="deleted == 0">
+                AND a.deleted_at IS NULL
+              </when>
+              <when test="deleted == 1">
+                AND a.deleted_at IS NOT NULL
+              </when>
+            </choose>
+                AND JSON_LENGTH(a.roles) = 0
+                AND JSON_LENGTH(a.teams) = 0
+        )
+        SELECT
+            a.id                                                      AS id,
+            a.account                                                 AS account,
+            a.phone                                                   AS phone,
+            a.email                                                   AS email,
+            a.username                                                AS username,
+            a.avatar_url                                              AS avatarUrl,
+            DATE_FORMAT(a.created_at, '%Y-%m-%d %H:%i:%s')            AS createdAt,
+            DATE_FORMAT(a.updated_at, '%Y-%m-%d %H:%i:%s')            AS updatedAt,
+            DATE_FORMAT(a.deleted_at, '%Y-%m-%d %H:%i:%s')            AS deletedAt,
+
+            r.name                                                    AS roleNm,
+            r.auth_cd                                                 AS roleAuthCd,
+
+            d.id                                                      AS departmentId,
+            d.name                                                    AS departmentName,
+
+            t.id                                                      AS teamId,
+            t.name                                                    AS teamName,
+            t.avatar_url                                              AS teamAvatarUrl,
+            t.description                                             AS teamDescription,
+            t.owner_id                                                AS teamOwnerId,
+            t.invite_link                                             AS teamInviteLink,
+            t.invite_expiration                                       AS teamInviteExpiration,
+            t.invite_approve                                          AS teamInviteApprove,
+            DATE_FORMAT(t.created_at, '%Y-%m-%d %H:%i:%s')            AS teamCreatedAt,
+
+            tm.team_id                                                AS teamMemberTeamId,
+            tm.user_id                                                AS teamMemberUserId,
+            tm.username                                               AS teamMemberUsername,
+            tm.is_admin                                               AS teamMemberIsAdmin,
+            tm.pending                                                AS teamMemberPending,
+            DATE_FORMAT(tm.created_at, '%Y-%m-%d %H:%i:%s')           AS teamMemberCreatedAt
+        FROM
+            acc a
+            LEFT JOIN role r
+                   ON a.roleNm = r.name
+            LEFT JOIN department d
+                   ON a.department_id = d.id
+            LEFT JOIN team t
+                   ON a.teamId = t.id
+            LEFT JOIN team_member tm
+                   ON t.id = tm.team_id
+    </select>
+
+    <update id="updateAccountInfo" parameterType="cn.iocoder.jtyf.module.semi.controller.admin.account.businessinfo.AccountInfo">
+        UPDATE
+            account
+        SET
+            updated_at = CURRENT_TIMESTAMP
+          <if test="roleNmsStr != null and roleNmsStr != ''">
+            ,roles = JSON_ARRAY(${roleNmsStr})
+          </if>
+          <if test="departmentId != null and departmentId != ''">
+            ,department_id = #{departmentId}
+          </if>
+          <if test="teamsStr != null and teamsStr != ''">
+            ,teams = JSON_ARRAY(${teamsStr})
+          </if>
+        WHERE
+            1 = 1
+          <if test="id != null and id != ''">
+            AND id = #{id}
+          </if>
+          <if test="account != null and account != ''">
+            AND (
+                account = #{account}
+                OR phone = #{account}
+                OR email = #{account}
+            )
+          </if>
+    </update>
+
+    <update id="disableAccountInfo" parameterType="hashmap">
+        UPDATE
+            account
+        SET
+            updated_at = CURRENT_TIMESTAMP
+        <choose>
+          <when test="disable == true">
+            ,deleted_at = CURRENT_TIMESTAMP
+          </when>
+          <otherwise>
+            ,deleted_at = NULL
+          </otherwise>
+        </choose>
+        WHERE
+            1 = 1
+          <if test="accountInfo.id != null and accountInfo.id != ''">
+            AND id = #{accountInfo.id}
+          </if>
+          <if test="accountInfo.account != null and accountInfo.account != ''">
+            AND (
+                account = #{accountInfo.account}
+                OR phone = #{accountInfo.account}
+                OR email = #{accountInfo.account}
+            )
+          </if>
+    </update>
+
+    <select id="getRoleInfoTotal" parameterType="hashmap" resultType="integer">
+        SELECT
+            COUNT(0)
+        FROM
+            role
+        WHERE
+            1 = 1
+          <if test="roleInfo.query != null and roleInfo.query != ''">
+            AND name LIKE CONCAT('%', #{roleInfo.query}, '%')
+          </if>
+    </select>
+
+    <select id="getRoleInfoList" parameterType="hashmap" resultType="cn.iocoder.jtyf.module.semi.controller.admin.operation.businessinfo.RoleInfo">
+        SELECT
+            id        AS id,
+            name      AS name
+        FROM
+            role
+        WHERE
+            1 = 1
+          <if test="roleInfo.query != null and roleInfo.query != ''">
+            AND name LIKE CONCAT('%', #{roleInfo.query}, '%')
+          </if>
+    </select>
+
+    <select id="getRoleInfo" parameterType="hashmap" resultType="cn.iocoder.jtyf.module.semi.controller.admin.operation.businessinfo.RoleInfo">
+        SELECT
+            id        AS id,
+            name      AS name
+        FROM
+            role
+        WHERE
+            1 = 1
+          <if test="id != null and id != ''">
+            AND id = #{id}
+          </if>
+          <if test="name != null and name != ''">
+            AND name = #{name}
+          </if>
+    </select>
+
+    <insert id="insertRoleInfo" parameterType="hashmap">
+        INSERT INTO role (
+            id
+            ,name
+          <if test="roleInfo.authCd != null">
+            ,auth_cd
+          </if>
+        )
+        SELECT
+            UUID()
+            ,#{roleInfo.name}
+          <if test="roleInfo.authCd != null">
+            ,#{roleInfo.authCd}
+          </if>
+        WHERE NOT EXISTS (
+            SELECT
+                0
+            FROM
+                role
+            WHERE
+                name = #{roleInfo.name}
+        )
+    </insert>
+
+    <update id="updateRoleInfo" parameterType="hashmap">
+        UPDATE
+            role
+        SET
+            id = #{roleInfo.id}
+          <if test="roleInfo.name != null and roleInfo.name != ''">
+            ,name = #{roleInfo.name}
+          </if>
+          <if test="roleInfo.authCd != null">
+            ,auth_cd = #{roleInfo.authCd}
+          </if>
+        WHERE
+            id = #{roleInfo.id}
+    </update>
+
+    <delete id="deleteRoleInfo" parameterType="hashmap">
+        DELETE
+        FROM
+            role
+        WHERE
+            id = #{id}
+    </delete>
+
+    <select id="getDepartmentInfo" parameterType="hashmap" resultMap="departmentMap">
+        SELECT
+            d.id                                                AS id,
+            d.name                                              AS name,
+            d.parent_id                                         AS parentId,
+            fp.pid                                              AS fullpath,
+            d.leader                                            AS leader,
+            DATE_FORMAT(d.created_at, '%Y-%m-%d %H:%i:%s')      AS createdAt,
+            DATE_FORMAT(d.updated_at, '%Y-%m-%d %H:%i:%s')      AS updatedAt
+        FROM
+            department d,
+            JSON_TABLE(
+                d.fullpath, 
+                '$[*]' COLUMNS (pid varchar(255) PATH '$')
+            ) fp
+        WHERE
+            d.id = #{id}
+      <if test="deleted != null">
+        <choose>
+          <when test="deleted == true">
+            AND d.deleted_at IS NOT NULL
+          </when>
+          <otherwise>
+            AND d.deleted_at IS NULL
+          </otherwise>
+        </choose>
+      </if>
+    </select>
+
+    <insert id="insertDepartmentInfo" parameterType="hashmap">
+        INSERT INTO department (
+            id,
+            name,
+          <if test="departmentInfo.parentId != null and departmentInfo.parentId != ''">
+            parent_id,
+          </if>
+            fullpath,
+          <if test="departmentInfo.leader != null and departmentInfo.leader != ''">
+            leader,
+          </if>
+            created_at,
+            updated_at
+        ) VALUES (
+            #{departmentInfo.id},
+            #{departmentInfo.name},
+          <if test="departmentInfo.parentId != null and departmentInfo.parentId != ''">
+            #{departmentInfo.parentId},
+          </if>
+            JSON_ARRAY(${departmentInfo.fullpaths}),
+          <if test="departmentInfo.leader != null and departmentInfo.leader != ''">
+            #{departmentInfo.leader},
+          </if>
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <update id="updateDepartmentInfo" parameterType="hashmap">
+        UPDATE
+            department
+        SET
+            updated_at = CURRENT_TIMESTAMP
+          <if test="departmentInfo.name != null and departmentInfo.name != ''">
+            ,name = #{departmentInfo.name}
+          </if>
+          <if test="departmentInfo.parentId != null and departmentInfo.parentId != ''">
+            ,parent_id = #{departmentInfo.parentId}
+          </if>
+          <if test="departmentInfo.fullpaths != null and departmentInfo.fullpaths != ''">
+            ,fullpath = JSON_ARRAY(${departmentInfo.fullpaths})
+          </if>
+          <if test="departmentInfo.leader != null and departmentInfo.leader != ''">
+            ,leader = #{departmentInfo.leader}
+          </if>
+        WHERE
+            id = #{departmentInfo.id}
+    </update>
+
+    <delete id="deleteDepartmentInfo" parameterType="hashmap">
+        DELETE
+        FROM
+            department d
+        WHERE
+            d.id = #{id}
+            AND NOT EXISTS (
+                SELECT
+                    1
+                FROM (
+                    SELECT
+                        *
+                    FROM
+                        department
+                    WHERE
+                        parent_id = #{id}
+                ) c
+                WHERE
+                    d.id = c.parent_id
+            )
+    </delete>
+
+    <resultMap id="accountMap" type="cn.iocoder.jtyf.module.semi.controller.admin.account.businessinfo.AccountInfo">
+        <id property="id" column="id" />
+        <result property="account" column="account" />
+        <result property="phone" column="phone" />
+        <result property="email" column="email" />
+        <result property="username" column="username" />
+        <result property="avatarUrl" column="avatarUrl" />
+        <result property="departmentId" column="departmentId" />
+        <result property="departmentName" column="departmentName" />
+        <result property="createdAt" column="createdAt" />
+        <result property="updatedAt" column="updatedAt" />
+        <result property="deletedAt" column="deletedAt" />
+        <collection property="roleNmList" javaType="list" ofType="java.lang.String">
+            <result column="roleNm"/>
+        </collection>
+        <collection property="roleAuthCdList" javaType="list" ofType="java.lang.Long">
+            <result column="roleAuthCd"/>
+        </collection>
+        <collection property="teamList" javaType="list" ofType="cn.iocoder.jtyf.module.semi.controller.admin.account.businessinfo.TeamInfo">
+            <id property="id" column="teamId" />
+            <result property="name" column="teamName" />
+            <result property="avatarUrl" column="teamAvatarUrl" />
+            <result property="description" column="teamDescription" />
+            <result property="ownerId" column="teamOwnerId" />
+            <result property="inviteLink" column="teamInviteLink" />
+            <result property="inviteExpiration" column="teamInviteExpiration" />
+            <result property="inviteApprove" column="teamInviteApprove" />
+            <result property="createdAt" column="teamCreatedAt" />
+            <collection property="memberList" javaType="list" ofType="cn.iocoder.jtyf.module.semi.controller.admin.account.businessinfo.TeamMemberInfo">
+                <id property="teamId" column="teamMemberTeamId" />
+                <id property="userId" column="teamMemberUserId" />
+                <result property="username" column="teamMemberUsername" />
+                <result property="isAdmin" column="teamMemberIsAdmin" />
+                <result property="pending" column="teamMemberPending" />
+                <result property="createdAt" column="teamMemberCreatedAt" />
+            </collection>
+        </collection>
+    </resultMap>
+
+    <resultMap id="departmentMap" type="cn.iocoder.jtyf.module.semi.controller.admin.account.businessinfo.DepartmentInfo">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="parentId" column="parentId" />
+        <result property="leader" column="leader" />
+        <result property="createdAt" column="createdAt" />
+        <result property="updatedAt" column="updatedAt" />
+        <collection property="fullpathList" javaType="list" ofType="java.lang.String">
+            <result column="fullpath"/>
+        </collection>
+    </resultMap>
+
+</mapper>

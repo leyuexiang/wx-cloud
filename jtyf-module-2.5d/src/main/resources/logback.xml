@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+
+    <!--
+    Base logback configuration provided for compatibility with Spring Boot 1.1
+    -->
+    <!--
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    -->
+
+    <property name="app.name" value="zy-app-java" />
+    <property name="log.path" value="/var/opt/meta/webapp/logs" />
+    <property name="maxHistory" value="15" />
+    <property name="maxFileSize" value="50MB" />
+    <property name="totalSizeCap" value="500MB" />
+
+    <contextName>${app.name}</contextName>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy/MM/dd HH:mm:ss.SSS} [%thread] [%-5level] - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>info</level>
+        </filter>
+    </appender>
+
+    <appender name="A_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/meta_error.log</file>
+        <encoder>
+            <pattern>%d{yyyy/MM/dd HH:mm:ss.SSS} [%thread] [%-5level] - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>error</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/meta_error.%d{yyyyMMdd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>${maxHistory}</maxHistory>
+            <totalSizeCap>${totalSizeCap}</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="A_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/meta_info.log</file>
+        <encoder>
+            <pattern>%d{yyyy/MM/dd HH:mm:ss.SSS} [%thread] [%-5level] - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>info</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/meta_info.%d{yyyyMMdd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>${maxHistory}</maxHistory>
+            <totalSizeCap>${totalSizeCap}</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="A_DEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/meta_debug.log</file>
+        <encoder>
+            <pattern>%d{yyyy/MM/dd HH:mm:ss.SSS} [%thread] [%-5level] - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>debug</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/meta_debug.%d{yyyyMMdd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>${maxHistory}</maxHistory>
+            <totalSizeCap>${totalSizeCap}</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <springProfile name="dev">
+        <root level="all">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+
+    <springProfile name="test">
+        <root level="all">
+            <appender-ref ref="A_ERROR" />
+            <appender-ref ref="A_INFO" />
+            <appender-ref ref="A_DEBUG" />
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <root level="all">
+            <appender-ref ref="A_ERROR" />
+            <appender-ref ref="A_INFO" />
+        </root>
+    </springProfile>
+
+    <!-- the framework logger -->
+    <logger name="java.sql" level="warn" />
+    <logger name="org.apache" level="warn" />
+    <logger name="org.springframework" level="warn" />
+    <logger name="com.zaxxer.hikari" level="warn" />
+
+</configuration>

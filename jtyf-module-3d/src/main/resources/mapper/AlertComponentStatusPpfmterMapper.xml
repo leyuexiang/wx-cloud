@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.iocoder.jtyf.module.dimensions.mapper.ComponentStatusPpfmterMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="device_status_ppfmter" type="cn.iocoder.jtyf.module.dimensions.entity.DeviceStatusPpfmter">
+        <id column="id" property="id" />
+        <result column="device_id" property="deviceId" />
+        <result column="device_name" property="deviceName" />
+        <result column="participants" property="participants" />
+        <result column="departures" property="departures" />
+        <result column="head_count" property="headCount" />
+        <result column="state" property="state" />
+        <result column="state_name" property="stateName" />
+        <result column="warning" property="warning" />
+    </resultMap>
+
+</mapper>

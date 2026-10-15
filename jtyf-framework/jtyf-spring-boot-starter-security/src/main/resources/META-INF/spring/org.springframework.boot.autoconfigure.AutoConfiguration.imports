@@ -1,0 +1,5 @@
+cn.iocoder.jtyf.framework.security.config.JtyfSecurityRpcAutoConfiguration
+cn.iocoder.jtyf.framework.security.config.JtyfSecurityAutoConfiguration
+cn.iocoder.jtyf.framework.security.config.JtyfWebSecurityConfigurerAdapter
+cn.iocoder.jtyf.framework.operatelog.config.JtyfOperateLogConfiguration
+cn.iocoder.jtyf.framework.operatelog.config.JtyfOperateLogRpcAutoConfiguration

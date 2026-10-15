@@ -1,0 +1,22 @@
+[Unit]
+# 仅在网络完全就绪后启动，避免注册中心、数据库等远程依赖尚未可达时出现无效启动。
+Description=九天芸菲三维资源服务
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+# 服务以普通管理员账户运行，避免 Java 进程获得不必要的系统最高权限。
+User=admin
+Group=admin
+WorkingDirectory=/opt/jtyf/dim3d
+# 固定堆内存边界并启用 G1 垃圾收集器，避免测试机上的单个服务抢占全部可用内存。
+ExecStart=/usr/bin/java -Xms512m -Xmx2048m -XX:+UseG1GC -Dfile.encoding=UTF-8 -jar /opt/jtyf/dim3d/jtyf-module-3d.jar --spring.profiles.active=dev --logging.file.name=/opt/jtyf/dim3d/logs/dimensions-server.log
+Restart=on-failure
+RestartSec=10
+SuccessExitStatus=143
+# 提升文件句柄上限，支撑大文件转换任务的并发上传与对象存储访问。
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

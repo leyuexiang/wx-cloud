@@ -1,0 +1,751 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.iocoder.jtyf.module.semi.controller.admin.data.dao.dataMng">
+
+    <select id="checkExistData" parameterType="hashmap" resultType="integer">
+        SELECT
+            COUNT(0)
+        FROM
+            ${collection}
+        WHERE
+            id = #{id}
+        <choose>
+          <when test="deleted == 0">
+            AND deleted_at IS NULL
+          </when>
+          <when test="deleted == 1">
+            AND deleted_at IS NOT NULL
+          </when>
+        </choose>
+    </select>
+
+    <select id="getAuthInfo" parameterType="hashmap" resultType="cn.iocoder.jtyf.module.semi.controller.admin.data.businessinfo.AuthorizeInfo">
+        SELECT
+            data_id           AS dataId,
+            subject_id        AS subjectId,
+            subject_type      AS subjectType,
+            action            AS action,
+            attributes        AS attributes
+        FROM
+            ${collection}
+        WHERE
+            data_id = #{dataId}
+            AND (
+                   (
+                    subject_id = '*'
+                    AND subject_type = 1
+                )
+              <if test="ownerId != null and ownerId != ''">
+                OR (
+                    subject_id = #{ownerId}
+                    AND subject_type = 1
+                )
+              </if>
+              <if test="departmentId != null and departmentId != ''">
+                OR (
+                    subject_id = #{departmentId}
+                    AND subject_type = 2
+                )
+              </if>
+              <if test="teamIdList != null and !teamIdList.isEmpty()">
+                OR (
+                    subject_id IN
+                   <foreach collection="teamIdList" item="teamId" open="(" separator="," close=")">
+                       #{teamId}
+                   </foreach>
+                    AND subject_type = 3
+                )
+              </if>
+              <if test="roleNmList != null and !roleNmList.isEmpty()">
+                OR (
+                    subject_id IN
+                   <foreach collection="roleNmList" item="roleNm" open="(" separator="," close=")">
+                       #{roleNm}
+                   </foreach>
+                    AND subject_type = 4
+                )
+              </if>
+            )
+            AND action >= #{action}
+    </select>
+
+    <insert id="saveAuthInfo" parameterType="hashmap">
+        INSERT INTO ${collection} (
+            data_id,
+            subject_id,
+            subject_type,
+            action,
+            attributes
+        ) VALUES (
+            #{dataId},
+            #{subjectId},
+            #{subjectType},
+            #{action},
+            #{attributes}
+        )
+      <if test="conflict == true">
+        ON DUPLICATE KEY
+        UPDATE
+            subject_type = #{subjectType},
+            action       = #{action},
+            attributes   = #{attributes}
+      </if>
+    </insert>
+
+    <delete id="deleteAuthInfo" parameterType="hashmap">
+        DELETE FROM
+            ${collection}
+        WHERE
+            data_id = #{dataId}
+          <if test="subjectId != null and subjectId != ''">
+            AND subject_id = #{subjectId}
+          </if>
+          <if test="subjectType != null">
+            AND subject_type = #{subjectType}
+          </if>
+    </delete>
+
+    <select id="getDataInfoTotal" parameterType="hashmap" resultType="integer">
+        SELECT
+            COUNT(DISTINCT data.id)
+        FROM
+            ${dataCollection} data
+            LEFT JOIN ${authCollection} auth
+                   ON data.id = auth.data_id
+        WHERE
+            1 = 1
+          <if test="dataInfo.idList != null and !dataInfo.idList.isEmpty()">
+            AND data.id IN
+            <foreach collection="dataInfo.idList" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+          </if>
+          <if test="dataInfo.id != null and dataInfo.id != ''">
+            AND data.id = #{dataInfo.id}
+          </if>
+          <if test="dataInfo.name != null and dataInfo.name != ''">
+            AND data.name LIKE CONCAT('%', #{dataInfo.name}, '%')
+          </if>
+          <if test="dataInfo.type != null and dataInfo.type != ''">
+            AND data.type = #{dataInfo.type}
+          </if>
+          <if test="dataInfo.folder != null and dataInfo.folder != ''">
+            AND data.folder = #{dataInfo.folder}
+          </if>
+          <if test="dataInfo.cs != null and dataInfo.cs != ''">
+            AND data.`case` = #{dataInfo.cs}
+          </if>
+          <if test="dataInfo.template != null">
+            AND data.template = #{dataInfo.template}
+          </if>
+          <if test="dataInfo.system != null">
+            AND data.system = #{dataInfo.system}
+          </if>
+          <if test="dataInfo.shared != null">
+            AND data.shared = #{dataInfo.shared}
+          </if>
+            AND (
+            <choose>
+              <when test="ownerId != null and ownerId != ''">
+                data.owner_id = #{ownerId}
+              </when>
+              <otherwise>
+                1 = 1
+              </otherwise>
+            </choose>
+              <if test="userId != null and userId != ''">
+                OR (auth.subject_id = #{userId} AND auth.subject_type = 1)
+              </if>
+              <if test="departmentId != null and departmentId != ''">
+                OR (auth.subject_id = #{departmentId} AND auth.subject_type = 2)
+              </if>
+              <if test="teamIdList != null and !teamIdList.isEmpty()">
+                OR (
+                    auth.subject_id IN
+                    <foreach collection="teamIdList" item="teamId" open="(" separator="," close=")">
+                        #{teamId}
+                    </foreach>
+                    AND auth.subject_type = 3
+                )
+              </if>
+            )
+          <if test="dataInfo.ownerId != null and dataInfo.ownerId != ''">
+            AND data.owner_id = #{dataInfo.ownerId}
+          </if>
+          <if test="dataInfo.ownerName != null and dataInfo.ownerName != ''">
+            AND data.owner_name LIKE CONCAT('%', #{dataInfo.ownerName}, '%')
+          </if>
+          <if test="dataInfo.departmentId != null and dataInfo.departmentId != ''">
+            AND data.department_id = #{dataInfo.departmentId}
+          </if>
+          <if test="dataInfo.teamId != null and dataInfo.teamId != ''">
+            AND (JSON_CONTAINS(data.teams, CONCAT('["', #{dataInfo.teamId}, '"]')))
+          </if>
+          <if test="dataInfo.createdStartStr != null and dataInfo.createdStartStr != ''">
+            AND data.created_at >= STR_TO_DATE(#{dataInfo.createdStartStr}, '%Y-%m-%d %H:%i:%s')
+          </if>
+          <if test="dataInfo.createdEndStr != null and dataInfo.createdEndStr != ''">
+          <![CDATA[
+            AND data.created_at <= STR_TO_DATE(#{dataInfo.createdEndStr}, '%Y-%m-%d %H:%i:%s')
+          ]]>
+          </if>
+          <if test="dataInfo.updatedStartStr != null and dataInfo.updatedStartStr != ''">
+            AND data.updated_at >= STR_TO_DATE(#{dataInfo.updatedStartStr}, '%Y-%m-%d %H:%i:%s')
+          </if>
+          <if test="dataInfo.updatedEndStr != null and dataInfo.updatedEndStr != ''">
+          <![CDATA[
+            AND data.updated_at <= STR_TO_DATE(#{dataInfo.updatedEndStr}, '%Y-%m-%d %H:%i:%s')
+          ]]>
+          </if>
+        <choose>
+          <when test="deleted == 0">
+            AND data.deleted_at IS NULL
+          </when>
+          <when test="deleted == 1">
+            AND data.deleted_at IS NOT NULL
+          </when>
+        </choose>
+    </select>
+
+    <select id="getDataInfoList" parameterType="hashmap" resultType="cn.iocoder.jtyf.module.semi.controller.admin.data.businessinfo.DataInfo">
+        WITH data AS (
+            SELECT
+                DISTINCT data.*
+            FROM
+                ${dataCollection} data
+                LEFT JOIN ${authCollection} auth
+                       ON data.id = auth.data_id
+            WHERE
+                1 = 1
+              <if test="dataInfo.idList != null and !dataInfo.idList.isEmpty()">
+                AND data.id IN
+                <foreach collection="dataInfo.idList" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+              </if>
+              <if test="dataInfo.id != null and dataInfo.id != ''">
+                AND data.id = #{dataInfo.id}
+              </if>
+              <if test="dataInfo.name != null and dataInfo.name != ''">
+                AND data.name LIKE CONCAT('%', #{dataInfo.name}, '%')
+              </if>
+              <if test="dataInfo.type != null and dataInfo.type != ''">
+                AND data.type = #{dataInfo.type}
+              </if>
+              <if test="dataInfo.folder != null and dataInfo.folder != ''">
+                AND data.folder = #{dataInfo.folder}
+              </if>
+              <if test="dataInfo.cs != null and dataInfo.cs != ''">
+                AND data.`case` = #{dataInfo.cs}
+              </if>
+              <if test="dataInfo.template != null">
+                AND data.template = #{dataInfo.template}
+              </if>
+              <if test="dataInfo.system != null">
+                AND data.system = #{dataInfo.system}
+              </if>
+              <if test="dataInfo.shared != null">
+                AND data.shared = #{dataInfo.shared}
+              </if>
+                AND (
+                <choose>
+                  <when test="ownerId != null and ownerId != ''">
+                    data.owner_id = #{ownerId}
+                  </when>
+                  <otherwise>
+                    1 = 1
+                  </otherwise>
+                </choose>
+                  <if test="userId != null and userId != ''">
+                    OR (auth.subject_id = #{userId} AND auth.subject_type = 1)
+                  </if>
+                  <if test="departmentId != null and departmentId != ''">
+                    OR (auth.subject_id = #{departmentId} AND auth.subject_type = 2)
+                  </if>
+                  <if test="teamIdList != null and !teamIdList.isEmpty()">
+                    OR (
+                        auth.subject_id IN
+                        <foreach collection="teamIdList" item="teamId" open="(" separator="," close=")">
+                            #{teamId}
+                        </foreach>
+                        AND auth.subject_type = 3
+                    )
+                  </if>
+                )
+              <if test="dataInfo.ownerId != null and dataInfo.ownerId != ''">
+                AND data.owner_id = #{dataInfo.ownerId}
+              </if>
+              <if test="dataInfo.ownerName != null and dataInfo.ownerName != ''">
+                AND data.owner_name LIKE CONCAT('%', #{dataInfo.ownerName}, '%')
+              </if>
+              <if test="dataInfo.departmentId != null and dataInfo.departmentId != ''">
+                AND data.department_id = #{dataInfo.departmentId}
+              </if>
+              <if test="dataInfo.teamId != null and dataInfo.teamId != ''">
+                AND (JSON_CONTAINS(data.teams, CONCAT('["', #{dataInfo.teamId}, '"]')))
+              </if>
+              <if test="dataInfo.createdStartStr != null and dataInfo.createdStartStr != ''">
+                AND data.created_at >= STR_TO_DATE(#{dataInfo.createdStartStr}, '%Y-%m-%d %H:%i:%s')
+              </if>
+              <if test="dataInfo.createdEndStr != null and dataInfo.createdEndStr != ''">
+              <![CDATA[
+                AND data.created_at <= STR_TO_DATE(#{dataInfo.createdEndStr}, '%Y-%m-%d %H:%i:%s')
+              ]]>
+              </if>
+              <if test="dataInfo.updatedStartStr != null and dataInfo.updatedStartStr != ''">
+                AND data.updated_at >= STR_TO_DATE(#{dataInfo.updatedStartStr}, '%Y-%m-%d %H:%i:%s')
+              </if>
+              <if test="dataInfo.updatedEndStr != null and dataInfo.updatedEndStr != ''">
+              <![CDATA[
+                AND data.updated_at <= STR_TO_DATE(#{dataInfo.updatedEndStr}, '%Y-%m-%d %H:%i:%s')
+              ]]>
+              </if>
+            <choose>
+              <when test="deleted == 0">
+                AND data.deleted_at IS NULL
+              </when>
+              <when test="deleted == 1">
+                AND data.deleted_at IS NOT NULL
+              </when>
+            </choose>
+        )
+        SELECT
+            0                                                  AS none
+          <if test="dataInfo.projList.contains('id')">
+            ,id                                                AS id
+          </if>
+          <if test="dataInfo.projList.contains('name')">
+            ,name                                              AS name
+          </if>
+          <if test="dataInfo.projList.contains('image')">
+            ,image                                             AS image
+          </if>
+          <if test="dataInfo.projList.contains('data')">
+            ,data                                              AS dataJsonStr
+          </if>
+          <if test="dataInfo.projList.contains('type')">
+            ,type                                              AS type
+          </if>
+          <if test="dataInfo.projList.contains('folder')">
+            ,folder                                            AS folder
+          </if>
+          <if test="dataInfo.projList.contains('case')">
+            ,`case`                                            AS cs
+          </if>
+          <if test="dataInfo.projList.contains('template')">
+            ,template                                          AS template
+          </if>
+          <if test="dataInfo.projList.contains('system')">
+            ,`system`                                          AS `system`
+          </if>
+          <if test="dataInfo.projList.contains('shared')">
+            ,shared                                            AS shared
+          </if>
+          <if test="dataInfo.projList.contains('recommend')">
+            ,recommend                                         AS recommend
+          </if>
+          <if test="dataInfo.projList.contains('owner_id')">
+            ,owner_id                                          AS ownerId
+          </if>
+          <if test="dataInfo.projList.contains('owner_name')">
+            ,owner_name                                        AS ownerName
+          </if>
+          <if test="dataInfo.projList.contains('editor_id')">
+            ,editor_id                                         AS editorId
+          </if>
+          <if test="dataInfo.projList.contains('editor_name')">
+            ,editor_name                                       AS editorName
+          </if>
+          <if test="dataInfo.projList.contains('department_id')">
+            ,department_id                                     AS departmentId
+          </if>
+          <if test="dataInfo.projList.contains('teams')">
+            ,teams                                             AS teams
+          </if>
+          <if test="dataInfo.projList.contains('created_at')">
+            ,DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s')      AS createdAt
+          </if>
+          <if test="dataInfo.projList.contains('updated_at')">
+            ,DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')      AS updatedAt
+          </if>
+          <if test="dataInfo.projList.contains('deleted_at')">
+            ,DATE_FORMAT(deleted_at, '%Y-%m-%d %H:%i:%s')      AS deletedAt
+          </if>
+        FROM
+            data
+      <if test="sort != null and sort != ''">
+        ORDER BY
+            ${sort}
+      </if>
+        LIMIT
+            #{pageSize}
+        OFFSET
+            #{current}
+    </select>
+
+    <insert id="saveDataInfo" parameterType="hashmap">
+        <selectKey keyProperty="dataInfo.id" resultType="string" order="BEFORE">
+            SELECT UUID()
+        </selectKey>
+        INSERT INTO ${collection} (
+            id,
+            name,
+            image,
+            data,
+            type,
+            folder,
+            `case`,
+            template,
+            `system`,
+            shared,
+            recommend,
+            owner_id,
+            owner_name,
+            editor_id,
+            editor_name,
+            teams,
+            created_at,
+            updated_at
+        ) VALUES (
+            #{dataInfo.id},
+            #{dataInfo.name},
+            #{dataInfo.image},
+            #{dataJsonStr},
+            #{dataInfo.type},
+            #{dataInfo.folder},
+            #{dataInfo.cs},
+            #{dataInfo.template},
+            #{dataInfo.system},
+        <choose>
+          <when test="dataInfo.shared != null">
+            #{dataInfo.shared},
+          </when>
+          <otherwise>
+            FALSE,
+          </otherwise>
+        </choose>
+            #{dataInfo.recommend},
+            #{dataInfo.ownerId},
+            #{dataInfo.ownerName},
+            #{dataInfo.editorId},
+            #{dataInfo.editorName},
+            JSON_ARRAY(),
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="getDataInfo" parameterType="hashmap" resultType="cn.iocoder.jtyf.module.semi.controller.admin.data.businessinfo.DataInfo">
+        SELECT
+            id                                                AS id,
+            name                                              AS name,
+            image                                             AS image,
+            data                                              AS dataJsonStr,
+            type                                              AS type,
+            folder                                            AS folder,
+            `case`                                            AS cs,
+            template                                          AS template,
+            `system`                                          AS `system`,
+            shared                                            AS shared,
+            recommend                                         AS recommend,
+            owner_id                                          AS ownerId,
+            owner_name                                        AS ownerName,
+            editor_id                                         AS editorId,
+            editor_name                                       AS editorName,
+            department_id                                     AS departmentId,
+            teams                                             AS teams,
+            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s')      AS createdAt,
+            DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')      AS updatedAt,
+            DATE_FORMAT(deleted_at, '%Y-%m-%d %H:%i:%s')      AS deletedAt
+        FROM
+            ${collection}
+        WHERE
+            id = #{id}
+        <choose>
+          <when test="ownerId != null and ownerId != ''">
+            AND owner_id = #{ownerId}
+          </when>
+          <otherwise>
+            AND shared = TRUE
+          </otherwise>
+        </choose>
+        <choose>
+          <when test="deleted == 0">
+            AND deleted_at IS NULL
+          </when>
+          <when test="deleted == 1">
+            AND deleted_at IS NOT NULL
+          </when>
+        </choose>
+    </select>
+
+    <update id="updateDataInfo" parameterType="hashmap">
+        UPDATE
+            ${collection}
+        SET
+            updated_at = CURRENT_TIMESTAMP
+          <if test="dataInfo.name != null and dataInfo.name != ''">
+            ,name = #{dataInfo.name}
+          </if>
+          <if test="dataInfo.image != null and dataInfo.image != ''">
+            ,image = #{dataInfo.image}
+          </if>
+          <if test="dataInfo.dataJsonStr != null and dataInfo.dataJsonStr != ''">
+            ,data = #{dataInfo.dataJsonStr}
+          </if>
+          <if test="dataInfo.type != null and dataInfo.type != ''">
+            ,type = #{dataInfo.type}
+          </if>
+          <if test="dataInfo.folder != null and dataInfo.folder != ''">
+            ,folder = #{dataInfo.folder}
+          </if>
+          <if test="dataInfo.cs != null">
+            ,`case` = #{dataInfo.cs}
+          </if>
+          <if test="dataInfo.template != null">
+            ,template = #{dataInfo.template}
+          </if>
+          <if test="dataInfo.system != null">
+            ,`system` = #{dataInfo.system}
+          </if>
+          <if test="dataInfo.shared != null">
+            ,shared = #{dataInfo.shared}
+          </if>
+          <if test="dataInfo.recommend != null">
+            ,recommend = #{dataInfo.recommend}
+          </if>
+          <if test="dataInfo.ownerId != null and dataInfo.ownerId != ''">
+            ,owner_id = #{dataInfo.ownerId}
+          </if>
+          <if test="dataInfo.ownerName != null and dataInfo.ownerName != ''">
+            ,owner_name = #{dataInfo.ownerName}
+          </if>
+          <if test="dataInfo.editorId != null and dataInfo.editorId != ''">
+            ,editor_id = #{dataInfo.editorId}
+          </if>
+          <if test="dataInfo.editorName != null and dataInfo.editorName != ''">
+            ,editor_name = #{dataInfo.editorName}
+          </if>
+          <if test="dataInfo.departmentId != null and dataInfo.departmentId != ''">
+            ,department_id = #{dataInfo.departmentId}
+          </if>
+          <if test="dataInfo.teams != null and dataInfo.teams != ''">
+            ,teams = JSON_ARRAY(${dataInfo.teams})
+          </if>
+        WHERE
+            id = #{dataInfo.id}
+    </update>
+
+    <delete id="deleteDataInfo" parameterType="hashmap">
+        DELETE FROM
+            ${collection}
+        WHERE
+            id = #{id}
+          <if test="ownerId != null and ownerId != ''">
+            AND owner_id = #{ownerId}
+          </if>
+    </delete>
+
+    <select id="getAuthInfoTotal" parameterType="hashmap" resultType="integer">
+        SELECT
+            COUNT(0)
+        FROM
+            ${collection}
+        WHERE
+            1 = 1
+          <if test="authInfo.dataId != null and authInfo.dataId != ''">
+            AND data_id = #{authInfo.dataId}
+          </if>
+          <if test="authInfo.subjectId != null and authInfo.subjectId != ''">
+            AND subject_id = #{authInfo.subjectId}
+          </if>
+          <if test="authInfo.subjectType > 0">
+            AND subject_type = #{authInfo.subjectType}
+          </if>
+          <if test="authInfo.action > 0">
+            AND action >= #{authInfo.action}
+          </if>
+    </select>
+
+    <select id="getAuthInfoList" parameterType="hashmap" resultType="cn.iocoder.jtyf.module.semi.controller.admin.data.businessinfo.AuthorizeInfo">
+        SELECT
+            data_id            AS dataId,
+            subject_id         AS subjectId,
+            subject_type       AS subjectType,
+            action             AS action,
+            attributes         AS attributes
+        FROM
+            ${collection}
+        WHERE
+            1 = 1
+          <if test="authInfo.dataId != null and authInfo.dataId != ''">
+            AND data_id = #{authInfo.dataId}
+          </if>
+          <if test="authInfo.subjectId != null and authInfo.subjectId != ''">
+            AND subject_id = #{authInfo.subjectId}
+          </if>
+          <if test="authInfo.subjectType > 0">
+            AND subject_type = #{authInfo.subjectType}
+          </if>
+          <if test="authInfo.action > 0">
+            AND action >= #{authInfo.action}
+          </if>
+        LIMIT
+            #{pageSize}
+        OFFSET
+            #{current}
+    </select>
+
+    <select id="getHistoryInfoTotal" parameterType="hashmap" resultType="integer">
+        SELECT
+            COUNT(0)
+        FROM
+            ${collection}
+        WHERE
+            data_id = #{dataId}
+    </select>
+
+    <select id="getHistoryInfoList" parameterType="hashmap" resultType="cn.iocoder.jtyf.module.semi.controller.admin.data.businessinfo.HistoryInfo">
+        SELECT
+            id                                                AS id,
+            data_id                                           AS dataId,
+            name                                              AS name,
+            image                                             AS image,
+            remarks                                           AS remarks,
+            tag                                               AS tag,
+            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s')      AS createdAt
+        FROM
+            ${collection}
+        WHERE
+            data_id = #{dataId}
+        LIMIT
+            #{pageSize}
+        OFFSET
+            #{current}
+    </select>
+
+    <select id="getHistoryInfo" parameterType="hashmap" resultType="cn.iocoder.jtyf.module.semi.controller.admin.data.businessinfo.HistoryInfo">
+        SELECT
+            0                                                  AS none
+          <if test="dataInfo.projList.contains('id')">
+            ,id                                                AS id
+          </if>
+          <if test="dataInfo.projList.contains('data_id')">
+            ,data_id                                           AS dataId
+          </if>
+          <if test="dataInfo.projList.contains('name')">
+            ,name                                              AS name
+          </if>
+          <if test="dataInfo.projList.contains('image')">
+            ,image                                             AS image
+          </if>
+          <if test="dataInfo.projList.contains('data')">
+            ,data                                              AS dataJsonStr
+          </if>
+          <if test="dataInfo.projList.contains('remarks')">
+            ,remarks                                           AS remarks
+          </if>
+          <if test="dataInfo.projList.contains('tag')">
+            ,tag                                               AS tag
+          </if>
+          <if test="dataInfo.projList.contains('owner_id')">
+            ,owner_id                                          AS ownerId
+          </if>
+          <if test="dataInfo.projList.contains('created_at')">
+            ,DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s')      AS createdAt
+          </if>
+        FROM
+            ${collection}
+        WHERE
+            1 = 1
+          <if test="dataInfo.historyId != null and dataInfo.historyId != ''">
+            AND id = #{dataInfo.historyId}
+          </if>
+          <if test="dataInfo.id != null and dataInfo.id != ''">
+            AND data_id = #{dataInfo.id}
+          </if>
+          <if test="dataInfo.tag != null and dataInfo.tag != ''">
+            AND tag = #{dataInfo.id}
+          </if>
+          <if test="ownerId != null and ownerId != ''">
+            AND owner_id = #{ownerId}
+          </if>
+    </select>
+
+    <insert id="saveHistoryInfo" parameterType="hashmap">
+        INSERT INTO ${collection} (
+            id,
+            data_id,
+            name,
+            image,
+            data,
+            remarks,
+            tag,
+            owner_id,
+            created_at
+        ) VALUES (
+            UUID(),
+            #{dataId},
+            #{dataInfo.name},
+            #{dataInfo.image},
+            #{dataJsonStr},
+            #{remarks},
+            #{tag},
+            #{ownerId},
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <update id="updateHistoryInfo" parameterType="hashmap">
+        UPDATE
+            ${collection}
+        SET
+            created_at = CURRENT_TIMESTAMP
+          <if test="name != null and name != ''">
+            ,name = #{name}
+          </if>
+          <if test="remarks != null and remarks != ''">
+            ,remarks = #{remarks}
+          </if>
+          <if test="tag != null and tag != ''">
+            ,tag = #{tag}
+          </if>
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updateHistoryInfo4RemoveTag" parameterType="hashmap">
+        UPDATE
+            ${collection}
+        SET
+            tag = NULL
+        WHERE
+            id != 'TEMP'
+            AND data_id = #{dataId}
+            AND tag = #{tag}
+    </update>
+
+    <delete id="deleteHistoryInfo" parameterType="hashmap">
+        DELETE FROM
+            ${collection}
+        WHERE
+            id != 'TEMP'
+            AND data_id = #{dataId}
+          <if test="ownerId != null and ownerId != ''">
+            AND owner_id = #{ownerId}
+          </if>
+    </delete>
+
+    <delete id="deleteHistoryInfoList" parameterType="hashmap">
+        DELETE FROM
+            ${collection}
+        WHERE
+            id IN
+            <foreach collection="idList" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </delete>
+
+</mapper>

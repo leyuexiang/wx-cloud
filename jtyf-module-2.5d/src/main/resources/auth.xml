@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<authorization>
+    <grant>
+        <api url="/api/operation/statistics" alias="统计情报" authCode="1" />
+
+        <api url="/api/operation/account/list" alias="用户列表" authCode="1" />
+        <api url="/api/operation/account/add" alias="添加用户" authCode="1" />
+        <api url="/api/operation/account/update" alias="更新用户" authCode="1" />
+        <api url="/api/operation/account/disable" alias="禁用用户" authCode="1" />
+
+        <api url="/api/operation/roles" alias="角色列表" authCode="1" />
+        <api url="/api/operation/role/create" alias="创建角色" authCode="1" />
+        <api url="/api/operation/role/update" alias="更新角色" authCode="1" />
+        <api url="/api/operation/role/delete" alias="删除角色" authCode="1" />
+
+        <api url="/api/operation/department/create" alias="创建部门" authCode="1" />
+        <api url="/api/operation/department/update" alias="更新部门" authCode="1" />
+        <api url="/api/operation/department/delete" alias="删除部门" authCode="1" />
+
+        <api url="/api/operation/data/*/list" alias="数据列表" authCode="1" />
+        <api url="/api/operation/data/*/update" alias="更新数据" authCode="1" />
+    </grant>
+</authorization>

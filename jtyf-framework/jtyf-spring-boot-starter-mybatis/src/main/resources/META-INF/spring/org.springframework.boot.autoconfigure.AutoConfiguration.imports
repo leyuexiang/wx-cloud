@@ -1,0 +1,3 @@
+cn.iocoder.jtyf.framework.datasource.config.JtyfDataSourceAutoConfiguration
+cn.iocoder.jtyf.framework.mybatis.config.JtyfMybatisAutoConfiguration
+cn.iocoder.jtyf.framework.translate.config.JtyfTranslateAutoConfiguration

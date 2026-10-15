@@ -1,0 +1,329 @@
+{
+  "data": [
+    {
+      "name": "打开门1",
+      "deviceCode": "door1",
+      "command": "open"
+    },
+    {
+      "name": "关闭门1",
+      "deviceCode": "door1",
+      "command": "close"
+    },
+    {
+      "name": "打开门2",
+      "deviceCode": "door2",
+      "command": "open"
+    },
+    {
+      "name": "关闭门2",
+      "deviceCode": "door2",
+      "command": "close"
+    },
+    {
+      "name": "打开门3",
+      "deviceCode": "door3",
+      "command": "open"
+    },
+    {
+      "name": "关闭门3",
+      "deviceCode": "door3",
+      "command": "close"
+    },
+    {
+      "name": "打开门4",
+      "deviceCode": "door4",
+      "command": "open"
+    },
+    {
+      "name": "关闭门4",
+      "deviceCode": "door4",
+      "command": "close"
+    },
+    {
+      "name": "打开门8",
+      "deviceCode": "door8",
+      "command": "open"
+    },
+    {
+      "name": "关闭门8",
+      "deviceCode": "door8",
+      "command": "close"
+    },
+    {
+      "name": "打开门6",
+      "deviceCode": "door6",
+      "command": "open"
+    },
+    {
+      "name": "关闭门6",
+      "deviceCode": "door6",
+      "command": "close"
+    },
+    {
+      "name": "打开门7",
+      "deviceCode": "door7",
+      "command": "open"
+    },
+    {
+      "name": "关闭门7",
+      "deviceCode": "door7",
+      "command": "close"
+    },
+    {
+      "name": "门5打开密封板",
+      "deviceCode": "door5",
+      "command": "open_sealplate"
+    },
+    {
+      "name": "门5打开大门",
+      "deviceCode": "door5",
+      "command": "open"
+    },
+    {
+      "name": "门5关闭大门",
+      "deviceCode": "door5",
+      "command": "close"
+    },
+    {
+      "name": "门5关闭密封板",
+      "deviceCode": "door5",
+      "command": "close_sealplate"
+    },
+    {
+      "name": "空调设备开启",
+      "deviceCode": "kt001",
+      "command": "open"
+    },
+    {
+      "name": "空调设备关闭",
+      "deviceCode": "kt001",
+      "command": "close"
+    },
+    {
+      "name": "行吊开始吊装",
+      "deviceCode": "xd001",
+      "command": "start_hoisting"
+    },
+    {
+      "name": "行吊开始复位",
+      "deviceCode": "xd001",
+      "command": "start_reset"
+    },
+    {
+      "name": "运输车1前往门2",
+      "deviceCode": "ysc001",
+      "command": "advance_to_door2"
+    },
+    {
+      "name": "运输车1前往门3",
+      "deviceCode": "ysc001",
+      "command": "advance_to_door3"
+    },
+    {
+      "name": "运输车1前往转载区",
+      "deviceCode": "ysc001",
+      "command": "go_to_transfer_area"
+    },
+    {
+      "name": "运输车1驶离",
+      "deviceCode": "ysc001",
+      "command": "drive_off"
+    },
+    {
+      "name": "运输车2前往门2",
+      "deviceCode": "ysc002",
+      "command": "advance_to_door2"
+    },
+    {
+      "name": "运输车2前往门3",
+      "deviceCode": "ysc002",
+      "command": "advance_to_door3"
+    },
+    {
+      "name": "运输车2前往转载区",
+      "deviceCode": "ysc002",
+      "command": "go_to_transfer_area"
+    },
+    {
+      "name": "运输车2驶离",
+      "deviceCode": "ysc002",
+      "command": "drive_off"
+    },
+    {
+      "name": "AGV1前往贮存区",
+      "deviceCode": "agv001",
+      "command": "go_to_storage_area"
+    },
+    {
+      "name": "AGV1前往贮存区(测试)",
+      "deviceCode": "AGVGRZ01-1",
+      "command": "to_storage_area"
+    },
+    {
+      "name": "AGV1拿取抱环",
+      "deviceCode": "agv001",
+      "command": "take_clasp"
+    },
+    {
+      "name": "AGV1前往门7",
+      "deviceCode": "agv001",
+      "command": "advance_to_door7"
+    },
+    {
+      "name": "AGV1前往门6",
+      "deviceCode": "agv001",
+      "command": "advance_to_door6"
+    },
+    {
+      "name": "AGV1前往门5",
+      "deviceCode": "agv001",
+      "command": "advance_to_door5"
+    },
+    {
+      "name": "AGV1前往门4",
+      "deviceCode": "agv001",
+      "command": "advance_to_door4"
+    },
+    {
+      "name": "AGV1前往转载等待区",
+      "deviceCode": "agv001",
+      "command": "go_to_transfer_wait_area"
+    },
+    {
+      "name": "AGV1前往转载工位",
+      "deviceCode": "agv001",
+      "command": "go_to_transfer_station"
+    },
+    {
+      "name": "AGV1打开抱环",
+      "deviceCode": "agv001",
+      "command": "open_clasp"
+    },
+    {
+      "name": "AGV1关闭抱环",
+      "deviceCode": "agv001",
+      "command": "close_clasp"
+    },
+    {
+      "name": "AGV1返回门5",
+      "deviceCode": "agv001",
+      "command": "return_to_door5"
+    },
+    {
+      "name": "AGV1返回门6",
+      "deviceCode": "agv001",
+      "command": "return_to_door6"
+    },
+    {
+      "name": "AGV1返回门7",
+      "deviceCode": "agv001",
+      "command": "return_to_door7"
+    },
+    {
+      "name": "AGV1返回门8",
+      "deviceCode": "agv001",
+      "command": "return_to_door8"
+    },
+    {
+      "name": "AGV1前往贮存区",
+      "deviceCode": "agv001",
+      "command": "return_to_storage_area"
+    },
+    {
+      "name": "AGV1 前往充电区",
+      "deviceCode": "agv001",
+      "command": "go_to_charging_area"
+    },
+    {
+      "name": "AGV1返回充电区",
+      "deviceCode": "agv001",
+      "command": "return_to_charging_area"
+    },
+    {
+      "name": "AGV2前往贮存区",
+      "deviceCode": "agv002",
+      "command": "go_to_storage_area"
+    },
+    {
+      "name": "AGV2拿取抱环",
+      "deviceCode": "agv002",
+      "command": "take_clasp"
+    },
+    {
+      "name": "AGV2前往门7",
+      "deviceCode": "agv002",
+      "command": "advance_to_door7"
+    },
+    {
+      "name": "AGV2前往门6",
+      "deviceCode": "agv002",
+      "command": "advance_to_door6"
+    },
+    {
+      "name": "AGV2前往门5",
+      "deviceCode": "agv002",
+      "command": "advance_to_door5"
+    },
+    {
+      "name": "AGV2前往门4",
+      "deviceCode": "agv002",
+      "command": "advance_to_door4"
+    },
+    {
+      "name": "AGV2前往转载等待区",
+      "deviceCode": "agv002",
+      "command": "go_to_transfer_wait_area"
+    },
+    {
+      "name": "AGV2前往转载工位",
+      "deviceCode": "agv002",
+      "command": "go_to_transfer_station"
+    },
+    {
+      "name": "AGV2打开抱环",
+      "deviceCode": "agv002",
+      "command": "open_clasp"
+    },
+    {
+      "name": "AGV2关闭抱环",
+      "deviceCode": "agv002",
+      "command": "close_clasp"
+    },
+    {
+      "name": "AGV2返回门5",
+      "deviceCode": "agv002",
+      "command": "return_to_door5"
+    },
+    {
+      "name": "AGV2返回门6",
+      "deviceCode": "agv002",
+      "command": "return_to_door6"
+    },
+    {
+      "name": "AGV2返回门7",
+      "deviceCode": "agv002",
+      "command": "return_to_door7"
+    },
+    {
+      "name": "AGV2返回门8",
+      "deviceCode": "agv002",
+      "command": "return_to_door8"
+    },
+    {
+      "name": "AGV2前往贮存区",
+      "deviceCode": "agv002",
+      "command": "return_to_storage_area"
+    },
+    {
+      "name": "AGV2前往充电区",
+      "deviceCode": "agv002",
+      "command": "go_to_charging_area"
+    },
+    {
+      "name": "AGV2返回充电区",
+      "deviceCode": "agv002",
+      "command": "return_to_charging_area"
+    }
+  ]
+}

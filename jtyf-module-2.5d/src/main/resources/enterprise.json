@@ -1,0 +1,33 @@
+{
+  "model": "Source",
+  "name": "子阳",
+  "home": "https://zy.com",
+  "helps": [
+    {
+      "name": "产品介绍",
+      "url": "https://doc.zy.com/document/118756411"
+    },
+    {
+      "name": "快速上手",
+      "url": "https://doc.zy.com/document/119363000"
+    },
+    {
+      "name": "使用手册",
+      "url": "https://doc.zy.com/document/118764244"
+    },
+    {
+      "name": "快捷键",
+      "url": "https://doc.zy.com/document/119620214",
+      "divider": true
+    },
+    {
+      "name": "企业服务与支持",
+      "url": "https://doc.zy.com/document/119296274",
+      "divider": true
+    },
+    {
+      "name": "关于我们",
+      "url": "https://zy.com/about.html"
+    }
+  ]
+}

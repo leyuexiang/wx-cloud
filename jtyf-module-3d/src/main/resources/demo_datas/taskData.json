@@ -1,0 +1,30 @@
+{
+  "data": [
+    {"version":"v1","type":"request","data":{"taskId":"1","taskTime":3.5,"taskName":"打开大门","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"2","taskTime":25,"taskName":"运载车A进入转运大厅","type":"carPosition","carData":[{"carId":"A-che","lineArr":[{"carAction":"frond","linePos":["65.98,0,-252.80","38.70,0,-244.35","28.37,0,-226.00","25.54,0,-206.92","23.00,0,-195.61","21.99,0,-186.75"]}],"DDstatus":true}],"Intervaltime":0}},
+    {"version":"v1","type":"request","data":{"taskId":"3","taskTime":25,"taskName":"运载车B进入转运大厅","type":"carPosition","carData":[{"carId":"B-che","lineArr":[{"carAction":"frond","linePos":["65.98,0,-252.80","38.70,0,-244.35","28.37,0,-226.00","26.40,0,-214.75","24.28,0,-202.22","13.81,0,-194.34","10.78,0,-186.77"]}],"DDstatus":true}],"Intervaltime":0}},
+    {"version":"v1","type":"request","data":{"taskId":"4","taskTime":3.5,"taskName":"关闭大门","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"5","taskTime":5,"taskName":"AGV1到达转载区","type":"carPosition","carData":[{"carId":"AGV1","lineArr":[{"carAction":"frond","linePos":["4.79,0,-199.32","6.42,0,-195.21","13.31,0,-195.33","16.93,0,-192.39","17.48,0,-186.44"]}],"DDstatus":false}],"Intervaltime":0}},
+    {"version":"v1","type":"request","data":{"taskId":"6","taskTime":5,"taskName":"AGV1打开抱环","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"7","taskTime":15,"taskName":"AGV1转载DD","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"8","taskTime":5,"taskName":"AGV1关闭抱环","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"9","taskTime":3.5,"taskName":"途经大门打开","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"10","taskTime":25.5,"taskName":"AGV1到达存贮区","type":"carPosition","carData":[{"carId":"AGV1","lineArr":[{"carAction":"frond","linePos":["17.47952,0,-186.444","16.99393,0,-180.6966","11.62371,0,-176.6194","-7.213731,0,-175.981","-29.49313,0,-175.5618","-69.08176,0,-175.2904","-82.40662,0,-174.3671","-91.00403,0,-169.3244","-99.6693,0,-167.9023"]}],"DDstatus":true}],"Intervaltime":0}},
+    {"version":"v1","type":"request","data":{"taskId":"11","taskTime":3.5,"taskName":"关闭途经大门","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"12","taskTime":10,"taskName":"AGV1贮存DD","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"13","taskTime":3.5,"taskName":"打开途经大门","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"14","taskTime":29.5,"taskName":"AGV1返回等待区","type":"carPosition","carData":[{"carId":"AGV1","lineArr":[{"carAction":"frond","linePos":["-99.6693,0,-167.9023","-91.00403,0,-169.3244","-85.20161,0,-173.9746","-67.00,0,-175.17","-3.64,0,-176.01","13.87,0,-178.68","15.84,0,-184.41","15.34,0,-190.83","12.83,0,-194.54","8.80,0,-194.91","5.54,0,-196.06","4.91,0,-200.36"]}],"DDstatus":false}],"Intervaltime":0}},
+    {"version":"v1","type":"request","data":{"taskId":"15","taskTime":3.5,"taskName":"关闭途经大门","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"16","taskTime":5,"taskName":"AGV2到达转载区","type":"carPosition","carData":[{"carId":"AGV2","lineArr":[{"carAction":"frond","linePos":["1.10,0,-199.27","2.66,0,-196.03","9.72,0,-195.43","13.72,0,-193.11","14.39,0,-186.46"]}],"DDstatus":false}],"Intervaltime":0}},
+    {"version":"v1","type":"request","data":{"taskId":"17","taskTime":5,"taskName":"AGV2打开抱环","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"18","taskTime":15,"taskName":"AGV2转载DD","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"19","taskTime":5,"taskName":"AGV2关闭抱环","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"20","taskTime":3.5,"taskName":"打开途经大门","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"21","taskTime":25.5,"taskName":"AGV2到达贮存区","type":"carPosition","carData":[{"carId":"AGV2","lineArr":[{"carAction":"frond","linePos":["14.59042,0,-186.444","14.18677,0,-180.1253","9.598785,0,-176.6194","-7.213731,0,-175.981","-32.73464,0,-175.5618","-55.67296,0,-175.3399","-68.87844,0,-175.305","-82.08392,0,-173.8946","-91.83221,0,-165.719","-99.6693,0,-163.5771"]}],"DDstatus":true}],"Intervaltime":0}},
+    {"version":"v1","type":"request","data":{"taskId":"22","taskTime":3.5,"taskName":"关闭途经大门","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"23","taskTime":10,"taskName":"AGV2贮存DD","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"24","taskTime":3.5,"taskName":"打开途经大门","type":"TimeLine"}},
+    {"version":"v1","type":"request","data":{"taskId":"25","taskTime":29.5,"taskName":"AGV2返回等待区","type":"carPosition","carData":[{"carId":"AGV2","lineArr":[{"carAction":"frond","linePos":["-99.6693,0,-163.5771","-91.83221,0,-165.719","-85.09,0,-171.07","-74.96,0,-175.28","-35.56,0,-175.89","0.22,0,-176.49","14.06,0,-178.48","15.24,0,-189.37","8.86,0,-194.05","2.36,0,-195.09","1.09,0,-199.93"]}],"DDstatus":false}],"Intervaltime":0}},
+    {"version":"v1","type":"request","data":{"taskId":"26","taskTime":3.5,"taskName":"关闭途经大门","type":"TimeLine"}}
+  ]
+}

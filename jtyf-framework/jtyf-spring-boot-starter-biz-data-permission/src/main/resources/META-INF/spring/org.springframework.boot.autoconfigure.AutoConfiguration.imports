@@ -1,0 +1,3 @@
+cn.iocoder.jtyf.framework.datapermission.config.JtyfDataPermissionAutoConfiguration
+cn.iocoder.jtyf.framework.datapermission.config.JtyfDeptDataPermissionAutoConfiguration
+cn.iocoder.jtyf.framework.datapermission.config.JtyfDataPermissionRpcAutoConfiguration
