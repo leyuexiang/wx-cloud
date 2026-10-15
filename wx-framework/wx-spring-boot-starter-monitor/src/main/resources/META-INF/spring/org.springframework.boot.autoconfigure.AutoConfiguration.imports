@@ -1,0 +1,2 @@
+cn.iocoder.wx.framework.tracer.config.WxTracerAutoConfiguration
+cn.iocoder.wx.framework.tracer.config.WxMetricsAutoConfiguration

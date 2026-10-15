@@ -1,0 +1,40 @@
+package cn.iocoder.wx.module.promotion.enums.common;
+
+import cn.iocoder.wx.framework.common.core.IntArrayValuable;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+import java.util.Arrays;
+
+// TODO 芸菲：弱化这个状态
+/**
+ * 促销活动的状态枚举
+ *
+ * @author 九天芸菲
+ */
+@AllArgsConstructor
+@Getter
+public enum PromotionActivityStatusEnum implements IntArrayValuable {
+
+    WAIT(10, "未开始"),
+    RUN(20, "进行中"),
+    END(30, "已结束"),
+    CLOSE(40, "已关闭");
+
+    public static final int[] ARRAYS = Arrays.stream(values()).mapToInt(PromotionActivityStatusEnum::getStatus).toArray();
+
+    /**
+     * 状态值
+     */
+    private final Integer status;
+    /**
+     * 状态名
+     */
+    private final String name;
+
+    @Override
+    public int[] array() {
+        return ARRAYS;
+    }
+
+}

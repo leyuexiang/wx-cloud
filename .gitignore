@@ -75,9 +75,9 @@ screenshot
 sessionStore
 
 
-/jtyf-gateway/target/
-/jtyf-module-system/jtyf-module-system-api/target/
-/jtyf-module-system/jtyf-module-system-biz/target/
+/wx-gateway/target/
+/wx-module-system/wx-module-system-api/target/
+/wx-module-system/wx-module-system-biz/target/
 
 /images/
 /template/
@@ -85,13 +85,13 @@ sessionStore
 
 
 !/.flattened-pom.xml
-/jtyf-dependencies/.flattened-pom.xml
-/jtyf-gateway/.flattened-pom.xml
-/jtyf-framework/.flattened-pom.xml
-/jtyf-framework/jtyf-common/.flattened-pom.xml
-/jtyf-module-infra/.flattened-pom.xml
-/jtyf-module-system/.flattened-pom.xml
-/jtyf-module-system/jtyf-module-system-api/.flattened-pom.xml
+/wx-dependencies/.flattened-pom.xml
+/wx-gateway/.flattened-pom.xml
+/wx-framework/.flattened-pom.xml
+/wx-framework/wx-common/.flattened-pom.xml
+/wx-module-infra/.flattened-pom.xml
+/wx-module-system/.flattened-pom.xml
+/wx-module-system/wx-module-system-api/.flattened-pom.xml
 # 公开仓库构建产物和本地导出数据
 .flattened-pom.xml
 *.7z

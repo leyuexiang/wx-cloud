@@ -1,0 +1,2 @@
+org.springframework.boot.env.EnvironmentPostProcessor=\
+    cn.iocoder.wx.framework.env.config.EnvEnvironmentPostProcessor

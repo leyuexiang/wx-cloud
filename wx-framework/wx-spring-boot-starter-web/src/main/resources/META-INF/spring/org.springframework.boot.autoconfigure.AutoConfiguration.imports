@@ -1,0 +1,6 @@
+cn.iocoder.wx.framework.apilog.config.WxApiLogAutoConfiguration
+cn.iocoder.wx.framework.jackson.config.WxJacksonAutoConfiguration
+cn.iocoder.wx.framework.swagger.config.WxSwaggerAutoConfiguration
+cn.iocoder.wx.framework.web.config.WxWebAutoConfiguration
+cn.iocoder.wx.framework.apilog.config.WxApiLogRpcAutoConfiguration
+#cn.iocoder.wx.framework.banner.config.WxBannerAutoConfiguration

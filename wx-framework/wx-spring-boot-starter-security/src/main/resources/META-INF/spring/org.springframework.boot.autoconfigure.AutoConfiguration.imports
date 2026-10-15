@@ -1,0 +1,5 @@
+cn.iocoder.wx.framework.security.config.WxSecurityRpcAutoConfiguration
+cn.iocoder.wx.framework.security.config.WxSecurityAutoConfiguration
+cn.iocoder.wx.framework.security.config.WxWebSecurityConfigurerAdapter
+cn.iocoder.wx.framework.operatelog.config.WxOperateLogConfiguration
+cn.iocoder.wx.framework.operatelog.config.WxOperateLogRpcAutoConfiguration

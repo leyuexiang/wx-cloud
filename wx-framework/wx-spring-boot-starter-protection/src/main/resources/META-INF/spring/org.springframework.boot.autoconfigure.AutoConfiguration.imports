@@ -1,0 +1,4 @@
+cn.iocoder.wx.framework.idempotent.config.WxIdempotentConfiguration
+cn.iocoder.wx.framework.lock4j.config.WxLock4jConfiguration
+cn.iocoder.wx.framework.ratelimiter.config.WxRateLimiterConfiguration
+cn.iocoder.wx.framework.signature.config.WxApiSignatureAutoConfiguration

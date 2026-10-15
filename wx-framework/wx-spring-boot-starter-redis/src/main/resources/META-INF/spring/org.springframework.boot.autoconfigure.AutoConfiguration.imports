@@ -1,0 +1,2 @@
+cn.iocoder.wx.framework.redis.config.WxRedisAutoConfiguration
+cn.iocoder.wx.framework.redis.config.WxCacheAutoConfiguration

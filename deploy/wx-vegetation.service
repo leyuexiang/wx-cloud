@@ -1,0 +1,24 @@
+[Unit]
+# 等待网络就绪后再启动，确保注册中心、数据库和远端生成器地址可正常解析与访问。
+Description=九天芸菲植被生成编排服务
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+# 使用普通账户运行，避免植被任务编排进程拥有系统最高权限。
+User=admin
+Group=admin
+WorkingDirectory=/opt/wx/vegetation
+# 数据库凭据和外部生成器地址均从受限环境文件读取，不写入代码仓库或系统服务定义。
+EnvironmentFile=-/etc/wx/vegetation.env
+# 限制服务堆内存并使用 G1 垃圾收集器，避免任务快照和批量状态查询无边界占用测试机内存。
+ExecStart=/usr/bin/java -Xms256m -Xmx1024m -XX:+UseG1GC -Dfile.encoding=UTF-8 -jar /opt/wx/vegetation/wx-module-vegetation-biz.jar --spring.profiles.active=standalone --spring.config.import=optional:classpath:application-standalone.yaml --logging.file.name=/opt/wx/vegetation/logs/vegetation-server.log
+Restart=on-failure
+RestartSec=10
+SuccessExitStatus=143
+# 提升文件句柄上限，为高并发任务查询和生成器连接保留余量。
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

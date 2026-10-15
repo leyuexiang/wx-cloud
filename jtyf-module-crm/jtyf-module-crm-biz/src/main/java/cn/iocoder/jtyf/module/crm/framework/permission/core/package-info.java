@@ -1,1 +1,0 @@
-package cn.iocoder.jtyf.module.crm.framework.permission.core;

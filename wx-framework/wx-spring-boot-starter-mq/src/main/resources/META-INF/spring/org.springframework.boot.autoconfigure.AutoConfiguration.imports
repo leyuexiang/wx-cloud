@@ -1,0 +1,3 @@
+cn.iocoder.wx.framework.mq.redis.config.WxRedisMQProducerAutoConfiguration
+cn.iocoder.wx.framework.mq.redis.config.WxRedisMQConsumerAutoConfiguration
+cn.iocoder.wx.framework.mq.rabbitmq.config.WxRabbitMQAutoConfiguration

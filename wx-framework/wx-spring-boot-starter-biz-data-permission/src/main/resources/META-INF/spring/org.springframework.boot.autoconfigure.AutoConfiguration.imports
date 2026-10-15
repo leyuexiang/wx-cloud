@@ -1,0 +1,3 @@
+cn.iocoder.wx.framework.datapermission.config.WxDataPermissionAutoConfiguration
+cn.iocoder.wx.framework.datapermission.config.WxDeptDataPermissionAutoConfiguration
+cn.iocoder.wx.framework.datapermission.config.WxDataPermissionRpcAutoConfiguration

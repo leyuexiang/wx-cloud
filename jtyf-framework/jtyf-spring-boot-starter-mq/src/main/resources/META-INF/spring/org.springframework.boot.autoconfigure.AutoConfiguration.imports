@@ -1,3 +1,0 @@
-cn.iocoder.jtyf.framework.mq.redis.config.JtyfRedisMQProducerAutoConfiguration
-cn.iocoder.jtyf.framework.mq.redis.config.JtyfRedisMQConsumerAutoConfiguration
-cn.iocoder.jtyf.framework.mq.rabbitmq.config.JtyfRabbitMQAutoConfiguration

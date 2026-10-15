@@ -1,0 +1,1 @@
+package cn.iocoder.wx.module.crm.framework.permission.core;

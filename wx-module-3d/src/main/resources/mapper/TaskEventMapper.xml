@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.iocoder.wx.module.dimensions.mapper.TaskEventMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="alert_scheme" type="cn.iocoder.wx.module.dimensions.entity.TaskEvent">
+        <id column="id" property="id" />
+
+        <result column="virtual_camera_id" property="virtualCameraId" />
+        <result column="scene_id" property="sceneId" />
+        <result column="external_task_id" property="externalTaskId" />
+        <result column="external_task_name" property="externalTaskName" />
+        <result column="task_id" property="taskId" />
+
+        <result column="command" property="command" />
+        <result column="device_code" property="deviceCode" />
+        <result column="task_type" property="taskType" />
+        <result column="unique_id" property="uniqueId" />
+        <result column="animation_clip_name" property="animationClipName" />
+        <result column="timeline_asset_name" property="timelineAssetName" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+        <result column="is_loop" property="isLoop" />
+        <result column="execution_time" property="executionTime" />
+        <result column="path_points" property="pathPoints" />
+        <result column="active_node" property="activeNode" />
+        <result column="hidden_node" property="hiddenNode" />
+
+        <result column="use_smooth_movement"  property="useSmoothMovement" />
+        <result column="move_duration" property="moveDuration" />
+        <result column="use_smooth_rotation" property="useSmoothRotation" />
+        <result column="custom_axis_constraint" property="customAxisConstraint" />
+        <result column="unbind_node" property="unbindNode" />
+        <result column="unbind_sub_node" property="unbindSubNode" />
+        <result column="unbind_target_node" property="unbindTargetNode" />
+        <result column="state_colors" property="stateColors" />
+
+        <!-- 新增：大车相关字段映射 -->
+        <result column="main_car" property="mainCar" />
+        <result column="main_car_start_pos" property="mainCarStartPos" />
+        <result column="main_car_axis" property="mainCarAxis" />
+        <result column="main_car_max_travel" property="mainCarMaxTravel" />
+
+        <!-- 新增：小车相关字段映射 -->
+        <result column="sub_car" property="subCar" />
+        <result column="sub_car_start_pos" property="subCarStartPos" />
+        <result column="sub_car_axis" property="subCarAxis" />
+        <result column="sub_car_max_travel" property="subCarMaxTravel" />
+
+        <!-- 新增：吊钩相关字段映射 -->
+        <result column="hook" property="hook" />
+        <result column="hook_start_pos" property="hookStartPos" />
+        <result column="hook_axis" property="hookAxis" />
+        <result column="hook_max_height" property="hookMaxHeight" />
+
+        <result column="create_user" property="createUser" />
+        <result column="create_time" property="createTime" />
+        <result column="created_by" property="createdBy" />
+        <result column="update_user" property="updateUser" />
+        <result column="update_time" property="updateTime" />
+        <result column="last_modified_by" property="lastModifiedBy" />
+
+        <result column="coordinate_system" property="coordinateSystem" />
+        <result column="move_node" property="moveNode" />
+        <result column="move_axis" property="moveAxis" />
+
+    </resultMap>
+</mapper>

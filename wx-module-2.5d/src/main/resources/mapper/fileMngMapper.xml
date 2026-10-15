@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.iocoder.wx.module.semi.controller.admin.file.dao.fileMng">
+
+    <select id="getFileInfoTotal" parameterType="hashmap" resultType="integer">
+        SELECT
+            COUNT(0)
+        FROM
+            file_info
+        WHERE
+            1 = 1
+            AND (
+            <choose>
+              <when test="ownerId != null and ownerId != ''">
+                owner_id = #{ownerId}
+              </when>
+              <otherwise>
+                1 = 1
+              </otherwise>
+            </choose>
+              <if test="authUserId != null and authUserId != ''">
+                OR (JSON_CONTAINS(tags, CONCAT('["', #{authUserId}, '"]')))
+              </if>
+              <if test="authTeamIdList != null and authTeamIdList.size() > 0">
+                <foreach collection="authTeamIdList" item="authTeamId">
+                OR (JSON_CONTAINS(tags, CONCAT('["', #{authTeamId}, '"]')))
+                </foreach>
+              </if>
+            )
+          <if test="fileInfo.fullnameList != null and !fileInfo.fullnameList.isEmpty()">
+            AND fullname IN
+                <foreach collection="fileInfo.fullnameList" item="fullname" open="(" separator="," close=")">
+                    #{fullname}
+                </foreach>
+          </if>
+          <if test="fileInfo.name != null and fileInfo.name != ''">
+            AND name LIKE CONCAT('%', #{fileInfo.name}, '%')
+          </if>
+          <if test="fileInfo.type != null and fileInfo.type != ''">
+            AND type = #{fileInfo.type}
+          </if>
+          <if test="fileInfo.directory != null and fileInfo.directory != ''">
+            <choose>
+              <when test="fileInfo.children == true">
+                AND (
+                    directory LIKE #{fileInfo.directory}
+                    OR directory LIKE CONCAT(#{fileInfo.directory}, '/%')
+                )
+              </when>
+              <otherwise>
+                AND directory LIKE #{fileInfo.directory}
+              </otherwise>
+            </choose>
+          </if>
+          <if test="fileInfo.tag != null and fileInfo.tag != ''">
+            AND (JSON_CONTAINS(tags, CONCAT('["', #{fileInfo.tag}, '"]')))
+          </if>
+          <if test="fileInfo.remarks != null and fileInfo.remarks != ''">
+            AND remarks LIKE CONCAT('%', #{fileInfo.remarks}, '%')
+          </if>
+          <if test="fileInfo.shared != null">
+            AND shared = #{fileInfo.shared}
+          </if>
+          <choose>
+            <when test="fileInfo.deleted == 0">
+              AND deleted_at IS NULL
+            </when>
+            <when test="fileInfo.deleted == 1">
+              AND deleted_at IS NOT NULL
+              <if test="fileInfo.directory == null or fileInfo.directory == ''">
+                AND directory_deleted IS NOT TRUE
+              </if>
+            </when>
+          </choose>
+    </select>
+
+    <select id="getFileInfoList" parameterType="hashmap" resultType="cn.iocoder.wx.module.semi.controller.admin.file.businessinfo.FileInfo">
+        SELECT
+            id                                                AS id,
+            name                                              AS name,
+            type                                              AS type,
+            fullname                                          AS fullname,
+            url                                               AS url,
+            directory                                         AS directory,
+            tags                                              AS tags,
+            remarks                                           AS remarks,
+            shared                                            AS shared,
+            size                                              AS size,
+            directory_deleted                                 AS directoryDeleted,
+            owner_id                                          AS ownerID,
+            owner_name                                        AS ownerName,
+            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s')      AS createdAt,
+            DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')      AS updatedAt,
+            DATE_FORMAT(deleted_at, '%Y-%m-%d %H:%i:%s')      AS deletedAt
+        FROM
+            file_info
+        WHERE
+            1 = 1
+            AND (
+            <choose>
+              <when test="ownerId != null and ownerId != ''">
+                owner_id = #{ownerId}
+              </when>
+              <otherwise>
+                1 = 1
+              </otherwise>
+            </choose>
+              <if test="authUserId != null and authUserId != ''">
+                OR (JSON_CONTAINS(tags, CONCAT('["', #{authUserId}, '"]')))
+              </if>
+              <if test="authTeamIdList != null and authTeamIdList.size() > 0">
+                <foreach collection="authTeamIdList" item="authTeamId">
+                OR (JSON_CONTAINS(tags, CONCAT('["', #{authTeamId}, '"]')))
+                </foreach>
+              </if>
+            )
+          <if test="fileInfo.fullnameList != null and !fileInfo.fullnameList.isEmpty()">
+            AND fullname IN
+                <foreach collection="fileInfo.fullnameList" item="fullname" open="(" separator="," close=")">
+                    #{fullname}
+                </foreach>
+          </if>
+          <if test="fileInfo.name != null and fileInfo.name != ''">
+            AND name LIKE CONCAT('%', #{fileInfo.name}, '%')
+          </if>
+          <if test="fileInfo.type != null and fileInfo.type != ''">
+            AND type = #{fileInfo.type}
+          </if>
+          <if test="fileInfo.directory != null and fileInfo.directory != ''">
+            <choose>
+              <when test="fileInfo.children == true">
+                AND (
+                    directory LIKE #{fileInfo.directory}
+                    OR directory LIKE CONCAT('%', #{fileInfo.directory}, '%')
+                )
+              </when>
+              <otherwise>
+                AND directory LIKE #{fileInfo.directory}
+              </otherwise>
+            </choose>
+          </if>
+          <if test="fileInfo.tag != null and fileInfo.tag != ''">
+            AND (JSON_CONTAINS(tags, CONCAT('["', #{fileInfo.tag}, '"]')))
+          </if>
+          <if test="fileInfo.remarks != null and fileInfo.remarks != ''">
+            AND remarks LIKE CONCAT('%', #{fileInfo.remarks}, '%')
+          </if>
+          <if test="fileInfo.shared != null">
+            AND shared = #{fileInfo.shared}
+          </if>
+          <choose>
+            <when test="fileInfo.deleted == 0">
+              AND deleted_at IS NULL
+            </when>
+            <when test="fileInfo.deleted == 1">
+              AND deleted_at IS NOT NULL
+              <if test="fileInfo.directory == null or fileInfo.directory == ''">
+                AND directory_deleted IS NOT TRUE
+              </if>
+            </when>
+          </choose>
+      <if test="sort != null and sort != ''">
+        ORDER BY
+            ${sort}
+      </if>
+        LIMIT
+            #{pageSize}
+        OFFSET
+            #{current}
+    </select>
+
+    <insert id="saveFileInfo" parameterType="hashmap">
+        INSERT INTO file_info (
+            id,
+            name,
+            type,
+            fullname,
+            url,
+            directory,
+            tags,
+            remarks,
+            shared,
+            content,
+            size,
+            owner_id,
+            owner_name,
+            created_at,
+            updated_at
+        ) VALUES (
+            UUID(),
+            #{fileInfo.name},
+            #{fileInfo.type},
+            #{fileInfo.fullname},
+            #{fileInfo.url},
+            #{fileInfo.directory},
+        <choose>
+          <when test="fileInfo.tags != null and fileInfo.tags != ''">
+            JSON_ARRAY(${fileInfo.tags}),
+          </when>
+          <otherwise>
+            JSON_ARRAY(),
+          </otherwise>
+        </choose>
+            #{fileInfo.remarks},
+            #{fileInfo.shared},
+            #{fileInfo.content},
+            #{fileInfo.size},
+            #{fileInfo.ownerID},
+            #{fileInfo.ownerName},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+      <if test="conflict == null or conflict == ''">
+        ON DUPLICATE KEY
+        UPDATE
+            type       = #{fileInfo.type},
+        <choose>
+          <when test="fileInfo.tags != null and fileInfo.tags != ''">
+            tags       = JSON_ARRAY(${fileInfo.tags}),
+          </when>
+          <otherwise>
+            tags       = JSON_ARRAY(),
+          </otherwise>
+        </choose>
+            remarks    = #{fileInfo.remarks},
+            shared     = #{fileInfo.shared},
+            content    = #{fileInfo.content},
+            size       = #{fileInfo.size},
+            updated_at = CURRENT_TIMESTAMP
+      </if>
+    </insert>
+
+    <select id="getFileInfoByNameAndDir" parameterType="hashmap" resultType="cn.iocoder.wx.module.semi.controller.admin.file.businessinfo.FileInfo">
+        SELECT
+            id                                                AS id,
+            name                                              AS name,
+            type                                              AS type,
+            fullname                                          AS fullname,
+            url                                               AS url,
+            directory                                         AS directory,
+            tags                                              AS tags,
+            remarks                                           AS remarks,
+            shared                                            AS shared,
+          <if test="contentFlg == true">
+            content                                           AS content,
+          </if>
+            size                                              AS size,
+            directory_deleted                                 AS directoryDeleted,
+            owner_id                                          AS ownerID,
+            owner_name                                        AS ownerName,
+            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s')      AS createdAt,
+            DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')      AS updatedAt,
+            DATE_FORMAT(deleted_at, '%Y-%m-%d %H:%i:%s')      AS deletedAt
+        FROM
+            file_info
+        WHERE
+            owner_id = #{ownerId}
+            AND name = #{name}
+            AND directory = #{directory}
+            AND deleted_at IS NULL
+    </select>
+
+    <select id="getFileInfoByFullname" parameterType="hashmap" resultType="cn.iocoder.wx.module.semi.controller.admin.file.businessinfo.FileInfo">
+        SELECT
+            id                                                AS id,
+            name                                              AS name,
+            type                                              AS type,
+            fullname                                          AS fullname,
+            url                                               AS url,
+            directory                                         AS directory,
+            tags                                              AS tags,
+            remarks                                           AS remarks,
+            shared                                            AS shared,
+          <if test="contentFlg == true">
+            content                                           AS content,
+          </if>
+            size                                              AS size,
+            directory_deleted                                 AS directoryDeleted,
+            owner_id                                          AS ownerID,
+            owner_name                                        AS ownerName,
+            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s')      AS createdAt,
+            DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')      AS updatedAt,
+            DATE_FORMAT(deleted_at, '%Y-%m-%d %H:%i:%s')      AS deletedAt
+        FROM
+            file_info
+        WHERE
+            fullname = #{fullname}
+            AND (
+            <choose>
+              <when test="ownerId != null and ownerId != ''">
+                owner_id = #{ownerId}
+                OR shared = TRUE
+              </when>
+              <otherwise>
+                shared = TRUE
+              </otherwise>
+            </choose>
+            )
+            AND deleted_at IS NULL
+    </select>
+
+    <update id="updateFileInfo4AddTag" parameterType="hashmap">
+        UPDATE
+            file_info f
+        SET
+            f.tags = JSON_ARRAY_APPEND(f.tags, '$', #{tag})
+        WHERE
+            f.id != 'TEMP'
+            AND (
+                JSON_LENGTH(f.tags) = 0
+                OR NOT (JSON_CONTAINS(f.tags, CONCAT('["', #{tag}, '"]')))
+            )
+            AND EXISTS (
+                SELECT
+                    1
+                FROM (
+                    SELECT
+                        image
+                    FROM
+                        ${collection}
+                    WHERE
+                        id = #{dataId}
+                ) c
+                WHERE
+                    f.url = c.image
+            )
+    </update>
+
+    <update id="updateFileInfo4RemoveTag" parameterType="hashmap">
+        UPDATE
+            file_info f
+        SET
+            f.tags = JSON_REMOVE(f.tags, REPLACE(JSON_SEARCH(f.tags, 'all', #{tag}), '"', ''))
+        WHERE
+            f.id != 'TEMP'
+            AND EXISTS (
+                SELECT
+                    1
+                FROM (
+                    SELECT
+                        image
+                    FROM
+                        ${collection}
+                    WHERE
+                        id = #{dataId}
+                
+                ) c
+                WHERE
+                    f.url = c.image
+            )
+    </update>
+
+    <update id="updateFileInfoList" parameterType="hashmap">
+        UPDATE
+            file_info
+        SET
+            updated_at = CURRENT_TIMESTAMP
+          <if test="fileInfo.name != null and fileInfo.name != ''">
+            ,name = #{fileInfo.name}
+          </if>
+          <if test="fileInfo.type != null and fileInfo.type != ''">
+            ,type = #{fileInfo.type}
+          </if>
+          <if test="fileInfo.directory != null and fileInfo.directory != ''">
+            ,directory = #{fileInfo.directory}
+          </if>
+          <if test="fileInfo.tags != null and fileInfo.tags != ''">
+            ,tags = JSON_ARRAY(${fileInfo.tags})
+          </if>
+          <if test="fileInfo.remarks != null and fileInfo.remarks != ''">
+            ,remarks = #{fileInfo.remarks}
+          </if>
+          <if test="fileInfo.shared != null">
+            ,shared = #{fileInfo.shared}
+          </if>
+        WHERE
+            id != 'TEMP'
+            AND owner_id = #{ownerId}
+            AND fullname IN
+                <foreach collection="fullnameList" item="fullname" open="(" separator="," close=")">
+                    #{fullname}
+                </foreach>
+    </update>
+
+    <select id="deleteFileInfo" parameterType="hashmap">
+        DELETE FROM
+            file_info
+        WHERE
+            id != 'TEMP'
+          <if test="url != null and url != ''">
+            AND url = #{url}
+          </if>
+          <if test="tag != null and tag != ''">
+            AND (JSON_CONTAINS(tags, CONCAT('["', #{tag}, '"]')))
+          </if>
+    </select>
+
+    <select id="getFileFullnameList" parameterType="hashmap" resultType="string">
+        SELECT
+            fullname
+        FROM
+            file_info
+        WHERE
+            fullname IN
+            <foreach collection="fullnameList" item="fullname" open="(" separator="," close=")">
+                #{fullname}
+            </foreach>
+            AND (
+            <choose>
+              <when test="ownerId != null and ownerId != ''">
+                owner_id = #{ownerId}
+              </when>
+              <otherwise>
+                1 = 1
+              </otherwise>
+            </choose>
+              <if test="authUserId != null and authUserId != ''">
+                OR (JSON_CONTAINS(tags, CONCAT('["', #{authUserId}, '"]')))
+              </if>
+              <if test="authTeamIdList != null and authTeamIdList.size() > 0">
+                <foreach collection="authTeamIdList" item="authTeamId">
+                OR (JSON_CONTAINS(tags, CONCAT('["', #{authTeamId}, '"]')))
+                </foreach>
+              </if>
+            )
+    </select>
+
+    <delete id="deleteFileInfoList" parameterType="hashmap">
+        DELETE FROM
+            file_info
+        WHERE
+            id != 'TEMP'
+            AND fullname IN
+            <foreach collection="fullnameList" item="fullname" open="(" separator="," close=")">
+                #{fullname}
+            </foreach>
+    </delete>
+
+    <update id="recycleFileInfoList" parameterType="hashmap">
+        UPDATE
+            file_info
+        SET
+        <choose>
+          <when test="recycle == true">
+            deleted_at = CURRENT_TIMESTAMP
+          </when>
+          <otherwise>
+            deleted_at = NULL
+          </otherwise>
+        </choose>
+        WHERE
+            id != 'TEMP'
+            AND fullname IN
+            <foreach collection="fullnameList" item="fullname" open="(" separator="," close=")">
+                #{fullname}
+            </foreach>
+    </update>
+
+</mapper>

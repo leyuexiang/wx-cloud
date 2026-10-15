@@ -4,28 +4,28 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.iocoder.cloud</groupId>
-    <artifactId>jtyf-cloud</artifactId>
+    <artifactId>wx-cloud</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
     <modules>
-        <module>jtyf-dependencies</module>
-        <module>jtyf-gateway</module>
-        <module>jtyf-framework</module>
+        <module>wx-dependencies</module>
+        <module>wx-gateway</module>
+        <module>wx-framework</module>
         <!--  各种 module 拓展 -->
-        <module>jtyf-module-system</module>
-        <module>jtyf-module-infra</module>
-        <module>jtyf-module-member</module>
-        <module>jtyf-module-bpm</module>
-        <module>jtyf-module-pay</module>
-        <module>jtyf-module-report</module>
-        <module>jtyf-module-mp</module>
-        <module>jtyf-module-mall</module>
-        <module>jtyf-module-crm</module>
-        <module>jtyf-module-erp</module>
-        <module>jtyf-module-ai</module>
-        <module>jtyf-module-3d</module>
-        <module>jtyf-module-vegetation</module>
-        <module>jtyf-module-2.5d</module>
+        <module>wx-module-system</module>
+        <module>wx-module-infra</module>
+        <module>wx-module-member</module>
+        <module>wx-module-bpm</module>
+        <module>wx-module-pay</module>
+        <module>wx-module-report</module>
+        <module>wx-module-mp</module>
+        <module>wx-module-mall</module>
+        <module>wx-module-crm</module>
+        <module>wx-module-erp</module>
+        <module>wx-module-ai</module>
+        <module>wx-module-3d</module>
+        <module>wx-module-vegetation</module>
+        <module>wx-module-2.5d</module>
     </modules>
 
     <name>${project.artifactId}</name>
@@ -53,7 +53,7 @@
         <dependencies>
             <dependency>
                 <groupId>cn.iocoder.cloud</groupId>
-                <artifactId>jtyf-dependencies</artifactId>
+                <artifactId>wx-dependencies</artifactId>
                 <version>${revision}</version>
                 <type>pom</type>
                 <scope>import</scope>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.iocoder.wx.module.dimensions.mapper.DeviceCommonMapper">
+
+    <!-- 通用查询映射结果 -->
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.iocoder.wx.module.dimensions.entity.DeviceCommon">
+        <id column="id" property="id" />
+        <result column="serverCode" property="serverCode" />
+        <result column="areaName" property="areaName" />
+        <result column="buildingName" property="buildingName" />
+        <result column="floorName" property="floorName" />
+        <result column="zonesubname" property="zonesubname" />
+        <result column="zonesubno" property="zonesubno" />
+        <result column="categoryName" property="categoryName" />
+        <result column="categoryNo" property="categoryNo" />
+        <result column="deviceTypeName" property="deviceTypeName" />
+        <result column="deviceTypeCode" property="deviceTypeCode" />
+        <result column="deviceId" property="deviceId" />
+        <result column="deviceName" property="deviceName" />
+        <result column="position" property="position" />
+        <result column="roll" property="roll" />
+        <result column="zoneTelephone" property="zoneTelephone" />
+    </resultMap>
+
+    <select id="selectByTableName" resultType="cn.iocoder.wx.module.dimensions.entity.DeviceCommon">
+        SELECT * FROM #{tableName}
+    </select>
+
+    <select id="selectWhereArea" resultType="cn.iocoder.wx.module.dimensions.entity.DeviceCommon">
+        SELECT * FROM deviceall
+        <where>
+            <if test="area != null">
+                 areaName = #{area}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectWhereBuilding" resultType="cn.iocoder.wx.module.dimensions.entity.DeviceCommon">
+        SELECT * FROM deviceall
+        <where>
+            <if test="area != null">
+                areaName = #{area}
+            </if>
+            <if test="building != null">
+                AND buildingName = #{building}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectWhereFloor" resultType="cn.iocoder.wx.module.dimensions.entity.DeviceCommon">
+        SELECT * FROM deviceall
+        <where>
+            <if test="area != null">
+                areaName = #{area}
+            </if>
+            <if test="building != null">
+                AND buildingName = #{building}
+            </if>
+            <if test="building != null">
+                AND floorName = #{floor}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectWhereSpaceName" resultType="cn.iocoder.wx.module.dimensions.entity.DeviceCommon">
+        SELECT * FROM deviceall
+        <where>
+            <if test="area != null">
+                areaName = #{area}
+            </if>
+            <if test="building != null">
+                AND buildingName = #{building}
+            </if>
+            <if test="building != null">
+                AND floorName = #{floor}
+            </if>
+            <if test="spaceName != null">
+                AND zonesubname = #{spaceName}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectWhereDeviceTypeCode" resultType="cn.iocoder.wx.module.dimensions.entity.DeviceCommon">
+        SELECT * FROM deviceall
+        <where>
+            <if test="area != null">
+                areaName = #{area}
+            </if>
+            <if test="building != null">
+                AND buildingName = #{building}
+            </if>
+            <if test="building != null">
+                AND floorName = #{floor}
+            </if>
+            <if test="spaceName != null">
+                AND zonesubname = #{spaceName}
+            </if>
+            <if test="deviceTypeCode != null">
+                AND deviceTypeCode = #{deviceTypeCode}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDeviceTypeNameList" resultType="String">
+        SELECT deviceTypeName
+        FROM deviceall
+        GROUP BY deviceTypeName
+    </select>
+
+    <select id="selectDeviceAllList" resultType="cn.iocoder.wx.module.dimensions.entity.DeviceCommon">
+        SELECT * FROM deviceall
+    </select>
+
+    <select id="selectDeviceCode" resultType="String">
+        SELECT deviceId FROM deviceall
+        <where>
+            <if test="deviceTypeName != null">
+                deviceTypeName = #{deviceTypeName}
+            </if>
+            <if test="deviceTypeCode != null">
+                AND deviceTypeCode = #{deviceTypeCode}
+            </if>
+        </where>
+    </select>
+</mapper>

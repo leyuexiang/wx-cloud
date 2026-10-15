@@ -1,0 +1,36 @@
+spring:
+  cloud:
+    nacos:
+      # 独立部署不向注册中心拉取配置或注册实例，避免依赖其他工程服务。
+      config:
+        enabled: false
+      discovery:
+        enabled: false
+  datasource:
+    dynamic:
+      primary: master
+      datasource:
+        master:
+          # 植被服务使用测试机本地独立数据库，连接凭据仅从受限环境文件读取。
+          url: ${VEGETATION_DB_URL:jdbc:mysql://127.0.0.1:3306/vegetation?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true}
+          username: ${VEGETATION_DB_USERNAME:vegetation_app}
+          password: ${VEGETATION_DB_PASSWORD}
+
+wx:
+  access-log:
+    # 默认访问日志会调用 infra 模块的远程日志接口；独立植被服务没有该模块，因此必须关闭，
+    # 避免每个 HTTP 请求额外产生跨服务调用，并使服务启动完全不依赖 wx-cloud 的其他后端。
+    enable: false
+  web:
+    admin-ui:
+      # Web 框架启动时强制校验该地址；植被服务不托管前端页面，使用可通过环境变量覆盖的测试机入口，
+      # 仅满足框架配置约束，不会建立到该地址的网络连接，也不会引入 wx-web-three 运行依赖。
+      url: ${VEGETATION_ADMIN_UI_URL:http://192.168.10.246}
+  vegetation:
+    generator:
+      # Python 生成器单独部署；未注入地址时只允许服务健康检查，创建任务会明确失败。
+      base-url: ${VEGETATION_GENERATOR_URL:http://127.0.0.1:48095}
+
+logging:
+  file:
+    name: ${user.home}/logs/${spring.application.name}.log

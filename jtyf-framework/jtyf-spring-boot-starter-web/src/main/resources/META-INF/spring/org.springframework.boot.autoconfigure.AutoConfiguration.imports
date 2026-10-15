@@ -1,6 +1,0 @@
-cn.iocoder.jtyf.framework.apilog.config.JtyfApiLogAutoConfiguration
-cn.iocoder.jtyf.framework.jackson.config.JtyfJacksonAutoConfiguration
-cn.iocoder.jtyf.framework.swagger.config.JtyfSwaggerAutoConfiguration
-cn.iocoder.jtyf.framework.web.config.JtyfWebAutoConfiguration
-cn.iocoder.jtyf.framework.apilog.config.JtyfApiLogRpcAutoConfiguration
-#cn.iocoder.jtyf.framework.banner.config.JtyfBannerAutoConfiguration

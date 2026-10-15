@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: vegetation-server
+  profiles:
+    active: local
+  main:
+    allow-circular-references: true
+    allow-bean-definition-overriding: true
+  config:
+    import:
+      - optional:classpath:application-${spring.profiles.active}.yaml
+      - optional:nacos:${spring.application.name}-${spring.profiles.active}.yaml
+
+server:
+  port: 48094
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+wx:
+  info:
+    # MyBatis 自动扫描本模块 Mapper；不依赖配置中心临时下发，保证独立部署可启动。
+    base-package: cn.iocoder.wx.module.vegetation
+  vegetation:
+    generator:
+      # 本机部署端口与运维任务书保持一致；容器环境通过VEGETATION_GENERATOR_URL覆盖。
+      base-url: ${VEGETATION_GENERATOR_URL:http://127.0.0.1:48095}
+      # 版本由部署端冻结并参与快照哈希，前端请求中的同名字段不会覆盖该值。
+      version: ${VEGETATION_GENERATOR_VERSION:0.3.1}

@@ -1,0 +1,3 @@
+cn.iocoder.wx.framework.datasource.config.WxDataSourceAutoConfiguration
+cn.iocoder.wx.framework.mybatis.config.WxMybatisAutoConfiguration
+cn.iocoder.wx.framework.translate.config.WxTranslateAutoConfiguration

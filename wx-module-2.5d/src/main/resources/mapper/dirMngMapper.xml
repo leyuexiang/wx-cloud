@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.iocoder.wx.module.semi.controller.admin.directory.dao.dirMng">
+
+    <select id="checkExistDir" parameterType="hashmap" resultType="integer">
+        SELECT
+            COUNT(0)
+        FROM
+            directory
+        WHERE
+            owner_id = #{ownerId}
+            AND fullpath = #{fullpath}
+        <choose>
+          <when test="deleted == 0">
+            AND deleted_at IS NULL
+          </when>
+          <when test="deleted == 1">
+            AND deleted_at IS NOT NULL
+          </when>
+        </choose>
+    </select>
+
+    <select id="getDirInfo" parameterType="hashmap" resultType="cn.iocoder.wx.module.semi.controller.admin.directory.businessinfo.DirInfo">
+        SELECT
+            id                                                AS id,
+            owner_id                                          AS ownerId,
+            fullpath                                          AS fullpath,
+            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s')      AS createdAt,
+            DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')      AS updatedAt,
+            DATE_FORMAT(deleted_at, '%Y-%m-%d %H:%i:%s')      AS deletedAt
+        FROM
+            directory
+        WHERE
+            owner_id = #{ownerId}
+            AND fullpath = #{fullpath}
+            AND deleted_at IS NULL
+    </select>
+
+    <select id="getDirInfoTotal" parameterType="hashmap" resultType="integer">
+        SELECT
+            COUNT(0)
+        FROM
+            directory
+        WHERE
+            owner_id = #{ownerId}
+            AND (fullpath = #{fullpath} OR fullpath LIKE CONCAT(#{fullpath}, '/%'))
+        <choose>
+          <when test="deleted == 0">
+            AND deleted_at IS NULL
+          </when>
+          <when test="deleted == 1">
+            AND deleted_at IS NOT NULL
+          </when>
+        </choose>
+    </select>
+
+    <select id="getDirInfoList" parameterType="hashmap" resultType="cn.iocoder.wx.module.semi.controller.admin.directory.businessinfo.DirInfo">
+        SELECT
+            id                                                AS id,
+            owner_id                                          AS ownerId,
+            fullpath                                          AS fullpath,
+            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s')      AS createdAt,
+            DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')      AS updatedAt,
+            DATE_FORMAT(deleted_at, '%Y-%m-%d %H:%i:%s')      AS deletedAt
+        FROM
+            directory
+        WHERE
+            owner_id = #{ownerId}
+            AND (fullpath = #{fullpath} OR fullpath LIKE CONCAT(#{fullpath}, '/%'))
+        <choose>
+          <when test="deleted == 0">
+            AND deleted_at IS NULL
+          </when>
+          <when test="deleted == 1">
+            AND deleted_at IS NOT NULL
+          </when>
+        </choose>
+      <if test="sort != null and sort != ''">
+        ORDER BY
+            ${sort}
+      </if>
+        LIMIT
+            #{pageSize}
+        OFFSET
+            #{current}
+    </select>
+
+    <insert id="addDirInfo" parameterType="hashmap">
+        INSERT INTO directory (
+            id,
+            owner_id,
+            fullpath,
+            created_at,
+            updated_at
+        ) VALUES (
+            UUID(),
+            #{ownerId},
+            #{fullpath},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <update id="updateFileInfo4Directory" parameterType="hashmap">
+        UPDATE
+            file_info
+        SET
+            directory = REPLACE(directory, #{oldFullpath}, #{newFullpath}),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE
+            id != 'TEMP'
+            AND owner_id = #{ownerId}
+            AND (directory = #{oldFullpath} OR directory LIKE CONCAT(#{oldFullpath}, '/%'))
+    </update>
+
+    <update id="updateDirInfo" parameterType="hashmap">
+        UPDATE
+            directory
+        SET
+            fullpath = REPLACE(fullpath, #{oldFullpath}, #{newFullpath}),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE
+            id != 'TEMP'
+            AND owner_id = #{ownerId}
+            AND (fullpath = #{oldFullpath} OR fullpath LIKE CONCAT(#{oldFullpath}, '/%'))
+    </update>
+
+    <select id="getFileFullnameList" parameterType="hashmap" resultType="string">
+        SELECT
+            fullname
+        FROM
+            file_info
+        WHERE
+            owner_id = #{ownerId}
+            AND (
+                JSON_CONTAINS(JSON_ARRAY(${equalFullpaths}), CONCAT('["', directory, '"]'))
+                <if test="likeFullpaths != null and !likeFullpaths.isEmpty()">
+                OR
+                  <foreach collection="likeFullpaths" item="likeFullpath" open="(" separator=" OR " close=")">
+                    directory LIKE #{likeFullpath}
+                  </foreach>
+                </if>
+            )
+    </select>
+
+    <delete id="deleteFileInfo" parameterType="hashmap">
+        DELETE FROM
+            file_info
+        WHERE
+            id != 'TEMP'
+            AND fullname IN
+            <foreach collection="fullnameList" item="fullname" open="(" separator="," close=")">
+                #{fullname}
+            </foreach>
+    </delete>
+
+    <delete id="deleteDirInfo" parameterType="hashmap">
+        DELETE FROM
+            directory
+        WHERE
+            id != 'TEMP'
+            AND owner_id = #{ownerId}
+            AND (
+                JSON_CONTAINS(JSON_ARRAY(${equalFullpaths}), CONCAT('["', fullpath, '"]'))
+                <if test="likeFullpaths != null and !likeFullpaths.isEmpty()">
+                OR
+                  <foreach collection="likeFullpaths" item="likeFullpath" open="(" separator=" OR " close=")">
+                    fullpath LIKE #{likeFullpath}
+                  </foreach>
+                </if>
+            )
+    </delete>
+
+    <update id="recycleFileInfo" parameterType="hashmap">
+        UPDATE
+            file_info
+        SET
+        <choose>
+          <when test="recycle == true">
+            deleted_at = CURRENT_TIMESTAMP
+          </when>
+          <otherwise>
+            deleted_at = NULL
+          </otherwise>
+        </choose>
+        WHERE
+            id != 'TEMP'
+            AND fullname IN
+            <foreach collection="fullnameList" item="fullname" open="(" separator="," close=")">
+                #{fullname}
+            </foreach>
+    </update>
+
+    <update id="recycleDirInfo" parameterType="hashmap">
+        UPDATE
+            directory
+        SET
+        <choose>
+          <when test="recycle == true">
+            deleted_at = CURRENT_TIMESTAMP
+          </when>
+          <otherwise>
+            deleted_at = NULL
+          </otherwise>
+        </choose>
+        WHERE
+            id != 'TEMP'
+            AND owner_id = #{ownerId}
+            AND (
+                JSON_CONTAINS(JSON_ARRAY(${equalFullpaths}), CONCAT('["', fullpath, '"]'))
+                <if test="likeFullpaths != null and !likeFullpaths.isEmpty()">
+                OR
+                  <foreach collection="likeFullpaths" item="likeFullpath" open="(" separator=" OR " close=")">
+                    fullpath LIKE #{likeFullpath}
+                  </foreach>
+                </if>
+            )
+    </update>
+
+</mapper>

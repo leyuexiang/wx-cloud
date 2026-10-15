@@ -1,0 +1,1 @@
+package cn.iocoder.wx.module.crm.dal.mysql.permission;
