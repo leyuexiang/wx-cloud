@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: iot-server
+  profiles:
+    active: local
+  main:
+    allow-circular-references: true
+    allow-bean-definition-overriding: true
+  config:
+    import:
+      - optional:classpath:application-${spring.profiles.active}.yaml
+      - optional:nacos:${spring.application.name}-${spring.profiles.active}.yaml
+  kafka:
+    producer:
+      acks: 1
+      retries: 3
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: iot-server
+      auto-offset-reset: earliest
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: cn.iocoder.wx.module.iot.api
+    listener:
+      missing-topics-fatal: false
+
+server:
+  port: 48096
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+wx:
+  info:
+    base-package: cn.iocoder.wx.module.iot

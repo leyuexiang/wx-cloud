@@ -24,6 +24,7 @@
         <module>wx-module-erp</module>
         <module>wx-module-ai</module>
         <module>wx-module-3d</module>
+        <module>wx-module-iot</module>
         <module>wx-module-vegetation</module>
         <module>wx-module-2.5d</module>
     </modules>
