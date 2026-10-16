@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
  *
  * @author 九天芸菲
  */
-@TableName(value = "bpm_process_listener")
+@TableName(value = "wx_bpm_process_listener")
 @Data
 @Builder
 @NoArgsConstructor

@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
  * @author kyle
  * @since 2024-01-22
  */
-@TableName(value = "bpm_process_instance_copy", autoResultMap = true)
+@TableName(value = "wx_bpm_process_instance_copy", autoResultMap = true)
 @Data
 @Builder
 @NoArgsConstructor
