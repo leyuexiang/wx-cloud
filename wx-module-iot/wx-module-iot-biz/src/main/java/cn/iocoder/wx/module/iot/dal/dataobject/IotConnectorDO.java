@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /** 外部物联网服务连接器配置，凭据只保存引用，不在本表保存明文。 */
-@TableName("iot_connector")
+@TableName("wx_iot_connector")
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class IotConnectorDO extends TenantBaseDO {

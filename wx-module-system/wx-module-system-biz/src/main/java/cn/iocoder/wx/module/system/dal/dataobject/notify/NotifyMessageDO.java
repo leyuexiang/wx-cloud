@@ -17,7 +17,7 @@ import java.util.Map;
  *
  * @author xrcoder
  */
-@TableName(value = "system_notify_message", autoResultMap = true)
+@TableName(value = "wx_system_notify_message", autoResultMap = true)
 @KeySequence("system_notify_message_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 @EqualsAndHashCode(callSuper = true)

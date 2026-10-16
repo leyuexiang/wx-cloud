@@ -3,7 +3,7 @@
     "id": 10,
     "scene" : 1,
     "parentMenuId" : 888,
-    "tableName" : "infra_category",
+    "tableName" : "wx_infra_category",
     "tableComment" : "分类表",
     "moduleName" : "infra",
     "businessName" : "demo",

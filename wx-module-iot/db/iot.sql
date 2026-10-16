@@ -1,7 +1,7 @@
 -- 物联网连接器与外部设备绑定表
 -- 凭据只存 credential_ref，真实密钥由部署环境或密钥服务管理。
 
-CREATE TABLE IF NOT EXISTS `iot_connector` (
+CREATE TABLE IF NOT EXISTS `wx_iot_connector` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
   `connector_id` varchar(64) NOT NULL COMMENT '连接器业务编号',
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `iot_connector` (
   UNIQUE KEY `uk_iot_connector_tenant_code` (`tenant_id`, `connector_id`, `deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='物联网外部连接器';
 
-CREATE TABLE IF NOT EXISTS `iot_device_binding` (
+CREATE TABLE IF NOT EXISTS `wx_iot_device_binding` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
   `connector_id` varchar(64) NOT NULL COMMENT '连接器业务编号',
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `iot_device_binding` (
   UNIQUE KEY `uk_iot_binding_external_device` (`tenant_id`, `connector_id`, `external_device_id`, `deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='物联网外部设备绑定';
 
-CREATE TABLE IF NOT EXISTS `iot_message_inbox` (
+CREATE TABLE IF NOT EXISTS `wx_iot_message_inbox` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
   `event_id` varchar(64) NOT NULL COMMENT '统一事件编号',

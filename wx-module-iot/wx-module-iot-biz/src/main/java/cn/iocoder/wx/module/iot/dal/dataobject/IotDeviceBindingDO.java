@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /** 外部设备到内部数字孪生对象的绑定及点位映射版本。 */
-@TableName("iot_device_binding")
+@TableName("wx_iot_device_binding")
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class IotDeviceBindingDO extends TenantBaseDO {

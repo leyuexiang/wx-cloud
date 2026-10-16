@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
  *
  * @author ruoyi
  */
-@TableName("system_role_menu")
+@TableName("wx_system_role_menu")
 @KeySequence("system_role_menu_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 @EqualsAndHashCode(callSuper = true)

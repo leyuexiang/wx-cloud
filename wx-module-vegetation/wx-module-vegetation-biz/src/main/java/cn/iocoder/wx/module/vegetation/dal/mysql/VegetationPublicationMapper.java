@@ -15,11 +15,11 @@ import java.util.List;
 public interface VegetationPublicationMapper extends BaseMapperX<VegetationPublicationDO> {
 
     /** 并发发布前确保场景锁行存在；INSERT IGNORE把首次创建竞争交给数据库主键处理。 */
-    @Insert("INSERT IGNORE INTO veg_publication_lock (scene_id) VALUES (#{sceneId})")
+    @Insert("INSERT IGNORE INTO wx_veg_publication_lock (scene_id) VALUES (#{sceneId})")
     int ensureSceneLock(String sceneId);
 
     /** 在当前事务中锁定场景行；锁会持续到发布或回滚事务提交。 */
-    @Select("SELECT scene_id FROM veg_publication_lock WHERE scene_id = #{sceneId} FOR UPDATE")
+    @Select("SELECT scene_id FROM wx_veg_publication_lock WHERE scene_id = #{sceneId} FOR UPDATE")
     String lockScene(String sceneId);
 
     default VegetationPublicationDO selectBySceneIdAndVersion(String sceneId, String publicationVersion) {

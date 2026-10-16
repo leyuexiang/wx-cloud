@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import java.time.LocalDateTime;
 
 /** 遥测事件接入去重和投递状态记录。 */
-@TableName("iot_message_inbox")
+@TableName("wx_iot_message_inbox")
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class IotMessageInboxDO extends TenantBaseDO {

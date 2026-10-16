@@ -4,7 +4,7 @@
 
     <select id="selectIpCountByUserTypeAndCreateTimeBetween" resultType="java.lang.Integer">
         SELECT COUNT(DISTINCT user_ip)
-        FROM infra_api_access_log
+        FROM wx_infra_api_access_log
         WHERE user_type = #{userType}
         AND create_time BETWEEN #{beginTime} AND #{endTime}
         AND deleted = FALSE
@@ -12,7 +12,7 @@
 
     <select id="selectUserCountByUserTypeAndCreateTimeBetween" resultType="java.lang.Integer">
         SELECT COUNT(DISTINCT user_id)
-        FROM infra_api_access_log
+        FROM wx_infra_api_access_log
         WHERE user_id > 0
           AND user_type = #{userType}
           AND create_time BETWEEN #{beginTime} AND #{endTime}

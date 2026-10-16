@@ -22,7 +22,7 @@ import java.util.Map;
  *
  * @author 九天芸菲
  */
-@TableName(value = "system_oauth2_access_token", autoResultMap = true)
+@TableName(value = "wx_system_oauth2_access_token", autoResultMap = true)
 @KeySequence("system_oauth2_access_token_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 @EqualsAndHashCode(callSuper = true)
