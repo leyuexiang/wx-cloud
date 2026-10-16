@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  *
  * 演示业务系统的转账业务
  */
-@TableName(value ="pay_demo_transfer", autoResultMap = true)
+@TableName(value ="wx_pay_demo_transfer", autoResultMap = true)
 @KeySequence("pay_demo_transfer_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 public class PayDemoTransferDO extends BaseDO {
