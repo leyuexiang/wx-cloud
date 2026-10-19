@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cn.iocoder.wx.framework.tenant.core.util.TenantUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
@@ -19,13 +20,16 @@ import java.util.UUID;
 /** 使用数据库唯一约束实现跨实例事件去重。 */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class IotMessageInboxServiceImpl implements IotMessageInboxService {
 
     private static final String STATUS_CLAIMED = "CLAIMED";
-    private static final String STATUS_PUBLISHED = "PUBLISHED";
+    public static final String PUBLISHED_STATUS = "PUBLISHED";
+    public static final String ARCHIVE_STATUS = "ARCHIVED";
     private static final String STATUS_FAILED = "FAILED";
     private static final String STATUS_DEAD_LETTER = "DEAD_LETTER";
     private static final int MAX_RETRY_COUNT = 5;
+    private static final int MAX_ARCHIVE_BATCH_SIZE = 1000;
 
     private final IotMessageInboxMapper inboxMapper;
     private final ObjectMapper objectMapper;
@@ -107,22 +111,36 @@ public class IotMessageInboxServiceImpl implements IotMessageInboxService {
         }
         try {
             eventPublisher.publish(event).whenComplete((result, throwable) -> {
-                if (throwable == null) {
-                    markPublished(tenantId, eventId, claimToken);
-                } else {
-                    markFailed(tenantId, eventId, claimToken, throwable);
+                try {
+                    if (throwable == null) {
+                        markPublished(tenantId, eventId, claimToken);
+                    } else {
+                        markFailed(tenantId, eventId, claimToken, throwable);
+                    }
+                } catch (RuntimeException recordingError) {
+                    // 人工重放同样可能在响应后落库失败，必须记录原租户、事件和 Kafka 确认结果。
+                    // 不能在这里自动重放已确认消息；失败记录保留现有超时重新抢占路径。
+                    log.error("物联网异步投递状态更新失败，tenantId={}, eventId={}, publishSucceeded={}",
+                            tenantId, eventId, throwable == null, recordingError);
                 }
             });
         } catch (RuntimeException ex) {
-            // 发送方法同步失败时不会产生异步回调，应立即释放当前抢占并保留错误。
-            markFailed(tenantId, eventId, claimToken, ex);
+            // 同步发送失败时尝试更新状态；落库也失败时仍保留原始发送错误。
+            try {
+                markFailed(tenantId, eventId, claimToken, ex);
+            } catch (RuntimeException recordingError) {
+                // 状态未更新时仍可由既有超时抢占机制恢复，两个故障一起向调用方暴露。
+                if (recordingError != ex) {
+                    ex.addSuppressed(recordingError);
+                }
+            }
             throw ex;
         }
     }
 
     @Override
     public void markPublished(Long tenantId, String eventId, String claimToken) {
-        updateStatus(tenantId, eventId, claimToken, STATUS_PUBLISHED, null);
+        updateStatus(tenantId, eventId, claimToken, PUBLISHED_STATUS, null);
     }
 
     @Override
@@ -156,5 +174,15 @@ public class IotMessageInboxServiceImpl implements IotMessageInboxService {
         }
         return TenantUtils.execute(tenantId,
                 () -> inboxMapper.forceReclaim(eventId, claimToken, LocalDateTime.now()) > 0);
+    }
+
+    @Override
+    public int archivePublishedBefore(LocalDateTime before, int batchSize) {
+        Objects.requireNonNull(before, "归档截止时间不能为空");
+        if (batchSize < 1 || batchSize > MAX_ARCHIVE_BATCH_SIZE) {
+            throw new IllegalArgumentException("归档批量大小必须在 1 到 " + MAX_ARCHIVE_BATCH_SIZE + " 之间");
+        }
+        // 归档任务沿用当前租户上下文；不提供跨租户全表更新入口，避免误归档其他租户数据。
+        return inboxMapper.archivePublishedBefore(before, batchSize);
     }
 }

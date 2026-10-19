@@ -65,6 +65,15 @@ public class IotPointMappingService {
 
     private BigDecimal decimalOrDefault(JsonNode node, String field, BigDecimal defaultValue) {
         JsonNode value = node.get(field);
-        return value == null || value.isNull() ? defaultValue : value.decimalValue();
+        // 缺失或显式 null 沿用历史默认值；零与负数仍是有效换算参数。
+        if (value == null || value.isNull()) {
+            return defaultValue;
+        }
+        // 非数字节点的 decimalValue() 可能静默返回零，必须先验证类型，避免污染遥测数据。
+        // 不接受数字字符串，确保映射配置中的 scale/offset 始终遵循 JSON 数字契约。
+        if (!value.isNumber()) {
+            throw exception(POINT_MAPPING_INVALID);
+        }
+        return value.decimalValue();
     }
 }

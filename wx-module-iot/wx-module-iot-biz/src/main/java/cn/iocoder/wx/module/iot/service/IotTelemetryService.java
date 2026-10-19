@@ -5,6 +5,7 @@ import cn.iocoder.wx.module.iot.api.TwinTelemetryIngestRequest;
 import cn.iocoder.wx.module.iot.dal.dataobject.IotDeviceBindingDO;
 import cn.iocoder.wx.framework.tenant.core.context.TenantContextHolder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -14,6 +15,7 @@ import java.util.UUID;
 /** 遥测接入编排服务，统一 MQTT、HTTPS 和模拟适配器的后续入口。 */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class IotTelemetryService {
 
     private final IotEventPublisher eventPublisher;
@@ -62,15 +64,29 @@ public class IotTelemetryService {
         }
         try {
             eventPublisher.publish(event).whenComplete((result, throwable) -> {
-                if (throwable == null) {
-                    inboxService.markPublished(event.getTenantId(), event.getEventId(), claimToken);
-                } else {
-                    inboxService.markFailed(event.getTenantId(), event.getEventId(), claimToken, throwable);
+                try {
+                    if (throwable == null) {
+                        inboxService.markPublished(event.getTenantId(), event.getEventId(), claimToken);
+                    } else {
+                        inboxService.markFailed(event.getTenantId(), event.getEventId(), claimToken, throwable);
+                    }
+                } catch (RuntimeException recordingError) {
+                    // HTTP 可能已返回，回调异常必须落日志；使用事件租户，不能依赖回调线程上下文。
+                    // 不重发、不改写发送结果，保留现有 CLAIMED 超时抢占及下游幂等边界。
+                    log.error("物联网异步投递状态更新失败，tenantId={}, eventId={}, publishSucceeded={}",
+                            event.getTenantId(), event.getEventId(), throwable == null, recordingError);
                 }
             });
         } catch (RuntimeException ex) {
-            // Kafka 发送在返回 Future 前失败时，直接记录失败并让入口返回错误。
-            inboxService.markFailed(event.getTenantId(), event.getEventId(), claimToken, ex);
+            // 同步发送失败时尝试记录状态；数据库故障不能覆盖原始 Kafka 错误。
+            try {
+                inboxService.markFailed(event.getTenantId(), event.getEventId(), claimToken, ex);
+            } catch (RuntimeException recordingError) {
+                // 保留两个故障供调用方排查，并防止同一异常对象自我附加。
+                if (recordingError != ex) {
+                    ex.addSuppressed(recordingError);
+                }
+            }
             throw ex;
         }
         return event;

@@ -22,7 +22,7 @@ public class IotMessageInboxPageReqVO extends PageParam {
     @Schema(description = "外部设备编号")
     private String externalDeviceId;
 
-    @Schema(description = "事件状态：CLAIMED、PUBLISHED、FAILED")
+    @Schema(description = "事件状态：CLAIMED、PUBLISHED、FAILED、DEAD_LETTER、ARCHIVED")
     private String status;
 
     @Schema(description = "接收时间范围")

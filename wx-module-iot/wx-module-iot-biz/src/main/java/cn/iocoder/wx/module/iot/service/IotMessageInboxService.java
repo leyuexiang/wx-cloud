@@ -5,6 +5,8 @@ import cn.iocoder.wx.framework.common.pojo.PageResult;
 import cn.iocoder.wx.module.iot.controller.admin.messageinbox.vo.IotMessageInboxPageReqVO;
 import cn.iocoder.wx.module.iot.dal.dataobject.IotMessageInboxDO;
 
+import java.time.LocalDateTime;
+
 /** 遥测事件 Inbox 去重和投递状态服务。 */
 public interface IotMessageInboxService {
 
@@ -18,4 +20,7 @@ public interface IotMessageInboxService {
     void markPublished(Long tenantId, String eventId, String claimToken);
 
     void markFailed(Long tenantId, String eventId, String claimToken, Throwable throwable);
+
+    /** 将截止时间以前已成功发布的事件软归档，返回本次更新行数。 */
+    int archivePublishedBefore(LocalDateTime before, int batchSize);
 }

@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `wx_iot_message_inbox` (
   `external_device_id` varchar(128) NOT NULL COMMENT '外部设备编号',
   `point_code` varchar(128) NOT NULL COMMENT '标准点位编号',
   `payload_json` json NOT NULL COMMENT '统一事件快照，用于失败重放',
-  `status` varchar(32) NOT NULL DEFAULT 'CLAIMED' COMMENT 'CLAIMED、PUBLISHED、FAILED、DEAD_LETTER',
+  `status` varchar(32) NOT NULL DEFAULT 'CLAIMED' COMMENT 'CLAIMED、PUBLISHED、FAILED、DEAD_LETTER、ARCHIVED',
   `claim_token` varchar(36) NOT NULL COMMENT '本次事件抢占令牌',
   `retry_count` int NOT NULL DEFAULT 0 COMMENT '失败重试次数',
   `received_at` datetime NOT NULL COMMENT '平台接收时间',

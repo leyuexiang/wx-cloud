@@ -14,6 +14,12 @@ import org.apache.ibatis.annotations.Update;
 @Mapper
 public interface IotMessageInboxMapper extends BaseMapperX<IotMessageInboxDO> {
 
+    /** 仅归档已发布事件；失败和死信必须继续保留，供人工重放和审计。 */
+    @Update("UPDATE wx_iot_message_inbox SET status = 'ARCHIVED', update_time = NOW() "
+            + "WHERE status = 'PUBLISHED' AND received_at < #{before} AND deleted = b'0' LIMIT #{batchSize}")
+    int archivePublishedBefore(@Param("before") java.time.LocalDateTime before,
+                               @Param("batchSize") int batchSize);
+
     /** 依赖数据库唯一键抢占事件；数据库错误不能被静默当成重复消息。 */
     @Insert("""
             INSERT INTO wx_iot_message_inbox
