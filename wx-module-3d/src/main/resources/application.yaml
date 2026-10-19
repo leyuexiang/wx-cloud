@@ -151,6 +151,12 @@ aj:
 --- #################### 九天相关配置 ####################
 
 wx:
+  # 先准备遥测/死信主题与查询权限，再按部署环境显式开启最新状态投影。
+  iot-state:
+    enabled: ${IOT_STATE_ENABLED:false}
+    consumer-group: ${IOT_STATE_CONSUMER_GROUP:dimensions-iot-state-v1}
+    dead-letter-topic: ${IOT_STATE_DLT_TOPIC:twin.event.v1.dimensions.dlt}
+    state-ttl: ${IOT_STATE_TTL:24h} # 从事件发生时间计算；该缓存不作为历史审计记录。
   info:
     version: 1.0.0
     base-package: cn.iocoder.wx.module.dimensions

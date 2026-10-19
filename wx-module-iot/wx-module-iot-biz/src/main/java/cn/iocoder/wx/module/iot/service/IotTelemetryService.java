@@ -29,11 +29,24 @@ public class IotTelemetryService {
      * <p>事件 ID 使用输入内容生成；外部适配器应尽量传入事件时间和链路标识，便于重试时保持幂等。</p>
      */
     public TwinTelemetryEvent ingest(TwinTelemetryIngestRequest request) {
+        return ingest(request, false);
+    }
+
+    /** MQTT 来源必须已登记启用绑定，避免外部报文兜底生成未经管理的内部设备身份。 */
+    public TwinTelemetryEvent ingestBound(TwinTelemetryIngestRequest request) {
+        return ingest(request, true);
+    }
+
+    private TwinTelemetryEvent ingest(TwinTelemetryIngestRequest request, boolean bindingRequired) {
         Instant eventTime = request.getEventTime() == null ? Instant.now() : request.getEventTime();
         boolean replay = Boolean.TRUE.equals(request.getReplay());
         String eventId = buildEventId(request, eventTime, replay);
         IotDeviceBindingDO binding = deviceBindingService.getEnabledBinding(
                 request.getConnectorId(), request.getExternalDeviceId());
+        if (bindingRequired && binding == null) {
+            throw cn.iocoder.wx.framework.common.exception.util.ServiceExceptionUtil.exception(
+                    cn.iocoder.wx.module.iot.enums.ErrorCodeConstants.DEVICE_BINDING_NOT_EXISTS);
+        }
         IotMappedPoint mappedPoint = pointMappingService.map(binding, request.getPointCode(),
                 request.getValue(), request.getValueType(), request.getUnit());
         Long tenantId = request.getTenantId() == null
@@ -71,7 +84,7 @@ public class IotTelemetryService {
                         inboxService.markFailed(event.getTenantId(), event.getEventId(), claimToken, throwable);
                     }
                 } catch (RuntimeException recordingError) {
-                    // HTTP 可能已返回，回调异常必须落日志；使用事件租户，不能依赖回调线程上下文。
+                    // HTTP 可能已返回或 MQTT 已确认，回调异常必须落日志；租户以原事件为准。
                     // 不重发、不改写发送结果，保留现有 CLAIMED 超时抢占及下游幂等边界。
                     log.error("物联网异步投递状态更新失败，tenantId={}, eventId={}, publishSucceeded={}",
                             event.getTenantId(), event.getEventId(), throwable == null, recordingError);

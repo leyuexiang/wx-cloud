@@ -2,6 +2,9 @@ package cn.iocoder.wx.module.iot.api;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
@@ -12,6 +15,9 @@ import java.time.Instant;
  */
 @Data
 @Builder
+// 标准 Kafka 反序列化器需要无参构造，避免下游依赖 Web 层的构造参数模块。
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class TwinTelemetryEvent {
 
     /** 事件唯一标识，用于下游幂等。 */

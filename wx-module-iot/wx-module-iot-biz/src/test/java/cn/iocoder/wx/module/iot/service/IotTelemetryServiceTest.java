@@ -114,6 +114,15 @@ class IotTelemetryServiceTest {
         assertArrayEquals(new Throwable[]{databaseError}, actual.getSuppressed());
     }
 
+    /** MQTT 专用入口要求绑定存在，并且只查询一次绑定，避免适配层重复查询。 */
+    @Test
+    void shouldRequireBindingForMqttWithoutWritingInbox() {
+        assertThrows(cn.iocoder.wx.framework.common.exception.ServiceException.class,
+                () -> service.ingestBound(request()));
+        verify(bindings).getEnabledBinding("connector-1", "external-1");
+        verifyNoInteractions(inbox, publisher);
+    }
+
     /** 标准报文固定事件时间与追踪号，模拟外部平台重试相同遥测。 */
     private TwinTelemetryIngestRequest request() {
         TwinTelemetryIngestRequest request = new TwinTelemetryIngestRequest();
