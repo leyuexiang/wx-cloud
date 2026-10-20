@@ -12,6 +12,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.mockito.ArgumentCaptor;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 
 import java.util.concurrent.TimeUnit;
 
@@ -58,6 +60,15 @@ class IotMqttWorkerTest {
         worker.tick();
         verify(connection, times(1)).connect();
         verify(factory, times(1)).create(any(), same(lease));
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<LambdaUpdateWrapper<IotConnectorDO>> updates = ArgumentCaptor.forClass(LambdaUpdateWrapper.class);
+        verify(connectors, atLeastOnce()).update(isNull(), updates.capture());
+        for (var update : updates.getAllValues()) {
+            String conditions = update.getSqlSegment();
+            assertTrue(conditions.contains("runtime_owner IS NULL"));
+            assertTrue(conditions.contains("runtime_lease_until <= NOW(3)"));
+            assertTrue(conditions.contains("version"));
+        }
         var disabled = IotMqttSettingsTest.connector();
         disabled.setEnabled(false);
         when(connectors.selectByConnectorId("pilot")).thenReturn(disabled);

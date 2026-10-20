@@ -130,8 +130,11 @@ public class IotMqttWorker implements SmartLifecycle {
         if (!status.equals(connector.getStatus())) {
             connectors.update(null, new LambdaUpdateWrapper<IotConnectorDO>()
                     .eq(IotConnectorDO::getId, connector.getId()).eq(IotConnectorDO::getEnabled, true)
-                    // 单连接兼容模式不得覆盖已被动态模式认领的运行状态。
-                    .isNull(IotConnectorDO::getRuntimeOwner).eq(IotConnectorDO::getVersion, connector.getVersion())
+                    // 有效的动态所有者受保护；崩溃遗留的过期所有者不能永久阻止冷切回单连接模式。
+                    .and(owner -> owner.isNull(IotConnectorDO::getRuntimeOwner)
+                            .or().isNull(IotConnectorDO::getRuntimeLeaseUntil)
+                            .or().apply("runtime_lease_until <= NOW(3)"))
+                    .eq(IotConnectorDO::getVersion, connector.getVersion())
                     .eq(IotConnectorDO::getConnectorType, "MQTT")
                     .eq(IotConnectorDO::getEndpoint, connector.getEndpoint())
                     // 凭据引用变更后，旧连接同样不得覆盖新配置的运行状态。
