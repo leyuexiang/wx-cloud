@@ -94,4 +94,21 @@ class IotMqttTelemetryAdapterTest {
         verifyNoInteractions(connectors, telemetry, tenants);
     }
 
+    @Test
+    void shouldRejectStaleRuntimeOwnerAndConfigurationVersionWithoutExtraQueries() {
+        var current = IotMqttSettingsTest.connector();
+        current.setRuntimeOwner("new-owner");
+        when(connectors.getConnector("pilot")).thenReturn(current);
+        // 项目租户工具按既有约定包装 Supplier 异常，核对实际拒绝原因而非假定顶层类型。
+        var staleOwner = assertThrows(RuntimeException.class, () -> adapter.ingestOwned(
+                7L, "pilot", settings, "pilot/telemetry", payload(""), "old-owner"));
+        assertInstanceOf(IllegalStateException.class, staleOwner.getCause());
+        adapter.ingestOwned(7L, "pilot", settings, "pilot/telemetry", payload(""), "new-owner");
+        current.setVersion(2);
+        var staleVersion = assertThrows(RuntimeException.class, () -> adapter.ingestOwned(
+                7L, "pilot", settings, "pilot/telemetry", payload(""), "new-owner"));
+        assertInstanceOf(IllegalStateException.class, staleVersion.getCause());
+        verify(telemetry, times(1)).ingestBound(any());
+        verify(connectors, times(3)).getConnector("pilot");
+    }
 }

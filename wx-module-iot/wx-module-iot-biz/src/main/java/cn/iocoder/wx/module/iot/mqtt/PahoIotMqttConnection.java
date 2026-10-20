@@ -23,6 +23,7 @@ public class PahoIotMqttConnection implements IotMqttConnection {
         this.client = client;
         this.settings = settings;
         this.credentials = credentials;
+        long generation = lease.generation();
         client.setManualAcks(true);
         client.setCallback(new MqttCallback() {
             @Override
@@ -34,12 +35,12 @@ public class PahoIotMqttConnection implements IotMqttConnection {
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 try {
-                    if (!active.get() || !lease.isValid() || message.getQos() != 1) {
+                    if (!active.get() || !lease.isValid() || generation != lease.generation() || message.getQos() != 1) {
                         throw new IllegalStateException("MQTT 会话已失效或发布方未采用 QoS 1");
                     }
                     receiver.accept(topic, message.getPayload());
                     // 写库期间可能发生租约超时或停用；旧会话不得继续确认新所有者应接收的消息。
-                    if (!active.get() || !lease.isValid()) {
+                    if (!active.get() || !lease.isValid() || generation != lease.generation()) {
                         throw new IllegalStateException("MQTT 接收确认前会话或租约失效");
                     }
                     client.messageArrivedComplete(message.getId(), message.getQos());

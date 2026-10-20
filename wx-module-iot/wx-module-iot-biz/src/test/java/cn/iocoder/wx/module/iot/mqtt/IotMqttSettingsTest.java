@@ -15,6 +15,7 @@ class IotMqttSettingsTest {
         connector.setConnectorId("pilot");
         connector.setConnectorType("MQTT");
         connector.setEnabled(true);
+        connector.setVersion(1);
         connector.setEndpoint("ssl://broker.example.com:8883");
         connector.setCredentialRef("IOT_MQTT_PILOT");
         connector.setConfigJson("{\"topics\":[\"pilot/telemetry\"],\"qos\":1}");

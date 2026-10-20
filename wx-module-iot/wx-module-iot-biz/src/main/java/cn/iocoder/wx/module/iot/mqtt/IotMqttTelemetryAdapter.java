@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.CodingErrorAction;
+import java.util.Objects;
 
 /** MQTT 报文只携带外部身份，认证来源租户和内部绑定来自受控配置。 */
 public class IotMqttTelemetryAdapter {
@@ -42,6 +43,20 @@ public class IotMqttTelemetryAdapter {
 
     public TwinTelemetryEvent ingest(Long tenantId, String connectorId, IotMqttSettings settings,
                                      String topic, byte[] payload) {
+        return ingest(tenantId, connectorId, settings, topic, payload, null);
+    }
+
+    /** 动态会话还校验数据库所有者，复用既有配置查询，不为每条消息重复访问数据库。 */
+    public TwinTelemetryEvent ingestOwned(Long tenantId, String connectorId, IotMqttSettings settings,
+            String topic, byte[] payload, String owner) {
+        if (owner == null || owner.isBlank()) {
+            throw new IllegalArgumentException("MQTT 动态会话缺少运行所有者");
+        }
+        return ingest(tenantId, connectorId, settings, topic, payload, owner);
+    }
+
+    private TwinTelemetryEvent ingest(Long tenantId, String connectorId, IotMqttSettings settings,
+            String topic, byte[] payload, String owner) {
         if (!settings.topics().contains(topic) || payload == null || payload.length == 0 || payload.length > 65536) {
             throw new IllegalArgumentException("MQTT 主题或报文长度无效");
         }
@@ -77,7 +92,8 @@ public class IotMqttTelemetryAdapter {
             tenants.validTenant(tenantId);
             IotConnectorDO current = connectors.getConnector(connectorId);
             if (current == null || !Boolean.TRUE.equals(current.getEnabled())
-                    || !"MQTT".equals(current.getConnectorType()) || !settings.matches(current)) {
+                    || !"MQTT".equals(current.getConnectorType()) || !settings.matches(current)
+                    || owner != null && !Objects.equals(owner, current.getRuntimeOwner())) {
                 throw new IllegalStateException("MQTT 连接器已停用、删除或配置已变化");
             }
             return telemetry.ingestBound(request);

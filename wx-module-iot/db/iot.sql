@@ -13,13 +13,16 @@ CREATE TABLE IF NOT EXISTS `wx_iot_connector` (
   `config_json` json DEFAULT NULL COMMENT '协议扩展配置',
   `enabled` tinyint NOT NULL DEFAULT 0 COMMENT '是否启用',
   `version` int NOT NULL DEFAULT 1 COMMENT '配置版本',
+  `runtime_owner` varchar(36) DEFAULT NULL COMMENT '运行所有者令牌',
+  `runtime_lease_until` datetime(3) DEFAULT NULL COMMENT '数据库运行所有权截止时间',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `creator` varchar(64) DEFAULT NULL COMMENT '创建者',
   `updater` varchar(64) DEFAULT NULL COMMENT '更新者',
   `deleted` bit NOT NULL DEFAULT b'0' COMMENT '是否删除',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_iot_connector_tenant_code` (`tenant_id`, `connector_id`, `deleted`)
+  UNIQUE KEY `uk_iot_connector_tenant_code` (`tenant_id`, `connector_id`, `deleted`),
+  KEY `idx_iot_connector_discovery` (`tenant_id`, `connector_type`, `enabled`, `deleted`, `id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='物联网外部连接器';
 
 CREATE TABLE IF NOT EXISTS `wx_iot_device_binding` (

@@ -43,8 +43,13 @@ wx:
   iot:
     mqtt:
       enabled: ${IOT_MQTT_ENABLED:false}
+      mode: ${IOT_MQTT_MODE:SINGLE} # DYNAMIC 在指定租户内动态管理多个连接器。
       tenant-id: ${IOT_MQTT_TENANT_ID:}
       connector-id: ${IOT_MQTT_CONNECTOR_ID:}
       allow-insecure: ${IOT_MQTT_ALLOW_INSECURE:false} # 仅开发联调允许 tcp://，默认要求 ssl://。
+      max-connections: ${IOT_MQTT_MAX_CONNECTIONS:64}
+      connect-concurrency: ${IOT_MQTT_CONNECT_CONCURRENCY:4}
+      control-concurrency: ${IOT_MQTT_CONTROL_CONCURRENCY:4}
+      discovery-batch-size: ${IOT_MQTT_DISCOVERY_BATCH_SIZE:32}
   info:
     base-package: cn.iocoder.wx.module.iot

@@ -62,4 +62,36 @@ class IotMqttLeaseTest {
         assertFalse(lease.acquireOrRenew());
         assertFalse(lease.isValid());
     }
+
+    @Test
+    void shouldNotReviveOldGenerationAfterExpiryAndRenewal() {
+        acquire();
+        long generation = lease.generation();
+        time.addAndGet(Duration.ofSeconds(55).toNanos());
+        when(redis.execute(any(RedisScript.class), anyList(), any(Object[].class))).thenReturn(1L);
+        assertTrue(lease.acquireOrRenew());
+        assertNotEquals(generation, lease.generation());
+    }
+
+    @Test
+    void shouldPermanentlyRetireBeforeRedisReleaseCompletes() {
+        acquire();
+        long generation = lease.generation();
+        lease.retire();
+        assertFalse(lease.isValid());
+        assertNull(lease.ownerToken());
+        assertFalse(lease.acquireOrRenew());
+        assertNotEquals(generation, lease.generation());
+    }
+
+    @Test
+    void shouldInvalidateOnlyCallbacksWithoutDroppingOwnership() {
+        acquire();
+        String token = lease.ownerToken();
+        long generation = lease.generation();
+        lease.invalidateCallbacks();
+        assertTrue(lease.isValid());
+        assertEquals(token, lease.ownerToken());
+        assertNotEquals(generation, lease.generation());
+    }
 }

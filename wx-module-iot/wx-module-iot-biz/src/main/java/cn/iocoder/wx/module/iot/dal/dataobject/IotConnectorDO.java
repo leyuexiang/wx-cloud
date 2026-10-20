@@ -23,4 +23,7 @@ public class IotConnectorDO extends TenantBaseDO {
     private String configJson;
     private Boolean enabled;
     private Integer version;
+    /** 运行所有者令牌及数据库期限，阻止迟到状态回写覆盖新实例。 */
+    private String runtimeOwner;
+    private java.time.LocalDateTime runtimeLeaseUntil;
 }

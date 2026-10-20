@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.junit.jupiter.api.Test;
+import cn.iocoder.wx.framework.tenant.core.service.TenantFrameworkService;
+import cn.iocoder.wx.module.iot.dal.mysql.IotConnectorMapper;
+import cn.iocoder.wx.module.iot.dal.dataobject.IotConnectorDO;
 
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
@@ -13,9 +16,12 @@ import java.net.ServerSocket;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.*;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
 
 /** 通过回环 TCP 协议桩检查真实 Paho 客户端发送的确认帧，不连接任何外部 Broker。 */
 class IotMqttSocketTest {
@@ -27,6 +33,87 @@ class IotMqttSocketTest {
     @Test
     void shouldDisconnectWithoutPubackWhenReceptionFails() throws Exception {
         verifyWireAcknowledgement(true);
+    }
+
+    @Test
+    void shouldReceiveAndAcknowledgeTwoSourcesInsideOneDynamicManager() throws Exception {
+        var received = new CountDownLatch(2);
+        var finishReception = new CountDownLatch(1);
+        Set<String> sources = ConcurrentHashMap.newKeySet();
+        try (var firstBroker = new LoopbackBroker(); var secondBroker = new LoopbackBroker()) {
+            IotConnectorDO first = IotMqttSettingsTest.connector();
+            IotConnectorDO second = IotMqttSettingsTest.connector();
+            first.setEndpoint("tcp://127.0.0.1:" + firstBroker.server.getLocalPort());
+            second.setId(2L);
+            second.setConnectorId("second");
+            second.setEndpoint("tcp://127.0.0.1:" + secondBroker.server.getLocalPort());
+            IotConnectorMapper mapper = mock(IotConnectorMapper.class);
+            when(mapper.selectEnabledMqttBatch(eq(7L), eq(0L), anyInt())).thenReturn(List.of(first, second));
+            when(mapper.selectById(1L)).thenReturn(first);
+            when(mapper.selectById(2L)).thenReturn(second);
+            when(mapper.claimMqttRuntime(eq(7L), anyLong(), eq(1), anyString())).thenReturn(1);
+            when(mapper.renewMqttRuntime(eq(7L), anyLong(), eq(1), anyString())).thenReturn(1);
+            when(mapper.updateMqttRuntimeStatus(eq(7L), anyLong(), eq(1), anyString(), anyString())).thenReturn(1);
+            IotMqttProperties properties = new IotMqttProperties();
+            properties.setTenantId(7L);
+            properties.setMode(IotMqttProperties.Mode.DYNAMIC);
+            properties.setMaxConnections(2);
+            properties.setConnectConcurrency(2);
+            properties.setAllowInsecure(true);
+            var controls = new IotMqttManualExecutor();
+            var network = Executors.newFixedThreadPool(2);
+            var cleanups = Executors.newFixedThreadPool(2);
+            IotMqttConnection.Factory factory = (settings, lease) -> {
+                try {
+                    return new PahoIotMqttConnection(new MqttAsyncClient(settings.endpoint(), settings.clientId(),
+                            new MemoryPersistence()), settings, new IotMqttSettings.Credentials("test", "temporary".toCharArray()),
+                            lease, (topic, payload) -> {
+                                assertEquals(7L, settings.tenantId());
+                                sources.add(settings.connectorId());
+                                received.countDown();
+                                try {
+                                    if (!finishReception.await(5, TimeUnit.SECONDS)) {
+                                        throw new IllegalStateException("测试接收超时");
+                                    }
+                                } catch (InterruptedException ex) {
+                                    Thread.currentThread().interrupt();
+                                    throw new IllegalStateException(ex);
+                                }
+                            });
+                } catch (Exception ex) {
+                    throw new IllegalStateException(ex);
+                }
+            };
+            var manager = new IotMqttDynamicManager(properties, mapper, mock(TenantFrameworkService.class),
+                    new ObjectMapper(), row -> {
+                        IotMqttLease lease = mock(IotMqttLease.class);
+                        when(lease.isValid()).thenReturn(true);
+                        when(lease.acquireOrRenew()).thenReturn(true);
+                        when(lease.ownerToken()).thenReturn("owner-" + row.getId());
+                        return lease;
+                    }, factory, mock(ScheduledExecutorService.class), controls, network, cleanups);
+            manager.start();
+            try {
+                manager.discover();
+                manager.pollSessions();
+                controls.drain();
+                assertTrue(received.await(5, TimeUnit.SECONDS));
+                assertTrue(firstBroker.checkedNoEarlyAck.await(5, TimeUnit.SECONDS));
+                assertTrue(secondBroker.checkedNoEarlyAck.await(5, TimeUnit.SECONDS));
+                finishReception.countDown();
+                assertEquals(4, firstBroker.result.get(5, TimeUnit.SECONDS).type());
+                assertEquals(4, secondBroker.result.get(5, TimeUnit.SECONDS).type());
+                assertEquals(Set.of("pilot", "second"), sources);
+            } finally {
+                finishReception.countDown();
+                var stopped = new CompletableFuture<Void>();
+                manager.stop(() -> stopped.complete(null));
+                controls.drain();
+                stopped.get(5, TimeUnit.SECONDS);
+                assertTrue(network.awaitTermination(3, TimeUnit.SECONDS));
+                assertTrue(cleanups.awaitTermination(3, TimeUnit.SECONDS));
+            }
+        }
     }
 
     private void verifyWireAcknowledgement(boolean fail) throws Exception {

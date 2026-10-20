@@ -13,7 +13,8 @@ import java.util.UUID;
 import java.util.function.Function;
 
 /** 只解释已约定的配置字段；凭据解析独立完成，避免进入配置指纹和日志。 */
-public record IotMqttSettings(String endpoint, String credentialRef, String configJson, List<String> topics,
+public record IotMqttSettings(Long tenantId, Long id, String connectorId, Integer version,
+                              String endpoint, String credentialRef, String configJson, List<String> topics,
                               String clientId) {
     public static IotMqttSettings parse(IotConnectorDO connector, boolean allowInsecure, ObjectMapper mapper) {
         try {
@@ -58,7 +59,8 @@ public record IotMqttSettings(String endpoint, String credentialRef, String conf
                     + connector.getEndpoint() + "\n" + reference + "\n" + connector.getConfigJson();
             // 固定配置使用固定客户端号，进程重启继续 Broker 会话，配置变化隔离旧订阅。
             String clientId = "wx-iot-" + UUID.nameUUIDFromBytes(fingerprint.getBytes(StandardCharsets.UTF_8));
-            return new IotMqttSettings(connector.getEndpoint(), reference, connector.getConfigJson(),
+            return new IotMqttSettings(connector.getTenantId(), connector.getId(), connector.getConnectorId(),
+                    connector.getVersion(), connector.getEndpoint(), reference, connector.getConfigJson(),
                     List.copyOf(topics), clientId);
         } catch (Exception ex) {
             // URI 和 JSON 异常可能携带认证材料，不向上附带原配置或异常原文。
@@ -67,7 +69,10 @@ public record IotMqttSettings(String endpoint, String credentialRef, String conf
     }
 
     public boolean matches(IotConnectorDO connector) {
-        return Objects.equals(endpoint, connector.getEndpoint()) && Objects.equals(credentialRef, connector.getCredentialRef())
+        // 即使新旧配置文本一致，也不能让旧配置版本的回调跨越停用和重新启用。
+        return Objects.equals(tenantId, connector.getTenantId()) && Objects.equals(id, connector.getId())
+                && Objects.equals(connectorId, connector.getConnectorId()) && Objects.equals(version, connector.getVersion())
+                && Objects.equals(endpoint, connector.getEndpoint()) && Objects.equals(credentialRef, connector.getCredentialRef())
                 && Objects.equals(configJson, connector.getConfigJson());
     }
 

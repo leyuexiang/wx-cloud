@@ -10,6 +10,7 @@ import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,20 +28,36 @@ public class IotMqttConfiguration {
     }
 
     @Bean
+    @ConditionalOnProperty(prefix = "wx.iot.mqtt", name = "mode", havingValue = "SINGLE", matchIfMissing = true)
     public IotMqttLease iotMqttLease(StringRedisTemplate redis, IotMqttProperties properties) {
         return new IotMqttLease(redis, properties.getTenantId(), properties.getConnectorId());
     }
 
     @Bean
-    public IotMqttConnection.Factory iotMqttConnectionFactory(IotMqttProperties properties,
-            IotMqttTelemetryAdapter adapter, ObjectMapper mapper) {
+    @ConditionalOnMissingBean(IotMqttCredentialsProvider.class)
+    public IotMqttCredentialsProvider iotMqttCredentialsProvider(ObjectMapper mapper) {
+        return settings -> settings.credentials(System::getenv, mapper);
+    }
+
+    @Bean
+    public IotMqttConnection.Factory iotMqttConnectionFactory(
+            IotMqttProperties properties, IotMqttTelemetryAdapter adapter, IotMqttCredentialsProvider provider) {
         return (settings, lease) -> {
-            var credentials = settings.credentials(System::getenv, mapper);
+            if (settings.tenantId() == null || settings.connectorId() == null) {
+                throw new IllegalArgumentException("MQTT 会话缺少受控来源身份");
+            }
+            var credentials = provider.resolve(settings);
+            String owner = lease.ownerToken();
             try {
                 return new PahoIotMqttConnection(new MqttAsyncClient(settings.endpoint(), settings.clientId(),
                         new MemoryPersistence()), settings, credentials, lease,
-                        (topic, payload) -> adapter.ingest(properties.getTenantId(), properties.getConnectorId(),
-                                settings, topic, payload));
+                        (topic, payload) -> {
+                            if (properties.getMode() == IotMqttProperties.Mode.DYNAMIC) {
+                                adapter.ingestOwned(settings.tenantId(), settings.connectorId(), settings, topic, payload, owner);
+                            } else {
+                                adapter.ingest(settings.tenantId(), settings.connectorId(), settings, topic, payload);
+                            }
+                        });
             } catch (MqttException ex) {
                 java.util.Arrays.fill(credentials.password(), '\0');
                 throw new IllegalStateException("MQTT 客户端无法创建");
@@ -49,8 +66,17 @@ public class IotMqttConfiguration {
     }
 
     @Bean
+    @ConditionalOnProperty(prefix = "wx.iot.mqtt", name = "mode", havingValue = "SINGLE", matchIfMissing = true)
     public IotMqttWorker iotMqttWorker(IotMqttProperties properties, IotConnectorMapper connectors,
             TenantFrameworkService tenants, IotMqttLease lease, IotMqttConnection.Factory factory, ObjectMapper mapper) {
         return new IotMqttWorker(properties, connectors, tenants, lease, factory, mapper);
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "wx.iot.mqtt", name = "mode", havingValue = "DYNAMIC")
+    public IotMqttDynamicManager iotMqttDynamicManager(IotMqttProperties properties, IotConnectorMapper connectors,
+            TenantFrameworkService tenants, ObjectMapper mapper, StringRedisTemplate redis, IotMqttConnection.Factory factory) {
+        return new IotMqttDynamicManager(properties, connectors, tenants, mapper,
+                row -> new IotMqttLease(redis, properties.getTenantId(), row.getConnectorId()), factory);
     }
 }

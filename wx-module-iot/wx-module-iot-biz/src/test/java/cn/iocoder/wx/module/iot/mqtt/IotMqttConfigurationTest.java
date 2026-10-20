@@ -45,7 +45,7 @@ class IotMqttConfigurationTest {
     @Test
     void shouldCreateNoMqttResourcesByDefault() {
         runner.run(context -> assertThat(context).hasNotFailed().doesNotHaveBean(IotMqttWorker.class)
-                .doesNotHaveBean(IotMqttLease.class));
+                .doesNotHaveBean(IotMqttLease.class).doesNotHaveBean(IotMqttDynamicManager.class));
     }
 
     @Test
@@ -59,6 +59,24 @@ class IotMqttConfigurationTest {
         runner.withPropertyValues("wx.iot.mqtt.enabled=true", "wx.iot.mqtt.tenant-id=7",
                 "wx.iot.mqtt.connector-id=pilot")
                 .run(context -> assertThat(context).hasNotFailed().hasSingleBean(IotMqttWorker.class)
-                        .hasSingleBean(IotMqttConnection.Factory.class).hasSingleBean(IotTelemetryService.class));
+                        .hasSingleBean(IotMqttConnection.Factory.class).hasSingleBean(IotTelemetryService.class)
+                        .doesNotHaveBean(IotMqttDynamicManager.class));
+    }
+
+    @Test
+    void shouldAssembleDynamicModeWithoutSingleWorkerOrFixedConnector() {
+        runner.withPropertyValues("wx.iot.mqtt.enabled=true", "wx.iot.mqtt.mode=DYNAMIC", "wx.iot.mqtt.tenant-id=7")
+                .run(context -> assertThat(context).hasNotFailed().hasSingleBean(IotMqttDynamicManager.class)
+                        .doesNotHaveBean(IotMqttWorker.class).doesNotHaveBean(IotMqttLease.class));
+    }
+
+    @Test
+    void shouldRejectDynamicModeWithFixedConnectorAndExcessConcurrency() {
+        runner.withPropertyValues("wx.iot.mqtt.enabled=true", "wx.iot.mqtt.mode=DYNAMIC",
+                        "wx.iot.mqtt.tenant-id=7", "wx.iot.mqtt.connector-id=pilot")
+                .run(context -> assertThat(context).hasFailed());
+        runner.withPropertyValues("wx.iot.mqtt.enabled=true", "wx.iot.mqtt.mode=DYNAMIC",
+                        "wx.iot.mqtt.tenant-id=7", "wx.iot.mqtt.max-connections=2", "wx.iot.mqtt.connect-concurrency=3")
+                .run(context -> assertThat(context).hasFailed());
     }
 }

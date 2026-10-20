@@ -81,6 +81,17 @@ class IotMqttAcknowledgementTest {
     }
 
     @Test
+    void shouldRejectOldCallbackEvenWhenLeaseIsValidAgain() throws Exception {
+        when(lease.isValid()).thenReturn(true);
+        when(lease.generation()).thenReturn(1L);
+        var callback = callback();
+        when(lease.generation()).thenReturn(2L);
+        assertThrows(IllegalStateException.class, () -> callback.messageArrived("pilot/telemetry", message(1)));
+        verifyNoInteractions(receiver);
+        verify(client, never()).messageArrivedComplete(anyInt(), anyInt());
+    }
+
+    @Test
     void shouldRequirePersistentSessionTlsHostnameCheckAndGrantedQosOne() throws Exception {
         IMqttToken connect = mock(IMqttToken.class);
         IMqttToken subscribed = mock(IMqttToken.class);

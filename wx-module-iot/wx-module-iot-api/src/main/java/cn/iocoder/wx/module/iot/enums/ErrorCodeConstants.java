@@ -15,6 +15,9 @@ public interface ErrorCodeConstants {
     ErrorCode WEBHOOK_CONNECTOR_INVALID = new ErrorCode(1_009_001_008, "HTTPS 连接器未启用或类型不匹配");
     ErrorCode WEBHOOK_SIGNATURE_INVALID = new ErrorCode(1_009_001_009, "物联网回调签名无效");
     ErrorCode WEBHOOK_PAYLOAD_INVALID = new ErrorCode(1_009_001_010, "物联网回调报文无效");
+    ErrorCode CONNECTOR_VERSION_CONFLICT = new ErrorCode(1_009_001_011, "连接器配置已变化，请刷新后重试");
+    ErrorCode CONNECTOR_ID_IMMUTABLE = new ErrorCode(1_009_001_012, "连接器编号创建后不可修改，请新建连接器");
+    ErrorCode CONNECTOR_CONFIG_INVALID = new ErrorCode(1_009_001_013, "物联网协议参数配置无效");
     ErrorCode DEVICE_BINDING_NOT_EXISTS = new ErrorCode(1_009_001_101, "物联网设备绑定不存在");
     ErrorCode DEVICE_BINDING_DUPLICATE = new ErrorCode(1_009_001_102, "外部设备绑定已存在");
 }
