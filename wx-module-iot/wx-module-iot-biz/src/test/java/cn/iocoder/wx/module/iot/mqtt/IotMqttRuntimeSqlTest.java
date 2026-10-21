@@ -23,12 +23,25 @@ class IotMqttRuntimeSqlTest {
     @Test
     void shouldParseDiscoveryAndOwnershipSqlWithExplicitTenantAndLogicalDeletion() {
         for (String method : new String[]{"selectEnabledMqttBatch", "claimMqttRuntime", "renewMqttRuntime",
-                "updateMqttRuntimeStatus", "releaseMqttRuntime"}) {
+                "updateMqttRuntimeStatus", "releaseMqttRuntime", "selectRuntime"}) {
             String sql = sql(method);
             assertTrue(sql.contains("tenant_id = #{tenantId}"));
             assertTrue(sql.contains("deleted = b'0'"));
             assertDoesNotThrow(() -> CCJSqlParserUtil.parse(sql.replaceAll("#\\{[^}]+}", "1")));
         }
+    }
+
+    @Test
+    void shouldObserveLeaseUsingDatabaseClockWithoutReturningSecretsOrOwnerToken() {
+        String sql = sql("selectRuntime");
+        assertTrue(sql.contains("id = #{id}"));
+        assertTrue(sql.contains("NOW(3) AS observed_at"));
+        assertTrue(sql.contains("runtime_lease_until > NOW(3)"));
+        assertFalse(sql.contains("SELECT *"));
+        assertFalse(sql.contains("credential_ref"));
+        assertFalse(sql.contains("config_json"));
+        assertFalse(sql.contains("endpoint"));
+        assertFalse(sql.contains("runtime_owner,"));
     }
 
     @Test

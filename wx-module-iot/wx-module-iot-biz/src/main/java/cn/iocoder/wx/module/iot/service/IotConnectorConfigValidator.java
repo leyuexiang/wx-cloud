@@ -23,11 +23,16 @@ public class IotConnectorConfigValidator {
 
     public void validate(IotConnectorDO connector) {
         if ("MQTT".equals(connector.getConnectorType())) {
-            try {
-                IotMqttSettings.parse(connector, allowInsecure, mapper);
-            } catch (IllegalArgumentException ex) {
-                throw exception(CONNECTOR_CONFIG_INVALID);
-            }
+            parseMqtt(connector);
+        }
+    }
+
+    /** 预校验与保存、启用共用同一解析入口，不读取环境变量或尝试建连。 */
+    public IotMqttSettings parseMqtt(IotConnectorDO connector) {
+        try {
+            return IotMqttSettings.parse(connector, allowInsecure, mapper);
+        } catch (IllegalArgumentException ex) {
+            throw exception(CONNECTOR_CONFIG_INVALID);
         }
     }
 }

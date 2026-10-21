@@ -3,6 +3,9 @@ package cn.iocoder.wx.module.iot.dal.mysql;
 import cn.iocoder.wx.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.wx.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.wx.module.iot.dal.dataobject.IotConnectorDO;
+import cn.iocoder.wx.module.iot.dal.dataobject.IotConnectorRuntimeDO;
+import cn.iocoder.wx.module.iot.controller.admin.connector.vo.IotConnectorPageReqVO;
+import cn.iocoder.wx.framework.common.pojo.PageResult;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -13,6 +16,23 @@ import java.util.List;
 /** 物联网连接器配置数据访问层。 */
 @Mapper
 public interface IotConnectorMapper extends BaseMapperX<IotConnectorDO> {
+
+    /** 状态和期限在同一次查询中观测；即使误启用忽略租户，也保留显式租户条件。 */
+    @Select("SELECT id, connector_id, connector_type, enabled, version, status, runtime_lease_until, "
+            + "NOW(3) AS observed_at, (runtime_owner IS NOT NULL) AS owner_present, "
+            + "CASE WHEN runtime_owner IS NOT NULL AND runtime_lease_until > NOW(3) THEN 1 ELSE 0 END AS lease_active "
+            + "FROM wx_iot_connector WHERE tenant_id = #{tenantId} AND id = #{id} AND deleted = b'0'")
+    IotConnectorRuntimeDO selectRuntime(@Param("tenantId") Long tenantId, @Param("id") Long id);
+
+    /** 分页与筛选由数据库完成，不对旧全量列表在内存中截断。 */
+    default PageResult<IotConnectorDO> selectManagementPage(Long tenantId, IotConnectorPageReqVO request) {
+        return selectPage(request, new LambdaQueryWrapperX<IotConnectorDO>()
+                .eq(IotConnectorDO::getTenantId, tenantId)
+                .likeIfPresent(IotConnectorDO::getConnectorId, request.getConnectorId())
+                .eqIfPresent(IotConnectorDO::getConnectorType, request.getConnectorType())
+                .eqIfPresent(IotConnectorDO::getEnabled, request.getEnabled())
+                .orderByDesc(IotConnectorDO::getId));
+    }
 
     /** 有界游标查询显式限定部署租户，绝不绕过租户插件扫描其他租户。 */
     @Select("SELECT * FROM wx_iot_connector WHERE tenant_id = #{tenantId} AND id > #{afterId} "

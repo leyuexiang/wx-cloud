@@ -1,15 +1,22 @@
 package cn.iocoder.wx.module.iot.controller.admin.connector;
 
 import cn.iocoder.wx.framework.common.pojo.CommonResult;
+import cn.iocoder.wx.framework.common.pojo.PageResult;
 import cn.iocoder.wx.framework.common.util.object.BeanUtils;
 import cn.iocoder.wx.module.iot.controller.admin.connector.vo.IotConnectorRespVO;
 import cn.iocoder.wx.module.iot.controller.admin.connector.vo.IotConnectorSaveReqVO;
+import cn.iocoder.wx.module.iot.controller.admin.connector.vo.IotConnectorPageReqVO;
+import cn.iocoder.wx.module.iot.controller.admin.connector.vo.IotConnectorRuntimeRespVO;
+import cn.iocoder.wx.module.iot.controller.admin.connector.vo.IotMqttConfigValidateReqVO;
+import cn.iocoder.wx.module.iot.controller.admin.connector.vo.IotMqttConfigValidateRespVO;
 import cn.iocoder.wx.module.iot.dal.dataobject.IotConnectorDO;
 import cn.iocoder.wx.module.iot.service.IotConnectorService;
+import cn.iocoder.wx.module.iot.service.IotConnectorManagementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -35,6 +42,31 @@ import static cn.iocoder.wx.framework.common.pojo.CommonResult.success;
 public class IotConnectorController {
 
     private final IotConnectorService connectorService;
+    private final IotConnectorManagementService managementService;
+
+    /** 配置预校验只使用管理员权限，不访问目标地址或凭据内容。 */
+    @PostMapping("/validate-mqtt-config")
+    @Operation(summary = "预校验未保存的 MQTT 配置结构")
+    @PreAuthorize("@ss.hasAnyPermissions('iot:connector:create', 'iot:connector:update')")
+    public CommonResult<IotMqttConfigValidateRespVO> validateMqttConfig(
+            @Valid @RequestBody IotMqttConfigValidateReqVO request) {
+        return success(managementService.validateMqtt(request));
+    }
+
+    @GetMapping("/page")
+    @Operation(summary = "分页查询物联网连接器")
+    @PreAuthorize("@ss.hasPermission('iot:connector:query')")
+    public CommonResult<PageResult<IotConnectorRespVO>> page(@Valid IotConnectorPageReqVO request) {
+        return success(BeanUtils.toBean(managementService.getPage(request), IotConnectorRespVO.class));
+    }
+
+    /** 只按需查询选中连接器；不对列表逐行轮询，避免产生重复数据库请求。 */
+    @GetMapping("/runtime")
+    @Operation(summary = "查询连接器运行状态与租约观测")
+    @PreAuthorize("@ss.hasPermission('iot:connector:query')")
+    public CommonResult<IotConnectorRuntimeRespVO> runtime(@Min(1) @RequestParam("id") Long id) {
+        return success(managementService.getRuntime(id));
+    }
 
     @PostMapping("/create")
     @Operation(summary = "创建物联网连接器")
