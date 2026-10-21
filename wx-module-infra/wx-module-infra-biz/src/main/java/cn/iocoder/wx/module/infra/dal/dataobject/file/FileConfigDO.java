@@ -24,7 +24,7 @@ import java.lang.reflect.Field;
  *
  * @author 九天芸菲
  */
-@TableName(value = "infra_file_config", autoResultMap = true)
+@TableName(value = "wx_infra_file_config", autoResultMap = true)
 @KeySequence("infra_file_config_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 @EqualsAndHashCode(callSuper = true)

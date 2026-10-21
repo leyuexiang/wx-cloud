@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  *
  * @author 九天芸菲
  */
-@TableName("infra_api_access_log")
+@TableName("wx_infra_api_access_log")
 @KeySequence(value = "infra_api_access_log_seq")
 @Data
 @EqualsAndHashCode(callSuper = true)

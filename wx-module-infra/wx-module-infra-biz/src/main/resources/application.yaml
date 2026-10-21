@@ -167,15 +167,15 @@ wx:
     ignore-urls:
       - /admin-api/infra/file/*/get/** # 获取图片，和租户无关
     ignore-tables:
-      - infra_codegen_column
-      - infra_codegen_table
-      - infra_config
-      - infra_file_config
-      - infra_file
-      - infra_file_content
-      - infra_job
-      - infra_job_log
-      - infra_job_log
-      - infra_data_source_config
+      - wx_infra_codegen_column
+      - wx_infra_codegen_table
+      - wx_infra_config
+      - wx_infra_file_config
+      - wx_infra_file
+      - wx_infra_file_content
+      - wx_infra_job
+      - wx_infra_job_log
+      - wx_infra_job_log
+      - wx_infra_data_source_config
 
 debug: false

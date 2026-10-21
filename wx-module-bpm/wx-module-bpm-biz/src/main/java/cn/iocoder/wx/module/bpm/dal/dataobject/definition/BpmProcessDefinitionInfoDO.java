@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @author 九天芸菲
  */
-@TableName(value = "bpm_process_definition_info", autoResultMap = true)
+@TableName(value = "wx_bpm_process_definition_info", autoResultMap = true)
 @Data
 @Builder
 @NoArgsConstructor

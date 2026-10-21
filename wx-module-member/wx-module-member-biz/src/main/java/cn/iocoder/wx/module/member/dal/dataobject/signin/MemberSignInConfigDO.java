@@ -12,7 +12,7 @@ import lombok.*;
  *
  * @author QingX
  */
-@TableName("member_sign_in_config")
+@TableName("wx_member_sign_in_config")
 @KeySequence("member_sign_in_config_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 @EqualsAndHashCode(callSuper = true)

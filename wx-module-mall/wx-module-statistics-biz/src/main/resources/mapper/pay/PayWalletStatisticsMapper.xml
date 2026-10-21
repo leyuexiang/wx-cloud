@@ -6,7 +6,7 @@
             resultType="cn.iocoder.wx.module.statistics.service.trade.bo.WalletSummaryRespBO">
         SELECT COUNT(1)       AS rechargePayCount,
                SUM(pay_price) AS rechargePayPrice
-        FROM pay_wallet_recharge
+        FROM wx_pay_wallet_recharge
         WHERE pay_status = #{payStatus}
           AND pay_time BETWEEN #{beginTime} AND #{endTime}
           AND deleted = FALSE
@@ -16,7 +16,7 @@
             resultType="cn.iocoder.wx.module.statistics.service.trade.bo.WalletSummaryRespBO">
         SELECT COUNT(1)       AS rechargeRefundCount,
                SUM(pay_price) AS rechargeRefundPrice
-        FROM pay_wallet_recharge
+        FROM wx_pay_wallet_recharge
         WHERE refund_status = #{refundStatus}
           AND refund_time BETWEEN #{beginTime} AND #{endTime}
           AND deleted = FALSE
@@ -24,7 +24,7 @@
 
     <select id="selectPriceSummaryByBizTypeAndCreateTimeBetween" resultType="java.lang.Integer">
         SELECT SUM(price)
-        FROM pay_wallet_transaction
+        FROM wx_pay_wallet_transaction
         WHERE biz_type = #{bizType}
           AND create_time BETWEEN #{beginTime} AND #{endTime}
           AND deleted = FALSE
@@ -34,7 +34,7 @@
             resultType="cn.iocoder.wx.module.statistics.service.pay.bo.RechargeSummaryRespBO">
         SELECT COUNT(DISTINCT wallet_id) AS rechargeUserCount,
                SUM(pay_price)            AS rechargePrice
-        FROM pay_wallet_recharge
+        FROM wx_pay_wallet_recharge
         WHERE pay_status = #{payStatus}
         <if test="beginTime != null">
             AND pay_time >= #{beginTime}
@@ -47,7 +47,7 @@
 
     <select id="selectRechargePriceSummary" resultType="java.lang.Integer">
         SELECT IFNULL(SUM(pay_price), 0)
-        FROM pay_wallet_recharge
+        FROM wx_pay_wallet_recharge
         WHERE pay_status = #{payStatus}
           AND deleted = FALSE
     </select>

@@ -56,13 +56,13 @@ public class DatabaseTableServiceImplTest extends BaseDbUnitTest {
                 .thenReturn(dataSourceConfig);
 
         // 调用
-        TableInfo tableInfo = databaseTableService.getTable(dataSourceConfigId, "infra_config");
+        TableInfo tableInfo = databaseTableService.getTable(dataSourceConfigId, "wx_infra_config");
         // 断言
         assertTableInfo(tableInfo);
     }
 
     private void assertTableInfo(TableInfo tableInfo) {
-        assertEquals("infra_config", tableInfo.getName());
+        assertEquals("wx_infra_config", tableInfo.getName());
         assertEquals("参数配置表", tableInfo.getComment());
         assertEquals(13, tableInfo.getFields().size());
         // id 字段

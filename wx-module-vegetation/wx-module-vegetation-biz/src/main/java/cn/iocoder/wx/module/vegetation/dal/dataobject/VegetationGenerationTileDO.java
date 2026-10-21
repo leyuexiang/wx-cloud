@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("veg_generation_tile")
+@TableName("wx_veg_generation_tile")
 public class VegetationGenerationTileDO {
 
     @TableId(type = IdType.ASSIGN_ID)

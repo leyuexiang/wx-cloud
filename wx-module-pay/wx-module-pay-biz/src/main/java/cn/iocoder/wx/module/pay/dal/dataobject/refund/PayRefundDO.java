@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
  *
  * @author 九天芸菲
  */
-@TableName("pay_refund")
+@TableName("wx_pay_refund")
 @KeySequence("pay_refund_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 @EqualsAndHashCode(callSuper = true)

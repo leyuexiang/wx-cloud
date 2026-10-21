@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  *
  * @author 九天芸菲
  */
-@TableName("system_sms_code")
+@TableName("wx_system_sms_code")
 @KeySequence("system_sms_code_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 @EqualsAndHashCode(callSuper = true)

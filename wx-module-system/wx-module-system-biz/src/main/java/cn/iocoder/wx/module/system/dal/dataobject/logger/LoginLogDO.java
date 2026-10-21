@@ -17,7 +17,7 @@ import lombok.ToString;
  *
  * @author 九天芸菲
  */
-@TableName("system_login_log")
+@TableName("wx_system_login_log")
 @KeySequence("system_login_log_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 @EqualsAndHashCode(callSuper = true)

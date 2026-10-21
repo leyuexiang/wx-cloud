@@ -1,5 +1,5 @@
-DELETE FROM "member_user";
-DELETE FROM "member_address";
-DELETE FROM "member_tag";
-DELETE FROM "member_level";
-DELETE FROM "member_group";
+DELETE FROM "wx_member_user";
+DELETE FROM "wx_member_address";
+DELETE FROM "wx_member_tag";
+DELETE FROM "wx_member_level";
+DELETE FROM "wx_member_group";

@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName(value = "veg_generation_task", autoResultMap = true)
+@TableName(value = "wx_veg_generation_task", autoResultMap = true)
 public class VegetationGenerationTaskDO {
 
     /** 本地任务主键，同时作为发给 Python 生成器的稳定任务号。 */
