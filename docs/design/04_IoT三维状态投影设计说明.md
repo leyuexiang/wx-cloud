@@ -87,12 +87,14 @@
 - Redis 存储交互使用项目现有 Redisson 驱动，连接本机临时 FakeRedis 协议模拟服务并执行 Lua，覆盖 20 条并发乱序写入、重复消息不续期和身份损坏拒绝。临时模拟器的批量字符串响应编码已按 Redis 协议修正；测试没有连接实际 Redis 服务，不能代替部署环境兼容性验证。验证工具只放在系统临时目录，未加入工程依赖。
 - Kafka 死信测试使用真实错误处理器和可控发送结果，未连接真实 Broker；未部署应用、创建远端主题或修改服务器。
 
-使用本机专用 Redis 复核存储交互时，在 PowerShell 中指定测试端口后运行下列命令。测试仅连接 `127.0.0.1`，仅写入和清理本用例的随机租户键，不执行清库操作。
+使用 Redis 复核存储交互时，在 PowerShell 中指定测试主机和端口后运行下列命令。`IOT_STATE_TEST_REDIS_HOST` 省略时默认连接 `127.0.0.1`；测试仅写入和清理本用例的随机租户键，不执行清库操作。连接共享环境前必须确认账号权限和隔离窗口。
 
 ```powershell
 $env:IOT_STATE_TEST_REDIS_PORT = '16379' # 填写已启动的本机专用测试 Redis 端口。
+$env:IOT_STATE_TEST_REDIS_HOST = '127.0.0.1' # 148 环境联调时改为 192.168.10.148。
 mvn -pl wx-module-3d,wx-module-iot/wx-module-iot-biz -am test '-Dtest=Iot*Test' '-Dsurefire.failIfNoSpecifiedTests=false' '-DskipTests=false'
 Remove-Item Env:IOT_STATE_TEST_REDIS_PORT
+Remove-Item Env:IOT_STATE_TEST_REDIS_HOST
 ```
 
 未提供测试端口时，三个 Redis 存储交互用例会明确跳过，其余用例仍可执行。
