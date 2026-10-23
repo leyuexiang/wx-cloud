@@ -7,11 +7,14 @@ import cn.iocoder.wx.module.iot.controller.admin.connector.vo.IotConnectorRespVO
 import cn.iocoder.wx.module.iot.controller.admin.connector.vo.IotConnectorSaveReqVO;
 import cn.iocoder.wx.module.iot.controller.admin.connector.vo.IotConnectorPageReqVO;
 import cn.iocoder.wx.module.iot.controller.admin.connector.vo.IotConnectorRuntimeRespVO;
+import cn.iocoder.wx.module.iot.controller.admin.connector.vo.IotConnectorConnectionTestReqVO;
+import cn.iocoder.wx.module.iot.controller.admin.connector.vo.IotConnectorConnectionTestRespVO;
 import cn.iocoder.wx.module.iot.controller.admin.connector.vo.IotMqttConfigValidateReqVO;
 import cn.iocoder.wx.module.iot.controller.admin.connector.vo.IotMqttConfigValidateRespVO;
 import cn.iocoder.wx.module.iot.dal.dataobject.IotConnectorDO;
 import cn.iocoder.wx.module.iot.service.IotConnectorService;
 import cn.iocoder.wx.module.iot.service.IotConnectorManagementService;
+import cn.iocoder.wx.module.iot.service.IotConnectorConnectivityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,6 +46,15 @@ public class IotConnectorController {
 
     private final IotConnectorService connectorService;
     private final IotConnectorManagementService managementService;
+    private final IotConnectorConnectivityService connectivityService;
+
+    @PostMapping("/test-mqtt")
+    @Operation(summary = "测试已保存的 MQTT 连接")
+    @PreAuthorize("@ss.hasPermission('iot:connector:update')")
+    public CommonResult<IotConnectorConnectionTestRespVO> testMqtt(
+            @Valid @RequestBody IotConnectorConnectionTestReqVO request) {
+        return success(connectivityService.test(request));
+    }
 
     /** 配置预校验只使用管理员权限，不访问目标地址或凭据内容。 */
     @PostMapping("/validate-mqtt-config")

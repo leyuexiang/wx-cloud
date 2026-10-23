@@ -41,8 +41,11 @@ class IotConnectorManagementPermissionTest {
         @Bean
         IotConnectorManagementService management() { return mock(IotConnectorManagementService.class); }
         @Bean
-        IotConnectorController controller(IotConnectorService connectors, IotConnectorManagementService management) {
-            return new IotConnectorController(connectors, management);
+        IotConnectorConnectivityService connectivity() { return mock(IotConnectorConnectivityService.class); }
+        @Bean
+        IotConnectorController controller(IotConnectorService connectors, IotConnectorManagementService management,
+                IotConnectorConnectivityService connectivity) {
+            return new IotConnectorController(connectors, management, connectivity);
         }
     }
 
