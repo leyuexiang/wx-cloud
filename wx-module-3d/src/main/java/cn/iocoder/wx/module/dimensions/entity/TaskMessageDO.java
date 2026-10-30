@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  *
  * @author wp
  */
-@TableName(value = "task_message")
+@TableName(value = "wx_task_message")
 @Data
 @Builder
 @NoArgsConstructor

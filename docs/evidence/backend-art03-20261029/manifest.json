@@ -1,0 +1,36 @@
+{
+  "time": "2026-10-29T08:15:26.000808+00:00",
+  "sourceRoot": "E:\\Products\\3D-editor\\Server\\jtyf-cloud",
+  "sourceCommit": "6a9c8bde7a5185083b921490feef383499bad8a9",
+  "includesUncommittedChanges": true,
+  "deploymentSha256": "6aebb71e5543d27d9f246407e457d129678b063b52012de1384e14194d9b2d81",
+  "tests": {
+    "local": 99,
+    "transaction": 67,
+    "resourceRegression": 60,
+    "downloadRegression": 32,
+    "gatewayRegression": 20
+  },
+  "databaseSchemaChangedPermanently": false,
+  "temporaryTargetedFailureTriggerCreatedAndRemoved": true,
+  "scope": "工具既有真实汽车产物经新API提交替换；B版本仅修改目录元数据，非美术视觉验收",
+  "sourceHashes": {
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/service/ArtResourceTransactionService.java": "96f58606e4050dba76433caf00a19bca4a3db44c15df0b5cfa5ed30c488a48e1",
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/service/ArtResourceClosureVerifier.java": "5dd6529e54ef6169514f4c2b6841f937cd5d274f2fcf0db0cae1b3a8f7691aa9",
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/service/ArtResourceUploadSigner.java": "618b9b4812154ea71016977cb5b10b4855e7eba65ff9f77e10c37a414d3089b0",
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/service/ArtResourceManifestVerifier.java": "4538bdf6388412bf99265350a4e92d657e01d636983cee9a4651c2c23e1daf4d",
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/service/ArtResourceObjectStore.java": "74a27c94b9a2360cb9176d796e3245613ad43154e0dbf0ab3a24a13a3de1ec32",
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/controller/admin/ArtResourceController.java": "b63aefbdef400403a1a69f57cac1903596eb9ebb9e9fbd555ba358c06eebb782",
+    "wx-module-3d/src/test/java/cn/iocoder/wx/module/dimensions/service/ArtResourceAccessTest.java": "1c3e71f5a3680535feed94bfca39330e826669032be19932f1430d87df4dbc1c",
+    "wx-module-3d/src/test/java/cn/iocoder/wx/module/dimensions/service/ArtResourceClosureVerifierTest.java": "00d1ae184202878f1da07a233c5b367fbc5295e2c609363f463bbc5fe905745e",
+    "wx-module-3d/src/test/java/cn/iocoder/wx/module/dimensions/service/ArtResourceManifestVerifierTest.java": "ae21169663b039649e5f2b350303876f55f4ebc4a96bebef1408f1af00248917",
+    "wx-module-3d/src/test/java/cn/iocoder/wx/module/dimensions/service/ArtResourceObjectStoreTest.java": "9573b289c6448a86303d3fd6b6de708158b8da445088e9b28a81c4bdb8fe9aef",
+    "wx-module-3d/src/test/java/cn/iocoder/wx/module/dimensions/service/ArtResourceServiceTest.java": "5c767dde47f0112e25111f9d281d521ce95941483b6d7777f774d0b9bc58e023",
+    "wx-module-3d/src/test/java/cn/iocoder/wx/module/dimensions/service/ArtResourceTransactionTest.java": "ca9fb61d19901a0f707f6bbe8bf4e5411e78a088c0a2b0ea21fa0fa68ab7a218",
+    "deploy/test148/verify-resource-art03.py": "2a67ed7863084dfa336ae3356ee4dd47db0f71905300836d9ae4462f0d4d7333",
+    "deploy/test148/deploy-resource-art03.py": "e16c97328fdc6ba64129a09018367e3fd14690f933e95a4c3f1b6f0f77cf45fe",
+    "deploy/test148/setup-resource-upload.py": "8051103bcd3adcdc105b537d06b1902f72a20e629eabb6058dc2dacfc50c42e5",
+    "deploy/test148/prepare-config.py": "ae90f44fb8d55e0eec793d2e5ea38b9229b89ffe02030d05ce9f3428259f3fdb",
+    "deploy/test148/verify-resource-art02.py": "1779dcdbb3f8b16c259ac084115d1b9bf0378620947ba4da312aa5651e76bf2b"
+  }
+}

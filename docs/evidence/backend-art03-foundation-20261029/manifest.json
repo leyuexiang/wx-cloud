@@ -1,0 +1,16 @@
+{
+  "time": "2026-10-29T07:40:32.022224+00:00",
+  "sourceCommit": "6a9c8bde7a5185083b921490feef383499bad8a9",
+  "includesUncommittedChanges": true,
+  "newServicePackageDeployed": false,
+  "databaseChanged": false,
+  "apiEnabled": false,
+  "sourceHashes": {
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/service/ArtResourceManifestVerifier.java": "4538bdf6388412bf99265350a4e92d657e01d636983cee9a4651c2c23e1daf4d",
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/service/ArtResourceObjectStore.java": "36a63ba65c45e28d3c4c02553b1b74a92f1e8374c048283771638c0cfa4f0be4",
+    "wx-module-3d/src/test/java/cn/iocoder/wx/module/dimensions/service/ArtResourceManifestVerifierTest.java": "ae21169663b039649e5f2b350303876f55f4ebc4a96bebef1408f1af00248917",
+    "wx-module-3d/src/test/java/cn/iocoder/wx/module/dimensions/service/ArtResourceObjectStoreTest.java": "9573b289c6448a86303d3fd6b6de708158b8da445088e9b28a81c4bdb8fe9aef",
+    "deploy/test148/Art03StorageProbe.java": "7738b9618cf9d57710a2258766c75d5bf61ca30145abf0833b8a2d36a9d24375"
+  },
+  "contractFixtureSha256": "3a144149c091f1795d3be0492f8c4963df9e93438aa890e36f20accbdf0646e3"
+}

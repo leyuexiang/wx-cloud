@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "caseId": "RVT-001",
+  "sourcePath": "D:/BIM-Samples/REPLACE_WITH_REAL_MODEL.rvt",
+  "sourceRevitVersion": "REPLACE_WITH_REVIT_YEAR",
+  "baselinePath": "baseline.elements.jsonl",
+  "filterRevision": "physical-instances-v1",
+  "coordinateFrame": "project-local-z-up",
+  "coordinateToleranceM": 0.001
+}

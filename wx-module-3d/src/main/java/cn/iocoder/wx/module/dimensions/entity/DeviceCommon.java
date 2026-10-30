@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-@TableName("deviceall")
+@TableName("wx_deviceall")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

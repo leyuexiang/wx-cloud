@@ -24,7 +24,7 @@
 
     <update id="updateUniqueId">
 		<![CDATA[
-        update file_only_info set unique_id = "0" WHERE parent_id = ${parentId}
+        update wx_file_only_info set unique_id = "0" WHERE parent_id = ${parentId}
         ]]>
 	</update>
 </mapper>

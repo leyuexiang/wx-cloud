@@ -10,7 +10,7 @@
 // *
 // * @author wp
 // */
-//@TableName(value = "time_line")
+//@TableName(value = "wx_time_line")
 //@Data
 //@Builder
 //@NoArgsConstructor

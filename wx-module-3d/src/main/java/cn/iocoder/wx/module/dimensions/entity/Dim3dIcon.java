@@ -8,10 +8,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-/** 新图标资源实体，对应 dim3d_icon 表。 */
+/** 新图标资源实体，对应 wx_dim3d_icon 表。 */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("dim3d_icon")
+@TableName("wx_dim3d_icon")
 public class Dim3dIcon extends Dim3dResourceBaseEntity {
     @NotBlank @Size(min = 2, max = 50) private String iconName;
     @Size(max = 500) private String iconDesc;

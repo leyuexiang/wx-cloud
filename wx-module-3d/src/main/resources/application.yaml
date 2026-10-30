@@ -63,6 +63,8 @@ mybatis-plus:
     map-underscore-to-camel-case: true # 虽然默认为 true ，但是还是显示去指定下。
   global-config:
     db-config:
+      # 隐式实体表名统一加前缀；显式表名和手写 SQL 同步使用 wx_。
+      table-prefix: wx_
       id-type: NONE # “智能”模式，基于 IdTypeEnvironmentPostProcessor + 数据源的类型，自动适配成 AUTO、INPUT 模式。
       #      id-type: AUTO # 自增 ID，适合 MySQL 等直接自增的数据库
       #      id-type: INPUT # 用户输入 ID，适合 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库
@@ -183,26 +185,26 @@ wx:
     ignore-urls:
       - /admin-api/dimensions/signaling/get-address #不需要登录就可以访问
     ignore-tables:
-      - resource
-      - resource_data_type
-      - resource_type
-      - scene_def
-      - signal_ling
-      - material
-      - file_only_info
-      - file_info
-      - file_download_info
-      - engineering_data_list_row
-      - engineering_data_list_column
-      - engineering
-      - device_status_ppfmter
-      - device_status_cbds
-      - device_info_ppfmter
-      - device_info_cbds
-      - component_info
-      - batch_conversion
+      - wx_resource
+      - wx_resource_data_type
+      - wx_resource_type
+      - wx_scene_def
+      - wx_signal_ling
+      - wx_material
+      - wx_file_only_info
+      - wx_file_info
+      - wx_file_download_info
+      - wx_engineering_data_list_row
+      - wx_engineering_data_list_column
+      - wx_engineering
+      - wx_device_status_ppfmter
+      - wx_device_status_cbds
+      - wx_device_info_ppfmter
+      - wx_device_info_cbds
+      - wx_component_info
+      - wx_batch_conversion
       - ssociation_object
-      - alert_scheme
+      - wx_alert_scheme
     ignore-caches:
       - user_role_ids
       - permission_menu_ids

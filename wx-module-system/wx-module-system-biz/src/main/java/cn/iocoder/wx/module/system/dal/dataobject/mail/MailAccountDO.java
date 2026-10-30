@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
  * @author wangjingyi
  * @since 2022-03-21
  */
-@TableName(value = "system_mail_account", autoResultMap = true)
+@TableName(value = "wx_system_mail_account", autoResultMap = true)
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class MailAccountDO extends BaseDO {

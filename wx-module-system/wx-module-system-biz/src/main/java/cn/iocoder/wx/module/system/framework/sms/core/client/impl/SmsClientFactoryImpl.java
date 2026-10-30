@@ -41,7 +41,11 @@ public class SmsClientFactoryImpl implements SmsClientFactory {
         Arrays.stream(SmsChannelEnum.values()).forEach(channel -> {
             // 创建一个空的 SmsChannelProperties 对象
             SmsChannelProperties properties = new SmsChannelProperties().setCode(channel.getCode())
-                    .setApiKey("REDACTED_SECRET").setApiSecret("default");
+                    // 按渠道编码创建的客户端仅解析回执；占位值仍须满足腾讯云和华为云的双字段格式。
+                    // 实际发送使用渠道编号对应的数据库配置，不能将这里当成真实凭据。
+                    .setApiKey(channel == SmsChannelEnum.TENCENT || channel == SmsChannelEnum.HUAWEI
+                            ? "placeholder 0" : "placeholder")
+                    .setApiSecret("placeholder");
             // 创建 Sms 客户端
             AbstractSmsClient smsClient = createSmsClient(properties);
             channelCodeClients.put(channel.getCode(), smsClient);

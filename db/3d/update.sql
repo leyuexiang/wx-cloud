@@ -9,25 +9,25 @@
 -- author: xwd
 
 -- 添加大车相关字段
-ALTER TABLE task_event ADD COLUMN main_car_start_pos json DEFAULT NULL COMMENT '大车起始坐标（世界坐标），格式：{"x":0.0,"y":0.0,"z":0.0}';
-ALTER TABLE task_event ADD COLUMN main_car_axis varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '大车移动轴向(字符串枚举)';
-ALTER TABLE task_event ADD COLUMN main_car_max_travel float DEFAULT NULL COMMENT '大车最大行程(米)';
+ALTER TABLE wx_task_event ADD COLUMN main_car_start_pos json DEFAULT NULL COMMENT '大车起始坐标（世界坐标），格式：{"x":0.0,"y":0.0,"z":0.0}';
+ALTER TABLE wx_task_event ADD COLUMN main_car_axis varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '大车移动轴向(字符串枚举)';
+ALTER TABLE wx_task_event ADD COLUMN main_car_max_travel float DEFAULT NULL COMMENT '大车最大行程(米)';
 
 -- 添加小车相关字段
-ALTER TABLE task_event ADD COLUMN sub_car_start_pos json DEFAULT NULL COMMENT '小车起始坐标（世界坐标），格式：{"x":0.0,"y":0.0,"z":0.0}';
-ALTER TABLE task_event ADD COLUMN sub_car_axis varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '小车移动轴向(字符串枚举)';
-ALTER TABLE task_event ADD COLUMN sub_car_max_travel float DEFAULT NULL COMMENT '小车最大行程(米)';
+ALTER TABLE wx_task_event ADD COLUMN sub_car_start_pos json DEFAULT NULL COMMENT '小车起始坐标（世界坐标），格式：{"x":0.0,"y":0.0,"z":0.0}';
+ALTER TABLE wx_task_event ADD COLUMN sub_car_axis varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '小车移动轴向(字符串枚举)';
+ALTER TABLE wx_task_event ADD COLUMN sub_car_max_travel float DEFAULT NULL COMMENT '小车最大行程(米)';
 
 -- 添加吊钩相关字段
-ALTER TABLE task_event ADD COLUMN hook_start_pos json DEFAULT NULL COMMENT '吊钩起始坐标（世界坐标），格式：{"x":0.0,"y":0.0,"z":0.0}';
-ALTER TABLE task_event ADD COLUMN hook_axis varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '吊钩移动轴向(字符串枚举)';
-ALTER TABLE task_event ADD COLUMN hook_max_height float DEFAULT NULL COMMENT '吊钩最大升降高度(米)';
+ALTER TABLE wx_task_event ADD COLUMN hook_start_pos json DEFAULT NULL COMMENT '吊钩起始坐标（世界坐标），格式：{"x":0.0,"y":0.0,"z":0.0}';
+ALTER TABLE wx_task_event ADD COLUMN hook_axis varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '吊钩移动轴向(字符串枚举)';
+ALTER TABLE wx_task_event ADD COLUMN hook_max_height float DEFAULT NULL COMMENT '吊钩最大升降高度(米)';
 
 
 -- desc: Minio大文件上传
 -- date: 2025-6-3
 -- author: xwd
-CREATE TABLE `files_minio`(
+CREATE TABLE `wx_files_minio`(
     `id`               bigint(20)   NOT NULL AUTO_INCREMENT,
     `upload_id`        varchar(255)      DEFAULT NULL COMMENT '文件上传id',
     `md5`              varchar(255)      DEFAULT NULL COMMENT '文件计算md5',
@@ -48,7 +48,7 @@ CREATE TABLE `files_minio`(
 -- desc: 图标管理和图标分类管理
 -- date: 2025-6-4
 -- author: xwd
-CREATE TABLE `icon_info`(
+CREATE TABLE `wx_icon_info`(
     `id`                int(11)                                                                                     NOT NULL AUTO_INCREMENT,
     `project_id`        varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci                                NOT NULL COMMENT '项目id',
     `icon_name`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci                                    DEFAULT NULL COMMENT '图标名称',
@@ -67,7 +67,7 @@ CREATE TABLE `icon_info`(
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC COMMENT ='图标信息表';
 
-CREATE TABLE `icon_type`(
+CREATE TABLE `wx_icon_type`(
     `id`               int(11)   NOT NULL AUTO_INCREMENT,
     `type_name`        varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '类型名称',
     `status`           int(1)                                                        DEFAULT NULL COMMENT '状态',
@@ -86,53 +86,53 @@ CREATE TABLE `icon_type`(
 -- desc: 虚拟相机增加字段
 -- date: 2025-6-12
 -- author: xwd
-ALTER TABLE virtual_camera ADD COLUMN `camera_external_id` int(8) NOT NULL COMMENT '外部虚拟相机ID' AFTER `scene_id`;
+ALTER TABLE wx_virtual_camera ADD COLUMN `camera_external_id` int(8) NOT NULL COMMENT '外部虚拟相机ID' AFTER `scene_id`;
 
 
 -- desc: 任务事件增加字段
 -- date: 2025-6-13
 -- author: xwd
-ALTER TABLE task_event ADD COLUMN `external_task_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '外部任务名称' AFTER `virtual_camera_id`;
+ALTER TABLE wx_task_event ADD COLUMN `external_task_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '外部任务名称' AFTER `virtual_camera_id`;
 
 -- desc: 资源类型增加字段
 -- date: 2025-6-13
 -- author: xwd
-ALTER TABLE `resource_type` ADD COLUMN `type_code` varchar(255) NULL COMMENT '类型编码' AFTER `id`;
+ALTER TABLE `wx_resource_type` ADD COLUMN `type_code` varchar(255) NULL COMMENT '类型编码' AFTER `id`;
 
 -- desc: 图标类型增加字段
 -- date: 2025-6-13
 -- author: xwd
-ALTER TABLE `icon_type` ADD COLUMN `type_code` varchar(255) NULL COMMENT '类型编码' AFTER `id`;
+ALTER TABLE `wx_icon_type` ADD COLUMN `type_code` varchar(255) NULL COMMENT '类型编码' AFTER `id`;
 
 -- desc: task_type字段增加枚举：RingHolding
 -- date: 2025-6-13
 -- author: xwd
-ALTER TABLE `task_event` MODIFY COLUMN `task_type` enum('Path','Custom','NodeActive','AniTimeline','AniSystem','VehicleMovement','NodeBind','AniAxisControl','StateChange','HeavyLoadHoisting','RingHolding') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '任务类型：\r\nPath       // 路径任务   \r\nCustom // 自定义任务\r\nAniTimeline  //Timeline\r\nAniSystem  //动画控制器\r\nNodeActive //节点显隐\r\nVehicleMovement //车辆移动\r\nNodeBind //节点换绑\r\nAniAxisControl //轴向控制器\r\nStateChange //状态变更\r\nHeavyLoadHoisting //重载吊车\r\nring_holding //抱环' AFTER `task_id`;
+ALTER TABLE `wx_task_event` MODIFY COLUMN `task_type` enum('Path','Custom','NodeActive','AniTimeline','AniSystem','VehicleMovement','NodeBind','AniAxisControl','StateChange','HeavyLoadHoisting','RingHolding') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '任务类型：\r\nPath       // 路径任务   \r\nCustom // 自定义任务\r\nAniTimeline  //Timeline\r\nAniSystem  //动画控制器\r\nNodeActive //节点显隐\r\nVehicleMovement //车辆移动\r\nNodeBind //节点换绑\r\nAniAxisControl //轴向控制器\r\nStateChange //状态变更\r\nHeavyLoadHoisting //重载吊车\r\nring_holding //抱环' AFTER `task_id`;
 
 -- desc: 任务事件表增加三个字段
 -- date: 2025-6-13
 -- author: xwd
-ALTER TABLE `task_event` ADD COLUMN `coordinate_system` int(8) NULL COMMENT '坐标系' AFTER `hook_max_height`, ADD COLUMN `move_node` varchar(255) NULL COMMENT '移动节点' AFTER `coordinate_system`, ADD COLUMN `move_axis` varchar(255) NULL COMMENT '移动轴向' AFTER `move_node`;
+ALTER TABLE `wx_task_event` ADD COLUMN `coordinate_system` int(8) NULL COMMENT '坐标系' AFTER `hook_max_height`, ADD COLUMN `move_node` varchar(255) NULL COMMENT '移动节点' AFTER `coordinate_system`, ADD COLUMN `move_axis` varchar(255) NULL COMMENT '移动轴向' AFTER `move_node`;
 
 -- desc: 后续这里要整体调整一下，改为项目配置文件地址信息
 -- date: 2025-6-17
 -- author: xwd
-INSERT INTO `signal_ling` (`id`, `prop`, `value`, `description`) VALUES (1, 'signal', 'http://127.0.0.1:8923/', '信令服务地址');
-INSERT INTO `signal_ling` (`id`, `prop`, `value`, `description`) VALUES (2, 'signalWS', 'ws://127.0.0.1:8923', '信令服务websocket地址');
-INSERT INTO `signal_ling` (`id`, `prop`, `value`, `description`) VALUES (3, 'webWS', 'ws://127.0.0.1:48092/dimensions/ws', '数字孪生服务websocket地址');
-INSERT INTO `signal_ling` (`id`, `prop`, `value`, `description`) VALUES (4, 'management', 'http://127.0.0.1:58000', '大管理端前端地址');
-INSERT INTO `signal_ling` (`id`, `prop`, `value`, `description`) VALUES (5, 'configuration', 'http://127.0.0.1/account', '组态地址');
-INSERT INTO `signal_ling` (`id`, `prop`, `value`, `description`) VALUES (6, 'minio', 'http://127.0.0.1:19001', 'MiniO地址');
+INSERT INTO `wx_signal_ling` (`id`, `prop`, `value`, `description`) VALUES (1, 'signal', 'http://127.0.0.1:8923/', '信令服务地址');
+INSERT INTO `wx_signal_ling` (`id`, `prop`, `value`, `description`) VALUES (2, 'signalWS', 'ws://127.0.0.1:8923', '信令服务websocket地址');
+INSERT INTO `wx_signal_ling` (`id`, `prop`, `value`, `description`) VALUES (3, 'webWS', 'ws://127.0.0.1:48092/dimensions/ws', '数字孪生服务websocket地址');
+INSERT INTO `wx_signal_ling` (`id`, `prop`, `value`, `description`) VALUES (4, 'management', 'http://127.0.0.1:58000', '大管理端前端地址');
+INSERT INTO `wx_signal_ling` (`id`, `prop`, `value`, `description`) VALUES (5, 'configuration', 'http://127.0.0.1/account', '组态地址');
+INSERT INTO `wx_signal_ling` (`id`, `prop`, `value`, `description`) VALUES (6, 'minio', 'http://127.0.0.1:19001', 'MiniO地址');
 
 -- desc: 场景表里面维护图标信息
 -- date: 2025-6-23
 -- author: xwd
-ALTER TABLE `engineering` ADD COLUMN `icon_infos` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '图标信息列表' AFTER `scene_config_info`;
+ALTER TABLE `wx_engineering` ADD COLUMN `icon_infos` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '图标信息列表' AFTER `scene_config_info`;
 
 -- desc: 任务表添加悬臂吊任务及相关字段
 -- date: 2025-7-1
 -- author: wtj
-ALTER TABLE task_event
+ALTER TABLE wx_task_event
     RENAME COLUMN virtual_camera_id TO virtual_camera,
     ADD COLUMN node_rotation VARCHAR(255) COMMENT '悬臂吊旋转节点',
     ADD COLUMN node_slide VARCHAR(255) COMMENT '悬臂吊滑块节点',
@@ -144,7 +144,7 @@ ALTER TABLE task_event
     ADD COLUMN move_hinge2_direction VARCHAR(50) COMMENT '移动吊点2移动方向';
 
 
-ALTER TABLE task_event
+ALTER TABLE wx_task_event
     MODIFY COLUMN task_type ENUM(
     'Path',             -- 路径任务
     'Custom',           -- 自定义任务

@@ -1,0 +1,308 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "登录:1:super_admin",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "登录:2:tenant_admin",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "登录:2:viewer",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "登录:987015:tenant_admin",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "登录:987015:viewer",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "登录:987015:super_admin",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "匿名不能读取",
+      "passed": true,
+      "code": 401
+    },
+    {
+      "name": "非平台不能上传全局:2",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "非平台不能上传全局:3",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "非平台不能上传全局:987016",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "非平台不能上传全局:987017",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "非平台不能上传全局:987018",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "非租户管理员不能上传共享:3",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "非租户管理员不能上传共享:987017",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "非租户管理员不能上传共享:987018",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "授权创建:1",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "同号重试",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "同号异载荷拒绝",
+      "passed": true,
+      "code": 2030001004
+    },
+    {
+      "name": "操作状态可查",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "其他操作者不能查询",
+      "passed": true,
+      "code": 2030001001
+    },
+    {
+      "name": "未启用提交不伪报成功",
+      "passed": true,
+      "code": 501
+    },
+    {
+      "name": "授权创建:2",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "同号重试",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "同号异载荷拒绝",
+      "passed": true,
+      "code": 2030001004
+    },
+    {
+      "name": "操作状态可查",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "其他操作者不能查询",
+      "passed": true,
+      "code": 2030001001
+    },
+    {
+      "name": "未启用提交不伪报成功",
+      "passed": true,
+      "code": 501
+    },
+    {
+      "name": "授权创建:987016",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "同号重试",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "同号异载荷拒绝",
+      "passed": true,
+      "code": 2030001004
+    },
+    {
+      "name": "操作状态可查",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "其他操作者不能查询",
+      "passed": true,
+      "code": 2030001001
+    },
+    {
+      "name": "未启用提交不伪报成功",
+      "passed": true,
+      "code": 501
+    },
+    {
+      "name": "可见列表:3",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "按ID不能跨租户",
+      "passed": true,
+      "code": 2030001001
+    },
+    {
+      "name": "当前描述签名配置状态",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "可见列表:987017",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "按ID不能跨租户",
+      "passed": true,
+      "code": 2030001001
+    },
+    {
+      "name": "当前描述签名配置状态",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "授权REPLACE:1",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "取消尚未提交操作",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "授权DELETE:1",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "取消尚未提交操作",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "授权REPLACE:2",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "取消尚未提交操作",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "授权DELETE:2",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "取消尚未提交操作",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "授权REPLACE:987016",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "取消尚未提交操作",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "授权DELETE:987016",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "取消尚未提交操作",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "拒绝未授权REPLACE:2",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "拒绝未授权DELETE:2",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "拒绝未授权REPLACE:3",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "拒绝未授权DELETE:3",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "拒绝未授权REPLACE:987016",
+      "passed": true,
+      "code": 2030001001
+    },
+    {
+      "name": "拒绝未授权DELETE:987016",
+      "passed": true,
+      "code": 2030001001
+    },
+    {
+      "name": "拒绝过期修订",
+      "passed": true,
+      "code": 2030001003
+    },
+    {
+      "name": "旧模型新增不能绑定受管资源",
+      "passed": true,
+      "code": 2030001001
+    },
+    {
+      "name": "请求租户不能替换认证租户",
+      "passed": true,
+      "code": 403
+    }
+  ],
+  "candidatePort": 48092,
+  "scope": "候选真实登录、角色/范围和操作边界；未验收下载、提交或视觉",
+  "testTenantRetained": 987015
+}

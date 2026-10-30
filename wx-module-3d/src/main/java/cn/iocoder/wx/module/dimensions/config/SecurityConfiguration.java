@@ -37,7 +37,8 @@ public class SecurityConfiguration {
                         .requestMatchers("/actuator/**").permitAll();
                 // RPC 服务的安全配置
                 registry.requestMatchers(ApiConstants.PREFIX + "/**").permitAll();
-                registry.requestMatchers("/**").permitAll();
+                // 仅保留明确的公开信令入口；其他业务接口回到框架的登录校验兜底。
+                registry.requestMatchers("/admin-api/dimensions/signaling/get-address").permitAll();
             }
 
         };

@@ -73,8 +73,8 @@ public class DataGenUtil {
 
     private static void insertData1(Connection connection, List<Map<String, Object>> data) throws SQLException {
 
-        String sql = "update device_info_ppfmter set lon = (?) where id = (?) ";
-        //String sql = "update device_info_ppfmter set lat = (?) where id = (?) ";
+        String sql = "update wx_device_info_ppfmter set lon = (?) where id = (?) ";
+        //String sql = "update wx_device_info_ppfmter set lat = (?) where id = (?) ";
         PreparedStatement statement = connection.prepareStatement(sql);
 
         for (Map<String,Object> record: data) {
@@ -87,8 +87,8 @@ public class DataGenUtil {
     }
     private static void insertData2(Connection connection, List<Map<String, Object>> data) throws SQLException {
 
-        String sql = "update device_status_cbds set temperature = (?),humidity=(?),co=(?) ,co2=(?) where id = (?) ";
-        //String sql = "update device_info_ppfmter set lat = (?) where id = (?) ";
+        String sql = "update wx_device_status_cbds set temperature = (?),humidity=(?),co=(?) ,co2=(?) where id = (?) ";
+        //String sql = "update wx_device_info_ppfmter set lat = (?) where id = (?) ";
         PreparedStatement statement = connection.prepareStatement(sql);
 
         for (Map<String,Object> record: data) {
@@ -105,8 +105,8 @@ public class DataGenUtil {
 
     private static void insertData3(Connection connection, List<Map<String, Object>> data) throws SQLException {
 
-        String sql = "update device_status_ppfmter set departures = (?),participants=(?),head_count=(?) ,state=(?) where id = (?) ";
-        //String sql = "update device_info_ppfmter set lat = (?) where id = (?) ";
+        String sql = "update wx_device_status_ppfmter set departures = (?),participants=(?),head_count=(?) ,state=(?) where id = (?) ";
+        //String sql = "update wx_device_info_ppfmter set lat = (?) where id = (?) ";
         PreparedStatement statement = connection.prepareStatement(sql);
 
         for (Map<String,Object> record: data) {

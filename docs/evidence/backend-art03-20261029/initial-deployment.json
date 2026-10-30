@@ -1,0 +1,9 @@
+{
+  "backup": "/opt/wx/editor-test148/backups/art03-service-20261029T080738Z",
+  "gatewayUnchanged": true,
+  "databaseStructureChanged": false,
+  "downloadConfigured": true,
+  "stagingUploadConfigured": true,
+  "sha256": "6f76586c2c0ca0ab2157f07750260658c6bd6b2268c7108da2fe3e80f6af3ba4",
+  "status": "DEPLOYED"
+}

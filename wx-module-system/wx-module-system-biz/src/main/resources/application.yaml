@@ -64,6 +64,8 @@ mybatis-plus:
     map-underscore-to-camel-case: true # 虽然默认为 true ，但是还是显示去指定下。
   global-config:
     db-config:
+      # 隐式实体表名统一加前缀；显式表名和手写 SQL 同步使用 wx_。
+      table-prefix: wx_
       id-type: NONE # “智能”模式，基于 IdTypeEnvironmentPostProcessor + 数据源的类型，自动适配成 AUTO、INPUT 模式。
       #      id-type: AUTO # 自增 ID，适合 MySQL 等直接自增的数据库
       #      id-type: INPUT # 用户输入 ID，适合 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库
@@ -175,21 +177,21 @@ wx:
       - /rpc-api/system/tenant/id-list # 获得租户列表的时候，无需传递租户编号
       - /rpc-api/system/oauth2/token/check # 访问令牌校验时，无需传递租户编号；主要解决上传文件的场景，前端不会传递 tenant-id！
     ignore-tables:
-      - system_tenant
-      - system_tenant_package
-      - system_dict_data
-      - system_dict_type
+      - wx_system_tenant
+      - wx_system_tenant_package
+      - wx_system_dict_data
+      - wx_system_dict_type
       - system_error_code
-      - system_menu
-      - system_sms_channel
-      - system_sms_template
-      - system_sms_log
+      - wx_system_menu
+      - wx_system_sms_channel
+      - wx_system_sms_template
+      - wx_system_sms_log
       - system_sensitive_word
-      - system_oauth2_client
-      - system_mail_account
-      - system_mail_template
-      - system_mail_log
-      - system_notify_template
+      - wx_system_oauth2_client
+      - wx_system_mail_account
+      - wx_system_mail_template
+      - wx_system_mail_log
+      - wx_system_notify_template
     ignore-caches:
       - user_role_ids
       - permission_menu_ids

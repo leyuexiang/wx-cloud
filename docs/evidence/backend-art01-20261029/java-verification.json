@@ -1,0 +1,7 @@
+{
+  "tests": 3,
+  "failures": 0,
+  "errors": 0,
+  "class": "cn.iocoder.wx.module.dimensions.entity.ArtResourceLegacyWriteBoundaryTest",
+  "scope": "旧目录JSON请求不能改绑resource_id；后端编译通过；新包未部署"
+}

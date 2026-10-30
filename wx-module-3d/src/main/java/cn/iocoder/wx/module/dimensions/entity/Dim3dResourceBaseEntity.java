@@ -1,10 +1,12 @@
 package cn.iocoder.wx.module.dimensions.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -19,6 +21,13 @@ public abstract class Dim3dResourceBaseEntity implements Serializable {
 
     @TableId(type = IdType.AUTO)
     private Long id;
+    /**
+     * 新资源主表关联，由资源事务维护；旧目录接口只读，防止绕过新事务改绑资源。
+     * 三类目录原有文件编号继续保留，不能直接作为统一资源主键使用。
+     */
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @TableField(insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
+    private Long resourceId;
     private Long dataUserId;
     private Long dataDeptId;
     private String tenantId;

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "caseId": "RVT-001",
+  "sourceSha256": "REPLACE_WITH_SHA256_OF_ORIGINAL_RVT",
+  "sourceRevitVersion": "REPLACE_WITH_REVIT_YEAR",
+  "status": "SUCCEEDED",
+  "engine": {
+    "name": "REPLACE_WITH_ACTUAL_ENGINE",
+    "version": "REPLACE_WITH_ACTUAL_VERSION",
+    "runMode": "PRIVATE"
+  },
+  "filterRevision": "physical-instances-v1",
+  "coordinateFrame": "project-local-z-up",
+  "unit": "m",
+  "elementsFile": "elements.jsonl",
+  "errorsFile": "errors.json",
+  "artifacts": ["preview.glb"]
+}

@@ -1,7 +1,7 @@
 -- 3D 资源管理新表结构迁移。
 -- 说明：本脚本只创建新表，不修改旧 resource/resource_info 表，保证旧项目资源接口继续可用。
 
-CREATE TABLE IF NOT EXISTS `dim3d_model` (
+CREATE TABLE IF NOT EXISTS `wx_dim3d_model` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `model_name` varchar(50) NOT NULL COMMENT '模型名称',
   `model_desc` varchar(500) DEFAULT NULL COMMENT '模型描述',
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `dim3d_model` (
   PRIMARY KEY (`id`), KEY `idx_dim3d_model_tenant` (`tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='3D模型资源表';
 
-CREATE TABLE IF NOT EXISTS `dim3d_icon` (
+CREATE TABLE IF NOT EXISTS `wx_dim3d_icon` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID', `icon_name` varchar(50) NOT NULL COMMENT '图标名称',
   `icon_desc` varchar(500) DEFAULT NULL COMMENT '图标描述', `category` varchar(32) NOT NULL COMMENT '一级分类',
   `secondary_category` varchar(32) DEFAULT NULL COMMENT '二级分类', `resource_belong` varchar(16) NOT NULL DEFAULT 'SYSTEM' COMMENT '资源归属',
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `dim3d_icon` (
   `del_flag` char(1) NOT NULL DEFAULT '0' COMMENT '删除标志', PRIMARY KEY (`id`), KEY `idx_dim3d_icon_tenant` (`tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='3D图标资源表';
 
-CREATE TABLE IF NOT EXISTS `dim3d_template` (
+CREATE TABLE IF NOT EXISTS `wx_dim3d_template` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID', `template_name` varchar(50) NOT NULL COMMENT '模板名称',
   `template_desc` varchar(500) DEFAULT NULL COMMENT '模板描述', `template_type` varchar(16) NOT NULL DEFAULT 'INDUSTRY' COMMENT '模板类型',
   `category` varchar(32) NOT NULL COMMENT '模板分类', `resource_belong` varchar(16) NOT NULL DEFAULT 'SYSTEM' COMMENT '资源归属',
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS `dim3d_template` (
   PRIMARY KEY (`id`), KEY `idx_dim3d_template_tenant` (`tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='3D模板资源表';
 
-CREATE TABLE IF NOT EXISTS `dim3d_resource` (
+CREATE TABLE IF NOT EXISTS `wx_dim3d_resource` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '转换资源主键，沿用转换服务返回ID', `resource_name` varchar(150) NOT NULL COMMENT '资源名称',
   `resource_type` varchar(20) NOT NULL COMMENT '资源类型', `asset_name` varchar(150) NOT NULL COMMENT '资源文件名称',
   `resource_relative_path` varchar(255) NOT NULL COMMENT '资源相对路径', `data_user_id` bigint DEFAULT NULL COMMENT '业务归属人',

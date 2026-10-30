@@ -41,7 +41,7 @@
     </resultMap>
 
     <select id="findMaxId" resultType="Integer">
-        SELECT max(id) FROM project_engineering
+        SELECT max(id) FROM wx_engineering
     </select>
 
 </mapper>

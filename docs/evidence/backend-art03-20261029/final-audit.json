@@ -1,0 +1,14 @@
+{
+  "health": {
+    "status": "UP"
+  },
+  "gatewayHealth": {
+    "status": "UP"
+  },
+  "candidateStopped": true,
+  "tableCount": 82,
+  "temporaryFailureTriggers": 0,
+  "art03FixtureResources": 0,
+  "art03FixtureDirectories": 0,
+  "oldAssets": 7
+}

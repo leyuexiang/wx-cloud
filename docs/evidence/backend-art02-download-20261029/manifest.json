@@ -1,0 +1,19 @@
+{
+  "time": "2026-10-29T07:24:27.527839+00:00",
+  "sourceCommit": "6a9c8bde7a5185083b921490feef383499bad8a9",
+  "includesUncommittedChanges": true,
+  "jarRebuilt": false,
+  "databaseStructureChanged": false,
+  "downloadChecks": 32,
+  "resourceRegression": 60,
+  "gatewayRegression": 20,
+  "tlsCertificateExpires": "2026-11-11T04:54:09Z",
+  "sourceHashes": {
+    "deploy/test148/art-s3-test-support.py": "3b4370d1e2e633bcf90a757ba01102c3f78b33cf7a462a697ac5c602bfe99ea8",
+    "deploy/test148/setup-resource-download.py": "effa0dc3352b7432f116cb4a66464723de4577fc10a19678901a625a8bf212e0",
+    "deploy/test148/verify-resource-download.py": "b88668fc93da042819d5e662beccfc93cfde510806c16e9b163a20ba145aa03d",
+    "deploy/test148/prepare-config.py": "26295aa249269a9a0e9210145fd53e3181ba0eb29bbcaf6d9947bce2dd552106",
+    "deploy/test148/verify-resource-art02.py": "1d0c4537214c1ffdfb12b3c53e1006f4f78cf8d98047bc1fc1e9a71b63ae3b3a",
+    "deploy/test148/deploy-resource-art02.py": "d6ba24fe4dcf40c6425db169a066cfc77dd3cbcb9ac588d0d83a899a4f4895ec"
+  }
+}

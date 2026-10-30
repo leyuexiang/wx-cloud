@@ -1,0 +1,23 @@
+{
+  "time": "2026-10-29T07:11:56.249283+00:00",
+  "sourceRoot": "E:\\Products\\3D-editor\\Server\\jtyf-cloud",
+  "sourceCommit": "6a9c8bde7a5185083b921490feef383499bad8a9",
+  "includesUncommittedChanges": true,
+  "deployed": true,
+  "resourceChecks": 60,
+  "legacyChecks": 20,
+  "javaTests": 21,
+  "status": "PARTIAL_DOWNLOAD_PENDING",
+  "sha256": "4b6fc839a83d7d6ca4d63b6f8481ff56c2c9ff82b4d27bf9147d0b46457dddfc",
+  "sourceHashes": {
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/service/ArtResourceAccess.java": "9310245b98b98e56c696004d1ad86bbd1b9e65be08c54299bbf3e37bcc754f16",
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/service/ArtResourceDownloadSigner.java": "96830e659a86d8dafdf2733bbfbe3558c267dfea7e16a49263ca2f6807440462",
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/service/ArtResourceService.java": "22c86b50888a9c370a12ac1527a24c91c7bf45d5c70846e1f1f2349f598da96c",
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/controller/admin/ArtResourceController.java": "425770b627389279b900029b39e850385ff316a82c73961db3d6172ff4f46c8a",
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/service/impl/Dim3dResourceCatalogServiceImpl.java": "dd3261e9f415e29cfcbe8edafea4eaf9051a8451b09989656a0b56f5e6807331",
+    "wx-module-3d/src/test/java/cn/iocoder/wx/module/dimensions/service/ArtResourceAccessTest.java": "1c3e71f5a3680535feed94bfca39330e826669032be19932f1430d87df4dbc1c",
+    "wx-module-3d/src/test/java/cn/iocoder/wx/module/dimensions/service/ArtResourceServiceTest.java": "5c767dde47f0112e25111f9d281d521ce95941483b6d7777f774d0b9bc58e023",
+    "deploy/test148/verify-resource-art02.py": "3f99c1102b290b3487d9ba01cbf13a2e4d30f18b755488193301b458e5795afd",
+    "deploy/test148/deploy-resource-art02.py": "11478bfb50680c2cf827983788f010bc0ec1f2c692d5ab036050cfc2343825fc"
+  }
+}

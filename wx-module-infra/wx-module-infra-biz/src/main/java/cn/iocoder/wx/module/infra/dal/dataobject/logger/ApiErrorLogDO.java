@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
  *
  * @author 九天芸菲
  */
-@TableName("infra_api_error_log")
+@TableName("wx_infra_api_error_log")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

@@ -1,0 +1,267 @@
+{
+  "scope": "ART-01离线合同验证，不是接口或权限验收",
+  "passed": 65,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "全局首次创建",
+      "passed": true
+    },
+    {
+      "name": "租户共享首次创建",
+      "passed": true
+    },
+    {
+      "name": "单资源替换",
+      "passed": true
+    },
+    {
+      "name": "DELETE",
+      "passed": true
+    },
+    {
+      "name": "RESTORE",
+      "passed": true
+    },
+    {
+      "name": "内容提交",
+      "passed": true
+    },
+    {
+      "name": "删除恢复空提交",
+      "passed": true
+    },
+    {
+      "name": "当前描述",
+      "passed": true
+    },
+    {
+      "name": "创建拒绝客户端归属或ID:tenantId",
+      "passed": true
+    },
+    {
+      "name": "创建拒绝客户端归属或ID:tenant_id",
+      "passed": true
+    },
+    {
+      "name": "创建拒绝客户端归属或ID:operatorId",
+      "passed": true
+    },
+    {
+      "name": "创建拒绝客户端归属或ID:projectId",
+      "passed": true
+    },
+    {
+      "name": "创建拒绝客户端归属或ID:role",
+      "passed": true
+    },
+    {
+      "name": "创建拒绝客户端归属或ID:resourceId",
+      "passed": true
+    },
+    {
+      "name": "替换拒绝改范围或前缀:tenantId",
+      "passed": true
+    },
+    {
+      "name": "替换拒绝改范围或前缀:resourceScope",
+      "passed": true
+    },
+    {
+      "name": "替换拒绝改范围或前缀:storagePrefix",
+      "passed": true
+    },
+    {
+      "name": "资源ID边界:1",
+      "passed": true
+    },
+    {
+      "name": "资源ID边界:0",
+      "passed": true
+    },
+    {
+      "name": "资源ID边界:01",
+      "passed": true
+    },
+    {
+      "name": "资源ID边界:9223372036854775808",
+      "passed": true
+    },
+    {
+      "name": "资源ID边界:１",
+      "passed": true
+    },
+    {
+      "name": "资源ID边界:-1",
+      "passed": true
+    },
+    {
+      "name": "替换必须声明预期修订",
+      "passed": true
+    },
+    {
+      "name": "修订边界:0",
+      "passed": true
+    },
+    {
+      "name": "修订边界:-1",
+      "passed": true
+    },
+    {
+      "name": "修订边界:01",
+      "passed": true
+    },
+    {
+      "name": "修订边界:9223372036854775808",
+      "passed": true
+    },
+    {
+      "name": "清单路径边界:../manifest.json",
+      "passed": true
+    },
+    {
+      "name": "清单路径边界:a/../manifest.json",
+      "passed": true
+    },
+    {
+      "name": "清单路径边界:./manifest.json",
+      "passed": true
+    },
+    {
+      "name": "清单路径边界:/manifest.json",
+      "passed": true
+    },
+    {
+      "name": "清单路径边界:a//manifest.json",
+      "passed": true
+    },
+    {
+      "name": "清单路径边界:a\\manifest.json",
+      "passed": true
+    },
+    {
+      "name": "清单路径边界:%2e%2e/manifest.json",
+      "passed": true
+    },
+    {
+      "name": "清单路径边界:https://evil.invalid/m",
+      "passed": true
+    },
+    {
+      "name": "清单路径边界:a?sig=x",
+      "passed": true
+    },
+    {
+      "name": "清单路径边界:a#x",
+      "passed": true
+    },
+    {
+      "name": "摘要格式:AAAA",
+      "passed": true
+    },
+    {
+      "name": "摘要格式:aaaa",
+      "passed": true
+    },
+    {
+      "name": "摘要格式:gggg",
+      "passed": true
+    },
+    {
+      "name": "拒绝错误平台名",
+      "passed": true
+    },
+    {
+      "name": "拒绝空兼容标识",
+      "passed": true
+    },
+    {
+      "name": "拒绝空白兼容标识",
+      "passed": true
+    },
+    {
+      "name": "拒绝空白资源名称",
+      "passed": true
+    },
+    {
+      "name": "拒绝HTTP下载",
+      "passed": true
+    },
+    {
+      "name": "当前内容修订不能为零",
+      "passed": true
+    },
+    {
+      "name": "上传文件",
+      "passed": true
+    },
+    {
+      "name": "拒绝空文件列表",
+      "passed": true
+    },
+    {
+      "name": "已提交必须有提交修订",
+      "passed": true
+    },
+    {
+      "name": "已提交操作示例",
+      "passed": true
+    },
+    {
+      "name": "资源分页示例",
+      "passed": true
+    },
+    {
+      "name": "分页拒绝负总数",
+      "passed": true
+    },
+    {
+      "name": "受限上传目标示例",
+      "passed": true
+    },
+    {
+      "name": "上传目标必须为HTTPS",
+      "passed": true
+    },
+    {
+      "name": "主清单结构",
+      "passed": true
+    },
+    {
+      "name": "跨语言UTF-8摘要夹具",
+      "passed": true
+    },
+    {
+      "name": "文件顺序变化保持规范内容摘要",
+      "passed": true
+    },
+    {
+      "name": "主清单拒绝:摘要错误",
+      "passed": true
+    },
+    {
+      "name": "主清单拒绝:悬空入口",
+      "passed": true
+    },
+    {
+      "name": "主清单拒绝:同路径不同摘要",
+      "passed": true
+    },
+    {
+      "name": "主清单拒绝:主清单不能成为自身文件",
+      "passed": true
+    },
+    {
+      "name": "主清单拒绝:未声明行为字段",
+      "passed": true
+    },
+    {
+      "name": "领域错误码唯一",
+      "passed": true
+    },
+    {
+      "name": "OpenAPI语法、本地引用及操作身份唯一",
+      "passed": true
+    }
+  ]
+}

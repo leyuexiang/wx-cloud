@@ -28,7 +28,7 @@
     </select>
 
     <select id="selectWhereArea" resultType="cn.iocoder.wx.module.dimensions.entity.DeviceCommon">
-        SELECT * FROM deviceall
+        SELECT * FROM wx_deviceall
         <where>
             <if test="area != null">
                  areaName = #{area}
@@ -37,7 +37,7 @@
     </select>
 
     <select id="selectWhereBuilding" resultType="cn.iocoder.wx.module.dimensions.entity.DeviceCommon">
-        SELECT * FROM deviceall
+        SELECT * FROM wx_deviceall
         <where>
             <if test="area != null">
                 areaName = #{area}
@@ -49,7 +49,7 @@
     </select>
 
     <select id="selectWhereFloor" resultType="cn.iocoder.wx.module.dimensions.entity.DeviceCommon">
-        SELECT * FROM deviceall
+        SELECT * FROM wx_deviceall
         <where>
             <if test="area != null">
                 areaName = #{area}
@@ -64,7 +64,7 @@
     </select>
 
     <select id="selectWhereSpaceName" resultType="cn.iocoder.wx.module.dimensions.entity.DeviceCommon">
-        SELECT * FROM deviceall
+        SELECT * FROM wx_deviceall
         <where>
             <if test="area != null">
                 areaName = #{area}
@@ -82,7 +82,7 @@
     </select>
 
     <select id="selectWhereDeviceTypeCode" resultType="cn.iocoder.wx.module.dimensions.entity.DeviceCommon">
-        SELECT * FROM deviceall
+        SELECT * FROM wx_deviceall
         <where>
             <if test="area != null">
                 areaName = #{area}
@@ -104,16 +104,16 @@
 
     <select id="selectDeviceTypeNameList" resultType="String">
         SELECT deviceTypeName
-        FROM deviceall
+        FROM wx_deviceall
         GROUP BY deviceTypeName
     </select>
 
     <select id="selectDeviceAllList" resultType="cn.iocoder.wx.module.dimensions.entity.DeviceCommon">
-        SELECT * FROM deviceall
+        SELECT * FROM wx_deviceall
     </select>
 
     <select id="selectDeviceCode" resultType="String">
-        SELECT deviceId FROM deviceall
+        SELECT deviceId FROM wx_deviceall
         <where>
             <if test="deviceTypeName != null">
                 deviceTypeName = #{deviceTypeName}

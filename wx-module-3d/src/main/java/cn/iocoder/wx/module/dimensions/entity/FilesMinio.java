@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("files_minio")
+@TableName("wx_files_minio")
 public class FilesMinio implements Serializable {
 
     @Serial

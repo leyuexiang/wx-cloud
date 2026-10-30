@@ -1,0 +1,249 @@
+# 测试服务器独立配置；密钥仅通过服务器环境变量注入。
+spring:
+  application:
+    name: dimensions-server
+  main:
+    allow-circular-references: true
+    allow-bean-definition-overriding: true
+  servlet:
+    multipart:
+      max-file-size: 2048MB
+      max-request-size: 4096MB
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+      write-date-timestamps-as-nanoseconds: false
+      write-durations-as-timestamps: true
+      fail-on-empty-beans: false
+  cache:
+    type: REDIS
+    redis:
+      time-to-live: 1h
+  data:
+    redis:
+      host: 127.0.0.1
+      port: ${WX_REDIS_PORT:16380}
+      database: 0
+      password: ${WX_REDIS_PASSWORD}
+      repositories:
+        enabled: false
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092
+    listener:
+      auto-startup: false
+      missing-topics-fatal: false
+  cloud:
+    nacos:
+      discovery:
+        enabled: false
+      config:
+        enabled: false
+        import-check:
+          enabled: false
+    discovery:
+      client:
+        simple:
+          instances:
+            system-server:
+            - uri: http://127.0.0.1:48081
+            infra-server:
+            - uri: http://127.0.0.1:48082
+            dimensions-server:
+            - uri: http://127.0.0.1:48092
+  datasource:
+    dynamic:
+      primary: master
+      datasource:
+        master:
+          url: jdbc:mysql://127.0.0.1:3306/wx_editor_test148?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
+          username: wx_editor_test148
+          password: ${WX_DB_PASSWORD}
+          driver-class-name: com.mysql.cj.jdbc.Driver
+      druid:
+        initial-size: 1
+        min-idle: 1
+        max-active: 10
+  boot:
+    admin:
+      client:
+        enabled: false
+      context-path: /admin
+server:
+  port: 48092
+  address: 127.0.0.1
+logging:
+  file:
+    name: /app/logs/wx-dimensions.log
+  level:
+    root: INFO
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui
+  default-flat-param-object: true
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      table-prefix: wx_
+      id-type: NONE
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+    banner: false
+  type-aliases-package: ${wx.info.base-package}.entity
+  encryptor:
+    password: ${WX_RUNTIME_SECRET}
+  mapper-locations:
+  - classpath*:/mapper/*.xml
+mybatis-plus-join:
+  banner: false
+easy-trans:
+  is-enable-global: true
+xxl:
+  job:
+    enabled: false
+    accessToken: ${WX_RUNTIME_SECRET}
+aj:
+  captcha:
+    jigsaw: classpath:images/jigsaw
+    pic-click: classpath:images/pic-click
+    cache-type: redis
+    cache-number: 1000
+    timing-clear: 180
+    type: blockPuzzle
+    water-mark: 九天芸菲
+    interference-options: 0
+    req-frequency-limit-enable: false
+    req-get-lock-limit: 5
+    req-get-lock-seconds: 10
+    req-get-minute-limit: 30
+    req-check-minute-limit: 60
+    req-verify-minute-limit: 60
+wx:
+  info:
+    version: 1.0.0
+    base-package: cn.iocoder.wx.module.dimensions
+  web:
+    admin-ui:
+      url: http://dashboard.wx.iocoder.cn
+  xss:
+    enable: false
+    exclude-urls:
+    - ${management.endpoints.web.base-path}/**
+  websocket:
+    enable: true
+    path: /dimensions/ws
+    sender-type: kafka
+    sender-rocketmq:
+      topic: ${spring.application.name}-websocket
+      consumer-group: ${spring.application.name}-websocket-consumer
+    sender-rabbitmq:
+      exchange: ${spring.application.name}-websocket-exchange
+      queue: ${spring.application.name}-websocket-queue
+    sender-kafka:
+      topic: ${spring.application.name}-websocket
+      consumer-group: ${spring.application.name}-websocket-consumer
+  swagger:
+    title: 3D管理后台
+    description: 提供管理员管理3D的所有功能
+    version: ${wx.info.version}
+  tenant:
+    enable: true
+    ignore-urls:
+    - /admin-api/dimensions/signaling/get-address
+    ignore-tables:
+    - wx_resource
+    - wx_resource_data_type
+    - wx_resource_type
+    - wx_scene_def
+    - wx_signal_ling
+    - wx_material
+    - wx_file_only_info
+    - wx_file_info
+    - wx_file_download_info
+    - wx_engineering_data_list_row
+    - wx_engineering_data_list_column
+    - wx_engineering
+    - wx_device_status_ppfmter
+    - wx_device_status_cbds
+    - wx_device_info_ppfmter
+    - wx_device_info_cbds
+    - wx_component_info
+    - wx_batch_conversion
+    - ssociation_object
+    - wx_alert_scheme
+    ignore-caches:
+    - user_role_ids
+    - permission_menu_ids
+    - oauth_client
+    - notify_template
+    - mail_account
+    - mail_template
+    - sms_template
+  sms-code:
+    expire-times: 10m
+    send-frequency: 1m
+    send-maximum-quantity-per-day: 10
+    begin-code: 9999
+    end-code: 9999
+  security:
+    mock-enable: false
+  captcha:
+    enable: false
+  access-log:
+    enable: false
+  message-data:
+    speed: 1
+  mp:
+    app-id: wx-test148
+    secret: ${WX_RUNTIME_SECRET}
+  miniapp:
+    appid: wx-test148
+    secret: ${WX_RUNTIME_SECRET}
+debug: false
+preview:
+  base-url: http://192.168.10.148:12522
+  2d:
+    base-url: ${preview.base-url}/babylonWeb/editor
+  3d:
+    base-url: ${preview.base-url}/web/#/scenePreview
+dim3d:
+  resource-convert-url: http://192.168.10.200:30080/api/dim3d/resource/uploadConvert
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+justauth:
+  enabled: true
+  type: {}
+minio:
+  url: http://127.0.0.1:9000
+  accessKey: ${WX_MINIO_ACCESS_KEY}
+  secretKey: ${WX_MINIO_SECRET_KEY}
+  bucketName: wx-art-test148
+  expiry: 1
+  breakpointTime: 1
+server-path: /admin-api/dimensions
+file-save-path: /data/web/
+file-save-temporary-path: /data/template/
+file-save-img-path: /data/images/
+project-name-prefix: wx
+batch-conversion-actuality-path: /data/batch/
+material-path: /data/material/
+ptc:
+  license:
+    start-check: false
+    verify-system-switch: true
+    license-path: /data/license/license.lic

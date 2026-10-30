@@ -1,0 +1,8 @@
+{
+  "client": "current Windows workstation",
+  "host": "192.168.10.148:9444",
+  "certificateAndHostnameChecked": true,
+  "testCertificateExplicitlyTrusted": true,
+  "certificateSha256": "3ff2e6a73084e2bf22821df3e075cca8636b1c0e1afa81b0a7be57b102c04142",
+  "unsignedReadStatus": 403
+}

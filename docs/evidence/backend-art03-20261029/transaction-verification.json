@@ -1,0 +1,279 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "创建操作:CREATE",
+      "passed": true
+    },
+    {
+      "name": "签发绑定上传计划",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:ArtPackManifest.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:ArtResourceCatalog.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:built",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:manifest.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:models/car",
+      "passed": true
+    },
+    {
+      "name": "真实汽车闭包首次提交",
+      "passed": true
+    },
+    {
+      "name": "受控目录关联可追溯",
+      "passed": true
+    },
+    {
+      "name": "普通用户取得当前描述",
+      "passed": true
+    },
+    {
+      "name": "提交后清单可下载",
+      "passed": true
+    },
+    {
+      "name": "响应丢失重试不递增",
+      "passed": true
+    },
+    {
+      "name": "重放旧PUT不能改写冻结内容",
+      "passed": true
+    },
+    {
+      "name": "创建操作:REPLACE",
+      "passed": true
+    },
+    {
+      "name": "签发绑定上传计划",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:ArtPackManifest.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:ArtResourceCatalog.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:built",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:manifest.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:models/car",
+      "passed": true
+    },
+    {
+      "name": "同ID替换内容B",
+      "passed": true
+    },
+    {
+      "name": "旧内容保留可读",
+      "passed": true
+    },
+    {
+      "name": "创建操作:REPLACE",
+      "passed": true
+    },
+    {
+      "name": "签发绑定上传计划",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:ArtPackManifest.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:ArtResourceCatalog.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:built",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:manifest.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:models/car",
+      "passed": true
+    },
+    {
+      "name": "坏摘要提交拒绝",
+      "passed": true
+    },
+    {
+      "name": "坏提交保留B指针",
+      "passed": true
+    },
+    {
+      "name": "创建操作:REPLACE",
+      "passed": true
+    },
+    {
+      "name": "创建操作:REPLACE",
+      "passed": true
+    },
+    {
+      "name": "签发绑定上传计划",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:ArtPackManifest.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:ArtResourceCatalog.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:built",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:manifest.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:models/car",
+      "passed": true
+    },
+    {
+      "name": "签发绑定上传计划",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:ArtPackManifest.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:ArtResourceCatalog.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:built",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:manifest.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:models/car",
+      "passed": true
+    },
+    {
+      "name": "并发替换仅一项成功",
+      "passed": true
+    },
+    {
+      "name": "并发后只递增一次",
+      "passed": true
+    },
+    {
+      "name": "创建操作:DELETE",
+      "passed": true
+    },
+    {
+      "name": "逻辑删除提交",
+      "passed": true
+    },
+    {
+      "name": "删除后新增消费拒绝",
+      "passed": true
+    },
+    {
+      "name": "删除事务同步下线关联目录",
+      "passed": true
+    },
+    {
+      "name": "创建操作:RESTORE",
+      "passed": true
+    },
+    {
+      "name": "受控快照恢复",
+      "passed": true
+    },
+    {
+      "name": "快照恢复同步还原关联目录",
+      "passed": true
+    },
+    {
+      "name": "创建操作:REPLACE",
+      "passed": true
+    },
+    {
+      "name": "签发绑定上传计划",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:ArtPackManifest.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:ArtResourceCatalog.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:built",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:manifest.json",
+      "passed": true
+    },
+    {
+      "name": "受限HTTPS上传:models/car",
+      "passed": true
+    },
+    {
+      "name": "真实MySQL写回执失败拒绝提交",
+      "passed": true
+    },
+    {
+      "name": "数据库失败保留原指针及修订",
+      "passed": true
+    },
+    {
+      "name": "数据库恢复后同操作可重试",
+      "passed": true
+    },
+    {
+      "name": "上传入口不能写最终前缀",
+      "passed": true
+    },
+    {
+      "name": "上传必须携带有效签名",
+      "passed": true
+    },
+    {
+      "name": "普通用户不能替换提交",
+      "passed": true
+    }
+  ],
+  "count": 67,
+  "port": 48092,
+  "sourceReleaseHash": "sha256:7afc01c33690d48dc872bb4282f55e2ee8f1efa09124272aa0e4a8ec5b6483b7",
+  "modelBytes": 13181716,
+  "scope": "既有Unity工作台真实汽车包；B/D/E只改目录元数据，不代表材质视觉更新；没有浏览器画面验收",
+  "cleanup": true
+}

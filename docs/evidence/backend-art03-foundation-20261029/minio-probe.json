@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "checks": 5,
+  "cleanup": true,
+  "databaseChanged": false,
+  "apiEnabled": false
+}

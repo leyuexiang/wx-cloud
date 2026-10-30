@@ -82,28 +82,28 @@ public class TokenAuthenticationFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(final ServerWebExchange exchange, GatewayFilterChain chain) {
-        // 移除 login-user 的请求头，避免伪造模拟
-        SecurityFrameworkUtils.removeLoginUser(exchange);
+        // 请求对象不可变，必须沿后续整条链使用清理后的副本，防止外部伪造内部身份。
+        final ServerWebExchange safeExchange = SecurityFrameworkUtils.removeLoginUser(exchange);
 
         // 情况一，如果没有 Token 令牌，则直接继续 filter
-        String token = SecurityFrameworkUtils.obtainAuthorization(exchange);
+        String token = SecurityFrameworkUtils.obtainAuthorization(safeExchange);
         if (StrUtil.isEmpty(token)) {
-            return chain.filter(exchange);
+            return chain.filter(safeExchange);
         }
 
         // 情况二，如果有 Token 令牌，则解析对应 userId、userType、tenantId 等字段，并通过 通过 Header 转发给服务
         // 重要说明：defaultIfEmpty 作用，保证 Mono.empty() 情况，可以继续执行 `flatMap 的 chain.filter(exchange)` 逻辑，避免返回给前端空的 Response！！
-        return getLoginUser(exchange, token).defaultIfEmpty(LOGIN_USER_EMPTY).flatMap(user -> {
+        return getLoginUser(safeExchange, token).defaultIfEmpty(LOGIN_USER_EMPTY).flatMap(user -> {
             // 1. 无用户，直接 filter 继续请求
             if (user == LOGIN_USER_EMPTY || // 下面 expiresTime 的判断，为了解决 token 实际已经过期的情况
                     user.getExpiresTime() == null || LocalDateTimeUtils.beforeNow(user.getExpiresTime())) {
-                return chain.filter(exchange);
+                return chain.filter(safeExchange);
             }
 
             // 2.1 有用户，则设置登录用户
-            SecurityFrameworkUtils.setLoginUser(exchange, user);
+            SecurityFrameworkUtils.setLoginUser(safeExchange, user);
             // 2.2 将 user 并设置到 login-user 的请求头，使用 json 存储值
-            ServerWebExchange newExchange = exchange.mutate()
+            ServerWebExchange newExchange = safeExchange.mutate()
                     .request(builder -> SecurityFrameworkUtils.setLoginUserHeader(builder, user)).build();
             return chain.filter(newExchange);
         });

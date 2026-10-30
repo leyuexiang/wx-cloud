@@ -9,10 +9,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-/** 新模型资源实体，对应 dim3d_model 表。 */
+/** 新模型资源实体，对应 wx_dim3d_model 表。 */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("dim3d_model")
+@TableName("wx_dim3d_model")
 @Schema(description = "3D模型资源")
 public class Dim3dModel extends Dim3dResourceBaseEntity {
     @NotBlank @Size(min = 2, max = 50) private String modelName;

@@ -1,0 +1,107 @@
+{
+  "time": "2026-10-29T15:09:48.219816",
+  "base": "http://127.0.0.1:12522",
+  "passed": true,
+  "checks": [
+    {
+      "name": "网关健康",
+      "passed": true,
+      "code": 0
+    },
+    {
+      "name": "super_admin 登录",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "tenant_admin 登录",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "viewer 登录",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "平台管理员读取权限",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "平台管理员读取模型目录",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "平台管理员读取场景目录",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "租户管理员读取模型目录",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "拒绝跨租户请求头",
+      "passed": true,
+      "code": 403
+    },
+    {
+      "name": "普通用户读取模型目录",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "普通用户不能修改模型",
+      "passed": true,
+      "code": 403
+    },
+    {
+      "name": "拒绝匿名资源查询",
+      "passed": true,
+      "code": 401
+    },
+    {
+      "name": "拒绝伪造内部身份头",
+      "passed": true,
+      "code": 401
+    },
+    {
+      "name": "未标注方法权限的场景接口仍要求登录",
+      "passed": true,
+      "code": 401
+    },
+    {
+      "name": "普通用户令牌不能借伪造身份提权",
+      "passed": true,
+      "code": 403
+    },
+    {
+      "name": "模型元数据新增",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "模型元数据回读",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "忽略请求体伪造的租户归属",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "其他租户无法读取该模型",
+      "passed": true,
+      "code": 403
+    },
+    {
+      "name": "删除验收模型记录",
+      "passed": true,
+      "code": 200
+    }
+  ]
+}

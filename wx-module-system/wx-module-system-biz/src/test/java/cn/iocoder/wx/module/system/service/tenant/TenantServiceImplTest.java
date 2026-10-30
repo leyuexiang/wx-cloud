@@ -306,7 +306,8 @@ public class TenantServiceImplTest extends BaseDbUnitTest {
         // 准备参数
         TenantPageReqVO reqVO = new TenantPageReqVO();
         reqVO.setName("九天");
-        reqVO.setContactName("艿");
+        // 联系人名称已改为“芸菲”，查询片段与样本保持一致，继续验证模糊筛选。
+        reqVO.setContactName("芸");
         reqVO.setContactMobile("1560");
         reqVO.setStatus(CommonStatusEnum.ENABLE.getStatus());
         reqVO.setCreateTime(buildBetweenTime(2020, 12, 1, 2020, 12, 24));

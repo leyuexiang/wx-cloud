@@ -1,0 +1,39 @@
+{
+  "create": {
+    "operationId": "e922c785-35bc-4bd4-833c-df1955c00c71",
+    "operationType": "CREATE",
+    "resourceScope": "GLOBAL_SYSTEM",
+    "metadata": {
+      "resourceName": "普通汽车",
+      "resourceType": "MODEL",
+      "assetName": "qiche_01"
+    }
+  },
+  "replace": {
+    "operationId": "839780b2-3ed1-4de6-acb6-084f1f89d15e",
+    "operationType": "REPLACE",
+    "resourceId": "2041056700000000001",
+    "expectedRevision": "1"
+  },
+  "commit": {
+    "manifestPath": "manifest.json",
+    "manifestSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "contentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "contentFormat": "unity.assetbundle.v1",
+    "platform": "WebGL",
+    "appCompatibility": "jtyf-webgpu-6000.6.7f1-urp17.6-art1"
+  },
+  "current": {
+    "resourceId": "2041056700000000001",
+    "resourceName": "普通汽车",
+    "resourceScope": "GLOBAL_SYSTEM",
+    "currentRevision": "2",
+    "contentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "manifestSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "contentFormat": "unity.assetbundle.v1",
+    "platform": "WebGL",
+    "appCompatibility": "jtyf-webgpu-6000.6.7f1-urp17.6-art1",
+    "manifestUrl": "https://resources.example.invalid/art/manifest.json",
+    "downloadExpiresAt": "2026-10-29T10:00:00Z"
+  }
+}

@@ -1,0 +1,68 @@
+# 测试服务器独立配置；密钥仅通过服务器环境变量注入。
+spring:
+  application:
+    name: gateway-server
+  main:
+    allow-circular-references: true
+  cloud:
+    nacos:
+      discovery:
+        enabled: false
+      config:
+        enabled: false
+        import-check:
+          enabled: false
+    discovery:
+      client:
+        simple:
+          instances:
+            system-server:
+            - uri: http://127.0.0.1:48081
+            infra-server:
+            - uri: http://127.0.0.1:48082
+            dimensions-server:
+            - uri: http://127.0.0.1:48092
+    gateway:
+      routes:
+      - id: system-test148
+        uri: http://127.0.0.1:48081
+        predicates:
+        - Path=/admin-api/system/**,/app-api/system/**
+        filters:
+        - RemoveRequestHeader=x-bot-user
+      - id: infra-test148
+        uri: http://127.0.0.1:48082
+        predicates:
+        - Path=/admin-api/infra/**,/app-api/infra/**
+        filters:
+        - RemoveRequestHeader=x-bot-user
+      - id: dimensions-test148
+        uri: http://127.0.0.1:48092
+        predicates:
+        - Path=/admin-api/dimensions/**,/app-api/dimensions/**,/admin-api/dim3d/**
+        filters:
+        - RemoveRequestHeader=x-bot-user
+      x-forwarded:
+        prefix-enabled: false
+server:
+  port: ${WX_GATEWAY_PORT:12532}
+  address: 0.0.0.0
+logging:
+  file:
+    name: /app/logs/wx-gateway.log
+  level:
+    root: INFO
+knife4j:
+  gateway:
+    enabled: false
+wx:
+  info:
+    version: 1.0.0
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

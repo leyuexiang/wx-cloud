@@ -20,8 +20,8 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 -- Table structure for alert_scheme
 -- ----------------------------
-DROP TABLE IF EXISTS `alert_scheme`;
-CREATE TABLE `alert_scheme`  (
+DROP TABLE IF EXISTS `wx_alert_scheme`;
+CREATE TABLE `wx_alert_scheme`  (
   `id` int(8) NOT NULL AUTO_INCREMENT COMMENT '自增id',
   `scheme_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '预警名称',
   `alert_type` int(1) NULL DEFAULT NULL COMMENT '预警类型-0：模型范围光提示（U3D用）1：全局弹窗提示（WEB用）',
@@ -45,8 +45,8 @@ CREATE TABLE `alert_scheme`  (
 -- ----------------------------
 -- Table structure for association_object
 -- ----------------------------
-DROP TABLE IF EXISTS `association_object`;
-CREATE TABLE `association_object`  (
+DROP TABLE IF EXISTS `wx_association_object`;
+CREATE TABLE `wx_association_object`  (
   `value_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '节点值',
   `label_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '显示名称',
   `children` json NULL COMMENT '子节点',
@@ -64,8 +64,8 @@ CREATE TABLE `association_object`  (
 -- ----------------------------
 -- Table structure for batch_conversion
 -- ----------------------------
-DROP TABLE IF EXISTS `batch_conversion`;
-CREATE TABLE `batch_conversion`  (
+DROP TABLE IF EXISTS `wx_batch_conversion`;
+CREATE TABLE `wx_batch_conversion`  (
   `id` int(8) NOT NULL AUTO_INCREMENT,
   `resource_directory_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '资源目录名',
   `resource_web_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '资源web页面显示名称',
@@ -90,8 +90,8 @@ CREATE TABLE `batch_conversion`  (
 -- ----------------------------
 -- Table structure for component_heat_map
 -- ----------------------------
-DROP TABLE IF EXISTS `component_heat_map`;
-CREATE TABLE `component_heat_map`  (
+DROP TABLE IF EXISTS `wx_component_heat_map`;
+CREATE TABLE `wx_component_heat_map`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增id',
   `component_info_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '组件信息ID',
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '名字',
@@ -110,8 +110,8 @@ CREATE TABLE `component_heat_map`  (
 -- ----------------------------
 -- Table structure for component_info
 -- ----------------------------
-DROP TABLE IF EXISTS `component_info`;
-CREATE TABLE `component_info`  (
+DROP TABLE IF EXISTS `wx_component_info`;
+CREATE TABLE `wx_component_info`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增id',
   `project_id` int(11) NULL DEFAULT NULL COMMENT '项目ID',
   `component_unique_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '组件唯一标识',
@@ -138,8 +138,8 @@ CREATE TABLE `component_info`  (
 -- ----------------------------
 -- Table structure for device_info_cbds
 -- ----------------------------
-DROP TABLE IF EXISTS `device_info_cbds`;
-CREATE TABLE `device_info_cbds`  (
+DROP TABLE IF EXISTS `wx_device_info_cbds`;
+CREATE TABLE `wx_device_info_cbds`  (
   `id` int(8) NOT NULL COMMENT '自增id',
   `device_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '设备id',
   `device_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '设备名',
@@ -174,8 +174,8 @@ CREATE TABLE `device_info_cbds`  (
 -- ----------------------------
 -- Table structure for device_info_ppfmter
 -- ----------------------------
-DROP TABLE IF EXISTS `device_info_ppfmter`;
-CREATE TABLE `device_info_ppfmter`  (
+DROP TABLE IF EXISTS `wx_device_info_ppfmter`;
+CREATE TABLE `wx_device_info_ppfmter`  (
   `id` int(8) NOT NULL COMMENT '自增id',
   `device_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '设备id',
   `device_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '设备名',
@@ -210,8 +210,8 @@ CREATE TABLE `device_info_ppfmter`  (
 -- ----------------------------
 -- Table structure for device_status_cbds
 -- ----------------------------
-DROP TABLE IF EXISTS `device_status_cbds`;
-CREATE TABLE `device_status_cbds`  (
+DROP TABLE IF EXISTS `wx_device_status_cbds`;
+CREATE TABLE `wx_device_status_cbds`  (
   `id` int(8) NOT NULL AUTO_INCREMENT COMMENT '自增id',
   `device_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '设备id',
   `device_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '设备名',
@@ -236,8 +236,8 @@ CREATE TABLE `device_status_cbds`  (
 -- ----------------------------
 -- Table structure for device_status_ppfmter
 -- ----------------------------
-DROP TABLE IF EXISTS `device_status_ppfmter`;
-CREATE TABLE `device_status_ppfmter`  (
+DROP TABLE IF EXISTS `wx_device_status_ppfmter`;
+CREATE TABLE `wx_device_status_ppfmter`  (
   `id` int(8) NOT NULL AUTO_INCREMENT COMMENT '自增id',
   `device_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '设备id',
   `device_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '设备名',
@@ -261,8 +261,8 @@ CREATE TABLE `device_status_ppfmter`  (
 -- ----------------------------
 -- Table structure for deviceall
 -- ----------------------------
-DROP TABLE IF EXISTS `deviceall`;
-CREATE TABLE `deviceall`  (
+DROP TABLE IF EXISTS `wx_deviceall`;
+CREATE TABLE `wx_deviceall`  (
   `id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '唯一标识',
   `serverCode` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '服务器编码',
   `areaName` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '园区',
@@ -285,8 +285,8 @@ CREATE TABLE `deviceall`  (
 -- ----------------------------
 -- Table structure for engineering
 -- ----------------------------
-DROP TABLE IF EXISTS `engineering`;
-CREATE TABLE `engineering`  (
+DROP TABLE IF EXISTS `wx_engineering`;
+CREATE TABLE `wx_engineering`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增id',
   `gis_info` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT 'gis信息',
   `project` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '对应的项目编号',
@@ -327,8 +327,8 @@ CREATE TABLE `engineering`  (
 -- ----------------------------
 -- Table structure for engineering_data
 -- ----------------------------
-DROP TABLE IF EXISTS `engineering_data`;
-CREATE TABLE `engineering_data`  (
+DROP TABLE IF EXISTS `wx_engineering_data`;
+CREATE TABLE `wx_engineering_data`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `engineering_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '3D场景唯一标识',
   `engineering_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '3D场景名称',
@@ -346,8 +346,8 @@ CREATE TABLE `engineering_data`  (
 -- ----------------------------
 -- Table structure for engineering_data_list_column
 -- ----------------------------
-DROP TABLE IF EXISTS `engineering_data_list_column`;
-CREATE TABLE `engineering_data_list_column`  (
+DROP TABLE IF EXISTS `wx_engineering_data_list_column`;
+CREATE TABLE `wx_engineering_data_list_column`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `row_id` int(11) NULL DEFAULT NULL COMMENT '列id',
   `column_data` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '行数据',
@@ -367,8 +367,8 @@ CREATE TABLE `engineering_data_list_column`  (
 -- ----------------------------
 -- Table structure for engineering_data_list_row
 -- ----------------------------
-DROP TABLE IF EXISTS `engineering_data_list_row`;
-CREATE TABLE `engineering_data_list_row`  (
+DROP TABLE IF EXISTS `wx_engineering_data_list_row`;
+CREATE TABLE `wx_engineering_data_list_row`  (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `project_engineering_id` int(11) NULL DEFAULT NULL COMMENT '场景id',
   `row_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '列名称',
@@ -388,8 +388,8 @@ CREATE TABLE `engineering_data_list_row`  (
 -- ----------------------------
 -- Table structure for file_download_info
 -- ----------------------------
-DROP TABLE IF EXISTS `file_download_info`;
-CREATE TABLE `file_download_info`  (
+DROP TABLE IF EXISTS `wx_file_download_info`;
+CREATE TABLE `wx_file_download_info`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文件名',
   `file_id` int(11) NULL DEFAULT NULL COMMENT '文件id',
@@ -410,8 +410,8 @@ CREATE TABLE `file_download_info`  (
 -- ----------------------------
 -- Table structure for file_info
 -- ----------------------------
-DROP TABLE IF EXISTS `file_info`;
-CREATE TABLE `file_info`  (
+DROP TABLE IF EXISTS `wx_file_info`;
+CREATE TABLE `wx_file_info`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文件名',
   `file_level` int(11) NULL DEFAULT NULL COMMENT '文件等级，在多少层',
@@ -438,8 +438,8 @@ CREATE TABLE `file_info`  (
 -- ----------------------------
 -- Table structure for file_only_info
 -- ----------------------------
-DROP TABLE IF EXISTS `file_only_info`;
-CREATE TABLE `file_only_info`  (
+DROP TABLE IF EXISTS `wx_file_only_info`;
+CREATE TABLE `wx_file_only_info`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文件名',
   `parent_id` int(11) NULL DEFAULT NULL COMMENT '上一级id',
@@ -462,8 +462,8 @@ CREATE TABLE `file_only_info`  (
 -- ----------------------------
 -- Table structure for files_minio
 -- ----------------------------
-DROP TABLE IF EXISTS `files_minio`;
-CREATE TABLE `files_minio`  (
+DROP TABLE IF EXISTS `wx_files_minio`;
+CREATE TABLE `wx_files_minio`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `upload_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件上传id',
   `md5` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件计算md5',
@@ -483,8 +483,8 @@ CREATE TABLE `files_minio`  (
 -- ----------------------------
 -- Table structure for icon_info
 -- ----------------------------
-DROP TABLE IF EXISTS `icon_info`;
-CREATE TABLE `icon_info`  (
+DROP TABLE IF EXISTS `wx_icon_info`;
+CREATE TABLE `wx_icon_info`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `project_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '项目id',
   `icon_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '图标名称',
@@ -506,8 +506,8 @@ CREATE TABLE `icon_info`  (
 -- ----------------------------
 -- Table structure for icon_type
 -- ----------------------------
-DROP TABLE IF EXISTS `icon_type`;
-CREATE TABLE `icon_type`  (
+DROP TABLE IF EXISTS `wx_icon_type`;
+CREATE TABLE `wx_icon_type`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `type_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '类型编码',
   `type_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '类型名称',
@@ -526,8 +526,8 @@ CREATE TABLE `icon_type`  (
 -- ----------------------------
 -- Table structure for material
 -- ----------------------------
-DROP TABLE IF EXISTS `material`;
-CREATE TABLE `material`  (
+DROP TABLE IF EXISTS `wx_material`;
+CREATE TABLE `wx_material`  (
   `id` int(4) NOT NULL AUTO_INCREMENT,
   `material_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `type_id` int(4) NULL DEFAULT NULL,
@@ -541,8 +541,8 @@ CREATE TABLE `material`  (
 -- ----------------------------
 -- Table structure for resource
 -- ----------------------------
-DROP TABLE IF EXISTS `resource`;
-CREATE TABLE `resource`  (
+DROP TABLE IF EXISTS `wx_resource`;
+CREATE TABLE `wx_resource`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `art_res_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '资源文件目录',
   `art_res_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '资源类型',
@@ -581,8 +581,8 @@ CREATE TABLE `resource`  (
 -- ----------------------------
 -- Table structure for resource_data_type
 -- ----------------------------
-DROP TABLE IF EXISTS `resource_data_type`;
-CREATE TABLE `resource_data_type`  (
+DROP TABLE IF EXISTS `wx_resource_data_type`;
+CREATE TABLE `wx_resource_data_type`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `type_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '类型名称',
   `status` int(1) NULL DEFAULT NULL COMMENT '状态',
@@ -600,8 +600,8 @@ CREATE TABLE `resource_data_type`  (
 -- ----------------------------
 -- Table structure for resource_info
 -- ----------------------------
-DROP TABLE IF EXISTS `resource_info`;
-CREATE TABLE `resource_info`  (
+DROP TABLE IF EXISTS `wx_resource_info`;
+CREATE TABLE `wx_resource_info`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `res_from_platform` enum('BIM','BABYLON_WEB','U3D_WEB','U3D') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '平台类型:\'BIM\',\'BABYLON_WEB\',\'U3D_WEB\',\'U3D\'',
   `project_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '项目id',
@@ -633,8 +633,8 @@ CREATE TABLE `resource_info`  (
 -- ----------------------------
 -- Table structure for resource_type
 -- ----------------------------
-DROP TABLE IF EXISTS `resource_type`;
-CREATE TABLE `resource_type`  (
+DROP TABLE IF EXISTS `wx_resource_type`;
+CREATE TABLE `wx_resource_type`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `type_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '类型编码',
   `type_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '类型名',
@@ -652,8 +652,8 @@ CREATE TABLE `resource_type`  (
 -- ----------------------------
 -- Table structure for resource_version
 -- ----------------------------
-DROP TABLE IF EXISTS `resource_version`;
-CREATE TABLE `resource_version`  (
+DROP TABLE IF EXISTS `wx_resource_version`;
+CREATE TABLE `wx_resource_version`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `version_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '版本号',
   `create_user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
@@ -668,8 +668,8 @@ CREATE TABLE `resource_version`  (
 -- ----------------------------
 -- Table structure for scene_def
 -- ----------------------------
-DROP TABLE IF EXISTS `scene_def`;
-CREATE TABLE `scene_def`  (
+DROP TABLE IF EXISTS `wx_scene_def`;
+CREATE TABLE `wx_scene_def`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `gis_info` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT 'gis信息',
   `project` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '对应的项目编号',
@@ -705,8 +705,8 @@ CREATE TABLE `scene_def`  (
 -- ----------------------------
 -- Table structure for signal_ling
 -- ----------------------------
-DROP TABLE IF EXISTS `signal_ling`;
-CREATE TABLE `signal_ling`  (
+DROP TABLE IF EXISTS `wx_signal_ling`;
+CREATE TABLE `wx_signal_ling`  (
   `id` int(4) NOT NULL,
   `prop` varchar(225) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'key名称',
   `value` text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'value值',
@@ -717,8 +717,8 @@ CREATE TABLE `signal_ling`  (
 -- ----------------------------
 -- Table structure for space
 -- ----------------------------
-DROP TABLE IF EXISTS `space`;
-CREATE TABLE `space`  (
+DROP TABLE IF EXISTS `wx_space`;
+CREATE TABLE `wx_space`  (
   `area` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '园区',
   `building` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '所属楼栋',
   `floor` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '所属楼层',
@@ -731,8 +731,8 @@ CREATE TABLE `space`  (
 -- ----------------------------
 -- Table structure for state
 -- ----------------------------
-DROP TABLE IF EXISTS `state`;
-CREATE TABLE `state`  (
+DROP TABLE IF EXISTS `wx_state`;
+CREATE TABLE `wx_state`  (
   `deviceID` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '设备编码',
   `deviceName` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '设备名称',
   `state` int(11) NULL DEFAULT NULL COMMENT '状态',
@@ -744,8 +744,8 @@ CREATE TABLE `state`  (
 -- ----------------------------
 -- Table structure for task_event
 -- ----------------------------
-DROP TABLE IF EXISTS `task_event`;
-CREATE TABLE `task_event`  (
+DROP TABLE IF EXISTS `wx_task_event`;
+CREATE TABLE `wx_task_event`  (
   `id` int(8) NOT NULL AUTO_INCREMENT COMMENT '自增id',
   `virtual_camera` int(8) NULL DEFAULT NULL COMMENT '虚拟相机ID',
   `external_task_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '外部任务ID',
@@ -808,8 +808,8 @@ CREATE TABLE `task_event`  (
 -- ----------------------------
 -- Table structure for task_message
 -- ----------------------------
-DROP TABLE IF EXISTS `task_message`;
-CREATE TABLE `task_message`  (
+DROP TABLE IF EXISTS `wx_task_message`;
+CREATE TABLE `wx_task_message`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键id',
   `task_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '任务id',
   `version` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '版本号',
@@ -823,8 +823,8 @@ CREATE TABLE `task_message`  (
 -- ----------------------------
 -- Table structure for time_line
 -- ----------------------------
-DROP TABLE IF EXISTS `time_line`;
-CREATE TABLE `time_line`  (
+DROP TABLE IF EXISTS `wx_time_line`;
+CREATE TABLE `wx_time_line`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `task_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '任务id',
   `content` json NULL COMMENT 'json数据',
@@ -834,8 +834,8 @@ CREATE TABLE `time_line`  (
 -- ----------------------------
 -- Table structure for virtual_camera
 -- ----------------------------
-DROP TABLE IF EXISTS `virtual_camera`;
-CREATE TABLE `virtual_camera`  (
+DROP TABLE IF EXISTS `wx_virtual_camera`;
+CREATE TABLE `wx_virtual_camera`  (
   `id` int(8) NOT NULL AUTO_INCREMENT COMMENT '自增id',
   `scene_id` int(8) NOT NULL COMMENT '场景ID',
   `camera_external_id` int(8) NOT NULL COMMENT '外部虚拟相机ID',

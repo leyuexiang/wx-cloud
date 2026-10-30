@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  *
  * @author 九天芸菲
  */
-@TableName(value = "system_oauth2_approve", autoResultMap = true)
+@TableName(value = "wx_system_oauth2_approve", autoResultMap = true)
 @KeySequence("system_oauth2_approve_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 @EqualsAndHashCode(callSuper = true)

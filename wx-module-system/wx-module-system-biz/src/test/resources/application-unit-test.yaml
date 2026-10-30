@@ -13,7 +13,7 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
-    ${REDACTED_SECRET}
+    druid: # 本地内存数据库连接池配置，不需要外部密钥。
       async-init: true # 单元测试，异步初始化 Druid 连接池，提升启动速度
       initial-size: 1 # 单元测试，配置为 1，提升启动速度
   sql:

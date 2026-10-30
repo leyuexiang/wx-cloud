@@ -1,0 +1,173 @@
+{
+  "scope": "独立演练库结构、数据与回退验证，不是业务替换事务或权限接口验收",
+  "database": "wx_editor_art01_rehearsal_f533c09a982d",
+  "passed": 30,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "迁移保留原字段与原记录",
+      "passed": true
+    },
+    {
+      "name": "只回填一条同租户模型真实关联",
+      "passed": true
+    },
+    {
+      "name": "图标及模板不按同号猜测关联",
+      "passed": true
+    },
+    {
+      "name": "旧默认值不提升为全局资源",
+      "passed": true
+    },
+    {
+      "name": "重复执行幂等",
+      "passed": true
+    },
+    {
+      "name": "允许全局0归属",
+      "passed": true
+    },
+    {
+      "name": "允许规范租户共享归属",
+      "passed": true
+    },
+    {
+      "name": "拒绝错误范围归属:GLOBAL_SYSTEM/000000",
+      "passed": true
+    },
+    {
+      "name": "拒绝错误范围归属:GLOBAL_SYSTEM/2",
+      "passed": true
+    },
+    {
+      "name": "拒绝错误范围归属:GLOBAL_SYSTEM/None",
+      "passed": true
+    },
+    {
+      "name": "拒绝错误范围归属:TENANT_SHARED/0",
+      "passed": true
+    },
+    {
+      "name": "拒绝错误范围归属:TENANT_SHARED/02",
+      "passed": true
+    },
+    {
+      "name": "拒绝错误范围归属:TENANT_SHARED/-2",
+      "passed": true
+    },
+    {
+      "name": "拒绝错误范围归属:TENANT_SHARED/9223372036854775808",
+      "passed": true
+    },
+    {
+      "name": "拒绝错误范围归属:global_system/0",
+      "passed": true
+    },
+    {
+      "name": "拒绝错误范围归属:UNKNOWN/0",
+      "passed": true
+    },
+    {
+      "name": "READY拒绝不完整当前指针",
+      "passed": true
+    },
+    {
+      "name": "拒绝错误摘要",
+      "passed": true
+    },
+    {
+      "name": "旧转换写入仍可保留LEGACY状态",
+      "passed": true
+    },
+    {
+      "name": "允许受约束的操作记录",
+      "passed": true
+    },
+    {
+      "name": "拒绝悬空资源操作",
+      "passed": true
+    },
+    {
+      "name": "已提交必须有快照和提交修订",
+      "passed": true
+    },
+    {
+      "name": "已提交修订必须递增一",
+      "passed": true
+    },
+    {
+      "name": "允许完整已提交回执",
+      "passed": true
+    },
+    {
+      "name": "完整当前指针引用同资源操作",
+      "passed": true
+    },
+    {
+      "name": "拒绝引用其它资源的同号操作",
+      "passed": true
+    },
+    {
+      "name": "存在操作记录拒绝回退",
+      "passed": true
+    },
+    {
+      "name": "存在新资源拒绝回退",
+      "passed": true
+    },
+    {
+      "name": "回退结构及原记录完全恢复",
+      "passed": true
+    },
+    {
+      "name": "回退后可以重新迁移",
+      "passed": true
+    }
+  ],
+  "applied": {
+    "action": "applied",
+    "database": "wx_editor_art01_rehearsal_f533c09a982d",
+    "checksums": {
+      "001-schema.up.sql": "1411a95308954ee2100213136da4364b49deaabb78dc5db7c2d6eebd8dd255a5",
+      "002-links.up.sql": "09841b64585eadbd3db13121169e8d80659b6013f4771115809e178a3f1737ea",
+      "003-schema.down.sql": "8ab37b16276ec21eb475cc05ce24897604ebba4fc5231be4ce053639b4d55f75"
+    },
+    "backup": {
+      "path": "/opt/wx/editor-test148/backups/art01-wx_editor_art01_rehearsal_f533c09a982d-20261029T044711190477Z/database.sql",
+      "sha256": "f7b9a3d9f84a599adc95c58335c5aa71a51dd79edd35115b5b31401714f3882b",
+      "mode": "0o600"
+    },
+    "originalRowsUnchanged": true,
+    "backfilledModelLinks": 1,
+    "unclassifiedResources": 4
+  },
+  "rollback": {
+    "action": "rolled-back",
+    "database": "wx_editor_art01_rehearsal_f533c09a982d",
+    "restoredExactly": true,
+    "backup": {
+      "path": "/opt/wx/editor-test148/backups/art01-wx_editor_art01_rehearsal_f533c09a982d-20261029T044720438839Z/database.sql",
+      "sha256": "b37498d4a9cd478019039371b09bd789c24d003fab38f7083b68ba64d1e2c930",
+      "mode": "0o600"
+    }
+  },
+  "finalApply": {
+    "action": "applied",
+    "database": "wx_editor_art01_rehearsal_f533c09a982d",
+    "checksums": {
+      "001-schema.up.sql": "1411a95308954ee2100213136da4364b49deaabb78dc5db7c2d6eebd8dd255a5",
+      "002-links.up.sql": "09841b64585eadbd3db13121169e8d80659b6013f4771115809e178a3f1737ea",
+      "003-schema.down.sql": "8ab37b16276ec21eb475cc05ce24897604ebba4fc5231be4ce053639b4d55f75"
+    },
+    "backup": {
+      "path": "/opt/wx/editor-test148/backups/art01-wx_editor_art01_rehearsal_f533c09a982d-20261029T044723783615Z/database.sql",
+      "sha256": "8076b43ba6f035028787496834c07a8230ff020465cd6bf2bb99a9670b07f0e5",
+      "mode": "0o600"
+    },
+    "originalRowsUnchanged": true,
+    "backfilledModelLinks": 1,
+    "unclassifiedResources": 4
+  },
+  "retainedForAudit": true
+}

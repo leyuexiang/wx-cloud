@@ -16,7 +16,7 @@ import java.util.List;
  * @author wangjingyi
  * @since 2022-03-21
  */
-@TableName(value = "system_mail_template", autoResultMap = true)
+@TableName(value = "wx_system_mail_template", autoResultMap = true)
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class MailTemplateDO extends BaseDO {

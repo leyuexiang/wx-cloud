@@ -1,0 +1,138 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "普通用户真实登录:2",
+      "passed": true
+    },
+    {
+      "name": "普通用户真实登录:987015",
+      "passed": true
+    },
+    {
+      "name": "上传隔离验收文件:GLOBAL_SYSTEM",
+      "passed": true
+    },
+    {
+      "name": "内部回读摘要:GLOBAL_SYSTEM",
+      "passed": true
+    },
+    {
+      "name": "当前描述签发:GLOBAL_SYSTEM",
+      "passed": true
+    },
+    {
+      "name": "签名HTTPS且限定五分钟:GLOBAL_SYSTEM",
+      "passed": true
+    },
+    {
+      "name": "TLS主机及证书验证后实际下载:GLOBAL_SYSTEM",
+      "passed": true
+    },
+    {
+      "name": "缓存禁止共享:GLOBAL_SYSTEM",
+      "passed": true
+    },
+    {
+      "name": "浏览器跨域限定测试来源:GLOBAL_SYSTEM",
+      "passed": true
+    },
+    {
+      "name": "去掉签名不能下载:GLOBAL_SYSTEM",
+      "passed": true
+    },
+    {
+      "name": "篡改对象键签名失效:GLOBAL_SYSTEM",
+      "passed": true
+    },
+    {
+      "name": "篡改签名拒绝:GLOBAL_SYSTEM",
+      "passed": true
+    },
+    {
+      "name": "真实过期签名被存储拒绝:GLOBAL_SYSTEM",
+      "passed": true
+    },
+    {
+      "name": "代理拒绝PUT写入:GLOBAL_SYSTEM",
+      "passed": true
+    },
+    {
+      "name": "其它租户全局描述可读",
+      "passed": true
+    },
+    {
+      "name": "其它租户全局签名可下载",
+      "passed": true
+    },
+    {
+      "name": "匿名无法取得签名:GLOBAL_SYSTEM",
+      "passed": true
+    },
+    {
+      "name": "上传隔离验收文件:TENANT_SHARED",
+      "passed": true
+    },
+    {
+      "name": "内部回读摘要:TENANT_SHARED",
+      "passed": true
+    },
+    {
+      "name": "当前描述签发:TENANT_SHARED",
+      "passed": true
+    },
+    {
+      "name": "签名HTTPS且限定五分钟:TENANT_SHARED",
+      "passed": true
+    },
+    {
+      "name": "TLS主机及证书验证后实际下载:TENANT_SHARED",
+      "passed": true
+    },
+    {
+      "name": "缓存禁止共享:TENANT_SHARED",
+      "passed": true
+    },
+    {
+      "name": "浏览器跨域限定测试来源:TENANT_SHARED",
+      "passed": true
+    },
+    {
+      "name": "去掉签名不能下载:TENANT_SHARED",
+      "passed": true
+    },
+    {
+      "name": "篡改对象键签名失效:TENANT_SHARED",
+      "passed": true
+    },
+    {
+      "name": "篡改签名拒绝:TENANT_SHARED",
+      "passed": true
+    },
+    {
+      "name": "真实过期签名被存储拒绝:TENANT_SHARED",
+      "passed": true
+    },
+    {
+      "name": "代理拒绝PUT写入:TENANT_SHARED",
+      "passed": true
+    },
+    {
+      "name": "其它租户共享描述拒绝且无下载地址",
+      "passed": true
+    },
+    {
+      "name": "匿名无法取得签名:TENANT_SHARED",
+      "passed": true
+    },
+    {
+      "name": "下载入口拒绝桶列表",
+      "passed": true
+    }
+  ],
+  "count": 32,
+  "scope": "真实私有桶/TLS/签名/API授权；合成对象和手动元数据夹具，不是ART-03发布事务或模型包验收",
+  "certificateVerificationDisabled": false,
+  "signedUrlsLogged": false,
+  "cleanup": true
+}

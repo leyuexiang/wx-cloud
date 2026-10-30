@@ -1,0 +1,8 @@
+{
+  "backup": "/opt/wx/editor-test148/backups/art02-service-20261029T070547Z",
+  "gatewayUnchanged": true,
+  "databaseChanged": false,
+  "downloadConfigured": false,
+  "status": "ROLLED_BACK",
+  "errorType": "RuntimeError"
+}

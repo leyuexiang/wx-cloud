@@ -1,0 +1,97 @@
+[
+  {
+    "name": "NOT_VISIBLE",
+    "code": 2030001001,
+    "message": "资源不存在或不可见"
+  },
+  {
+    "name": "ADMIN_REQUIRED",
+    "code": 2030001002,
+    "message": "当前身份不能维护此范围的资源"
+  },
+  {
+    "name": "REVISION_CONFLICT",
+    "code": 2030001003,
+    "message": "资源已被其他操作更新，请刷新后重试"
+  },
+  {
+    "name": "IDEMPOTENCY_CONFLICT",
+    "code": 2030001004,
+    "message": "同一操作编号不能提交不同内容"
+  },
+  {
+    "name": "INCOMPATIBLE_PLAYER",
+    "code": 2030001005,
+    "message": "资源与当前运行包不兼容"
+  },
+  {
+    "name": "INVALID_CLOSURE",
+    "code": 2030001006,
+    "message": "资源依赖或灯光关联不完整"
+  },
+  {
+    "name": "OBJECT_MISSING",
+    "code": 2030001007,
+    "message": "资源对象尚未完整上传"
+  },
+  {
+    "name": "CHECKSUM_MISMATCH",
+    "code": 2030001008,
+    "message": "资源大小或摘要校验失败"
+  },
+  {
+    "name": "OPERATION_EXPIRED",
+    "code": 2030001009,
+    "message": "资源操作已过期，请创建新操作"
+  },
+  {
+    "name": "RESOURCE_DELETED",
+    "code": 2030001010,
+    "message": "资源已删除，不能继续替换"
+  },
+  {
+    "name": "UNSAFE_PATH",
+    "code": 2030001011,
+    "message": "资源路径不在本次操作允许的范围内"
+  },
+  {
+    "name": "INVALID_OPERATION_STATE",
+    "code": 2030001012,
+    "message": "当前操作状态不允许此步骤"
+  },
+  {
+    "name": "LEGACY_UNCLASSIFIED",
+    "code": 2030001013,
+    "message": "旧资源尚未完成范围与内容分类"
+  },
+  {
+    "name": "STORAGE_UNAVAILABLE",
+    "code": 2030001014,
+    "message": "受控资源存储暂不可用"
+  },
+  {
+    "name": "RETRYABLE_DEPENDENCY",
+    "code": 2030001015,
+    "message": "依赖服务暂不可用，可查询结果后重试"
+  },
+  {
+    "name": "SNAPSHOT_UNAVAILABLE",
+    "code": 2030001016,
+    "message": "恢复快照不可用或不属于此资源"
+  },
+  {
+    "name": "SCOPE_CHANGE_FORBIDDEN",
+    "code": 2030001017,
+    "message": "替换不能改变资源范围或租户"
+  },
+  {
+    "name": "INVALID_TENANT",
+    "code": 2030001018,
+    "message": "认证租户与资源归属不一致"
+  },
+  {
+    "name": "SCHEMA_NOT_READY",
+    "code": 2030001019,
+    "message": "资源数据结构尚未就绪"
+  }
+]

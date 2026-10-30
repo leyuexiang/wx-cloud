@@ -1,0 +1,212 @@
+# 测试服务器独立配置；密钥仅通过服务器环境变量注入。
+spring:
+  application:
+    name: infra-server
+  main:
+    allow-circular-references: true
+    allow-bean-definition-overriding: true
+  servlet:
+    multipart:
+      max-file-size: 16MB
+      max-request-size: 32MB
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+      write-date-timestamps-as-nanoseconds: false
+      write-durations-as-timestamps: true
+      fail-on-empty-beans: false
+  cache:
+    type: REDIS
+    redis:
+      time-to-live: 1h
+  data:
+    redis:
+      host: 127.0.0.1
+      port: ${WX_REDIS_PORT:16380}
+      database: 0
+      password: ${WX_REDIS_PASSWORD}
+      repositories:
+        enabled: false
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092
+    listener:
+      auto-startup: false
+      missing-topics-fatal: false
+  cloud:
+    nacos:
+      discovery:
+        enabled: false
+      config:
+        enabled: false
+        import-check:
+          enabled: false
+    discovery:
+      client:
+        simple:
+          instances:
+            system-server:
+            - uri: http://127.0.0.1:48081
+            infra-server:
+            - uri: http://127.0.0.1:48082
+            dimensions-server:
+            - uri: http://127.0.0.1:48092
+  datasource:
+    dynamic:
+      primary: master
+      datasource:
+        master:
+          url: jdbc:mysql://127.0.0.1:3306/wx_editor_test148?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
+          username: wx_editor_test148
+          password: ${WX_DB_PASSWORD}
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          name: wx_editor_test148
+      druid:
+        initial-size: 1
+        min-idle: 1
+        max-active: 10
+  boot:
+    admin:
+      client:
+        enabled: false
+      context-path: /admin
+server:
+  port: 48082
+  address: 127.0.0.1
+logging:
+  file:
+    name: /app/logs/wx-infra.log
+  level:
+    root: INFO
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui
+  default-flat-param-object: true
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      table-prefix: wx_
+      id-type: NONE
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+    banner: false
+  type-aliases-package: ${wx.info.base-package}.dal.dataobject
+  encryptor:
+    password: ${WX_RUNTIME_SECRET}
+mybatis-plus-join:
+  banner: false
+easy-trans:
+  is-enable-global: true
+xxl:
+  job:
+    enabled: false
+    accessToken: ${WX_RUNTIME_SECRET}
+wx:
+  info:
+    version: 1.0.0
+    base-package: cn.iocoder.wx.module.infra
+  web:
+    admin-ui:
+      url: http://dashboard.wx.iocoder.cn
+  xss:
+    enable: false
+    exclude-urls:
+    - ${spring.boot.admin.context-path}/**
+    - ${management.endpoints.web.base-path}/**
+  websocket:
+    enable: true
+    path: /infra/ws
+    sender-type: local
+    sender-rocketmq:
+      topic: ${spring.application.name}-websocket
+      consumer-group: ${spring.application.name}-websocket-consumer
+    sender-rabbitmq:
+      exchange: ${spring.application.name}-websocket-exchange
+      queue: ${spring.application.name}-websocket-queue
+    sender-kafka:
+      topic: ${spring.application.name}-websocket
+      consumer-group: ${spring.application.name}-websocket-consumer
+  swagger:
+    title: 管理后台
+    description: 提供管理员管理的所有功能
+    version: ${wx.info.version}
+  codegen:
+    base-package: cn.iocoder.wx
+    db-schemas: ${spring.datasource.dynamic.datasource.master.name}
+    front-type: 20
+    unit-test-enable: false
+  tenant:
+    enable: true
+    ignore-urls:
+    - /admin-api/infra/file/*/get/**
+    ignore-tables:
+    - wx_infra_codegen_column
+    - wx_infra_codegen_table
+    - wx_infra_config
+    - wx_infra_file_config
+    - wx_infra_file
+    - wx_infra_file_content
+    - wx_infra_job
+    - wx_infra_job_log
+    - wx_infra_job_log
+    - wx_infra_data_source_config
+  security:
+    mock-enable: false
+  captcha:
+    enable: false
+  access-log:
+    enable: false
+  message-data:
+    speed: 1
+  mp:
+    app-id: wx-test148
+    secret: ${WX_RUNTIME_SECRET}
+  miniapp:
+    appid: wx-test148
+    secret: ${WX_RUNTIME_SECRET}
+debug: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+justauth:
+  enabled: true
+  type: {}
+minio:
+  url: http://127.0.0.1:9000
+  accessKey: ${WX_MINIO_ACCESS_KEY}
+  secretKey: ${WX_MINIO_SECRET_KEY}
+  bucketName: wx-art-test148
+  expiry: 1
+  breakpointTime: 1
+server-path: /admin-api/dimensions
+file-save-path: /data/web/
+file-save-temporary-path: /data/template/
+file-save-img-path: /data/images/
+project-name-prefix: wx
+batch-conversion-actuality-path: /data/batch/
+material-path: /data/material/
+ptc:
+  license:
+    start-check: false
+    verify-system-switch: true
+    license-path: /data/license/license.lic
+preview:
+  base-url: http://192.168.10.148:12522
+  2d:
+    base-url: ${preview.base-url}/babylonWeb/editor
+  3d:
+    base-url: ${preview.base-url}/web/#/scenePreview

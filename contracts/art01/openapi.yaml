@@ -1,0 +1,401 @@
+openapi: 3.1.0
+info:
+  title: ART-01 资源模板接口合同
+  version: 1.0.0
+  description: 合同已定义，路由尚未实现；由ART-02/03实现。所有资源ID及修订以字符串传输，tenant-id只能匹配认证上下文，不能成为提权依据。
+servers:
+- url: http://192.168.10.148:12522
+  description: 测试API入口；下载和上传签名地址必须为受控HTTPS
+security:
+- bearerAuth: []
+paths:
+  /admin-api/dim3d/resources:
+    get:
+      operationId: listVisibleArtResources
+      summary: 读取全局及本租户可消费资源（待实现）
+      parameters:
+      - name: pageNum
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: pageSize
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      responses:
+        '200':
+          description: CommonResult；成功code=200，业务失败code按合同且data=null；HTTP状态不等于业务成功
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  required:
+                  - code
+                  - msg
+                  - data
+                  properties:
+                    code:
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: ./resource-contract.schema.json#/$defs/resourcePage
+                - type: object
+                  required:
+                  - code
+                  - msg
+                  - data
+                  properties:
+                    code:
+                      type: integer
+                      not:
+                        const: 200
+                    msg:
+                      type: string
+                    data:
+                      type: 'null'
+        '401':
+          description: 入口认证失败
+        '403':
+          description: 入口拒绝访问
+  /admin-api/dim3d/resources/{resourceId}/current:
+    parameters:
+    - name: resourceId
+      in: path
+      required: true
+      schema:
+        $ref: ./resource-contract.schema.json#/$defs/resourceId
+    get:
+      operationId: getCurrentArtResource
+      summary: 按稳定ID获取当前受控描述（已部署基础接口）
+      responses:
+        '200':
+          description: 业务结果；成功code=200，失败按合同错误码且data=null，不能仅按HTTP状态判定
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  required:
+                  - code
+                  - msg
+                  - data
+                  properties:
+                    code:
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: ./resource-contract.schema.json#/$defs/current
+                - type: object
+                  required:
+                  - code
+                  - msg
+                  - data
+                  properties:
+                    code:
+                      type: integer
+                      not:
+                        const: 200
+                    msg:
+                      type: string
+                    data:
+                      type: 'null'
+        '401':
+          description: 入口认证失败
+        '403':
+          description: 入口拒绝访问
+  /admin-api/dim3d/resources/{resourceId}/file:
+    parameters:
+    - name: resourceId
+      in: path
+      required: true
+      schema:
+        $ref: ./resource-contract.schema.json#/$defs/resourceId
+    - name: revision
+      in: query
+      required: true
+      description: 场景打开时固定的修订号；用于定位已提交快照，替换后续签仍读取原内容
+      schema:
+        $ref: ./resource-contract.schema.json#/$defs/resourceId
+    - name: contentHash
+      in: query
+      required: true
+      schema:
+        type: string
+        pattern: '^[0-9a-f]{64}$'
+    - name: path
+      in: query
+      required: true
+      description: 固定内容清单中的规范相对路径（包括主清单）；每次校验资源现时可见性、已提交快照及清单成员
+      schema:
+        type: string
+        pattern: '^[A-Za-z0-9_./-]+$'
+    get:
+      operationId: getPinnedArtResourceFileUrl
+      summary: 为固定修订闭包中的单个文件签发短时HTTPS读取地址（ART-05新增）
+      responses:
+        '200':
+          description: 成功code=200时data包含fileUrl和downloadExpiresAt；失败data=null
+        '401':
+          description: 入口认证失败
+        '403':
+          description: 入口拒绝访问
+  /admin-api/dim3d/resource-operations:
+    post:
+      operationId: createArtResourceOperation
+      summary: 创建上传、替换、删除或恢复操作（待实现）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./resource-contract.schema.json#/$defs/operationRequest
+      responses:
+        '200':
+          description: 业务结果；成功code=200，失败按合同错误码且data=null，不能仅按HTTP状态判定
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  required:
+                  - code
+                  - msg
+                  - data
+                  properties:
+                    code:
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: ./resource-contract.schema.json#/$defs/operation
+                - type: object
+                  required:
+                  - code
+                  - msg
+                  - data
+                  properties:
+                    code:
+                      type: integer
+                      not:
+                        const: 200
+                    msg:
+                      type: string
+                    data:
+                      type: 'null'
+        '401':
+          description: 入口认证失败
+        '403':
+          description: 入口拒绝访问
+  /admin-api/dim3d/resource-operations/{operationId}:
+    parameters:
+    - name: operationId
+      in: path
+      required: true
+      schema:
+        $ref: ./resource-contract.schema.json#/$defs/operationId
+    get:
+      operationId: getArtResourceOperation
+      summary: 读取授权操作的进度及结果（待实现）
+      responses:
+        '200':
+          description: 业务结果；成功code=200，失败按合同错误码且data=null，不能仅按HTTP状态判定
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  required:
+                  - code
+                  - msg
+                  - data
+                  properties:
+                    code:
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: ./resource-contract.schema.json#/$defs/operation
+                - type: object
+                  required:
+                  - code
+                  - msg
+                  - data
+                  properties:
+                    code:
+                      type: integer
+                      not:
+                        const: 200
+                    msg:
+                      type: string
+                    data:
+                      type: 'null'
+        '401':
+          description: 入口认证失败
+        '403':
+          description: 入口拒绝访问
+  /admin-api/dim3d/resource-operations/{operationId}/upload-targets:
+    parameters:
+    - name: operationId
+      in: path
+      required: true
+      schema:
+        $ref: ./resource-contract.schema.json#/$defs/operationId
+    post:
+      operationId: getArtResourceUploadTargets
+      summary: 获取本操作受限HTTPS上传地址（待实现）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./resource-contract.schema.json#/$defs/uploadTargetsRequest
+      responses:
+        '200':
+          description: CommonResult；成功code=200，业务失败code按合同且data=null；HTTP状态不等于业务成功
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  required:
+                  - code
+                  - msg
+                  - data
+                  properties:
+                    code:
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: ./resource-contract.schema.json#/$defs/uploadTargetsResponse
+                - type: object
+                  required:
+                  - code
+                  - msg
+                  - data
+                  properties:
+                    code:
+                      type: integer
+                      not:
+                        const: 200
+                    msg:
+                      type: string
+                    data:
+                      type: 'null'
+        '401':
+          description: 入口认证失败
+        '403':
+          description: 入口拒绝访问
+  /admin-api/dim3d/resource-operations/{operationId}/commit:
+    parameters:
+    - name: operationId
+      in: path
+      required: true
+      schema:
+        $ref: ./resource-contract.schema.json#/$defs/operationId
+    post:
+      operationId: commitArtResourceOperation
+      summary: 独立验证后提交；删除/恢复仅允许空对象，创建/替换须完整候选描述（待实现）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./resource-contract.schema.json#/$defs/commitRequest
+      responses:
+        '200':
+          description: 业务结果；成功code=200，失败按合同错误码且data=null，不能仅按HTTP状态判定
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  required:
+                  - code
+                  - msg
+                  - data
+                  properties:
+                    code:
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: ./resource-contract.schema.json#/$defs/operation
+                - type: object
+                  required:
+                  - code
+                  - msg
+                  - data
+                  properties:
+                    code:
+                      type: integer
+                      not:
+                        const: 200
+                    msg:
+                      type: string
+                    data:
+                      type: 'null'
+        '401':
+          description: 入口认证失败
+        '403':
+          description: 入口拒绝访问
+  /admin-api/dim3d/resource-operations/{operationId}/cancel:
+    parameters:
+    - name: operationId
+      in: path
+      required: true
+      schema:
+        $ref: ./resource-contract.schema.json#/$defs/operationId
+    post:
+      operationId: cancelArtResourceOperation
+      summary: 取消未提交操作，已提交时不得伪报取消成功（待实现）
+      responses:
+        '200':
+          description: 业务结果；成功code=200，失败按合同错误码且data=null，不能仅按HTTP状态判定
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  required:
+                  - code
+                  - msg
+                  - data
+                  properties:
+                    code:
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: ./resource-contract.schema.json#/$defs/operation
+                - type: object
+                  required:
+                  - code
+                  - msg
+                  - data
+                  properties:
+                    code:
+                      type: integer
+                      not:
+                        const: 200
+                    msg:
+                      type: string
+                    data:
+                      type: 'null'
+        '401':
+          description: 入口认证失败
+        '403':
+          description: 入口拒绝访问
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

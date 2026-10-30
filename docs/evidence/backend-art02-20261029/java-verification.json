@@ -1,0 +1,31 @@
+{
+  "time": "2026-10-29T06:19:33.226835+00:00",
+  "candidatePort": 48093,
+  "tests": [
+    {
+      "class": "cn.iocoder.wx.module.dimensions.service.ArtResourceAccessTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "cn.iocoder.wx.module.dimensions.service.ArtResourceServiceTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "cn.iocoder.wx.module.dimensions.entity.ArtResourceLegacyWriteBoundaryTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "allPassed": true,
+  "packageBuilt": true,
+  "packageDeployedToMainService": false,
+  "candidateContainerRemoved": true
+}

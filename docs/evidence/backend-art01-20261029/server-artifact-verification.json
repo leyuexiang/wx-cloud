@@ -1,0 +1,10 @@
+{
+  "matched": true,
+  "files": {
+    "migrate-resource-art01.py": "ff1f37aabe0751d3b1365f16cf2adcc14313e18d5a8ac04026532d0e5fd1a03a",
+    "verify-resource-art01-migration.py": "0590d33dd2681a1624be15f40d109d7856e48e7ff99202e9146d5ec186493de8",
+    "migrations/art01/001-schema.up.sql": "1411a95308954ee2100213136da4364b49deaabb78dc5db7c2d6eebd8dd255a5",
+    "migrations/art01/002-links.up.sql": "09841b64585eadbd3db13121169e8d80659b6013f4771115809e178a3f1737ea",
+    "migrations/art01/003-schema.down.sql": "8ab37b16276ec21eb475cc05ce24897604ebba4fc5231be4ce053639b4d55f75"
+  }
+}

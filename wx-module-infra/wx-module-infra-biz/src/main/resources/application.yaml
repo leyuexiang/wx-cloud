@@ -64,6 +64,8 @@ mybatis-plus:
     map-underscore-to-camel-case: true # 虽然默认为 true ，但是还是显示去指定下。
   global-config:
     db-config:
+      # 隐式实体表名统一加前缀；显式表名和手写 SQL 同步使用 wx_。
+      table-prefix: wx_
       id-type: NONE # “智能”模式，基于 IdTypeEnvironmentPostProcessor + 数据源的类型，自动适配成 AUTO、INPUT 模式。
       #      id-type: AUTO # 自增 ID，适合 MySQL 等直接自增的数据库
       #      id-type: INPUT # 用户输入 ID，适合 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库
@@ -167,15 +169,14 @@ wx:
     ignore-urls:
       - /admin-api/infra/file/*/get/** # 获取图片，和租户无关
     ignore-tables:
-      - infra_codegen_column
-      - infra_codegen_table
-      - infra_config
-      - infra_file_config
-      - infra_file
-      - infra_file_content
-      - infra_job
-      - infra_job_log
-      - infra_job_log
-      - infra_data_source_config
-
+      - wx_infra_codegen_column
+      - wx_infra_codegen_table
+      - wx_infra_config
+      - wx_infra_file_config
+      - wx_infra_file
+      - wx_infra_file_content
+      - wx_infra_job
+      - wx_infra_job_log
+      - wx_infra_job_log
+      - wx_infra_data_source_config
 debug: false

@@ -1,0 +1,43 @@
+{
+  "tests": 70,
+  "failures": 0,
+  "errors": 0,
+  "reports": [
+    {
+      "name": "cn.iocoder.wx.module.dimensions.entity.ArtResourceLegacyWriteBoundaryTest",
+      "tests": "3",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceAccessTest",
+      "tests": "8",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceManifestVerifierTest",
+      "tests": "41",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceObjectStoreTest",
+      "tests": "8",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceServiceTest",
+      "tests": "10",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    }
+  ],
+  "scope": "服务端主清单/摘要与存储边界回归，含ART02原测试；未验证上传签名或数据库提交事务"
+}

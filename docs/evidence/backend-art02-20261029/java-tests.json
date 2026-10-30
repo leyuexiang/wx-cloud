@@ -1,0 +1,29 @@
+{
+  "scope": "ART-02本地权限及SQL边界测试，含旧请求保护；H2不代替MySQL与真实身份验收",
+  "tests": 21,
+  "failures": 0,
+  "errors": 0,
+  "reports": [
+    {
+      "name": "cn.iocoder.wx.module.dimensions.entity.ArtResourceLegacyWriteBoundaryTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceAccessTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceServiceTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ]
+}

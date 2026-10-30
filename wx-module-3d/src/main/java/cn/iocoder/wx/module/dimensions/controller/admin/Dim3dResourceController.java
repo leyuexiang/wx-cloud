@@ -69,6 +69,8 @@ public class Dim3dResourceController {
     /** 接收单个 ZIP，并代理到模型转换服务；认证头按原请求转发。 */
     @PostMapping(value = "/resource/uploadConvert", consumes = "multipart/form-data")
     @Operation(summary = "上传ZIP并转换资源")
+    // 转换会上传文件并写入资源表，权限必须与模型新增保持一致。
+    @PreAuthorize("@ss.hasPermission('dim3d:model:add')")
     public CommonResult<Dim3dConvertedResource> uploadConvert(@RequestPart("file") MultipartFile file,
                                                               @RequestHeader(value = "Authorization", required = false) String authorization,
                                                               @RequestHeader(value = "ClientId", required = false) String clientId) {

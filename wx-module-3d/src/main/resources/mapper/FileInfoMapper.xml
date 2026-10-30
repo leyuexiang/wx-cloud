@@ -28,8 +28,8 @@
 
     <update id="updateHasNext">
 		<![CDATA[
-        update file_info a
-            join(select * from (select parent_id,count(*) ct from file_info  GROUP BY parent_id ) t1 where ct>1)b
+        update wx_file_info a
+            join(select * from (select parent_id,count(*) ct from wx_file_info  GROUP BY parent_id ) t1 where ct>1)b
         on a.id=b.parent_id
             set has_next = 1
         ]]>
@@ -37,12 +37,12 @@
 
     <update id="updateAllHasNext">
 		<![CDATA[
-        update file_info set has_next = 0
+        update wx_file_info set has_next = 0
         ]]>
 	</update>
 
     <update id="updateLevelUniqueId">
-        update file_info
+        update wx_file_info
         <set>
             file_level = 2,
             unique_id = "0"

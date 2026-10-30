@@ -1,0 +1,7 @@
+{
+  "endpoint": "https://192.168.10.148:9445",
+  "stagingOnly": true,
+  "putOnly": true,
+  "signedQueryLogging": false,
+  "backup": "/opt/wx/editor-test148/backups/upload-20261029T080201318354Z"
+}

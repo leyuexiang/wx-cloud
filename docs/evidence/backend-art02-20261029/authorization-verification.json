@@ -1,0 +1,208 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "登录:1:super_admin",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "登录:2:tenant_admin",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "登录:2:viewer",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "登录:910740:tenant_admin",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "登录:910740:viewer",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "登录:910740:super_admin",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "匿名不能读取",
+      "passed": true,
+      "code": 401
+    },
+    {
+      "name": "非平台不能上传全局:2",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "非平台不能上传全局:3",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "非平台不能上传全局:910741",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "非平台不能上传全局:910742",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "非平台不能上传全局:910743",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "非租户管理员不能上传共享:3",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "非租户管理员不能上传共享:910742",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "非租户管理员不能上传共享:910743",
+      "passed": true,
+      "code": 2030001002
+    },
+    {
+      "name": "授权创建:1",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "同号重试",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "同号异载荷拒绝",
+      "passed": true,
+      "code": 2030001004
+    },
+    {
+      "name": "操作状态可查",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "其他操作者不能查询",
+      "passed": true,
+      "code": 2030001001
+    },
+    {
+      "name": "未启用提交不伪报成功",
+      "passed": true,
+      "code": 501
+    },
+    {
+      "name": "授权创建:2",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "同号重试",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "同号异载荷拒绝",
+      "passed": true,
+      "code": 2030001004
+    },
+    {
+      "name": "操作状态可查",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "其他操作者不能查询",
+      "passed": true,
+      "code": 2030001001
+    },
+    {
+      "name": "未启用提交不伪报成功",
+      "passed": true,
+      "code": 501
+    },
+    {
+      "name": "授权创建:910741",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "同号重试",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "同号异载荷拒绝",
+      "passed": true,
+      "code": 2030001004
+    },
+    {
+      "name": "操作状态可查",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "其他操作者不能查询",
+      "passed": true,
+      "code": 2030001001
+    },
+    {
+      "name": "未启用提交不伪报成功",
+      "passed": true,
+      "code": 501
+    },
+    {
+      "name": "可见列表:3",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "按ID不能跨租户",
+      "passed": true,
+      "code": 2030001001
+    },
+    {
+      "name": "缺HTTPS配置明确失败",
+      "passed": true,
+      "code": 2030001014
+    },
+    {
+      "name": "可见列表:910742",
+      "passed": true,
+      "code": 200
+    },
+    {
+      "name": "按ID不能跨租户",
+      "passed": true,
+      "code": 2030001001
+    },
+    {
+      "name": "缺HTTPS配置明确失败",
+      "passed": true,
+      "code": 2030001014
+    },
+    {
+      "name": "请求租户不能替换认证租户",
+      "passed": true,
+      "code": 403
+    }
+  ],
+  "candidatePort": 48093,
+  "scope": "候选真实登录、角色/范围和操作边界；未验收下载、提交或视觉",
+  "testTenantRetained": 910740
+}

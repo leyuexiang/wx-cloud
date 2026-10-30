@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "文件信息表")
-@TableName(value = "file_info")
+@TableName(value = "wx_file_info")
 public class FileInfo extends AbstractEntity<Integer> {
 
     private static final long serialVersionUID = 1L;

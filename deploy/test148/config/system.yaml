@@ -1,0 +1,235 @@
+# 测试服务器独立配置；密钥仅通过服务器环境变量注入。
+spring:
+  application:
+    name: system-server
+  main:
+    allow-circular-references: true
+    allow-bean-definition-overriding: true
+  servlet:
+    multipart:
+      max-file-size: 16MB
+      max-request-size: 32MB
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+      write-date-timestamps-as-nanoseconds: false
+      write-durations-as-timestamps: true
+      fail-on-empty-beans: false
+  cache:
+    type: REDIS
+    redis:
+      time-to-live: 1h
+  data:
+    redis:
+      host: 127.0.0.1
+      port: ${WX_REDIS_PORT:16380}
+      database: 0
+      password: ${WX_REDIS_PASSWORD}
+      repositories:
+        enabled: false
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092
+    listener:
+      auto-startup: false
+      missing-topics-fatal: false
+  cloud:
+    nacos:
+      discovery:
+        enabled: false
+      config:
+        enabled: false
+        import-check:
+          enabled: false
+    discovery:
+      client:
+        simple:
+          instances:
+            system-server:
+            - uri: http://127.0.0.1:48081
+            infra-server:
+            - uri: http://127.0.0.1:48082
+            dimensions-server:
+            - uri: http://127.0.0.1:48092
+  datasource:
+    dynamic:
+      primary: master
+      datasource:
+        master:
+          url: jdbc:mysql://127.0.0.1:3306/wx_editor_test148?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
+          username: wx_editor_test148
+          password: ${WX_DB_PASSWORD}
+          driver-class-name: com.mysql.cj.jdbc.Driver
+      druid:
+        initial-size: 1
+        min-idle: 1
+        max-active: 10
+  boot:
+    admin:
+      client:
+        enabled: false
+      context-path: /admin
+server:
+  port: 48081
+  address: 127.0.0.1
+logging:
+  file:
+    name: /app/logs/wx-system.log
+  level:
+    root: INFO
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui
+  default-flat-param-object: true
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      table-prefix: wx_
+      id-type: NONE
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+    banner: false
+  type-aliases-package: ${wx.info.base-package}.dal.dataobject
+  encryptor:
+    password: ${WX_RUNTIME_SECRET}
+mybatis-plus-join:
+  banner: false
+easy-trans:
+  is-enable-global: true
+xxl:
+  job:
+    enabled: false
+    accessToken: ${WX_RUNTIME_SECRET}
+aj:
+  captcha:
+    jigsaw: classpath:images/jigsaw
+    pic-click: classpath:images/pic-click
+    cache-type: redis
+    cache-number: 1000
+    timing-clear: 180
+    type: blockPuzzle
+    water-mark: 子阳腾梦
+    interference-options: 0
+    req-frequency-limit-enable: false
+    req-get-lock-limit: 5
+    req-get-lock-seconds: 10
+    req-get-minute-limit: 30
+    req-check-minute-limit: 60
+    req-verify-minute-limit: 60
+wx:
+  info:
+    version: 1.0.0
+    base-package: cn.iocoder.wx.module.system
+  web:
+    admin-ui:
+      url: http://dashboard.wx.iocoder.cn
+  xss:
+    enable: false
+    exclude-urls:
+    - ${management.endpoints.web.base-path}/**
+  swagger:
+    title: 管理后台
+    description: 提供管理员管理的所有功能
+    version: ${wx.info.version}
+  tenant:
+    enable: true
+    ignore-urls:
+    - /admin-api/system/tenant/get-id-by-name
+    - /admin-api/system/tenant/get-by-website
+    - /admin-api/system/captcha/get-image
+    - /admin-api/system/captcha/get
+    - /admin-api/system/captcha/check
+    - /admin-api/system/sms/callback/*
+    - /rpc-api/system/tenant/valid
+    - /rpc-api/system/tenant/id-list
+    - /rpc-api/system/oauth2/token/check
+    ignore-tables:
+    - wx_system_tenant
+    - wx_system_tenant_package
+    - wx_system_dict_data
+    - wx_system_dict_type
+    - system_error_code
+    - wx_system_menu
+    - wx_system_sms_channel
+    - wx_system_sms_template
+    - wx_system_sms_log
+    - system_sensitive_word
+    - wx_system_oauth2_client
+    - wx_system_mail_account
+    - wx_system_mail_template
+    - wx_system_mail_log
+    - wx_system_notify_template
+    ignore-caches:
+    - user_role_ids
+    - permission_menu_ids
+    - oauth_client
+    - notify_template
+    - mail_account
+    - mail_template
+    - sms_template
+  sms-code:
+    expire-times: 10m
+    send-frequency: 1m
+    send-maximum-quantity-per-day: 10
+    begin-code: 9999
+    end-code: 9999
+  security:
+    mock-enable: false
+  captcha:
+    enable: false
+  access-log:
+    enable: false
+  message-data:
+    speed: 1
+  mp:
+    app-id: wx-test148
+    secret: ${WX_RUNTIME_SECRET}
+  miniapp:
+    appid: wx-test148
+    secret: ${WX_RUNTIME_SECRET}
+debug: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+justauth:
+  enabled: true
+  type: {}
+minio:
+  url: http://127.0.0.1:9000
+  accessKey: ${WX_MINIO_ACCESS_KEY}
+  secretKey: ${WX_MINIO_SECRET_KEY}
+  bucketName: wx-art-test148
+  expiry: 1
+  breakpointTime: 1
+server-path: /admin-api/dimensions
+file-save-path: /data/web/
+file-save-temporary-path: /data/template/
+file-save-img-path: /data/images/
+project-name-prefix: wx
+batch-conversion-actuality-path: /data/batch/
+material-path: /data/material/
+ptc:
+  license:
+    start-check: false
+    verify-system-switch: true
+    license-path: /data/license/license.lic
+preview:
+  base-url: http://192.168.10.148:12522
+  2d:
+    base-url: ${preview.base-url}/babylonWeb/editor
+  3d:
+    base-url: ${preview.base-url}/web/#/scenePreview

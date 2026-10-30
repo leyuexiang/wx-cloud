@@ -1,0 +1,19 @@
+# 服务器私有运行资料不得提交。
+.env
+test-identities.json
+bootstrap/
+backups/
+data/
+jars/
+license-verification.txt
+verification-*.json
+__pycache__/
+.migrations/
+evidence-art01-rehearsal.json
+art02-identities.json
+deployment-art02*.json
+candidate-art02-legacy-*.json
+download-setup.json
+download-verification.json
+upload-setup.json
+deployment-art03*.json

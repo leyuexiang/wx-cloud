@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
  * id 使用转换服务返回的雪花编号，避免重复转换时生成第二套资源身份。
  */
 @Data
-@TableName("dim3d_resource")
+@TableName("wx_dim3d_resource")
 public class Dim3dConvertedResource {
     @TableId(type = IdType.INPUT)
     private Long id;

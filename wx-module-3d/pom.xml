@@ -246,6 +246,10 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>${spring.boot.version}</version>
+				<configuration>
+					<!-- 明确当前命名空间的启动类，避免历史构建产物影响入口推断。 -->
+					<mainClass>cn.iocoder.wx.module.dimensions.DimensionsApplication</mainClass>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>
@@ -284,5 +288,26 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>test148</id>
+			<build>
+				<plugins>
+					<!-- 测试服务器从当前源码构建普通可执行包；保留默认发行包的机器绑定加密流程。 -->
+					<plugin>
+						<groupId>cn.wx.roseboy</groupId>
+						<artifactId>classfinal-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>default</id>
+								<phase>none</phase>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>

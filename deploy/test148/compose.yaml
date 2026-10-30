@@ -1,0 +1,77 @@
+# 使用测试服务器已有的 Java 17 运行环境；业务包均来自本地源码构建。
+x-service: &service
+  image: wx-cloud-runtime:test148
+  network_mode: host
+  restart: unless-stopped
+  env_file: .env
+  environment:
+    # 使用操作系统的非阻塞安全随机源，避免容器启动时等待熵池。
+    JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF-8 -Djava.security.egd=file:/dev/./urandom --add-opens=java.base/java.io=ALL-UNNAMED
+    TZ: Asia/Shanghai
+  mem_limit: 1536m
+  logging:
+    options:
+      max-size: 20m
+      max-file: '3'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: wx-editor-redis
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:16380:6379
+    environment:
+      WX_REDIS_PASSWORD: ${WX_REDIS_PASSWORD}
+    command: [sh, -c, 'exec redis-server --requirepass "$$WX_REDIS_PASSWORD" --appendonly yes']
+    volumes:
+      - wx-editor-redis:/data
+    mem_limit: 256m
+  system:
+    <<: *service
+    container_name: wx-editor-system
+    healthcheck:
+      test: [CMD-SHELL, 'wget -q --spider http://127.0.0.1:48081/actuator/health || exit 1']
+      interval: 15s
+      start_period: 60s
+    entrypoint: [java, -Xms128m, -Xmx1024m, -jar, /opt/wx/app.jar, --spring.config.location=file:/opt/wx/application.yaml]
+    volumes:
+      - ./jars/system.jar:/opt/wx/app.jar:ro
+      - ./config/system.yaml:/opt/wx/application.yaml:ro
+  infra:
+    <<: *service
+    container_name: wx-editor-infra
+    healthcheck:
+      test: [CMD-SHELL, 'wget -q --spider http://127.0.0.1:48082/actuator/health || exit 1']
+      interval: 15s
+      start_period: 60s
+    entrypoint: [java, -Xms128m, -Xmx1024m, -jar, /opt/wx/app.jar, --spring.config.location=file:/opt/wx/application.yaml]
+    volumes:
+      - ./jars/infra.jar:/opt/wx/app.jar:ro
+      - ./config/infra.yaml:/opt/wx/application.yaml:ro
+  dimensions:
+    <<: *service
+    container_name: wx-editor-dimensions
+    healthcheck:
+      test: [CMD-SHELL, 'wget -q --spider http://127.0.0.1:48092/actuator/health || exit 1']
+      interval: 15s
+      start_period: 60s
+    entrypoint: [java, -Xms128m, -Xmx1024m, -jar, /opt/wx/app.jar, --spring.config.location=file:/opt/wx/application.yaml]
+    volumes:
+      - ./jars/dimensions.jar:/opt/wx/app.jar:ro
+      - ./config/dimensions.yaml:/opt/wx/application.yaml:ro
+      - ./data:/data
+  gateway:
+    <<: *service
+    container_name: wx-editor-gateway
+    healthcheck:
+      test: [CMD-SHELL, 'wget -q --spider http://127.0.0.1:$$WX_GATEWAY_PORT/actuator/health || exit 1']
+      interval: 15s
+      start_period: 30s
+    entrypoint: [java, -Xms128m, -Xmx512m, -jar, /opt/wx/app.jar, --spring.config.location=file:/opt/wx/application.yaml]
+    volumes:
+      - ./jars/gateway.jar:/opt/wx/app.jar:ro
+      - ./config/gateway.yaml:/opt/wx/application.yaml:ro
+
+volumes:
+  wx-editor-redis:

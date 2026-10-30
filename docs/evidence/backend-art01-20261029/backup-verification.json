@@ -1,0 +1,9 @@
+{
+  "backup": {
+    "path": "/opt/wx/editor-test148/backups/art01-wx_editor_test148-20261029T051847643273Z/database.sql",
+    "sha256": "6894150d9b88f2170a8dcce14f8aa0e937de16593d933b9e5fcf456bb650444e",
+    "mode": "0o600"
+  },
+  "streamHashMatches": true,
+  "idempotentCheck": true
+}

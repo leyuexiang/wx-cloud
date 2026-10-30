@@ -27,6 +27,8 @@ public class SecurityFrameworkUtils {
 
     private static final String LOGIN_USER_HEADER = "login-user";
 
+    private static final String BOT_USER_HEADER = "x-bot-user";
+
     private static final String LOGIN_USER_ID_ATTR = "login-user-id";
     private static final String LOGIN_USER_TYPE_ATTR = "login-user-type";
 
@@ -62,19 +64,23 @@ public class SecurityFrameworkUtils {
     }
 
     /**
-     * 移除请求头的用户
+     * 移除外部请求携带的内部用户与机器人身份头。
      *
      * @param exchange 请求
      * @return 请求
      */
     public static ServerWebExchange removeLoginUser(ServerWebExchange exchange) {
         // 如果不包含，直接返回
-        if (!exchange.getRequest().getHeaders().containsKey(LOGIN_USER_HEADER)) {
+        if (!exchange.getRequest().getHeaders().containsKey(LOGIN_USER_HEADER)
+                && !exchange.getRequest().getHeaders().containsKey(BOT_USER_HEADER)) {
             return exchange;
         }
         // 如果包含，则移除。参考 RemoveRequestHeaderGatewayFilterFactory 实现
         ServerHttpRequest request = exchange.getRequest().mutate()
-                .headers(httpHeaders -> httpHeaders.remove(LOGIN_USER_HEADER)).build();
+                .headers(httpHeaders -> {
+                    httpHeaders.remove(LOGIN_USER_HEADER);
+                    httpHeaders.remove(BOT_USER_HEADER);
+                }).build();
         return exchange.mutate().request(request).build();
     }
 

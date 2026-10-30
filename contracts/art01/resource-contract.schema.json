@@ -1,0 +1,629 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wx:art01:resource-contract:v1",
+  "title": "ART-01 单资源数据接口合同；接口待ART-02/03实现",
+  "$defs": {
+    "resourceId": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,18}$",
+      "format": "positive-int64-string"
+    },
+    "revision": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "format": "nonnegative-int64-string"
+    },
+    "operationId": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "objectPath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^(?!/)(?!.*//)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*[:\\\\%?#])[A-Za-z0-9_./-]+$"
+    },
+    "scope": {
+      "type": "string",
+      "enum": [
+        "GLOBAL_SYSTEM",
+        "TENANT_SHARED"
+      ]
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resourceName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 150,
+          "pattern": "^(?=.*\\S)[^\\u0000-\\u001f\\u007f]+$"
+        },
+        "resourceType": {
+          "enum": [
+            "MODEL",
+            "SPRITE",
+            "LIGHTING",
+            "COMPOSITION"
+          ]
+        },
+        "assetName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 150,
+          "pattern": "^(?=.*\\S)[^\\u0000-\\u001f\\u007f]+$"
+        }
+      },
+      "required": [
+        "resourceName",
+        "resourceType",
+        "assetName"
+      ]
+    },
+    "createOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operationId": {
+          "$ref": "#/$defs/operationId"
+        },
+        "operationType": {
+          "const": "CREATE"
+        },
+        "resourceScope": {
+          "$ref": "#/$defs/scope"
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        }
+      },
+      "required": [
+        "operationId",
+        "operationType",
+        "resourceScope",
+        "metadata"
+      ]
+    },
+    "replaceOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operationId": {
+          "$ref": "#/$defs/operationId"
+        },
+        "operationType": {
+          "const": "REPLACE"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/resourceId"
+        },
+        "expectedRevision": {
+          "$ref": "#/$defs/revision"
+        }
+      },
+      "required": [
+        "operationId",
+        "operationType",
+        "resourceId",
+        "expectedRevision"
+      ]
+    },
+    "deleteOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operationId": {
+          "$ref": "#/$defs/operationId"
+        },
+        "operationType": {
+          "const": "DELETE"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/resourceId"
+        },
+        "expectedRevision": {
+          "$ref": "#/$defs/revision"
+        }
+      },
+      "required": [
+        "operationId",
+        "operationType",
+        "resourceId",
+        "expectedRevision"
+      ]
+    },
+    "restoreOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operationId": {
+          "$ref": "#/$defs/operationId"
+        },
+        "operationType": {
+          "const": "RESTORE"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/resourceId"
+        },
+        "expectedRevision": {
+          "$ref": "#/$defs/revision"
+        },
+        "snapshotOperationId": {
+          "$ref": "#/$defs/operationId"
+        }
+      },
+      "required": [
+        "operationId",
+        "operationType",
+        "resourceId",
+        "expectedRevision",
+        "snapshotOperationId"
+      ]
+    },
+    "operationRequest": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/createOperation"
+        },
+        {
+          "$ref": "#/$defs/replaceOperation"
+        },
+        {
+          "$ref": "#/$defs/deleteOperation"
+        },
+        {
+          "$ref": "#/$defs/restoreOperation"
+        }
+      ]
+    },
+    "contentCommit": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "manifestPath": {
+          "$ref": "#/$defs/objectPath"
+        },
+        "manifestSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/sha256"
+        },
+        "contentFormat": {
+          "const": "unity.assetbundle.v1"
+        },
+        "platform": {
+          "const": "WebGL"
+        },
+        "appCompatibility": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^\\S+$"
+        }
+      },
+      "required": [
+        "manifestPath",
+        "manifestSha256",
+        "contentHash",
+        "contentFormat",
+        "platform",
+        "appCompatibility"
+      ]
+    },
+    "emptyCommit": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {},
+      "required": []
+    },
+    "commitRequest": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/contentCommit"
+        },
+        {
+          "$ref": "#/$defs/emptyCommit"
+        }
+      ]
+    },
+    "uploadTargetsRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "$ref": "#/$defs/objectPath"
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 2147483648
+              },
+              "sha256": {
+                "$ref": "#/$defs/sha256"
+              }
+            },
+            "required": [
+              "path",
+              "size",
+              "sha256"
+            ]
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "files"
+      ]
+    },
+    "current": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resourceId": {
+          "$ref": "#/$defs/resourceId"
+        },
+        "resourceName": {
+          "type": "string"
+        },
+        "resourceScope": {
+          "$ref": "#/$defs/scope"
+        },
+        "currentRevision": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]{0,18}$",
+          "format": "positive-int64-string"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/sha256"
+        },
+        "manifestSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "contentFormat": {
+          "const": "unity.assetbundle.v1"
+        },
+        "platform": {
+          "const": "WebGL"
+        },
+        "appCompatibility": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "manifestUrl": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://"
+        },
+        "downloadExpiresAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "resourceId",
+        "resourceName",
+        "resourceScope",
+        "currentRevision",
+        "contentHash",
+        "manifestSha256",
+        "contentFormat",
+        "platform",
+        "appCompatibility",
+        "manifestUrl",
+        "downloadExpiresAt"
+      ]
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operationId": {
+          "$ref": "#/$defs/operationId"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/resourceId"
+        },
+        "operationType": {
+          "enum": [
+            "CREATE",
+            "REPLACE",
+            "DELETE",
+            "RESTORE"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "UPLOADING",
+            "VERIFYING",
+            "COMMITTED",
+            "FAILED",
+            "CONFLICT",
+            "CANCELLED",
+            "EXPIRED"
+          ]
+        },
+        "expectedRevision": {
+          "$ref": "#/$defs/revision"
+        },
+        "committedRevision": {
+          "$ref": "#/$defs/revision"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "errorCode": {
+          "type": "string"
+        },
+        "current": {
+          "$ref": "#/$defs/current"
+        }
+      },
+      "required": [
+        "operationId",
+        "resourceId",
+        "operationType",
+        "status",
+        "expectedRevision",
+        "expiresAt"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "COMMITTED"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "committedRevision"
+            ]
+          }
+        }
+      ]
+    },
+    "resourceSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resourceId": {
+          "$ref": "#/$defs/resourceId"
+        },
+        "resourceName": {
+          "type": "string"
+        },
+        "resourceType": {
+          "enum": [
+            "MODEL",
+            "SPRITE",
+            "LIGHTING",
+            "COMPOSITION"
+          ]
+        },
+        "resourceScope": {
+          "$ref": "#/$defs/scope"
+        },
+        "currentRevision": {
+          "$ref": "#/$defs/resourceId"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "resourceId",
+        "resourceName",
+        "resourceType",
+        "resourceScope",
+        "currentRevision",
+        "contentHash"
+      ]
+    },
+    "resourcePage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "list": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/resourceSummary"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "list",
+        "total"
+      ]
+    },
+    "uploadTargetsResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operationId": {
+          "$ref": "#/$defs/operationId"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "targets": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "$ref": "#/$defs/objectPath"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^https://"
+              },
+              "method": {
+                "const": "PUT"
+              },
+              "requiredHeaders": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "path",
+              "url",
+              "method",
+              "requiredHeaders"
+            ]
+          }
+        }
+      },
+      "required": [
+        "operationId",
+        "expiresAt",
+        "targets"
+      ]
+    },
+    "manifestEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "MODEL",
+            "SPRITE",
+            "LIGHTING",
+            "COMPOSITION"
+          ]
+        },
+        "assetName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 150,
+          "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+        },
+        "packagePath": {
+          "$ref": "#/$defs/objectPath"
+        },
+        "nativeManifestPath": {
+          "$ref": "#/$defs/objectPath"
+        },
+        "catalogPath": {
+          "$ref": "#/$defs/objectPath"
+        },
+        "packManifestPath": {
+          "$ref": "#/$defs/objectPath"
+        },
+        "lightingManifestPath": {
+          "$ref": "#/$defs/objectPath"
+        }
+      },
+      "required": [
+        "kind",
+        "assetName",
+        "packagePath",
+        "nativeManifestPath",
+        "catalogPath",
+        "packManifestPath"
+      ]
+    },
+    "manifestFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/objectPath"
+        },
+        "size": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]{0,9}$",
+          "format": "positive-file-size-string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "path",
+        "size",
+        "sha256"
+      ]
+    },
+    "resourceManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "wx.art-resource.v1"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/resourceId"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/sha256"
+        },
+        "contentFormat": {
+          "const": "unity.assetbundle.v1"
+        },
+        "platform": {
+          "const": "WebGL"
+        },
+        "appCompatibility": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^\\S+$"
+        },
+        "entry": {
+          "$ref": "#/$defs/manifestEntry"
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/manifestFile"
+          }
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "resourceId",
+        "contentHash",
+        "contentFormat",
+        "platform",
+        "appCompatibility",
+        "entry",
+        "files"
+      ]
+    }
+  }
+}

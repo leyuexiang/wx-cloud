@@ -1,0 +1,58 @@
+{
+  "time": "2026-10-29T05:02:25.901287+00:00",
+  "steps": [
+    {
+      "action": "applied",
+      "database": "wx_editor_test148",
+      "checksums": {
+        "001-schema.up.sql": "1411a95308954ee2100213136da4364b49deaabb78dc5db7c2d6eebd8dd255a5",
+        "002-links.up.sql": "09841b64585eadbd3db13121169e8d80659b6013f4771115809e178a3f1737ea",
+        "003-schema.down.sql": "8ab37b16276ec21eb475cc05ce24897604ebba4fc5231be4ce053639b4d55f75"
+      },
+      "backup": {
+        "path": "/opt/wx/editor-test148/backups/art01-wx_editor_test148-20261029T050212366878Z/database.sql",
+        "sha256": "5cf2c5ed0bf46c9429607d509ebc6b008ab9d5e05564376659ad5fb03a508f1e",
+        "mode": "0o600"
+      },
+      "originalRowsUnchanged": true,
+      "backfilledModelLinks": 0,
+      "unclassifiedResources": 0
+    },
+    {
+      "action": "rolled-back",
+      "database": "wx_editor_test148",
+      "restoredExactly": true,
+      "backup": {
+        "path": "/opt/wx/editor-test148/backups/art01-wx_editor_test148-20261029T050217485680Z/database.sql",
+        "sha256": "7c43c093bfc5966c6843bc2956206de2e743c09a8c49049a360023e6ffe2f3b1",
+        "mode": "0o600"
+      }
+    },
+    {
+      "action": "applied",
+      "database": "wx_editor_test148",
+      "checksums": {
+        "001-schema.up.sql": "1411a95308954ee2100213136da4364b49deaabb78dc5db7c2d6eebd8dd255a5",
+        "002-links.up.sql": "09841b64585eadbd3db13121169e8d80659b6013f4771115809e178a3f1737ea",
+        "003-schema.down.sql": "8ab37b16276ec21eb475cc05ce24897604ebba4fc5231be4ce053639b4d55f75"
+      },
+      "backup": {
+        "path": "/opt/wx/editor-test148/backups/art01-wx_editor_test148-20261029T050221682305Z/database.sql",
+        "sha256": "e89a433a2e4929f533e01cb47b7a861414723eb6edacac43ecc3579b91143eba",
+        "mode": "0o600"
+      },
+      "originalRowsUnchanged": true,
+      "backfilledModelLinks": 0,
+      "unclassifiedResources": 0
+    },
+    {
+      "action": "already-applied",
+      "database": "wx_editor_test148",
+      "checksums": {
+        "001-schema.up.sql": "1411a95308954ee2100213136da4364b49deaabb78dc5db7c2d6eebd8dd255a5",
+        "002-links.up.sql": "09841b64585eadbd3db13121169e8d80659b6013f4771115809e178a3f1737ea",
+        "003-schema.down.sql": "8ab37b16276ec21eb475cc05ce24897604ebba4fc5231be4ce053639b4d55f75"
+      }
+    }
+  ]
+}

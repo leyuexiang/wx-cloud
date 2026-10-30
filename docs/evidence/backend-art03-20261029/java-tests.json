@@ -1,0 +1,57 @@
+{
+  "tests": 99,
+  "failures": 0,
+  "errors": 0,
+  "reports": [
+    {
+      "name": "cn.iocoder.wx.module.dimensions.entity.ArtResourceLegacyWriteBoundaryTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceAccessTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceClosureVerifierTest",
+      "tests": "18",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceManifestVerifierTest",
+      "tests": "41",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceObjectStoreTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceServiceTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceTransactionTest",
+      "tests": "11",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "scope": "真实H2事务回滚/幂等、声明依赖/灯光关系、主清单、存储及ART02回归；原生Unity解析与视觉另验收"
+}

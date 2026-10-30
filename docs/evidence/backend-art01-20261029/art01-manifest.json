@@ -1,0 +1,49 @@
+{
+  "time": "2026-10-29T05:20:11.380722+00:00",
+  "sourceRoot": "E:\\Products\\3D-editor\\Server\\jtyf-cloud",
+  "sourceCommit": "6a9c8bde7a5185083b921490feef383499bad8a9",
+  "includesUncommittedChanges": true,
+  "database": "wx_editor_test148",
+  "tableCount": 82,
+  "resourceRelatedTableCount": 21,
+  "fieldCountInInventory": 345,
+  "javaPackageDeployed": false,
+  "servicesRestarted": false,
+  "minioArtObjectsChanged": false,
+  "oldDatabaseMigrated": false,
+  "checks": {
+    "migrationRehearsal": 30,
+    "contract": 65,
+    "javaLegacyWriteBoundary": 3,
+    "existingApiRegression": 20
+  },
+  "validatorDependencies": {
+    "jsonschema": "4.26.0",
+    "PyYAML": "6.0.3"
+  },
+  "files": {
+    "deploy/test148/migrate-resource-art01.py": "ff1f37aabe0751d3b1365f16cf2adcc14313e18d5a8ac04026532d0e5fd1a03a",
+    "deploy/test148/verify-resource-art01-migration.py": "0590d33dd2681a1624be15f40d109d7856e48e7ff99202e9146d5ec186493de8",
+    "deploy/test148/migrations/art01/README.md": "339d09307e6fc3062629b4cbbacf2e8be4234477450c525cb84084e80fc3ef31",
+    "docs/15_资源模板数据结构与接口合同.md": "dcde71e2a94bed33f2779aafc485026ca578bbae6bdfa84813fff0f9f2839d50",
+    "docs/16_资源相关表结构清单_ART01.md": "dc66a1d8cba219568da43b8d62034aa8c45e55d97a7a950c3246f11108d55ce9",
+    "deploy/test148/migrations/art01/001-schema.up.sql": "1411a95308954ee2100213136da4364b49deaabb78dc5db7c2d6eebd8dd255a5",
+    "deploy/test148/migrations/art01/002-links.up.sql": "09841b64585eadbd3db13121169e8d80659b6013f4771115809e178a3f1737ea",
+    "deploy/test148/migrations/art01/003-schema.down.sql": "8ab37b16276ec21eb475cc05ce24897604ebba4fc5231be4ce053639b4d55f75",
+    "contracts/art01/.gitignore": "32dae3052f331ee34d628ef535709b301259a45df7c7522c4d35dcf49873f00b",
+    "contracts/art01/content-hash-fixture.json": "3a144149c091f1795d3be0492f8c4963df9e93438aa890e36f20accbdf0646e3",
+    "contracts/art01/errors.json": "3089792a7459de16a50365a7da67b27156854b556179a0498ecde4f0d3bb7490",
+    "contracts/art01/examples.json": "abfcddecaa2b8a2f3faf3a404410cce47f47bbafd0500ee7268a8c73b3980d9e",
+    "contracts/art01/openapi.yaml": "f8d90370761ccb1bb7d82fc7a454c652721e7e5b7b5e4ae38be89eb917fac281",
+    "contracts/art01/README.md": "6eecf395167ef7f1e0b3fda8c46a0f823f1db3f7b736ecad3446206b60f58a9f",
+    "contracts/art01/resource-contract.schema.json": "ebe34e813439c1befb4cd6a6964f262fc243ff686f959bc673aea040c02da433",
+    "contracts/art01/verify-contract.py": "2f22a5d79ddc26401bcbe311477a9c176c5687785186de06be37c4c410975257",
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/entity/Dim3dResourceBaseEntity.java": "7d28f53e8b6d412bf96dd4b3dd04ee45e0f4c20b781f68dadfb46a656839a0cc",
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/entity/Dim3dResourceCurrent.java": "97c576d42da609a5addefa35bbe58b2e48e457d6a6a656d7344a4dfd06411b4a",
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/entity/Dim3dResourceOperation.java": "08b920073d7fb02acf56dcca97564f671924e89acd88f752bccf91eb20a1b141",
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/mapper/Dim3dResourceCurrentMapper.java": "b460d52efc1d9e5b747f9656a5d2c4aca009b207d339170eae27860bb8fae395",
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/mapper/Dim3dResourceOperationMapper.java": "43ba624d39ce0c2040203fe5982bcc1fce6ce5437718413473e7fdfe7ea8b0c4",
+    "wx-module-3d/src/main/java/cn/iocoder/wx/module/dimensions/exception/ArtResourceErrorCode.java": "5ab17f006fa3a88bfb99a08c919ed5c7a6ad017f29338fa50abf27cb10e890ed",
+    "wx-module-3d/src/test/java/cn/iocoder/wx/module/dimensions/entity/ArtResourceLegacyWriteBoundaryTest.java": "f575eef88cb5d15dfa9a325dc6fa5fbfbebe89304fa8242188519af33d117596"
+  }
+}

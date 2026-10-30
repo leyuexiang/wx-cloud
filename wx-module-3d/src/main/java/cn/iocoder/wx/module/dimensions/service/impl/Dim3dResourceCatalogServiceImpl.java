@@ -3,10 +3,12 @@ package cn.iocoder.wx.module.dimensions.service.impl;
 import cn.iocoder.wx.framework.common.exception.ServiceException;
 import cn.iocoder.wx.framework.common.pojo.CommonResult;
 import cn.iocoder.wx.framework.common.pojo.PageResult;
+import cn.iocoder.wx.framework.tenant.core.context.TenantContextHolder;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dConvertedResource;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dIcon;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dModel;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dTemplate;
+import cn.iocoder.wx.module.dimensions.entity.Dim3dResourceBaseEntity;
 import cn.iocoder.wx.module.dimensions.exception.ErrorCodeConstants;
 import cn.iocoder.wx.module.dimensions.mapper.Dim3dConvertedResourceMapper;
 import cn.iocoder.wx.module.dimensions.mapper.Dim3dIconMapper;
@@ -39,12 +41,13 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
     @Resource private Dim3dConvertedResourceMapper convertedResourceMapper;
     @Resource private RestTemplate restTemplate;
     @Resource private ObjectMapper objectMapper;
+    @Resource private cn.iocoder.wx.module.dimensions.service.ArtResourceService artResources;
 
     @Value("${dim3d.resource-convert-url:http://192.168.10.200:30080/api/dim3d/resource/uploadConvert}")
     private String convertUrl;
 
-    @Override public Long createModel(Dim3dModel model) { modelMapper.insert(model); return model.getId(); }
-    @Override public void updateModel(Long id, Dim3dModel model) { model.setId(id); require(modelMapper.updateById(model)); }
+    @Override public Long createModel(Dim3dModel model) { legacy(model); applyTenant(model); modelMapper.insert(model); return model.getId(); }
+    @Override public void updateModel(Long id, Dim3dModel model) { legacy(getModel(id)); legacy(model); applyTenant(model); model.setId(id); require(modelMapper.updateById(model)); }
     @Override public Dim3dModel getModel(Long id) { return require(modelMapper.selectById(id)); }
     @Override public PageResult<Dim3dModel> getModelPage(String name, String belong, String status, String paid, String category, Integer num, Integer size) {
         Page<Dim3dModel> page = modelMapper.selectPage(new Page<>(pageNum(num), pageSize(size)), new LambdaQueryWrapper<Dim3dModel>()
@@ -54,8 +57,8 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
         return new PageResult<>(page.getRecords(), page.getTotal());
     }
 
-    @Override public Long createIcon(Dim3dIcon icon) { iconMapper.insert(icon); return icon.getId(); }
-    @Override public void updateIcon(Long id, Dim3dIcon icon) { icon.setId(id); require(iconMapper.updateById(icon)); }
+    @Override public Long createIcon(Dim3dIcon icon) { applyTenant(icon); iconMapper.insert(icon); return icon.getId(); }
+    @Override public void updateIcon(Long id, Dim3dIcon icon) { legacy(getIcon(id)); applyTenant(icon); icon.setId(id); require(iconMapper.updateById(icon)); }
     @Override public Dim3dIcon getIcon(Long id) { return require(iconMapper.selectById(id)); }
     @Override public PageResult<Dim3dIcon> getIconPage(String name, String category, String secondary, String belong, String status, Integer num, Integer size) {
         Page<Dim3dIcon> page = iconMapper.selectPage(new Page<>(pageNum(num), pageSize(size)), new LambdaQueryWrapper<Dim3dIcon>()
@@ -65,8 +68,8 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
         return new PageResult<>(page.getRecords(), page.getTotal());
     }
 
-    @Override public Long createTemplate(Dim3dTemplate template) { templateMapper.insert(template); return template.getId(); }
-    @Override public void updateTemplate(Long id, Dim3dTemplate template) { template.setId(id); require(templateMapper.updateById(template)); }
+    @Override public Long createTemplate(Dim3dTemplate template) { applyTenant(template); templateMapper.insert(template); return template.getId(); }
+    @Override public void updateTemplate(Long id, Dim3dTemplate template) { legacy(getTemplate(id)); applyTenant(template); template.setId(id); require(templateMapper.updateById(template)); }
     @Override public Dim3dTemplate getTemplate(Long id) { return require(templateMapper.selectById(id)); }
     @Override public PageResult<Dim3dTemplate> getTemplatePage(String name, String type, String category, String belong, String status, Integer num, Integer size) {
         Page<Dim3dTemplate> page = templateMapper.selectPage(new Page<>(pageNum(num), pageSize(size)), new LambdaQueryWrapper<Dim3dTemplate>()
@@ -76,12 +79,12 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
         return new PageResult<>(page.getRecords(), page.getTotal());
     }
 
-    @Override public void changeModelStatus(Long id, String status) { checkStatus(status); Dim3dModel e = new Dim3dModel(); e.setId(id); e.setStatus(status); require(modelMapper.updateById(e)); }
-    @Override public void changeIconStatus(Long id, String status) { checkStatus(status); Dim3dIcon e = new Dim3dIcon(); e.setId(id); e.setStatus(status); require(iconMapper.updateById(e)); }
-    @Override public void changeTemplateStatus(Long id, String status) { checkStatus(status); Dim3dTemplate e = new Dim3dTemplate(); e.setId(id); e.setStatus(status); require(templateMapper.updateById(e)); }
-    @Override public void deleteModel(Long id) { require(modelMapper.deleteById(id)); }
-    @Override public void deleteIcon(Long id) { require(iconMapper.deleteById(id)); }
-    @Override public void deleteTemplate(Long id) { require(templateMapper.deleteById(id)); }
+    @Override public void changeModelStatus(Long id, String status) { legacy(getModel(id)); checkStatus(status); Dim3dModel e = new Dim3dModel(); e.setId(id); e.setStatus(status); require(modelMapper.updateById(e)); }
+    @Override public void changeIconStatus(Long id, String status) { legacy(getIcon(id)); checkStatus(status); Dim3dIcon e = new Dim3dIcon(); e.setId(id); e.setStatus(status); require(iconMapper.updateById(e)); }
+    @Override public void changeTemplateStatus(Long id, String status) { legacy(getTemplate(id)); checkStatus(status); Dim3dTemplate e = new Dim3dTemplate(); e.setId(id); e.setStatus(status); require(templateMapper.updateById(e)); }
+    @Override public void deleteModel(Long id) { legacy(getModel(id)); require(modelMapper.deleteById(id)); }
+    @Override public void deleteIcon(Long id) { legacy(getIcon(id)); require(iconMapper.deleteById(id)); }
+    @Override public void deleteTemplate(Long id) { legacy(getTemplate(id)); require(templateMapper.deleteById(id)); }
 
     /** 将单个 ZIP 原样转发给转换服务，并仅在转换成功后落库。 */
     @Override public Dim3dConvertedResource convertAndSave(MultipartFile file, String authorization, String clientId) {
@@ -105,7 +108,10 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
                 throw new ServiceException(result == null ? 502 : result.getCode(), result == null ? "资源转换服务无响应" : result.getMsg());
             }
             Dim3dConvertedResource resource = result.getData();
-            resource.setTenantId(resource.getTenantId() == null ? "000000" : resource.getTenantId());
+            // 全局/受管资源即使被租户拦截隐藏，也不能由旧转换回执按同号覆盖。
+            artResources.guardLegacyResource(resource.getId());
+            // 转换服务返回的归属不能覆盖当前认证上下文，避免跨租户写入或误归到历史默认租户。
+            resource.setTenantId(String.valueOf(TenantContextHolder.getRequiredTenantId()));
             if (convertedResourceMapper.selectById(resource.getId()) == null) convertedResourceMapper.insert(resource);
             else convertedResourceMapper.updateById(resource);
             return resource;
@@ -114,6 +120,17 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
         } catch (Exception ex) {
             throw new ServiceException(502, "资源转换服务调用失败");
         }
+    }
+
+    /** 目录和模型文件的受管关联只能从新资源事务维护。 */
+    private void legacy(Dim3dResourceBaseEntity entity) {
+        artResources.guardLegacyResource(entity.getResourceId());
+        if(entity instanceof Dim3dModel model) artResources.guardLegacyResource(model.getModelFileId());
+    }
+
+    /** 客户端传入的租户字段不能参与归属决策；租户过滤继续约束读取和按主键更新。 */
+    private static void applyTenant(Dim3dResourceBaseEntity resource) {
+        resource.setTenantId(String.valueOf(TenantContextHolder.getRequiredTenantId()));
     }
 
     private static int pageNum(Integer value) { return value == null || value < 1 ? 1 : value; }
