@@ -1,0 +1,136 @@
+{
+  "status": "DEPLOYED",
+  "deployedAt": "2026-10-30T22:29:31.794249+08:00",
+  "endpoint": "http://192.168.10.148:12522",
+  "directory": "/opt/wx/editor-test148",
+  "health": {
+    "system": {
+      "port": 48181,
+      "status": "UP"
+    },
+    "infra": {
+      "port": 48182,
+      "status": "UP"
+    },
+    "dimensions": {
+      "port": 48192,
+      "status": "UP"
+    },
+    "gateway": {
+      "port": 12522,
+      "status": "UP"
+    }
+  },
+  "containers": {
+    "wx-editor-gateway": {
+      "status": "running",
+      "health": "healthy",
+      "image": "sha256:125cd353fdcd0fdb03a448927b5419769d8f8d4b76a76083c444d5022391ab1e",
+      "user": "metabase"
+    },
+    "wx-editor-system": {
+      "status": "running",
+      "health": "healthy",
+      "image": "sha256:125cd353fdcd0fdb03a448927b5419769d8f8d4b76a76083c444d5022391ab1e",
+      "user": "metabase"
+    },
+    "wx-editor-infra": {
+      "status": "running",
+      "health": "healthy",
+      "image": "sha256:125cd353fdcd0fdb03a448927b5419769d8f8d4b76a76083c444d5022391ab1e",
+      "user": "metabase"
+    },
+    "wx-editor-dimensions": {
+      "status": "running",
+      "health": "healthy",
+      "image": "sha256:125cd353fdcd0fdb03a448927b5419769d8f8d4b76a76083c444d5022391ab1e",
+      "user": "metabase"
+    },
+    "wx-editor-redis": {
+      "status": "running",
+      "health": null,
+      "image": "sha256:8f5c54441eb93183170be8c9fc2d8e8275171a6866ca1b4ae682a2ced6a98889",
+      "user": ""
+    },
+    "mysql8": {
+      "status": "running",
+      "health": "healthy",
+      "image": "sha256:e645fd9ffc4fc6745702d8c0068326b8707251166fdf11c80e8f52a609d19d1d",
+      "user": ""
+    },
+    "metabase-backend": {
+      "status": "exited",
+      "health": "unhealthy",
+      "image": "sha256:125cd353fdcd0fdb03a448927b5419769d8f8d4b76a76083c444d5022391ab1e",
+      "user": "root"
+    }
+  },
+  "artifacts": {
+    "system": {
+      "sha256": "1986d7ec24fa31d6cb2a437bac7d7a88f49c3c9b4dd6100b7cdd6c833f9fc338",
+      "size": 180342745,
+      "activeSha256": "1986d7ec24fa31d6cb2a437bac7d7a88f49c3c9b4dd6100b7cdd6c833f9fc338"
+    },
+    "infra": {
+      "sha256": "7eaa9c66768ef366f800b53ebef0e367c176f16a95e201868e31e46bce5fc350",
+      "size": 171463289,
+      "activeSha256": "7eaa9c66768ef366f800b53ebef0e367c176f16a95e201868e31e46bce5fc350"
+    },
+    "dimensions": {
+      "sha256": "1b755193e86399fc2584d00b8d0a293d22fc3ac5decd081ae188637cce85aba4",
+      "size": 194523309,
+      "activeSha256": "1b755193e86399fc2584d00b8d0a293d22fc3ac5decd081ae188637cce85aba4"
+    },
+    "gateway": {
+      "sha256": "96891365b022c4994b5c7caaa01d455a37f8077b3545c753ff9334c7d9bd88c6",
+      "size": 65902499,
+      "activeSha256": "96891365b022c4994b5c7caaa01d455a37f8077b3545c753ff9334c7d9bd88c6"
+    }
+  },
+  "database": {
+    "name": "wx_editor_test148",
+    "port": 13306,
+    "tables": 82
+  },
+  "verification": {
+    "gateway": {
+      "passed": true,
+      "count": 20
+    },
+    "resourcePermissions": {
+      "passed": true,
+      "count": 60
+    },
+    "download": {
+      "passed": true,
+      "count": 32
+    },
+    "httpsApi": {
+      "passed": true,
+      "count": 7
+    },
+    "upload": {
+      "passed": true,
+      "count": 7
+    }
+  },
+  "serverChecks": 126,
+  "legacyBackup": {
+    "path": "/opt/wx/editor-test148/backups/20261030-221933/metabase_3d.sql",
+    "size": 235806,
+    "sha256": "60d2c0ddd79efb8a8241e94f433220d72526d5363868af9057a46e60cf89722f",
+    "mode": "0o600"
+  },
+  "existingWxServices": {
+    "wx-system": "active",
+    "wx-infra": "active",
+    "wx-dim3d": "active",
+    "wx-gateway": "active",
+    "wx-iot": "active"
+  },
+  "limitations": [
+    "当前仓库仅含后端，旧/api/assets与/admin-api接口不同",
+    "未执行历史Unity汽车A/B样本及浏览器视觉验收",
+    "测试授权默认30天，复用已有授权不自动续期"
+  ]
+}

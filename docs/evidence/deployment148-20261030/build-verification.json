@@ -1,0 +1,125 @@
+{
+  "sourceCommit": "58f615f44fe167679e657755dc0329e75dc4d885",
+  "buildResult": "SUCCESS",
+  "javaSummary": {
+    "tests": 187,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "javaSuites": [
+    {
+      "name": "cn.iocoder.wx.gateway.filter.security.TokenAuthenticationFilterTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.entity.ArtResourceLegacyWriteBoundaryTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceAccessTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceClosureVerifierTest",
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceManifestVerifierTest",
+      "tests": 41,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceObjectStoreTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceServiceTest",
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceTransactionTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "cn.iocoder.wx.module.system.framework.sms.core.client.impl.SmsClientFactoryImplTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "cn.iocoder.wx.module.system.service.permission.PermissionServiceTest",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "cn.iocoder.wx.module.system.service.permission.RoleServiceImplTest",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "cn.iocoder.wx.module.system.service.tenant.TenantPackageServiceImplTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "cn.iocoder.wx.module.system.service.tenant.TenantServiceImplTest",
+      "tests": 23,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "deploymentUnitTests": {
+    "tests": 8,
+    "failures": 0
+  },
+  "artifacts": {
+    "system": {
+      "sha256": "1986d7ec24fa31d6cb2a437bac7d7a88f49c3c9b4dd6100b7cdd6c833f9fc338",
+      "size": 180342745
+    },
+    "infra": {
+      "sha256": "7eaa9c66768ef366f800b53ebef0e367c176f16a95e201868e31e46bce5fc350",
+      "size": 171463289
+    },
+    "dimensions": {
+      "sha256": "1b755193e86399fc2584d00b8d0a293d22fc3ac5decd081ae188637cce85aba4",
+      "size": 194523309
+    },
+    "gateway": {
+      "sha256": "96891365b022c4994b5c7caaa01d455a37f8077b3545c753ff9334c7d9bd88c6",
+      "size": 65902499
+    }
+  }
+}

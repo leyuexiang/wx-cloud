@@ -8,6 +8,7 @@ import json
 import os
 import re
 import subprocess
+from server_support import mysql_command, file_sha256
 
 
 ROOT = Path("/opt/wx/editor-test148")
@@ -23,10 +24,8 @@ def now():
 
 
 def mysql(database, sql):
-    """凭据只在 MySQL 容器内读取，不进入参数、证据或日志。"""
-    command = ["docker", "exec", "-i", "mysql8", "sh", "-c",
-               'export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"; exec mysql --default-character-set=utf8mb4 -uroot "$@"',
-               "--", "-N", "-B", "-r", database]
+    """凭据从服务器私有文件或容器环境读取，不进入参数、证据或日志。"""
+    command = mysql_command(database) + ["-N", "-B", "-r"]
     result = subprocess.run(command, input=sql.encode(), capture_output=True)
     if result.returncode:
         raise RuntimeError(result.stderr.decode(errors="replace").strip())
@@ -94,14 +93,11 @@ def backup(database):
     directory = ROOT / "backups" / ("art01-" + database + "-" + datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S%fZ"))
     directory.mkdir(mode=0o700, parents=True)
     target = directory / "database.sql"
-    command = ["docker", "exec", "mysql8", "sh", "-c",
-               'export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"; exec mysqldump -uroot --single-transaction --no-tablespaces --routines --triggers "$@"',
-               "--", database]
+    command = mysql_command(database, dump=True)
     with os.fdopen(os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), "wb") as output:
         subprocess.run(command, check=True, stdout=output, stderr=subprocess.PIPE)
     # 备份可能随测试日志增长，流式计算摘要，避免把整库副本读入内存。
-    with target.open("rb") as source:
-        digest = hashlib.file_digest(source, "sha256").hexdigest()
+    digest = file_sha256(target)
     return {"path": str(target), "sha256": digest, "mode": oct(target.stat().st_mode & 0o777)}
 
 

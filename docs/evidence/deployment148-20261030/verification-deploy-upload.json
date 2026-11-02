@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "count": 7,
+  "checks": [
+    {
+      "name": "真实租户管理员登录",
+      "passed": true
+    },
+    {
+      "name": "创建独立暂存操作",
+      "passed": true
+    },
+    {
+      "name": "签发受控上传地址",
+      "passed": true
+    },
+    {
+      "name": "真实HTTPS暂存PUT",
+      "passed": true
+    },
+    {
+      "name": "对象存储回读摘要一致",
+      "passed": true
+    },
+    {
+      "name": "匿名PUT拒绝",
+      "passed": true
+    },
+    {
+      "name": "最终内容前缀不能写入",
+      "passed": true
+    }
+  ],
+  "cleanup": true,
+  "scope": "真实签名暂存上传及拒绝边界；未提交为有效Unity资源包"
+}

@@ -15,8 +15,28 @@ x-service: &service
       max-file: '3'
 
 services:
+  # 新实例只绑定回环地址，数据库文件使用独立卷；不接管宿主已有数据库。
+  mysql:
+    image: mysql:8.0.44
+    container_name: mysql8
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:${WX_DB_PORT:-13306}:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${WX_MYSQL_ROOT_PASSWORD:?必须设置独立数据库管理员密码}
+      TZ: Asia/Shanghai
+    volumes:
+      - wx-editor-mysql:/var/lib/mysql
+    mem_limit: 1536m
+    healthcheck:
+      # 临时初始化实例不监听 TCP，避免将它误判为最终可用实例。
+      test: [CMD-SHELL, 'MYSQL_PWD="$$MYSQL_ROOT_PASSWORD" mysql --protocol=TCP -h127.0.0.1 -uroot -NBe "SELECT 1" >/dev/null 2>&1']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
   redis:
-    image: redis:7-alpine
+    image: redis:7.4.2-alpine
     container_name: wx-editor-redis
     restart: unless-stopped
     ports:
@@ -31,7 +51,8 @@ services:
     <<: *service
     container_name: wx-editor-system
     healthcheck:
-      test: [CMD-SHELL, 'wget -q --spider http://127.0.0.1:48081/actuator/health || exit 1']
+      # 端口由服务器 .env 注入，与发布配置中的隔离端口保持一致。
+      test: [CMD-SHELL, 'wget -q --spider http://127.0.0.1:${WX_SYSTEM_PORT:-48181}/actuator/health || exit 1']
       interval: 15s
       start_period: 60s
     entrypoint: [java, -Xms128m, -Xmx1024m, -jar, /opt/wx/app.jar, --spring.config.location=file:/opt/wx/application.yaml]
@@ -42,7 +63,7 @@ services:
     <<: *service
     container_name: wx-editor-infra
     healthcheck:
-      test: [CMD-SHELL, 'wget -q --spider http://127.0.0.1:48082/actuator/health || exit 1']
+      test: [CMD-SHELL, 'wget -q --spider http://127.0.0.1:${WX_INFRA_PORT:-48182}/actuator/health || exit 1']
       interval: 15s
       start_period: 60s
     entrypoint: [java, -Xms128m, -Xmx1024m, -jar, /opt/wx/app.jar, --spring.config.location=file:/opt/wx/application.yaml]
@@ -53,7 +74,7 @@ services:
     <<: *service
     container_name: wx-editor-dimensions
     healthcheck:
-      test: [CMD-SHELL, 'wget -q --spider http://127.0.0.1:48092/actuator/health || exit 1']
+      test: [CMD-SHELL, 'wget -q --spider http://127.0.0.1:${WX_DIMENSIONS_PORT:-48192}/actuator/health || exit 1']
       interval: 15s
       start_period: 60s
     entrypoint: [java, -Xms128m, -Xmx1024m, -jar, /opt/wx/app.jar, --spring.config.location=file:/opt/wx/application.yaml]
@@ -74,4 +95,5 @@ services:
       - ./config/gateway.yaml:/opt/wx/application.yaml:ro
 
 volumes:
+  wx-editor-mysql:
   wx-editor-redis:

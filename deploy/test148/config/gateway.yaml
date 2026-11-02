@@ -17,27 +17,27 @@ spring:
         simple:
           instances:
             system-server:
-            - uri: http://127.0.0.1:48081
+            - uri: http://127.0.0.1:48181
             infra-server:
-            - uri: http://127.0.0.1:48082
+            - uri: http://127.0.0.1:48182
             dimensions-server:
-            - uri: http://127.0.0.1:48092
+            - uri: http://127.0.0.1:48192
     gateway:
       routes:
       - id: system-test148
-        uri: http://127.0.0.1:48081
+        uri: http://127.0.0.1:48181
         predicates:
         - Path=/admin-api/system/**,/app-api/system/**
         filters:
         - RemoveRequestHeader=x-bot-user
       - id: infra-test148
-        uri: http://127.0.0.1:48082
+        uri: http://127.0.0.1:48182
         predicates:
         - Path=/admin-api/infra/**,/app-api/infra/**
         filters:
         - RemoveRequestHeader=x-bot-user
       - id: dimensions-test148
-        uri: http://127.0.0.1:48092
+        uri: http://127.0.0.1:48192
         predicates:
         - Path=/admin-api/dimensions/**,/app-api/dimensions/**,/admin-api/dim3d/**
         filters:

@@ -4,9 +4,10 @@ from pathlib import Path
 import datetime
 import json
 import os
-import secrets
 import shutil
 import subprocess
+import time
+from server_support import mysql_command, deployment_environment, runtime_identity
 
 
 def run(args, **kwargs):
@@ -37,37 +38,38 @@ old_image = json.loads(info)[0]["Image"]
 run(["docker", "tag", old_image, "wx-cloud-runtime:test148"])
 run(["docker", "tag", old_image, "metabase-backend:before-wx-replacement"])
 
-mysql_cmd = ["docker", "exec", "-i", "mysql8", "sh", "-c",
-             'export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"; exec mysql --default-character-set=utf8mb4 -uroot "$@"', "--"]
+# 支持宿主数据库；管理员凭据需预先存入 bootstrap/mysql.cnf，权限为 600。
+mysql_cmd = mysql_command()
 with (backup / "metabase_3d.sql").open("wb") as output:
-    run(["docker", "exec", "mysql8", "sh", "-c",
-         'export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"; exec mysqldump -uroot --single-transaction --no-tablespaces metabase_3d'], stdout=output)
+    # 旧服务使用宿主 MariaDB，新实例没有旧库；通过旧账号只读备份，密码仅传入子进程环境。
+    old = inspect_env("metabase-backend")
+    if "DB_PASSWORD" in old and "DB_USERNAME" in old:
+        run(["mysqldump", "-h127.0.0.1", "-u" + old["DB_USERNAME"],
+             "--single-transaction", "--no-tablespaces", "metabase_3d"],
+            env={**os.environ, "MYSQL_PWD": old["DB_PASSWORD"]}, stdout=output)
+    else:
+        run(mysql_command("metabase_3d", dump=True), stdout=output)
 (backup / "metabase_3d.sql").chmod(0o600)
 
 env_path = ROOT / ".env"
 if env_path.exists():
     env = dict(line.split("=", 1) for line in env_path.read_text().splitlines() if line and not line.startswith("#"))
 else:
-    old = inspect_env("metabase-backend")
-    minio = inspect_env("smartlens-minio")
-    env = {
-        "WX_DB_PASSWORD": secrets.token_urlsafe(32),
-        "WX_REDIS_PASSWORD": secrets.token_urlsafe(32),
-        "WX_REDIS_PORT": "16380",
-        "WX_MINIO_ACCESS_KEY": minio["MINIO_ROOT_USER"],
-        "WX_MINIO_SECRET_KEY": minio["MINIO_ROOT_PASSWORD"],
-        "WX_RUNTIME_SECRET": secrets.token_urlsafe(32),
-        "WX_GATEWAY_PORT": "12532",
-    }
-    env_path.write_text("".join(f"{key}={value}\n" for key, value in env.items()))
-    env_path.chmod(0o600)
+    env = {}
 
-# 使用专属 Redis，避免测试登录与权限缓存混入其他应用的缓存空间。
-if "WX_REDIS_PORT" not in env:
-    env["WX_REDIS_PORT"] = "16380"
-    env["WX_REDIS_PASSWORD"] = secrets.token_urlsafe(32)
-    env_path.write_text("".join(f"{key}={value}\n" for key, value in env.items()))
-    env_path.chmod(0o600)
+# 先生成完整环境，再校验编排并启动独立依赖；不能在 MySQL 就绪前执行初始化 SQL。
+env = deployment_environment(env, inspect_env(os.environ.get("WX_MINIO_CONTAINER", "minio")))
+env_path.write_text("".join(f"{key}={value}\n" for key, value in env.items()), encoding="utf-8")
+env_path.chmod(0o600)
+run(["docker", "compose", "-f", "compose.yaml", "config", "-q"])
+run(["docker", "compose", "-f", "compose.yaml", "up", "-d", "mysql", "redis"])
+for attempt in range(90):
+    result = subprocess.run(mysql_cmd + ["-NBe", "SELECT 1"], capture_output=True)
+    if result.returncode == 0:
+        break
+    time.sleep(2)
+else:
+    raise RuntimeError("独立数据库未在 180 秒内就绪；旧服务仍运行")
 
 # 账号仅能访问新测试库，旧库及其他应用库保持独立。
 password = env["WX_DB_PASSWORD"]
@@ -93,8 +95,8 @@ print(f"独立库已核对 {len(actual)} 张表，所有目标表均存在")
 
 data = ROOT / "data"
 data.mkdir(exist_ok=True)
-uid = int(subprocess.check_output(["docker", "exec", "metabase-backend", "id", "-u"]).decode())
-gid = int(subprocess.check_output(["docker", "exec", "metabase-backend", "id", "-g"]).decode())
+# 旧容器显式使用 root，但复用镜像默认使用普通用户；目录必须与新镜像身份一致。
+uid, gid = runtime_identity("wx-cloud-runtime:test148")
 os.chown(data, uid, gid)
 print(f"旧服务与数据库已备份：{backup}")
 print("新数据库已准备；旧服务仍运行，尚未切换入口。")

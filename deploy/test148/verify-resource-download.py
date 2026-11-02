@@ -8,14 +8,17 @@ def load(name,file):
 def main():
     os.umask(0o077)
     api=load("art02","verify-resource-art02.py");s3=load("s3","art-s3-test-support.py")
-    context=ssl.create_default_context(cafile="/www/server/panel/vhost/cert/jtyf-web-art-20261028-133dd9a1e33e42c9/server.crt")
+    # 校验实际内部 CA 及主机名，不关闭 TLS 证书验证。
+    context=ssl.create_default_context(cafile=os.environ.get("WX_TLS_CA_FILE", "/etc/wx/tls/ca.crt"))
+    # 内网验收直接连接目标服务器，避免继承宿主已失效的公网代理；证书校验保持开启。
+    opener=urllib.request.build_opener(urllib.request.ProxyHandler({}), urllib.request.HTTPSHandler(context=context))
     checks=[];rows=[];objects=[];tag=uuid.uuid4().hex
     def check(name,passed):
         checks.append({"name":name,"passed":passed})
         if not passed:raise AssertionError(name)
     def download(url,method="GET"):
         req=urllib.request.Request(url,method=method)
-        try:r=urllib.request.urlopen(req,context=context,timeout=15)
+        try:r=opener.open(req,timeout=15)
         except urllib.error.HTTPError as error:r=error
         return r.status,r.read(),r.headers
     actors=json.loads((ROOT/"test-identities.json").read_text());other=json.loads((ROOT/"art02-identities.json").read_text())

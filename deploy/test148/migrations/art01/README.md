@@ -37,4 +37,4 @@ python3 migrate-resource-art01.py rollback
 
 备份位于 `backups/art01-*`，状态位于 `.migrations/art01-*.json`。完整备份包含测试身份等私密内容，不复制到 Git；证据仅保留摘要、结构及合成测试结果。
 
-接口与数据合同见[后端设计](../../../../docs/15_资源模板数据结构与接口合同.md)，实施结果见[验收记录](../../../../docs/evidence/backend-art01-20261029/README.md)。
+接口与数据合同见[后端设计](../../../../docs/10_专项设计/06_资源数据与接口合同.md)，实施结果见[验收记录](../../../../docs/evidence/backend-art01-20261029/README.md)。

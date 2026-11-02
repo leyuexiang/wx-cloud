@@ -4,13 +4,16 @@ from pathlib import Path
 import subprocess
 import uuid
 import zipfile
+import os
 
 ROOT = Path("/opt/wx/editor-test148")
 if Path.cwd().resolve() != ROOT:
     raise SystemExit("必须从 /opt/wx/editor-test148 运行")
 
-machine_uuid = str(uuid.UUID(subprocess.check_output(
-    ["dmidecode", "-s", "system-uuid"]).decode().strip()))
+# 优先读取内核提供的同一宿主 UUID，兼容没有安装 dmidecode 的服务器。
+uuid_file = Path("/sys/class/dmi/id/product_uuid")
+machine_uuid = str(uuid.UUID(uuid_file.read_text().strip() if uuid_file.exists() else
+    subprocess.check_output(["dmidecode", "-s", "system-uuid"]).decode().strip()))
 work = ROOT / "bootstrap/license-tool"
 work.mkdir(parents=True, exist_ok=True, mode=0o700)
 license_dir = ROOT / "data/license"
@@ -65,7 +68,9 @@ class AuthorizeTestServer {
 result = subprocess.run([
     "java", "-Dfile.encoding=UTF-8", "-Djava.security.egd=file:/dev/./urandom",
     "-cp", str(work / "*"), str(source), str(license_path), machine_uuid,
-], check=True, capture_output=True, text=True)
+], check=True, capture_output=True, text=True,
+   # 宿主的硬件查询工具通常安装于 /usr/sbin；SSH 非登录环境可能未包含该路径。
+   env={**os.environ, "PATH": os.environ.get("PATH", "") + ":/usr/sbin:/sbin"})
 license_path.chmod(0o644)
 (ROOT / "license-verification.txt").write_text(result.stdout + result.stderr)
 if "TEST_LICENSE_VALID" not in result.stdout:

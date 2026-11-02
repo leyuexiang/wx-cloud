@@ -45,17 +45,17 @@ spring:
         simple:
           instances:
             system-server:
-            - uri: http://127.0.0.1:48081
+            - uri: http://127.0.0.1:48181
             infra-server:
-            - uri: http://127.0.0.1:48082
+            - uri: http://127.0.0.1:48182
             dimensions-server:
-            - uri: http://127.0.0.1:48092
+            - uri: http://127.0.0.1:48192
   datasource:
     dynamic:
       primary: master
       datasource:
         master:
-          url: jdbc:mysql://127.0.0.1:3306/wx_editor_test148?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
+          url: jdbc:mysql://127.0.0.1:13306/wx_editor_test148?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
           username: wx_editor_test148
           password: ${WX_DB_PASSWORD}
           driver-class-name: com.mysql.cj.jdbc.Driver
@@ -69,7 +69,7 @@ spring:
         enabled: false
       context-path: /admin
 server:
-  port: 48092
+  port: 48192
   address: 127.0.0.1
 logging:
   file:
@@ -217,6 +217,10 @@ preview:
     base-url: ${preview.base-url}/web/#/scenePreview
 dim3d:
   resource-convert-url: http://192.168.10.200:30080/api/dim3d/resource/uploadConvert
+  resource:
+    platform-tenant-id: 1
+    download-endpoint: https://192.168.10.148:9444
+    upload-endpoint: https://192.168.10.148:9445
 management:
   endpoints:
     web:

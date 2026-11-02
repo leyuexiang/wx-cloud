@@ -1,12 +1,15 @@
 """只验证HTTPS登录及资源读取边界；认证在进程内存中，不记录响应正文。"""
 from pathlib import Path
-import json, ssl, urllib.request, urllib.error
+import json, ssl, urllib.request, urllib.error, os
 
 ROOT = Path('/opt/wx/editor-test148')
 
 
 def main():
-    context = ssl.create_default_context(cafile='/www/server/panel/vhost/cert/jtyf-web-art-20261028-133dd9a1e33e42c9/server.crt')
+    # 真实连接使用本次服务器证书的签发 CA，保持证书及主机校验开启。
+    context = ssl.create_default_context(cafile=os.environ.get('WX_TLS_CA_FILE', '/etc/wx/tls/ca.crt'))
+    # 内网链路不经过宿主的公网代理，避免把代理连接失败误报为服务器故障。
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), urllib.request.HTTPSHandler(context=context))
     who = json.loads((ROOT / 'test-identities.json').read_text())[2]
     checks = []
 
@@ -17,7 +20,7 @@ def main():
         req = urllib.request.Request('https://192.168.10.148:9446' + path, method=method, headers=headers,
                                      data=json.dumps(body).encode() if body is not None else None)
         try:
-            response = urllib.request.urlopen(req, context=context, timeout=20)
+            response = opener.open(req, timeout=20)
         except urllib.error.HTTPError as error:
             response = error
         raw = response.read(65537)
@@ -35,8 +38,9 @@ def main():
     status, login, origin = request('/admin-api/system/auth/login', 'POST', {'username': who['username'], 'password': who['password']})
     check('HTTPS真实普通用户登录及跨域', status == 200 and login.get('code') == 200 and origin == 'http://127.0.0.1:8765')
     token = login['data']['accessToken']
-    status, current, _ = request('/admin-api/dim3d/resources/2115735432249536513/current', token=token)
-    check('真实身份读取系统汽车当前描述', status == 200 and current.get('code') == 200)
+    # 全新库没有历史汽车样本；读取真实资源列表验证身份链路，允许合法的空列表。
+    status, current, _ = request('/admin-api/dim3d/resources', token=token)
+    check('HTTPS真实身份读取资源列表', status == 200 and current.get('code') == 200)
     status, data, _ = request('/admin-api/dim3d/resources')
     check('匿名资源读取仍拒绝', status == 401 or data.get('code') == 401)
     check('资源写入仍拒绝', request('/admin-api/dim3d/resources', 'POST', {}, token)[0] == 405)

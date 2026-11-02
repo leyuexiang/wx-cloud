@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "count": 7,
+  "checks": [
+    {
+      "name": "HTTPS真实普通用户登录及跨域",
+      "passed": true
+    },
+    {
+      "name": "HTTPS真实身份读取资源列表",
+      "passed": true
+    },
+    {
+      "name": "匿名资源读取仍拒绝",
+      "passed": true
+    },
+    {
+      "name": "资源写入仍拒绝",
+      "passed": true
+    },
+    {
+      "name": "登录GET拒绝",
+      "passed": true
+    },
+    {
+      "name": "登录浏览器预检",
+      "passed": true
+    },
+    {
+      "name": "其它业务路由仍拒绝",
+      "passed": true
+    }
+  ],
+  "tlsValidation": true,
+  "scope": "HTTPS真实身份和入口边界；不等于浏览器WASM或视觉验收"
+}

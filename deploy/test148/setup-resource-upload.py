@@ -5,7 +5,8 @@ ROOT=Path("/opt/wx/editor-test148")
 def main():
     if Path.cwd().resolve()!=ROOT:raise RuntimeError("工作目录错误")
     os.umask(0o077)
-    cert="/www/server/panel/vhost/cert/jtyf-web-art-20261028-133dd9a1e33e42c9"
+    # 与下载入口复用服务器现有证书链，不依赖不存在的历史测试证书目录。
+    cert=os.environ.get("WX_TLS_CERT_DIR", "/etc/wx/tls")
     target=Path("/www/server/panel/vhost/nginx/jtyf-resource-upload.conf")
     backup=ROOT/"backups"/("upload-"+datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S%fZ"));backup.mkdir(mode=0o700)
     if target.exists():shutil.copy2(target,backup/target.name)

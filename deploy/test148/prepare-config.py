@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import copy
+import os
 import yaml
 
 
@@ -48,12 +49,13 @@ def replace_placeholders(value):
 
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = Path(__file__).resolve().parent / "config"
+# 可将生成结果写入独立发布目录，避免现场部署覆盖仓库内的配置基线。
+OUT = Path(os.environ.get("WX_CONFIG_OUTPUT", Path(__file__).resolve().parent / "config"))
 OUT.mkdir(parents=True, exist_ok=True)
 MODULES = {
-    "dimensions": ("wx-module-3d", 48092),
-    "system": ("wx-module-system/wx-module-system-biz", 48081),
-    "infra": ("wx-module-infra/wx-module-infra-biz", 48082),
+    "dimensions": ("wx-module-3d", int(os.environ.get("WX_DIMENSIONS_PORT", "48192"))),
+    "system": ("wx-module-system/wx-module-system-biz", int(os.environ.get("WX_SYSTEM_PORT", "48181"))),
+    "infra": ("wx-module-infra/wx-module-infra-biz", int(os.environ.get("WX_INFRA_PORT", "48182"))),
     "gateway": ("wx-gateway", 12532),
 }
 
@@ -72,9 +74,10 @@ for service, (module, port) in MODULES.items():
             "config": {"enabled": False, "import-check": {"enabled": False}},
         },
         "discovery": {"client": {"simple": {"instances": {
-            "system-server": [{"uri": "http://127.0.0.1:48081"}],
-            "infra-server": [{"uri": "http://127.0.0.1:48082"}],
-            "dimensions-server": [{"uri": "http://127.0.0.1:48092"}],
+            # 注册中心关闭时，服务调用和网关必须使用同一组实际部署端口。
+            "system-server": [{"uri": f"http://127.0.0.1:{MODULES['system'][1]}"}],
+            "infra-server": [{"uri": f"http://127.0.0.1:{MODULES['infra'][1]}"}],
+            "dimensions-server": [{"uri": f"http://127.0.0.1:{MODULES['dimensions'][1]}"}],
         }}}},
     }
     config["server"] = {
@@ -89,7 +92,8 @@ for service, (module, port) in MODULES.items():
     config["wx"].pop("env", None)
     if service == "gateway":
         routes = []
-        for name, upstream in [("system", 48081), ("infra", 48082), ("dimensions", 48092)]:
+        for name in ("system", "infra", "dimensions"):
+            upstream = MODULES[name][1]
             routes.append({
                 "id": f"{name}-test148",
                 "uri": f"http://127.0.0.1:{upstream}",
@@ -105,7 +109,8 @@ for service, (module, port) in MODULES.items():
         config["spring"]["datasource"] = {"dynamic": {
             "primary": "master",
             "datasource": {"master": {
-                "url": "jdbc:mysql://127.0.0.1:3306/wx_editor_test148?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true",
+                # 数据库端口可独立指定，避免误连服务器已有的 MariaDB 或 MySQL 实例。
+                "url": f"jdbc:mysql://127.0.0.1:{int(os.environ.get('WX_DB_PORT', '13306'))}/wx_editor_test148?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true",
                 "username": "wx_editor_test148",
                 "password": "${WX_DB_PASSWORD}",
                 "driver-class-name": "com.mysql.cj.jdbc.Driver",
@@ -145,8 +150,7 @@ for service, (module, port) in MODULES.items():
         config["project-name-prefix"] = "wx"
         config["batch-conversion-actuality-path"] = "/data/batch/"
         config["material-path"] = "/data/material/"
-        # ART-02：平台超级管理员必须同时来自该受信平台租户；缺省不允许全局写入。
-        config["dim3d"] = {"resource": {"platform-tenant-id": 1}}
+        # 保留已合并的转换地址和资源端点；重建 dim3d 根节点会丢失上传、下载配置。
         config["ptc"] = {"license": {"start-check": False, "verify-system-switch": True,
                                       "license-path": "/data/license/license.lic"}}
         config["preview"] = {"base-url": "http://192.168.10.148:12522",
@@ -157,4 +161,4 @@ for service, (module, port) in MODULES.items():
     path = OUT / f"{service}.yaml"
     path.write_text("# 测试服务器独立配置；密钥仅通过服务器环境变量注入。\n" +
                     yaml.safe_dump(config, allow_unicode=True, sort_keys=False), encoding="utf-8")
-    print(f"generated {path.relative_to(ROOT)}")
+    print(f"generated {path}")

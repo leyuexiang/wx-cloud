@@ -1,6 +1,7 @@
 """增加仅资源只读API的HTTPS测试入口；认证仍经原网关，检查失败恢复原配置。"""
 from pathlib import Path
 import datetime, hashlib, json, os, shutil, subprocess
+import ipaddress
 
 ROOT = Path('/opt/wx/editor-test148')
 
@@ -10,7 +11,10 @@ def main():
     if Path.cwd().resolve() != ROOT:
         raise RuntimeError('工作目录错误')
     config = Path('/www/server/panel/vhost/nginx/jtyf-resource-api.conf')
-    cert = '/www/server/panel/vhost/cert/jtyf-web-art-20261028-133dd9a1e33e42c9'
+    # 证书目录由部署环境指定，默认复用服务器已有内部 CA 签发证书。
+    cert = os.environ.get('WX_TLS_CERT_DIR', '/etc/wx/tls')
+    # 限定到本次验收工作站；解析为 IP 后再写入配置，避免环境值注入 Nginx 指令。
+    client_ip = str(ipaddress.ip_address(os.environ.get('WX_API_CLIENT_IP', '127.0.0.1')))
     content = r'''# ART-05：只读资源API；对象存储签名读取继续使用9444，不代理任意业务路由。
 server {
     listen 192.168.10.148:9446 ssl;
@@ -20,7 +24,7 @@ server {
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_session_tickets off;
     allow 192.168.10.148;
-    allow 192.168.10.169;
+    allow CLIENT_IP;
     deny all;
     access_log off;
     error_log /opt/wx/editor-test148/data/resource-api-error.log crit;
@@ -62,7 +66,7 @@ server {
     }
     location / { return 404; }
 }
-'''.replace('CERT', cert)
+'''.replace('CERT', cert).replace('CLIENT_IP', client_ip)
     stamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')
     backup = ROOT / 'backups' / ('resource-api-' + stamp)
     backup.mkdir(mode=0o700)
@@ -80,7 +84,7 @@ server {
             config.write_bytes(previous)
         raise
     result = {'endpoint': 'https://192.168.10.148:9446', 'readOnly': True, 'gatewayUnchanged': True,
-              'queryLogging': False, 'loginRouteEnabled': True, 'sourceIps': ['192.168.10.148', '192.168.10.169'],
+              'queryLogging': False, 'loginRouteEnabled': True, 'sourceIps': ['192.168.10.148', client_ip],
               'browserOrigin': 'http://127.0.0.1:8765', 'backup': str(backup), 'sha256': hashlib.sha256(content.encode()).hexdigest()}
     (ROOT / 'resource-api-setup.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
     print(json.dumps(result))

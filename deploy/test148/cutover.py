@@ -6,6 +6,7 @@ import os
 import subprocess
 import time
 import urllib.request
+from server_support import recover_legacy
 
 ROOT = Path("/opt/wx/editor-test148")
 if Path.cwd().resolve() != ROOT:
@@ -42,6 +43,8 @@ def wait_health():
 
 
 try:
+    # 在停止旧入口前验证所有必需变量，避免编排解析错误造成中断。
+    run("docker", "compose", "-f", "compose.yaml", "config", "-q")
     run("docker", "stop", "metabase-backend")
     env_path.write_text(original.replace("WX_GATEWAY_PORT=12532", "WX_GATEWAY_PORT=12522"))
     env_path.chmod(0o600)
@@ -57,8 +60,7 @@ except Exception:
     diagnostics.chmod(0o600)
     env_path.write_text(original)
     env_path.chmod(0o600)
-    gateway()
-    run("docker", "start", "metabase-backend")
+    recover_legacy(gateway)
     print("切换失败，已恢复旧服务和原入口；新库保留用于排查。")
     raise
 

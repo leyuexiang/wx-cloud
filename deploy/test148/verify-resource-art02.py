@@ -1,9 +1,11 @@
 """验证候选服务真实身份矩阵；只使用合成资源，凭据只保留服务器受限文件。"""
 from pathlib import Path
 import json,os,secrets,string,subprocess,urllib.request,urllib.error,uuid
+from server_support import mysql_command
 ROOT=Path("/opt/wx/editor-test148")
-PORT=int(os.environ.get("WX_ART02_PORT","48093"))
-SQL=["docker","exec","-i","mysql8","sh","-c",'export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"; exec mysql --default-character-set=utf8mb4 -uroot wx_editor_test148 "$@"',"--","-N","-B"]
+PORT=int(os.environ.get("WX_ART02_PORT","48192"))
+# 验收夹具只进入独立测试库，复用部署环境适配以兼容宿主 MySQL。
+SQL=mysql_command("wx_editor_test148")+["-N","-B"]
 def sql(q):return subprocess.check_output(SQL,input=q.encode()).decode().strip()
 def request(port,path,who=None,method="GET",body=None,headers=None):
     h={"Content-Type":"application/json"}
@@ -44,7 +46,8 @@ def main():
         if not passed:raise AssertionError(name+": "+str(code)+" "+str(response.get("msg","")))
         return response.get("data")
     for who in actors:
-        login=request(48081,"/admin-api/system/auth/login",who,"POST",{"username":who["username"],"password":who["password"]})
+        # 验收账号只能提交到本次隔离部署的系统服务，不能误连旧服务的认证端口。
+        login=request(int(os.environ.get("WX_SYSTEM_PORT", "48181")),"/admin-api/system/auth/login",who,"POST",{"username":who["username"],"password":who["password"]})
         who["token"]=check("登录:"+str(who["tenantId"])+":"+who["role"],login,{200})["accessToken"]
     platform,aadmin,aview,badmin,bview,forged=actors
     def start(who,scope):

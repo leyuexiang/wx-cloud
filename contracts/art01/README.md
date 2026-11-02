@@ -17,4 +17,4 @@ python contracts/art01/verify-contract.py --report docs/evidence/backend-art01-2
 
 验证工具使用本机已有的 `jsonschema` 和 `PyYAML`，不增加后端运行时依赖。自定义格式 `positive-int64-string`、`nonnegative-int64-string`、`positive-file-size-string` 除结构匹配外还检查范围；实际服务必须做同样的有界解析，不能依赖客户端生成器是否识别格式。
 
-合同不单靠结构表达跨字段和数据库规则：相同对象路径、入口悬空、操作状态、归属、候选内容不可变、预期修订和真正的 SHA-256 回读仍须由服务验证。主清单算法与权限边界见[设计合同](../../docs/15_资源模板数据结构与接口合同.md)，最新验收见[记录](../../docs/evidence/backend-art01-20261029/README.md)。
+合同不单靠结构表达跨字段和数据库规则：相同对象路径、入口悬空、操作状态、归属、候选内容不可变、预期修订和真正的 SHA-256 回读仍须由服务验证。主清单算法与权限边界见[设计合同](../../docs/10_专项设计/06_资源数据与接口合同.md)，最新验收见[记录](../../docs/evidence/backend-art01-20261029/README.md)。

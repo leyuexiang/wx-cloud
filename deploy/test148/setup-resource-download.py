@@ -14,7 +14,8 @@ def main():
     status,data=s3.request("GET","/wx-art-test148",query="policy=")
     if status==200:raise RuntimeError("发现既有桶策略，先审查，不自动覆盖或扩大权限")
     if status!=404 or b"NoSuchBucketPolicy" not in data:raise RuntimeError("无法确认新桶私有策略")
-    cert="/www/server/panel/vhost/cert/jtyf-web-art-20261028-133dd9a1e33e42c9"
+    # 使用服务器已有的内部 CA 证书链；允许部署时显式指定其他证书目录。
+    cert=os.environ.get("WX_TLS_CERT_DIR", "/etc/wx/tls")
     config=Path("/www/server/panel/vhost/nginx/jtyf-resource-download.conf")
     content="""# ART-02：只代理新私有资源桶的签名GET，保留Host以通过S3签名校验。
 server {
@@ -55,6 +56,8 @@ server {
         if (backup/config.name).exists():shutil.copy2(backup/config.name,config)
         else:config.unlink()
         raise
-    result={"endpoint":"https://192.168.10.148:9444","bucket":"wx-art-test148","bucketPolicy":"NONE_PRIVATE","getOnly":True,"signedQueryLogging":False,"backup":str(backup),"certificateExpires":"2026-11-11T04:54:09Z"}
+    # 到期时间从实际部署证书读取，避免沿用历史环境的固定日期。
+    expiry=subprocess.check_output(["openssl","x509","-in",cert+"/server.crt","-noout","-enddate"],text=True).strip()
+    result={"endpoint":"https://192.168.10.148:9444","bucket":"wx-art-test148","bucketPolicy":"NONE_PRIVATE","getOnly":True,"signedQueryLogging":False,"backup":str(backup),"certificateExpires":expiry}
     (ROOT/"download-setup.json").write_text(json.dumps(result,indent=2));print(json.dumps(result))
 if __name__=="__main__":main()

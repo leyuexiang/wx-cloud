@@ -1,0 +1,18 @@
+{
+  "gateway": {
+    "port": 12532,
+    "status": "UP"
+  },
+  "infra": {
+    "port": 48182,
+    "status": "UP"
+  },
+  "system": {
+    "port": 48181,
+    "status": "UP"
+  },
+  "dimensions": {
+    "port": 48192,
+    "status": "UP"
+  }
+}

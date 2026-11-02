@@ -1,0 +1,14 @@
+{
+  "endpoint": "https://192.168.10.148:9446",
+  "readOnly": true,
+  "gatewayUnchanged": true,
+  "queryLogging": false,
+  "loginRouteEnabled": true,
+  "sourceIps": [
+    "192.168.10.148",
+    "192.168.10.16"
+  ],
+  "browserOrigin": "http://127.0.0.1:8765",
+  "backup": "/opt/wx/editor-test148/backups/resource-api-20261030T142707Z",
+  "sha256": "2856212bc87b7f076df35cd6c4bb70fcab2d9964579c5596070e3e47b482392e"
+}

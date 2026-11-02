@@ -1,0 +1,9 @@
+{
+  "endpoint": "https://192.168.10.148:9444",
+  "bucket": "wx-art-test148",
+  "bucketPolicy": "NONE_PRIVATE",
+  "getOnly": true,
+  "signedQueryLogging": false,
+  "backup": "/opt/wx/editor-test148/backups/download-20261030T142314Z",
+  "certificateExpires": "notAfter=Apr 23 06:43:43 2027 GMT"
+}

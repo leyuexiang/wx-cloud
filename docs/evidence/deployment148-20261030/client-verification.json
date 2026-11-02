@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "count": 3,
+  "checks": [
+    {
+      "name": "工作站直连正式网关",
+      "passed": true
+    },
+    {
+      "name": "工作站TLS校验后真实登录",
+      "passed": true
+    },
+    {
+      "name": "工作站通过TLS读取资源列表",
+      "passed": true
+    }
+  ],
+  "clientIp": "192.168.10.16",
+  "tlsValidation": true
+}
