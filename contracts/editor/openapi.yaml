@@ -1,0 +1,1152 @@
+openapi: 3.0.3
+info:
+  title: wx-cloud Unity 编辑器接口
+  version: 1.0.0
+  description: M0-03 首批接口合同。编号按字符串传输；成功业务码固定为 200。访问令牌和 ClientId 由可信登录会话签发，tenant-id
+    只作为一致性校验，不能覆盖令牌租户。应用 clientId 的实际值由部署配置登记，不写入合同。
+  x-contract-status: frozen
+  x-task: M0-03
+  x-platform-paths:
+    operation: /api/operation
+    tenant: /api/tenant/web
+    note: 已展开为实际路径；运营端使用 /api/operation，租户端使用 /api/tenant/web。
+  x-contract-freeze-date: '2026-10-31'
+servers:
+- url: '{server}/api'
+  variables:
+    server:
+      default: http://127.0.0.1:12522
+      description: 业务网关地址；生产地址由环境配置注入
+tags:
+- name: auth
+- name: base
+- name: scene
+- name: preview
+paths:
+  /operation/dim3d/scene/page:
+    get:
+      tags:
+      - scene
+      summary: 场景分页
+      security:
+      - bearerAuth: []
+        clientId: []
+      parameters: &id002
+      - name: sceneName
+        in: query
+        schema:
+          type: string
+      - name: sceneCategory
+        in: query
+        schema:
+          type: string
+      - name: sceneType
+        in: query
+        schema:
+          type: string
+          enum:
+          - local3d
+          - gis
+      - name: sceneKind
+        in: query
+        schema:
+          type: string
+          enum:
+          - INSTANCE
+          - TEMPLATE
+      - name: pageNum
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      - name: pageSize
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+  /operation/dim3d/scene:
+    post:
+      tags:
+      - scene
+      summary: 新建场景
+      security:
+      - bearerAuth: []
+        clientId: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SceneForm'
+      responses:
+        '200':
+          $ref: '#/components/schemas/SceneDetailResponse'
+  /operation/dim3d/scene/{sceneId}:
+    get:
+      tags:
+      - scene
+      summary: 场景详情
+      security:
+      - bearerAuth: []
+        clientId: []
+      parameters:
+      - $ref: '#/components/parameters/SceneId'
+      responses:
+        '200':
+          $ref: '#/components/schemas/SceneDetailResponse'
+    put:
+      tags:
+      - scene
+      summary: 修改场景元数据
+      security:
+      - bearerAuth: []
+        clientId: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SceneForm'
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptySuccess'
+      parameters:
+      - $ref: '#/components/parameters/SceneId'
+    delete:
+      tags:
+      - scene
+      summary: 删除场景
+      security:
+      - bearerAuth: []
+        clientId: []
+      parameters:
+      - $ref: '#/components/parameters/SceneId'
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptySuccess'
+  /operation/dim3d/scene/{sceneId}/copy:
+    post:
+      tags:
+      - scene
+      summary: 复制场景
+      security:
+      - bearerAuth: []
+        clientId: []
+      parameters:
+      - $ref: '#/components/parameters/SceneId'
+      responses:
+        '200':
+          $ref: '#/components/schemas/SceneDetailResponse'
+  /operation/dim3d/scene/{sceneId}/lock:
+    post:
+      tags:
+      - scene
+      summary: 获取编辑锁
+      security:
+      - bearerAuth: []
+        clientId: []
+      parameters:
+      - $ref: '#/components/parameters/SceneId'
+      - name: clientKey
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          $ref: '#/components/schemas/LockResponse'
+  /operation/dim3d/scene/{sceneId}/heartbeat:
+    post:
+      tags:
+      - scene
+      summary: 续租编辑锁
+      security:
+      - bearerAuth: []
+        clientId: []
+      parameters:
+      - $ref: '#/components/parameters/SceneId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HeartbeatRequest'
+      responses:
+        '200':
+          $ref: '#/components/schemas/LockResponse'
+  /operation/dim3d/scene/{sceneId}/unlock:
+    delete:
+      tags:
+      - scene
+      summary: 释放编辑锁
+      security:
+      - bearerAuth: []
+        clientId: []
+      parameters:
+      - $ref: '#/components/parameters/SceneId'
+      - name: clientKey
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptySuccess'
+  /operation/dim3d/scene/saveAll:
+    put:
+      tags:
+      - scene
+      summary: 原子保存场景四包
+      security:
+      - bearerAuth: []
+        clientId: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveAllRequest'
+      responses:
+        '200':
+          $ref: '#/components/schemas/SaveAllResponse'
+  /operation/dim3d/scenePreview/published/{publicationId}/sceneBasic:
+    get:
+      tags:
+      - preview
+      summary: 读取发布场景包
+      security: []
+      parameters: &id001
+      - $ref: '#/components/parameters/PublicationId'
+      - $ref: '#/components/parameters/PreviewTicket'
+      responses:
+        '200':
+          $ref: '#/components/schemas/PublishedPackageResponse'
+  /operation/dim3d/scenePreview/published/{publicationId}/threeD:
+    get:
+      tags:
+      - preview
+      summary: 读取发布三维包
+      security: []
+      parameters: *id001
+      responses:
+        '200':
+          $ref: '#/components/schemas/PublishedPackageResponse'
+  /operation/dim3d/scenePreview/published/{publicationId}/twoD:
+    get:
+      tags:
+      - preview
+      summary: 读取发布二维包
+      security: []
+      parameters: *id001
+      responses:
+        '200':
+          $ref: '#/components/schemas/PublishedPackageResponse'
+  /operation/dim3d/scenePreview/published/{publicationId}/dependenciesByinstances:
+    post:
+      tags:
+      - preview
+      summary: 批量读取发布实例依赖
+      security: []
+      parameters: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishedDependenciesRequest'
+      responses:
+        '200':
+          $ref: '#/components/schemas/PublishedDependenciesResponse'
+  /operation/dim3d/scenePreview/resolve:
+    get:
+      tags:
+      - preview
+      summary: 解析发布预览票据
+      security: []
+      parameters:
+      - name: sceneId
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: password
+        in: query
+        schema:
+          type: string
+          writeOnly: true
+      responses:
+        '200':
+          $ref: '#/components/schemas/PreviewResolveResponse'
+  /tenant/web/dim3d/scene/page:
+    get:
+      tags:
+      - scene
+      summary: 场景分页
+      security:
+      - bearerAuth: []
+        clientId: []
+      parameters: *id002
+  /tenant/web/dim3d/scene:
+    post:
+      tags:
+      - scene
+      summary: 新建场景
+      security:
+      - bearerAuth: []
+        clientId: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SceneForm'
+      responses:
+        '200':
+          $ref: '#/components/schemas/SceneDetailResponse'
+  /tenant/web/dim3d/scene/{sceneId}:
+    get:
+      tags:
+      - scene
+      summary: 场景详情
+      security:
+      - bearerAuth: []
+        clientId: []
+      parameters:
+      - $ref: '#/components/parameters/SceneId'
+      responses:
+        '200':
+          $ref: '#/components/schemas/SceneDetailResponse'
+    put:
+      tags:
+      - scene
+      summary: 修改场景元数据
+      security:
+      - bearerAuth: []
+        clientId: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SceneForm'
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptySuccess'
+      parameters:
+      - $ref: '#/components/parameters/SceneId'
+    delete:
+      tags:
+      - scene
+      summary: 删除场景
+      security:
+      - bearerAuth: []
+        clientId: []
+      parameters:
+      - $ref: '#/components/parameters/SceneId'
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptySuccess'
+  /tenant/web/dim3d/scene/{sceneId}/copy:
+    post:
+      tags:
+      - scene
+      summary: 复制场景
+      security:
+      - bearerAuth: []
+        clientId: []
+      parameters:
+      - $ref: '#/components/parameters/SceneId'
+      responses:
+        '200':
+          $ref: '#/components/schemas/SceneDetailResponse'
+  /tenant/web/dim3d/scene/{sceneId}/lock:
+    post:
+      tags:
+      - scene
+      summary: 获取编辑锁
+      security:
+      - bearerAuth: []
+        clientId: []
+      parameters:
+      - $ref: '#/components/parameters/SceneId'
+      - name: clientKey
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          $ref: '#/components/schemas/LockResponse'
+  /tenant/web/dim3d/scene/{sceneId}/heartbeat:
+    post:
+      tags:
+      - scene
+      summary: 续租编辑锁
+      security:
+      - bearerAuth: []
+        clientId: []
+      parameters:
+      - $ref: '#/components/parameters/SceneId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HeartbeatRequest'
+      responses:
+        '200':
+          $ref: '#/components/schemas/LockResponse'
+  /tenant/web/dim3d/scene/{sceneId}/unlock:
+    delete:
+      tags:
+      - scene
+      summary: 释放编辑锁
+      security:
+      - bearerAuth: []
+        clientId: []
+      parameters:
+      - $ref: '#/components/parameters/SceneId'
+      - name: clientKey
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptySuccess'
+  /tenant/web/dim3d/scene/saveAll:
+    put:
+      tags:
+      - scene
+      summary: 原子保存场景四包
+      security:
+      - bearerAuth: []
+        clientId: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveAllRequest'
+      responses:
+        '200':
+          $ref: '#/components/schemas/SaveAllResponse'
+  /tenant/web/dim3d/scenePreview/published/{publicationId}/sceneBasic:
+    get:
+      tags:
+      - preview
+      summary: 读取发布场景包
+      security: []
+      parameters: &id003
+      - $ref: '#/components/parameters/PublicationId'
+      - $ref: '#/components/parameters/PreviewTicket'
+      responses:
+        '200':
+          $ref: '#/components/schemas/PublishedPackageResponse'
+  /tenant/web/dim3d/scenePreview/published/{publicationId}/threeD:
+    get:
+      tags:
+      - preview
+      summary: 读取发布三维包
+      security: []
+      parameters: *id003
+      responses:
+        '200':
+          $ref: '#/components/schemas/PublishedPackageResponse'
+  /tenant/web/dim3d/scenePreview/published/{publicationId}/twoD:
+    get:
+      tags:
+      - preview
+      summary: 读取发布二维包
+      security: []
+      parameters: *id003
+      responses:
+        '200':
+          $ref: '#/components/schemas/PublishedPackageResponse'
+  /tenant/web/dim3d/scenePreview/published/{publicationId}/dependenciesByinstances:
+    post:
+      tags:
+      - preview
+      summary: 批量读取发布实例依赖
+      security: []
+      parameters: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishedDependenciesRequest'
+      responses:
+        '200':
+          $ref: '#/components/schemas/PublishedDependenciesResponse'
+  /tenant/web/dim3d/scenePreview/resolve:
+    get:
+      tags:
+      - preview
+      summary: 解析发布预览票据
+      security: []
+      parameters:
+      - name: sceneId
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: password
+        in: query
+        schema:
+          type: string
+          writeOnly: true
+      responses:
+        '200':
+          $ref: '#/components/schemas/PreviewResolveResponse'
+  /operation/tenant/dashboard/list:
+    get:
+      tags:
+      - base
+      security:
+      - bearerAuth: []
+        clientId: []
+      summary: 运营端可授权租户列表
+      description: 仅运营端使用；租户端不能通过该路径枚举平台租户。
+      parameters:
+      - name: searchValue
+        in: query
+        schema:
+          type: string
+      - name: companyName
+        in: query
+        schema:
+          type: string
+      - name: tenantType
+        in: query
+        schema:
+          type: string
+      - name: status
+        in: query
+        schema:
+          type: string
+      - name: pageNum
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: pageSize
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      responses:
+        '200':
+          description: 租户分页
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantPageResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+    clientId:
+      type: apiKey
+      in: header
+      name: ClientId
+  parameters:
+    SceneId:
+      name: sceneId
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9]+$
+    PublicationId:
+      name: publicationId
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9]+$
+    PreviewTicket:
+      name: ticket
+      in: query
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    DictType:
+      name: dictType
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[a-z0-9_]+$
+  responses:
+    LoginSuccess:
+      description: 登录成功
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LoginResponse'
+    ProfileSuccess:
+      description: 当前资料
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProfileResponse'
+    EmptySuccess:
+      description: 成功
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EmptyResponse'
+    Unauthorized:
+      description: 未认证或令牌失效
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: 已认证但无权限
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: 锁、书签或幂等冲突
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ValidationError:
+      description: 请求结构或四包校验失败
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  schemas:
+    Envelope:
+      type: object
+      required:
+      - code
+      - msg
+      - data
+      properties:
+        code:
+          type: integer
+          example: 200
+        msg:
+          type: string
+        data: {}
+    ErrorResponse:
+      allOf:
+      - $ref: '#/components/schemas/Envelope'
+      - type: object
+        properties:
+          data:
+            type: 'null'
+    EmptyResponse:
+      allOf:
+      - $ref: '#/components/schemas/Envelope'
+      - type: object
+        properties:
+          data:
+            type: 'null'
+    OperationLoginRequest:
+      type: object
+      required:
+      - clientId
+      - accountType
+      - phonenumber
+      - password
+      - grantType
+      additionalProperties: false
+      properties:
+        clientId:
+          type: string
+          minLength: 1
+        accountType:
+          type: integer
+          enum:
+          - 2
+        phonenumber:
+          type: string
+          pattern: ^1[3-9][0-9]{9}$
+        password:
+          type: string
+          format: password
+          minLength: 1
+        grantType:
+          type: string
+          enum:
+          - password
+    TenantLoginRequest:
+      allOf:
+      - $ref: '#/components/schemas/OperationLoginRequest'
+      - type: object
+        required:
+        - tenantCode
+        properties:
+          tenantCode:
+            type: string
+            minLength: 1
+            maxLength: 64
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._-]*$
+    RefreshRequest:
+      type: object
+      required:
+      - clientId
+      - refreshToken
+      - platformType
+      additionalProperties: false
+      properties:
+        clientId:
+          type: string
+          minLength: 1
+        refreshToken:
+          type: string
+          minLength: 1
+          writeOnly: true
+        platformType:
+          type: string
+          enum:
+          - operation
+          - tenant
+    LoginResponse:
+      allOf:
+      - $ref: '#/components/schemas/Envelope'
+      - type: object
+        properties:
+          data:
+            type: object
+            required:
+            - access_token
+            - client_id
+            - expire_in
+            properties:
+              access_token:
+                type: string
+                minLength: 1
+                writeOnly: true
+              client_id:
+                type: string
+                minLength: 1
+              expire_in:
+                type: integer
+                minimum: 1
+              refresh_token:
+                type: string
+                minLength: 1
+                writeOnly: true
+              refresh_expire_in:
+                type: integer
+                minimum: 1
+    ProfileResponse:
+      allOf:
+      - $ref: '#/components/schemas/Envelope'
+      - type: object
+        properties:
+          data:
+            type: object
+            required:
+            - user
+            - roles
+            - permissions
+            properties:
+              user:
+                type: object
+                required:
+                - userId
+                additionalProperties: true
+              roles:
+                type: array
+                items:
+                  type: string
+              permissions:
+                type: array
+                items:
+                  type: string
+    DictionaryResponse:
+      allOf:
+      - $ref: '#/components/schemas/Envelope'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              type: object
+              required:
+              - dictValue
+              - dictLabel
+              additionalProperties: true
+    TenantPageResponse:
+      allOf:
+      - $ref: '#/components/schemas/Envelope'
+      - type: object
+        properties:
+          data:
+            type: object
+            required:
+            - total
+            - rows
+            properties:
+              total:
+                type: integer
+                minimum: 0
+              rows:
+                type: array
+                items:
+                  type: object
+                  required:
+                  - tenantId
+                  properties:
+                    tenantId:
+                      type: string
+                    tenantCode:
+                      type: string
+                    companyName:
+                      type: string
+                    tenantType:
+                      type: string
+                    status:
+                      type: string
+    SceneForm:
+      type: object
+      required:
+      - name
+      - sceneType
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        sceneDesc:
+          type: string
+          maxLength: 500
+        sceneCategory:
+          type: string
+        ownerType:
+          type: string
+          enum:
+          - PLATFORM
+          - TENANT
+        sceneType:
+          type: string
+          enum:
+          - local3d
+          - gis
+        coverAssetId:
+          type: string
+    ScenePageResponse:
+      allOf:
+      - $ref: '#/components/schemas/Envelope'
+      - type: object
+        properties:
+          data:
+            type: object
+            required:
+            - total
+            - rows
+            properties:
+              total:
+                type: integer
+                minimum: 0
+              rows:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SceneRow'
+    SceneRow:
+      type: object
+      required:
+      - sceneId
+      - name
+      - sceneType
+      properties:
+        sceneId:
+          type: string
+        name:
+          type: string
+        sceneDesc:
+          type: string
+        sceneCategory:
+          type: string
+        sceneType:
+          type: string
+          enum:
+          - local3d
+          - gis
+        sceneKind:
+          type: string
+          enum:
+          - INSTANCE
+          - TEMPLATE
+        publishStatus:
+          type: integer
+          enum:
+          - 0
+          - 1
+        tenantId:
+          type: string
+        publishedPublicationId:
+          type: string
+        updateTime:
+          type: string
+          format: date-time
+    SceneDetailResponse:
+      allOf:
+      - $ref: '#/components/schemas/Envelope'
+      - type: object
+        properties:
+          data:
+            allOf:
+            - $ref: '#/components/schemas/SceneRow'
+            - type: object
+              properties:
+                currentRevision:
+                  $ref: '#/components/schemas/Revision'
+                publishedRevision:
+                  $ref: '#/components/schemas/Revision'
+    Revision:
+      type: object
+      required:
+      - revisionId
+      - sceneId
+      - revisionNo
+      - schemaVersion
+      - sceneJson
+      - threeDJson
+      - twoDJson
+      - dependenciesJson
+      properties:
+        revisionId:
+          type: string
+        sceneId:
+          type: string
+        revisionNo:
+          type: integer
+          minimum: 0
+        schemaVersion:
+          type: integer
+          minimum: 1
+        sceneJson:
+          type: string
+          minLength: 2
+        threeDJson:
+          type: string
+          minLength: 2
+        twoDJson:
+          type: string
+          minLength: 2
+        dependenciesJson:
+          type: string
+          minLength: 2
+        contentHash:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+        baseRevisionNo:
+          type: integer
+          minimum: 0
+        changeSummary:
+          type: string
+    LockResponse:
+      allOf:
+      - $ref: '#/components/schemas/Envelope'
+      - type: object
+        properties:
+          data:
+            type: object
+            properties:
+              sceneId:
+                type: string
+              lockToken:
+                type: string
+                writeOnly: true
+              baseRevisionNo:
+                type: integer
+                minimum: 0
+              expireTime:
+                type: string
+                format: date-time
+              locked:
+                type: boolean
+              lockedMap:
+                type: object
+                additionalProperties:
+                  type: boolean
+    HeartbeatRequest:
+      type: object
+      required:
+      - lockToken
+      additionalProperties: false
+      properties:
+        lockToken:
+          type: string
+          minLength: 1
+          writeOnly: true
+    SaveAllRequest:
+      type: object
+      required:
+      - sceneId
+      - lockToken
+      - sceneJson
+      - threeDJson
+      - twoDJson
+      - dependenciesJson
+      additionalProperties: false
+      properties:
+        sceneId:
+          type: string
+          pattern: ^[0-9]+$
+        lockToken:
+          type: string
+          minLength: 1
+          writeOnly: true
+        requestId:
+          type: string
+          format: uuid
+        baseRevisionNo:
+          type: integer
+          minimum: 0
+        schemaVersion:
+          type: integer
+          minimum: 1
+          default: 1
+        sceneJson:
+          type: string
+          minLength: 2
+        threeDJson:
+          type: string
+          minLength: 2
+        twoDJson:
+          type: string
+          minLength: 2
+        dependenciesJson:
+          type: string
+          minLength: 2
+        changeSummary:
+          type: string
+          maxLength: 500
+    SaveAllResponse:
+      allOf:
+      - $ref: '#/components/schemas/Envelope'
+      - type: object
+        properties:
+          data:
+            type: object
+            required:
+            - sceneId
+            - revisionId
+            - revisionNo
+            - lockVersion
+            - savedTime
+            - conflict
+            properties:
+              sceneId:
+                type: string
+              revisionId:
+                type: string
+              revisionNo:
+                type: integer
+                minimum: 0
+              lockVersion:
+                type: integer
+                minimum: 0
+              savedTime:
+                type: string
+                format: date-time
+              conflict:
+                type: boolean
+              conflictRevisionNo:
+                type: integer
+                minimum: 0
+    PreviewResolveResponse:
+      allOf:
+      - $ref: '#/components/schemas/Envelope'
+      - type: object
+        properties:
+          data:
+            type: object
+            required:
+            - publicationId
+            - accessMode
+            - ticket
+            - expiresAt
+            properties:
+              publicationId:
+                type: string
+              sceneId:
+                type: string
+              accessMode:
+                type: string
+                enum:
+                - PERSONAL
+                - ENTERPRISE
+                - PUBLIC_ENCRYPT
+                - PUBLIC_SHARE
+              ticket:
+                type: string
+                writeOnly: true
+              expiresAt:
+                type: string
+                format: date-time
+              needPassword:
+                type: boolean
+    PublishedPackageResponse:
+      allOf:
+      - $ref: '#/components/schemas/Envelope'
+      - type: object
+        properties:
+          data:
+            type: object
+            required:
+            - publicationId
+            - sceneId
+            - contentJson
+            properties:
+              publicationId:
+                type: string
+              sceneId:
+                type: string
+              sceneType:
+                type: string
+                enum:
+                - local3d
+                - gis
+              contentJson:
+                type: string
+                minLength: 2
+              contentHash:
+                type: string
+                pattern: ^[0-9a-f]{64}$
+    PublishedDependenciesResponse:
+      allOf:
+      - $ref: '#/components/schemas/Envelope'
+      - type: object
+        properties:
+          data:
+            type: object
+            required:
+            - publicationId
+            - items
+            properties:
+              publicationId:
+                type: string
+              items:
+                type: array
+                items:
+                  type: object
+    PublishedDependenciesRequest:
+      type: array
+      maxItems: 100
+      items:
+        type: string

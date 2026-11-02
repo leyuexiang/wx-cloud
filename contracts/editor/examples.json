@@ -1,0 +1,78 @@
+{
+  "status": "frozen",
+  "task": "M0-03",
+  "notes": [
+    "示例只用于字段和错误合同，禁止填入真实密码、令牌、签名地址或生产 clientId。",
+    "租户编码由用户确认，实际字段来源和唯一性需在实现前登记。",
+    "应用 clientId 是部署配置，不写入版本库示例。"
+  ],
+  "tenantLogin": {
+    "request": {
+      "clientId": "tenant-client-id",
+      "tenantCode": "tenant-demo",
+      "accountType": 2,
+      "phonenumber": "13800000000",
+      "password": "<runtime-secret>",
+      "grantType": "password"
+    },
+    "response": {
+      "code": 200,
+      "msg": "登录成功",
+      "data": {
+        "access_token": "<runtime-access-token>",
+        "client_id": "tenant-client-id",
+        "expire_in": 1800,
+        "refresh_token": "<runtime-refresh-token>",
+        "refresh_expire_in": 604800
+      }
+    }
+  },
+  "saveAll": {
+    "request": {
+      "sceneId": "100001",
+      "lockToken": "<runtime-lock-token>",
+      "requestId": "0f3b6a4d-90b9-4a10-9ca4-cb472a970b50",
+      "baseRevisionNo": 1,
+      "schemaVersion": 1,
+      "sceneJson": "{\"schemaVersion\":1,\"name\":\"示例场景\",\"sceneType\":\"local3d\",\"domainSlots\":{\"twoD\":\"present\",\"threeD\":\"present\"}}",
+      "threeDJson": "{\"baseConfig\":{},\"objects\":[],\"components\":[],\"layers\":[]}",
+      "twoDJson": "{\"canvas\":{\"width\":1920,\"height\":1080},\"components\":[],\"layerTree\":[]}",
+      "dependenciesJson": "{\"resources\":[],\"dataBindings\":[],\"behaviors\":[],\"deviceBindings\":[]}",
+      "changeSummary": "示例保存"
+    },
+    "response": {
+      "code": 200,
+      "msg": "保存成功",
+      "data": {
+        "sceneId": "100001",
+        "revisionId": "200001",
+        "revisionNo": 2,
+        "lockVersion": 3,
+        "savedTime": "2026-10-31T12:00:00+08:00",
+        "conflict": false
+      }
+    }
+  },
+  "errors": {
+    "unauthorized": {
+      "code": 401,
+      "msg": "登录状态已失效，请重新登录",
+      "data": null
+    },
+    "forbidden": {
+      "code": 403,
+      "msg": "无权访问该资源",
+      "data": null
+    },
+    "conflict": {
+      "code": 409,
+      "msg": "场景已被其他编辑会话修改",
+      "data": null
+    },
+    "validation": {
+      "code": 422,
+      "msg": "请求数据校验失败",
+      "data": null
+    }
+  }
+}
