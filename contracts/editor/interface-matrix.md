@@ -30,7 +30,7 @@
 | AUTH-04 | GET `/api/tenant/profile/getInfo` | F01 租户资料链路 | A；接受租户 `userName` 投影为 `nickName` | 复用资料/权限服务，但必须校验真实租户及平台 | 适配/系统 |
 | AUTH-05 | POST `/api/auth/logout` | F01；`utils/auth.ts` 活跃 | A、正文 `{}` → `data:null` | B01 `/logout` 返回布尔值；新接口应明确当前应用/会话的撤销语义 | 适配/系统 |
 | AUTH-06 | POST `/api/auth/refresh` | F01；`request.ts` 配置开关控制 | `clientId,refreshToken,platformType`；秒单位轮换字段 | 既有 `/refresh-token?refreshToken=...` 和令牌服务可复用部分逻辑，但轮换链/摘要及重放撤销没有证据满足新合同；默认开关关闭 | 适配并补规则/系统，启用另验 |
-| BASE-01 | GET `/api/system/dict/data/type/{dictType}` | F03；管理页/场景/资源面板活跃 | A → `dictCode,dictLabel,dictValue,dictType` 数组 | B02 `/admin-api/system/dict-data` 已有字典服务，字段主要为 `id,label,value,dictType`；需要按类型过滤、字段映射和基础数据 | 适配/系统 |
+| BASE-01 | GET `/api/system/dict/data/type/{dictType}` | 当前 `jtyf-web-three` 字典适配器；管理页/场景/资源面板活跃，跳过平台改写 | A → `dictCode,dictLabel,dictValue,dictType` 数组 | M1-02 补充精确网关改写及系统读取适配，复用 B02 字典服务；主键字符串化，过滤启用项；实际分类值仍需业务配置 | 适配/系统；验证及部署状态见 03 |
 | BASE-02 | GET `P/tenant/dashboard/list` | F04；`views/SceneManage/index.vue` 授权选择 | A；筛选、分页 → `rows,total` | B03 `/admin-api/system/tenant/page` 可复用部分租户查询，字段/筛选不同；普通租户可见范围必须先冻结 | 适配/系统 |
 
 BASE-01 涉及模型、图片、场景、访问模式、行业模板和展厅模板六类字典。业务值尚未冻结，不补造完整分类库。认证成功不等于允许全局资源维护。

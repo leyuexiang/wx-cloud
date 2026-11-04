@@ -91,7 +91,15 @@ for service, (module, port) in MODULES.items():
     config["wx"] = config.get("wx", {})
     config["wx"].pop("env", None)
     if service == "gateway":
-        routes = []
+        # 当前前端字典跳过平台段；仅改写这个只读入口，复用系统服务登录与租户校验。
+        routes = [{
+            "id": "system-dictionary-test148",
+            "uri": f"http://127.0.0.1:{MODULES['system'][1]}",
+            "predicates": ["Path=/api/system/dict/data/type/{dictType}"],
+            "filters": ["RemoveRequestHeader=x-bot-user",
+                        # 保留替换组转义，避免配置绑定阶段误读成环境变量。
+                        r"RewritePath=/api/system/dict/data/type/(?<dictType>[^/]+), /admin-api/system/dict/data/type/$\{dictType}"],
+        }]
         for name in ("system", "infra", "dimensions"):
             upstream = MODULES[name][1]
             routes.append({

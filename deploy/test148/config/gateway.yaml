@@ -24,6 +24,14 @@ spring:
             - uri: http://127.0.0.1:48192
     gateway:
       routes:
+      # 前端公共字典只读路径转发到现有管理端认证链，不开放整个系统接口前缀。
+      - id: system-dictionary-test148
+        uri: http://127.0.0.1:48181
+        predicates:
+        - Path=/api/system/dict/data/type/{dictType}
+        filters:
+        - RemoveRequestHeader=x-bot-user
+        - RewritePath=/api/system/dict/data/type/(?<dictType>[^/]+), /admin-api/system/dict/data/type/$\{dictType}
       - id: system-test148
         uri: http://127.0.0.1:48181
         predicates:
