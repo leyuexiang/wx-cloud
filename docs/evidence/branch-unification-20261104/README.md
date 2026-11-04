@@ -19,3 +19,5 @@ python -m unittest discover -s deploy/test148 -p test_*.py
 用户本轮拉取的 main 三个提交均已包含在 dev 祖先历史。主目录 E:/Products/3D-editor/Server/jtyf-cloud 使用 dev，原 jtyf-cloud-scene148 工作树使用同一提交的 master。main 保留其已拉取提交。分支整合仅在本地完成，远端推送与服务器部署另行进行。
 
 全工程离线编译执行 mvn -o -DskipTests compile -q，在既有 wx-module-2.5d 依赖 com.google.code:kaptcha:2.3.2 缺失处停止。华为和阿里既有仓库的该依赖地址返回 404，该模块源码及依赖与 main 相同。本次核心模块编译和上述回归通过，2.5D 全工程编译仍待补齐实际依赖。
+
+2026-11-04补充，按用户全部统一的要求，本地 main 也快进至统一版本。main、master、dev 的当前代码一致。合并前的 main 另存于 codex/backup-main-before-unify-20261104，早前“main 保留其已拉取提交”的表述仅适用于前一步操作。远端分支仍保持推送前状态。
