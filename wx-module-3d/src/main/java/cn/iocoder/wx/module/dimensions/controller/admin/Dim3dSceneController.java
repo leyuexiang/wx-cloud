@@ -1,0 +1,40 @@
+package cn.iocoder.wx.module.dimensions.controller.admin;
+
+import cn.iocoder.wx.framework.common.pojo.CommonResult;
+import cn.iocoder.wx.module.dimensions.service.Dim3dSceneService;
+import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.annotation.Resource;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import java.util.Map;
+
+/** 新编辑器的场景身份、四包修订和租约入口；保留旧工程接口供原消费者使用。 */
+@RestController
+@RequestMapping("/dim3d/scene")
+public class Dim3dSceneController {
+    @Resource private Dim3dSceneService service;
+
+    @GetMapping("/page")
+    public CommonResult<Map<String, Object>> page(String sceneName, String sceneType, String sceneCategory, String sceneKind, Integer publishStatus, String tenantId,
+            @RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize) {
+        return CommonResult.success(service.page(sceneName, sceneType, sceneCategory, sceneKind, publishStatus, tenantId, pageNum, pageSize));
+    }
+    @GetMapping("/info/{id}")
+    public CommonResult<Map<String, Object>> info(@PathVariable String id) { return CommonResult.success(service.info(id)); }
+
+    // 复用已部署的平台/租户管理员角色；普通查看者只能查询本租户，不能保存或取得编辑租约。
+    @PostMapping("/add") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Map<String, Object>> add(@RequestBody JsonNode body) { return CommonResult.success(service.create(body)); }
+    @PutMapping("/edit/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Boolean> edit(@PathVariable String id, @RequestBody JsonNode body) { service.edit(id, body); return CommonResult.success(true); }
+    @DeleteMapping("/remove/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Boolean> remove(@PathVariable String id) { service.remove(id); return CommonResult.success(true); }
+    @PostMapping("/lock/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Map<String, Object>> lock(@PathVariable String id, @RequestParam String clientKey) { return CommonResult.success(service.lock(id, clientKey)); }
+    @PostMapping("/heartbeat/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Map<String, Object>> heartbeat(@PathVariable String id, @RequestBody JsonNode body) { return CommonResult.success(service.heartbeat(id, body)); }
+    @DeleteMapping("/unlock/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Boolean> unlock(@PathVariable String id, @RequestParam String clientKey) { service.unlock(id, clientKey); return CommonResult.success(true); }
+    @PutMapping("/saveAll") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Map<String, Object>> save(@RequestBody JsonNode body) { return CommonResult.success(service.save(body)); }
+}
