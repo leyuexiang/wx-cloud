@@ -145,15 +145,71 @@ public class ArtResourceTransactionService {
             jdbc.update("UPDATE wx_dim3d_resource SET del_flag='1',current_revision=?,current_operation_id=?,update_by=? WHERE id=?",revision+1,operation,actor.user(),resource.get("id"));
             for(String table:DIRECTORIES)jdbc.update("UPDATE "+table+" SET del_flag='1',status='OFFLINE' WHERE resource_id=? AND tenant_id=?",resource.get("id"),resource.get("tenant_id"));
         }else{
-            jdbc.update("UPDATE wx_dim3d_resource SET storage_prefix=?,manifest_path=?,manifest_sha256=?,content_hash=?,content_format=?,platform=?,app_compatibility=?,content_state='READY',del_flag='0',current_revision=?,current_operation_id=?,update_by=? WHERE id=?",
-                pointer.get("storage_prefix"),pointer.get("manifest_path"),pointer.get("manifest_sha256"),pointer.get("content_hash"),pointer.get("content_format"),pointer.get("platform"),pointer.get("app_compatibility"),revision+1,operation,actor.user(),resource.get("id"));
+            writePointer(resource.get("id"),operation,actor.user(),revision+1,pointer);
             if(type.equals("RESTORE")&&pointer.get("directories") instanceof JsonNode directories)for(String table:DIRECTORIES)for(JsonNode row:directories.path(table))
                 jdbc.update("UPDATE "+table+" SET del_flag=?,status=? WHERE id=? AND resource_id=? AND tenant_id=?",row.path("del_flag").asText(),row.path("status").asText(),row.path("id").asText(),resource.get("id"),resource.get("tenant_id"));
         }
-        var after=jdbc.queryForMap("SELECT * FROM wx_dim3d_resource WHERE id=?",resource.get("id"));
-        // 数据库事务同时写成功回执，响应丢失后查询原操作不会重复递增修订。
-        jdbc.update("UPDATE wx_dim3d_resource_operation SET status='COMMITTED',committed_revision=?,before_snapshot=?,after_snapshot=?,error_code=NULL WHERE id=?",revision+1,write(before),write(snapshot(after)),operation);
+        writeReceipt(resource.get("id"),operation,revision+1,before);
         return true;
+    }
+    /** 由模型执行器在持有资源、操作及导入任务锁的事务中调用。 */
+    boolean commitModel(Map<String,Object> resource,Map<String,Object> op,ModelImportPublication.Ready ready,JsonNode directory) {
+        if(!org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive())
+            throw new IllegalStateException("模型发布必须在受控事务中执行");
+        String type=(String)op.get("operation_type");
+        if(!Set.of("CREATE","REPLACE").contains(type) || !"UPLOADING".equals(op.get("status")) ||
+                !Objects.equals(resource.get("id"),op.get("resource_id")) ||
+                !Objects.equals(resource.get("tenant_id"),op.get("tenant_id")) ||
+                !Objects.equals(resource.get("resource_scope"),op.get("resource_scope")) ||
+                !"WEB_UPLOAD".equals(resource.get("upload_source")) || !"MODEL".equals(resource.get("resource_type")) ||
+                !"0".equals(resource.get("del_flag")))throw ServiceException.of(INVALID_OPERATION_STATE);
+        String operation=(String)op.get("id");
+        Object resourceId=resource.get("id");
+        long revision=((Number)resource.get("current_revision")).longValue();
+        if(revision!=((Number)op.get("expected_revision")).longValue() || revision==Long.MAX_VALUE) {
+            jdbc.update("UPDATE wx_dim3d_resource_operation SET status='CONFLICT',error_code=? WHERE id=?",
+                    String.valueOf(REVISION_CONFLICT.getCode()),operation);
+            return false;
+        }
+        boolean creating="CREATE".equals(type);
+        if(!(creating?"PENDING":"READY").equals(resource.get("content_state")))throw ServiceException.of(INVALID_OPERATION_STATE);
+        var linked=jdbc.queryForList("SELECT id,tenant_id FROM wx_dim3d_model WHERE resource_id=? AND del_flag='0' FOR UPDATE",resourceId);
+        Object owner=resource.get("tenant_id");
+        if(creating?!linked.isEmpty():linked.size()!=1 || !Objects.equals(owner,linked.get(0).get("tenant_id")))
+            throw ServiceException.of(INVALID_OPERATION_STATE);
+        var before=snapshot(resource);
+        long operator=((Number)op.get("operator_id")).longValue();
+        String name=directory.path("modelName").asText(),category=directory.path("category").asText();
+        String description=directory.path("modelDesc").asText(null);
+        if(creating) {
+            // 目录的主键单独生成，受管模型通过资源主键关联，旧文件编号为空。
+            jdbc.update("INSERT INTO wx_dim3d_model(resource_id,model_file_id,tenant_id,model_name,category,model_desc,resource_belong,is_paid,status,data_user_id,create_by,update_by) VALUES(?,NULL,?,?,?,?,?,'FREE','ONLINE',?,?,?)",
+                    resourceId,owner,name,category,description,"GLOBAL_SYSTEM".equals(resource.get("resource_scope"))?"SYSTEM":"MINE",operator,operator,operator);
+        } else {
+            jdbc.update("UPDATE wx_dim3d_model SET model_name=?,category=?,model_desc=?,update_by=? WHERE id=?",
+                    name,category,description,operator,linked.get(0).get("id"));
+        }
+        var checked=ready.manifest();
+        writePointer(resourceId,operation,operator,revision+1,Map.of("storage_prefix",ready.prefix(),
+                "manifest_path",ready.manifestPath(),"manifest_sha256",checked.manifestSha256(),
+                "content_hash",checked.contentHash(),"content_format",checked.contentFormat(),
+                "platform","WebGL","app_compatibility",checked.compatibility()));
+        writeReceipt(resourceId,operation,revision+1,before);
+        return true;
+    }
+
+    private void writePointer(Object resourceId,String operation,long operator,long revision,Map<String,Object> pointer) {
+        jdbc.update("UPDATE wx_dim3d_resource SET storage_prefix=?,manifest_path=?,manifest_sha256=?,content_hash=?,content_format=?,platform=?,app_compatibility=?,content_state='READY',del_flag='0',current_revision=?,current_operation_id=?,update_by=? WHERE id=?",
+                pointer.get("storage_prefix"),pointer.get("manifest_path"),pointer.get("manifest_sha256"),
+                pointer.get("content_hash"),pointer.get("content_format"),pointer.get("platform"),pointer.get("app_compatibility"),
+                revision,operation,operator,resourceId);
+    }
+
+    private void writeReceipt(Object resourceId,String operation,long revision,ObjectNode before) {
+        var after=jdbc.queryForMap("SELECT * FROM wx_dim3d_resource WHERE id=?",resourceId);
+        // 快照和成功回执与当前指针同事务，响应丢失后重读操作即可。
+        jdbc.update("UPDATE wx_dim3d_resource_operation SET status='COMMITTED',committed_revision=?,before_snapshot=?,after_snapshot=?,error_code=NULL WHERE id=?",
+                revision,write(before),write(snapshot(after)),operation);
     }
     private ObjectNode snapshot(Map<String,Object> resource){
         ObjectNode root=json.createObjectNode(),entry=json.createObjectNode(),dirs=json.createObjectNode();
@@ -163,7 +219,10 @@ public class ArtResourceTransactionService {
     }
     private Map<String,Object> operation(String id,ArtResourceAccess.Actor actor,boolean lock){
         var rows=jdbc.queryForList("SELECT * FROM wx_dim3d_resource_operation WHERE id=? AND operator_id=? AND "+VISIBLE+(lock?" FOR UPDATE":""),id,actor.user(),Long.toString(actor.tenant()));
-        if(rows.isEmpty())throw ServiceException.of(NOT_VISIBLE);var row=rows.get(0);access.maintain(actor,(String)row.get("resource_scope"),(String)row.get("tenant_id"));Map<String,Object> normalized=new HashMap<>();row.forEach((key,value)->normalized.put(key.toLowerCase(Locale.ROOT),value));return normalized;
+        if(rows.isEmpty())throw ServiceException.of(NOT_VISIBLE);var row=rows.get(0);access.maintain(actor,(String)row.get("resource_scope"),(String)row.get("tenant_id"));Map<String,Object> normalized=new HashMap<>();row.forEach((key,value)->normalized.put(key.toLowerCase(Locale.ROOT),value));
+        // 原始模型必须经导入编排发布，旧热更接口不能为其固定文件计划或提交热更包。
+        if(state(normalized).path("modelImport").asBoolean(false))throw ServiceException.of(INVALID_OPERATION_STATE);
+        return normalized;
     }
     private static String staging(Map<String,Object> op){return "resources/staging/"+op.get("resource_scope")+"/"+op.get("tenant_id")+"/"+op.get("resource_id")+"/"+op.get("id")+"/";}
     private ObjectNode state(Map<String,Object> op){return op.get("candidate_descriptor")==null?json.createObjectNode():(ObjectNode)parse(op.get("candidate_descriptor"));}

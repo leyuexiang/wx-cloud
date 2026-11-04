@@ -71,6 +71,15 @@ public class ArtResourceObjectStore {
                 throw ServiceException.of(INVALID_CLOSURE);
         }catch(ServiceException ex){throw ex;}catch(Exception ex){throw ServiceException.of(OBJECT_MISSING);}
     }
+    /** 原ZIP冻结后检查基础魔数；完整解压安全和模型文件集仍由转换及产物校验负责。 */
+    public void verifyZipHeader(String prefix,String path) {
+        try(InputStream input=open(objectKey(prefix,path))) {
+            byte[] magic=input.readNBytes(4);
+            if(magic.length!=4 || magic[0]!=0x50 || magic[1]!=0x4b ||
+                    !((magic[2]==3 && magic[3]==4) || (magic[2]==5 && magic[3]==6) || (magic[2]==7 && magic[3]==8)))
+                throw ServiceException.of(INVALID_CLOSURE);
+        }catch(ServiceException ex){throw ex;}catch(Exception ex){throw ServiceException.of(OBJECT_MISSING);}
+    }
     public void verifyObject(String object, ArtResourceManifestVerifier.FileSpec file) {
         try {
             if (size(object) != file.size()) throw ServiceException.of(CHECKSUM_MISMATCH);

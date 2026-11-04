@@ -25,6 +25,7 @@ public class ArtResourceService {
     @Resource private ArtResourceDownloadSigner signer;
     @Resource private ArtResourceObjectStore store;
     @Resource private ArtResourceManifestVerifier verifier;
+    @Resource private ModelResourceManifestVerifier modelVerifier;
     @Resource private ObjectMapper json;
     @Resource private PlatformTransactionManager transactions;
     private static final String VISIBLE = " ((resource_scope='GLOBAL_SYSTEM' AND tenant_id='0') OR (resource_scope='TENANT_SHARED' AND tenant_id=?)) ";
@@ -76,20 +77,49 @@ public class ArtResourceService {
             !contentHash.equals(snapshot.path("content_hash").asText()) || !"READY".equals(snapshot.path("content_state").asText()) ||
             !"0".equals(snapshot.path("del_flag").asText())) throw ServiceException.of(SNAPSHOT_UNAVAILABLE);
         String prefix=snapshot.path("storage_prefix").asText(), manifest=snapshot.path("manifest_path").asText();
-        var checked=verifier.verify(store.readManifest(prefix,manifest),id,snapshot.path("manifest_sha256").asText(),manifest);
-        if(!contentHash.equals(checked.contentHash())) throw ServiceException.of(CHECKSUM_MISMATCH);
-        if(!path.equals(manifest) && checked.files().stream().noneMatch(file->file.path().equals(path)))
+        var files=verifiedSnapshotFiles(snapshot,id,contentHash,prefix,manifest);
+        if(!path.equals(manifest) && files.stream().noneMatch(file->file.path().equals(path)))
             throw ServiceException.of(NOT_VISIBLE);
         var signed=signer.sign(prefix,path);
         return Map.of("fileUrl",signed.get("manifestUrl"),"downloadExpiresAt",signed.get("downloadExpiresAt"));
     }
+    private List<ArtResourceManifestVerifier.FileSpec> verifiedSnapshotFiles(
+            JsonNode snapshot,String id,String contentHash,String prefix,String manifest) {
+        // 必须从请求的修订判断格式，资源当前指针可能已被替换。旧快照沿用热更验证。
+        String format=snapshot.path("content_format").asText("unity.assetbundle.v1");
+        String digest=snapshot.path("manifest_sha256").asText();
+        switch(format) {
+            case "unity.assetbundle.v1" -> {
+                var checked=verifier.verify(store.readManifest(prefix,manifest),id,digest,manifest);
+                if(!contentHash.equals(checked.contentHash()))throw ServiceException.of(CHECKSUM_MISMATCH);
+                return checked.files();
+            }
+            case "model.gltf.v1", "model.glb.v1" -> {
+                var checked=modelVerifier.verify(store.readManifest(prefix,manifest),id,digest,manifest);
+                if(!contentHash.equals(checked.contentHash()) || !format.equals(checked.contentFormat()) ||
+                        !"WebGL".equals(snapshot.path("platform").asText()) ||
+                        !checked.compatibility().equals(snapshot.path("app_compatibility").asText()))
+                    throw ServiceException.of(CHECKSUM_MISMATCH);
+                return checked.files();
+            }
+            default -> throw ServiceException.of(INVALID_CLOSURE);
+        }
+    }
     public Map<String,Object> create(JsonNode body) {
+        return create(body,false);
+    }
+    /** 模型导入复用既有权限、身份及事务；标记由服务端决定，客户端不得声明。 */
+    public Map<String,Object> createModelImport(JsonNode body) {
+        return create(body,true);
+    }
+    private Map<String,Object> create(JsonNode body,boolean modelImport) {
         var actor=access.actor();
         String operation=text(body,"operationId",36);
         if(!operation.matches("[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}")) bad();
         String type=text(body,"operationType",16);
         if(!Set.of("CREATE","REPLACE","DELETE","RESTORE").contains(type)) bad();
         boolean creating=type.equals("CREATE");
+        if(modelImport && !Set.of("CREATE","REPLACE").contains(type)) bad();
         fields(body,creating?Set.of("operationId","operationType","resourceScope","metadata"):
             type.equals("RESTORE")?Set.of("operationId","operationType","resourceId","expectedRevision","snapshotOperationId"):
             Set.of("operationId","operationType","resourceId","expectedRevision"));
@@ -108,7 +138,7 @@ public class ArtResourceService {
         // 并发同号插入失败后先回滚，再查询原操作，避免在已标记回滚的事务中继续写入。
         try { return new TransactionTemplate(transactions).execute(status -> {
             var existing=operationRows(operation,actor);
-            if(!existing.isEmpty()) return replay(existing.get(0),actor,hash);
+            if(!existing.isEmpty()) return replayMode(existing.get(0),actor,hash,modelImport);
             long resource; String scope,owner; long expected=0;
             if(creating) {
                 resource=IdWorker.getId(); scope=body.get("resourceScope").asText();
@@ -118,6 +148,8 @@ public class ArtResourceService {
                     resource,m.get("resourceName").asText(),m.get("resourceType").asText(),m.get("assetName").asText(),"",scope,owner,actor.user());
             } else {
                 var row=visible(body.get("resourceId").asText(),actor,type.equals("RESTORE"));
+                if(!modelImport && type.equals("REPLACE") && "WEB_UPLOAD".equals(row.get("upload_source")))
+                    throw ServiceException.of(INVALID_OPERATION_STATE);
                 scope=(String)row.get("resource_scope"); owner=(String)row.get("tenant_id");
                 access.maintain(actor,scope,owner);
                 if(!"READY".equals(row.get("content_state"))) throw ServiceException.of(LEGACY_UNCLASSIFIED);
@@ -127,15 +159,21 @@ public class ArtResourceService {
                     throw ServiceException.of(SNAPSHOT_UNAVAILABLE);
             }
             String prefix="resources/"+scope+"/"+owner+"/"+resource+"/operations/"+operation+"/";
+            if(modelImport) {
+                // 来源一经确定不能跨来源替换；旧未分类资源不能由导入入口自动认领。
+                if(creating) jdbc.update("UPDATE wx_dim3d_resource SET upload_source='WEB_UPLOAD' WHERE id=?",resource);
+                else if(jdbc.queryForObject("SELECT COUNT(*) FROM wx_dim3d_resource WHERE id=? AND upload_source='WEB_UPLOAD'",Long.class,resource)!=1)
+                    throw ServiceException.of(LEGACY_UNCLASSIFIED);
+            }
             jdbc.update("INSERT INTO wx_dim3d_resource_operation(id,resource_id,operation_type,resource_scope,tenant_id,operator_id,request_hash,expected_revision,storage_prefix,candidate_descriptor,expires_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
                 operation,resource,type,scope,owner,actor.user(),hash,expected,prefix,
-                type.equals("RESTORE")?"{\"snapshotOperationId\":\""+body.get("snapshotOperationId").asText()+"\"}":null,
+                modelImport?"{\"modelImport\":true}":type.equals("RESTORE")?"{\"snapshotOperationId\":\""+body.get("snapshotOperationId").asText()+"\"}":null,
                 Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC).plusHours(1)));
             return view(operationRows(operation,actor).get(0));
         }); } catch(DuplicateKeyException ex) {
             var rows=operationRows(operation,actor);
             if(rows.isEmpty()) throw ServiceException.of(NOT_VISIBLE);
-            return replay(rows.get(0),actor,hash);
+            return replayMode(rows.get(0),actor,hash,modelImport);
         }
     }
     public Map<String,Object> operation(String operation) {
@@ -157,7 +195,18 @@ public class ArtResourceService {
     }
     private List<Map<String,Object>> operationRows(String operation,ArtResourceAccess.Actor actor) {
         // 参数绑定防止操作编号成为SQL；返回内容只经操作者和范围复核后投影。
-        return jdbc.queryForList("SELECT id,resource_id,operation_type,resource_scope,tenant_id,operator_id,request_hash,expected_revision,committed_revision,status,expires_at,error_code FROM wx_dim3d_resource_operation WHERE id=? AND operator_id=? AND "+VISIBLE,operation,actor.user(),Long.toString(actor.tenant()));
+        return jdbc.queryForList("SELECT id,resource_id,operation_type,resource_scope,tenant_id,operator_id,request_hash,expected_revision,committed_revision,status,expires_at,error_code,candidate_descriptor FROM wx_dim3d_resource_operation WHERE id=? AND operator_id=? AND "+VISIBLE,operation,actor.user(),Long.toString(actor.tenant()));
+    }
+    private Map<String,Object> replayMode(Map<String,Object> row,ArtResourceAccess.Actor actor,String hash,boolean modelImport) {
+        var result=replay(row,actor,hash);
+        Object stored=row.get("candidate_descriptor");boolean marked=false;
+        if(stored!=null) try {
+            String text=stored instanceof java.sql.Clob c?c.getSubString(1,Math.toIntExact(c.length())):
+                stored instanceof byte[] bytes?new String(bytes,StandardCharsets.UTF_8):stored.toString();
+            marked=json.readTree(text).path("modelImport").asBoolean(false);
+        }catch(Exception ex){throw ServiceException.of(INVALID_CLOSURE);}
+        if(marked!=modelImport) throw ServiceException.of(IDEMPOTENCY_CONFLICT);
+        return result;
     }
     private void authorize(Map<String,Object> row,ArtResourceAccess.Actor actor) {
         if(((Number)row.get("operator_id")).longValue()!=actor.user()) throw ServiceException.of(NOT_VISIBLE);

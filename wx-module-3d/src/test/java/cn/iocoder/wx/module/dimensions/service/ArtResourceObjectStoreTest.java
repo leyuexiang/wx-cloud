@@ -8,6 +8,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** 在存储边界模拟校验后的改写；失败不得覆盖旧对象或允许提交未验证内容。 */
 class ArtResourceObjectStoreTest {
+    @Test void frozenSourceMustHaveCompleteZipMagic() {
+        Store store=new Store();
+        for(byte[] bytes:List.of(new byte[]{80,75,3,4},new byte[]{80,75,5,6},new byte[]{80,75,7,8})) {
+            store.bytes.put(SOURCE+"source.zip",bytes);assertDoesNotThrow(()->store.verifyZipHeader(SOURCE,"source.zip"));
+        }
+        for(byte[] bytes:List.of(new byte[]{80,75,3},new byte[]{80,75,3,0},new byte[]{0,0,0,0})) {
+            store.bytes.put(SOURCE+"source.zip",bytes);assertThrows(ServiceException.class,()->store.verifyZipHeader(SOURCE,"source.zip"));
+        }
+    }
     private static final String SOURCE = "resources/staging/op/";
     private static final String TARGET = "resources/frozen/op-unique/";
     private static final byte[] ORIGINAL = "art-resource".getBytes(java.nio.charset.StandardCharsets.UTF_8);

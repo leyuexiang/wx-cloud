@@ -22,6 +22,7 @@ class ArtResourceServiceTest {
         signer=mock(ArtResourceDownloadSigner.class);when(signer.sign(anyString(),anyString())).thenReturn(Map.of("manifestUrl","https://example.invalid/manifest.json","downloadExpiresAt","2030-01-01T00:00:00Z"));
         store=mock(ArtResourceObjectStore.class);
         ReflectionTestUtils.setField(service,"store",store);ReflectionTestUtils.setField(service,"verifier",verifier);
+        ReflectionTestUtils.setField(service,"modelVerifier",new ModelResourceManifestVerifier());
         ReflectionTestUtils.setField(service,"jdbc",db);ReflectionTestUtils.setField(service,"access",access);ReflectionTestUtils.setField(service,"signer",signer);ReflectionTestUtils.setField(service,"json",json);ReflectionTestUtils.setField(service,"transactions",new DataSourceTransactionManager(data));
         db.execute("CREATE TABLE wx_dim3d_resource(id BIGINT PRIMARY KEY,resource_name VARCHAR(150),resource_type VARCHAR(20),asset_name VARCHAR(150),resource_relative_path VARCHAR(255),resource_scope VARCHAR(20),tenant_id VARCHAR(20),content_state VARCHAR(16),current_revision BIGINT DEFAULT 0,content_hash VARCHAR(64),manifest_sha256 VARCHAR(64),storage_prefix VARCHAR(512),manifest_path VARCHAR(512),platform VARCHAR(20),content_format VARCHAR(32),app_compatibility VARCHAR(128),create_by BIGINT,del_flag CHAR DEFAULT '0')");
         db.execute("CREATE TABLE wx_dim3d_resource_operation(id VARCHAR(36) PRIMARY KEY,resource_id BIGINT,operation_type VARCHAR(16),resource_scope VARCHAR(20),tenant_id VARCHAR(20),operator_id BIGINT,request_hash VARCHAR(64),expected_revision BIGINT,committed_revision BIGINT,status VARCHAR(16) DEFAULT 'UPLOADING',storage_prefix VARCHAR(512),candidate_descriptor VARCHAR(4096),after_snapshot CLOB,expires_at TIMESTAMP,error_code VARCHAR(64))");
@@ -89,6 +90,48 @@ class ArtResourceServiceTest {
         for(String path:List.of("../secret","models/","/models/car","models//car"))
             assertThrows(ServiceException.class,()->service.file("21","1",hash,path));
         verifyNoInteractions(signer);
+    }
+    // 普通模型文件签发同样固定在已提交修订，不允许读取原 ZIP 或当前修订的对象。
+    @Test void modelFilesUsePinnedModelManifestAndKeepAttachmentsPrivate() throws Exception {
+        String hash=committedModelFixture("model.gltf.v1","test-loader");
+        db.update("UPDATE wx_dim3d_resource SET current_revision=2,storage_prefix='resources/new/' WHERE id=21");
+        service.file("21","1",hash,"models/texture.png");
+        service.file("21","1",hash,"manifest.json");
+        assertThrows(ServiceException.class,()->service.file("21","1",hash,"converted.zip"));
+        verify(signer).sign("resources/old/frozen/","models/texture.png");
+        verify(signer).sign("resources/old/frozen/","manifest.json");
+        verifyNoMoreInteractions(signer);
+    }
+
+    @Test void modelSnapshotFormatAndCompatibilityMustMatchManifest() throws Exception {
+        for(var fields:List.of(List.of("model.glb.v1","test-loader"),List.of("model.gltf.v1","different-loader"),
+                List.of("unknown.format","test-loader"))) {
+            String hash=committedModelFixture(fields.get(0),fields.get(1));
+            assertThrows(ServiceException.class,()->service.file("21","1",hash,"models/texture.png"));
+        }
+        verifyNoInteractions(signer);
+    }
+
+    private String committedModelFixture(String snapshotFormat,String compatibility) throws Exception {
+        var root=json.createObjectNode().put("schemaVersion","wx.model-resource.v1").put("resourceId","21")
+                .put("contentFormat","model.gltf.v1").put("platform","WebGL").put("appCompatibility","test-loader");
+        root.putObject("entry").put("kind","MODEL").put("assetName","car").put("modelPath","models/car.gltf");
+        var files=root.putArray("files");
+        for(String path:List.of("models/car.gltf","models/texture.png"))
+            files.addObject().put("path",path).put("size","1").put("sha256","a".repeat(64));
+        String hash=verifier.canonicalHash(root);
+        root.put("contentHash",hash);
+        byte[] bytes=json.writeValueAsBytes(root);
+        var snapshot=json.createObjectNode();
+        snapshot.putObject("resource").put("id","21").put("current_revision","1").put("content_hash",hash)
+                .put("content_state","READY").put("del_flag","0").put("storage_prefix","resources/old/frozen/")
+                .put("manifest_path","manifest.json").put("manifest_sha256",ArtResourceManifestVerifier.sha256(bytes))
+                .put("content_format",snapshotFormat).put("platform","WebGL").put("app_compatibility",compatibility);
+        db.update("DELETE FROM wx_dim3d_resource_operation WHERE id='old'");
+        db.update("INSERT INTO wx_dim3d_resource_operation(id,resource_id,resource_scope,tenant_id,committed_revision,status,after_snapshot) VALUES('old',21,'TENANT_SHARED','2',1,'COMMITTED',?)",
+                json.writeValueAsString(snapshot));
+        when(store.readManifest("resources/old/frozen/","manifest.json")).thenReturn(bytes);
+        return hash;
     }
     private String committedFixture()throws Exception{
         var root=json.createObjectNode();

@@ -1,0 +1,42 @@
+{
+  "gltf": {
+    "schemaVersion": "wx.model-resource.v1",
+    "resourceId": "101",
+    "contentFormat": "model.gltf.v1",
+    "platform": "WebGL",
+    "appCompatibility": "contract-fixture-only",
+    "entry": {
+      "kind": "MODEL",
+      "assetName": "模型示例",
+      "modelPath": "model.gltf"
+    },
+    "files": [
+      {
+        "path": "model.gltf",
+        "size": "12",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ],
+    "contentHash": "e844a42a941d156ede7cde8599d2f1592afea56a130113636faa5c035613bd15"
+  },
+  "glb": {
+    "schemaVersion": "wx.model-resource.v1",
+    "resourceId": "101",
+    "contentFormat": "model.glb.v1",
+    "platform": "WebGL",
+    "appCompatibility": "contract-fixture-only",
+    "entry": {
+      "kind": "MODEL",
+      "assetName": "模型示例",
+      "modelPath": "model.glb"
+    },
+    "files": [
+      {
+        "path": "model.glb",
+        "size": "12",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ],
+    "contentHash": "632452a8397839097a4f253f0290a57c0f76c3a7cb460f4735befc7cd79fc8c5"
+  }
+}
