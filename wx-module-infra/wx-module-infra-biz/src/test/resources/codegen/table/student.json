@@ -3,7 +3,7 @@
     "id": 1,
     "scene" : 1,
     "parentMenuId" : 888,
-    "tableName" : "infra_student",
+    "tableName" : "wx_infra_student",
     "tableComment" : "学生表",
     "moduleName" : "infra",
     "businessName" : "demo",

@@ -1,0 +1,379 @@
+{
+  "date": "2026-11-04",
+  "baseBranch": "dev",
+  "devBefore": "1275c827",
+  "masterBefore": "9f61a95f",
+  "marketCommit": "0d5c9c9e",
+  "mergeStrategy": "将 master 合入 dev，验证后让主目录使用 dev",
+  "rollbackRefs": [
+    "codex/backup-dev-before-unify-20261104",
+    "codex/backup-master-before-unify-20261104"
+  ],
+  "javaMavenExit": 0,
+  "pythonIotPassed": 12,
+  "pythonDeploymentPassed": 8,
+  "relativeLinkFailures": 0,
+  "javaSuites": [
+    {
+      "suite": "cn.iocoder.wx.module.system.framework.sms.core.client.impl.SmsClientFactoryImplTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.system.service.auth.AdminAuthServiceImplTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.system.service.permission.PermissionServiceTest",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.system.service.permission.RoleServiceImplTest",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.system.service.user.AdminUserServiceImplTest",
+      "tests": 36,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.entity.ArtResourceLegacyWriteBoundaryTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.iot.IotStateConfigurationTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.iot.IotStateDeadLetterTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.iot.IotStateOrderingTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.iot.IotStateProjectionTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.iot.IotStateQueryTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.iot.IotStateRedisIntegrationTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 3
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.iot.IotTelemetryContractTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.service.ArtResourceAccessTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.service.ArtResourceClosureVerifierTest",
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.service.ArtResourceManifestVerifierTest",
+      "tests": 41,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.service.ArtResourceObjectStoreTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.service.ArtResourceServiceTest",
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.service.ArtResourceTransactionTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.service.Dim3dSceneServiceTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.service.ModelImportArtifactVerifierTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.service.ModelImportControllerTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.service.ModelImportConversionClientTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.service.ModelImportServiceTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.service.ModelImportSourceWorkerTest",
+      "tests": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.service.ModelImportStatusViewTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.dimensions.service.ModelResourceManifestVerifierTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.config.IotLocalConfigurationTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.mqtt.IotMqttAcknowledgementTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.mqtt.IotMqttConfigurationTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.mqtt.IotMqttConnectivityTesterTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.mqtt.IotMqttDynamicManagerTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.mqtt.IotMqttDynamicSessionTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.mqtt.IotMqttLeaseTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.mqtt.IotMqttRuntimeSqlTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.mqtt.IotMqttSettingsTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.mqtt.IotMqttSocketTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.mqtt.IotMqttTelemetryAdapterTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.mqtt.IotMqttWorkerTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.service.IotAsyncStatusLoggingTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.service.IotConnectorConfigValidatorTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.service.IotConnectorConnectivityServiceTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.service.IotConnectorManagementPermissionTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.service.IotConnectorManagementTest",
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.service.IotConnectorManagementValidationTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.service.IotConnectorVersionTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.service.IotMessageInboxArchiveTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.service.IotMessageInboxServiceTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.service.IotPointMappingServiceTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "cn.iocoder.wx.module.iot.service.IotTelemetryServiceTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "fullCompile": {
+    "exit": 1,
+    "module": "wx-module-2.5d",
+    "missingArtifact": "com.google.code:kaptcha:2.3.2",
+    "existingRepositoryHttpStatus": 404
+  },
+  "mainIncluded": [
+    "85a4d355",
+    "06a5292d",
+    "772ac6c8"
+  ]
+}

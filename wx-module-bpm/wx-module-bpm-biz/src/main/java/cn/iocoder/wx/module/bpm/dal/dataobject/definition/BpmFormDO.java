@@ -18,7 +18,7 @@ import java.util.List;
  *
  * @author 九天芸菲
  */
-@TableName(value = "bpm_form", autoResultMap = true)
+@TableName(value = "wx_bpm_form", autoResultMap = true)
 @Data
 @Builder
 @NoArgsConstructor

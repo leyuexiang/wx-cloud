@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
  * @author jason
  * @author 九天芸菲
  */
-@TableName("bpm_oa_leave")
+@TableName("wx_bpm_oa_leave")
 @Data
 @Builder
 @NoArgsConstructor

@@ -1,7 +1,7 @@
-DELETE FROM pay_app;
-DELETE FROM pay_channel;
-DELETE FROM pay_order;
-DELETE FROM pay_order_extension;
-DELETE FROM pay_refund;
-DELETE FROM pay_notify_task;
-DELETE FROM pay_notify_log;
+DELETE FROM wx_pay_app;
+DELETE FROM wx_pay_channel;
+DELETE FROM wx_pay_order;
+DELETE FROM wx_pay_order_extension;
+DELETE FROM wx_pay_refund;
+DELETE FROM wx_pay_notify_task;
+DELETE FROM wx_pay_notify_log;

@@ -4,6 +4,6 @@
  * 2. redis：Redis 的 CRUD 操作
  * 3. mysql：MySQL 的 CRUD 操作
  *
- * 其中，MySQL 的表以 system_ 作为前缀
+ * 其中，MySQL 的表以 wx_system_ 作为前缀
  */
 package cn.iocoder.wx.module.system.dal.mysql;

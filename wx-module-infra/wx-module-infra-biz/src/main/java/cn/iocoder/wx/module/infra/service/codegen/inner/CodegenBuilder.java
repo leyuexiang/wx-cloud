@@ -108,7 +108,7 @@ public class CodegenBuilder {
      * @param table 表定义
      */
     private void initTableDefault(CodegenTableDO table) {
-        // 以 system_dept 举例子。moduleName 为 system、businessName 为 dept、className 为 Dept
+        // 以 wx_system_dept 举例子。moduleName 为 system、businessName 为 dept、className 为 Dept
         // 如果希望以 System 前缀，则可以手动在【代码生成 - 修改生成配置 - 基本信息】，将实体类名称改为 SystemDept 即可
         String tableName = table.getTableName().toLowerCase();
         // 第一步，_ 前缀的前面，作为 module 名字；第二步，moduleName 必须小写；

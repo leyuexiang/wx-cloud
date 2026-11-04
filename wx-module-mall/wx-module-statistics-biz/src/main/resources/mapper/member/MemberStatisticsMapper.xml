@@ -5,7 +5,7 @@
     <select id="selectSummaryListByAreaId"
             resultType="cn.iocoder.wx.module.statistics.service.member.bo.MemberAreaStatisticsRespBO">
         SELECT area_id, COUNT(1) AS userCount
-        FROM member_user
+        FROM wx_member_user
         WHERE deleted = FALSE
         GROUP BY area_id
     </select>
@@ -13,7 +13,7 @@
     <select id="selectSummaryListBySex"
             resultType="cn.iocoder.wx.module.statistics.controller.admin.member.vo.MemberSexStatisticsRespVO">
         SELECT sex, COUNT(1) AS userCount
-        FROM member_user
+        FROM wx_member_user
         WHERE deleted = FALSE
         GROUP BY sex
     </select>
@@ -21,14 +21,14 @@
     <select id="selectSummaryListByRegisterTerminal"
                          resultType="cn.iocoder.wx.module.statistics.controller.admin.member.vo.MemberTerminalStatisticsRespVO">
         SELECT register_terminal as terminal, COUNT(1) AS userCount
-        FROM member_user
+        FROM wx_member_user
         WHERE deleted = FALSE
         GROUP BY register_terminal
     </select>
 
     <select id="selectUserCount" resultType="java.lang.Integer">
         SELECT COUNT(1)
-        FROM member_user
+        FROM wx_member_user
         WHERE deleted = FALSE
         <if test="beginTime != null">
             AND create_time >= #{beginTime}
@@ -42,7 +42,7 @@
             resultType="cn.iocoder.wx.module.statistics.controller.admin.member.vo.MemberRegisterCountRespVO">
         SELECT DATE_FORMAT(create_time, '%Y-%m-%d') AS date,
                count(1)                             AS count
-        FROM member_user
+        FROM wx_member_user
         WHERE create_time BETWEEN #{beginTime} AND #{endTime}
           AND deleted = FALSE
         GROUP BY date

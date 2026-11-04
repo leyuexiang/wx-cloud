@@ -29,7 +29,7 @@ public class GoViewDataServiceImplTest extends BaseDbUnitTest {
     @Test
     public void testGetDataBySQL() {
         // 准备参数
-        String sql = "SELECT id, name FROM system_users";
+        String sql = "SELECT id, name FROM wx_system_users";
         // mock 方法
         SqlRowSet sqlRowSet = mock(SqlRowSet.class);
         when(jdbcTemplate.queryForRowSet(eq(sql))).thenReturn(sqlRowSet);

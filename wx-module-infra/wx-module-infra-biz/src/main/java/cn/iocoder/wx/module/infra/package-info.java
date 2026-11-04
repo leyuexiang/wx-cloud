@@ -4,6 +4,6 @@
  * 2. 研发工具，提升研发效率与质量。 例如说：代码生成器、接口文档等等
  *
  * 1. Controller URL：以 /infra/ 开头，避免和其它 Module 冲突
- * 2. DataObject 表名：以 infra_ 开头，方便在数据库中区分
+ * 2. DataObject 表名：以 wx_infra_ 开头，方便在数据库中区分
  */
 package cn.iocoder.wx.module.infra;

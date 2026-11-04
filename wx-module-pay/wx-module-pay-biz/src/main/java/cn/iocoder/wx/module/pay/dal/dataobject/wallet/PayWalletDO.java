@@ -12,7 +12,7 @@ import lombok.Data;
  *
  * @author jason
  */
-@TableName(value ="pay_wallet")
+@TableName(value ="wx_pay_wallet")
 @KeySequence("pay_wallet_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 public class PayWalletDO extends BaseDO {

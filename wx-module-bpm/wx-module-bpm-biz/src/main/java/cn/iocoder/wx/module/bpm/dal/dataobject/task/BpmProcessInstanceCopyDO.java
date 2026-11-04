@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
  * @author kyle
  * @since 2024-01-22
  */
-@TableName(value = "bpm_process_instance_copy", autoResultMap = true)
+@TableName(value = "wx_bpm_process_instance_copy", autoResultMap = true)
 @Data
 @Builder
 @NoArgsConstructor
@@ -73,7 +73,7 @@ public class BpmProcessInstanceCopyDO extends BaseDO {
     /**
      * 用户编号（被抄送的用户编号）
      *
-     * 关联 system_users 的 id 属性
+     * 关联 wx_system_users 的 id 属性
      */
     private Long userId;
 

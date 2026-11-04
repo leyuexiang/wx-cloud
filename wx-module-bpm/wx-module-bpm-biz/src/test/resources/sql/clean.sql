@@ -1,3 +1,3 @@
-DELETE FROM "bpm_form";
-DELETE FROM "bpm_user_group";
-DELETE FROM "bpm_category";
+DELETE FROM "wx_bpm_form";
+DELETE FROM "wx_bpm_user_group";
+DELETE FROM "wx_bpm_category";

@@ -18,7 +18,7 @@ import java.util.Set;
  *
  * @author 九天芸菲
  */
-@TableName(value = "bpm_user_group", autoResultMap = true)
+@TableName(value = "wx_bpm_user_group", autoResultMap = true)
 @Data
 @Builder
 @NoArgsConstructor

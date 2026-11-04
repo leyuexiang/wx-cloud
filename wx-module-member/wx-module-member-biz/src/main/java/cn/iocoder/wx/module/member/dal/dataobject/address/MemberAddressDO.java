@@ -10,7 +10,7 @@ import lombok.*;
  *
  * @author 九天芸菲
  */
-@TableName("member_address")
+@TableName("wx_member_address")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

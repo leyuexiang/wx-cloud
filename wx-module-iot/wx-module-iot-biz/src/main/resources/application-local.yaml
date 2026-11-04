@@ -1,0 +1,55 @@
+spring:
+  cloud:
+    nacos:
+      # 同机部署默认访问本地；远程开发时覆盖环境变量，避免在仓库固定服务器凭据。
+      server-addr: ${IOT_NACOS_SERVER_ADDR:127.0.0.1:8848}
+      username: ${IOT_NACOS_USERNAME:nacos}
+      password: ${IOT_NACOS_PASSWORD}
+      discovery:
+        # 命名空间使用 ID，配置和注册必须与网关、系统服务保持一致。
+        namespace: ${IOT_NACOS_NAMESPACE:}
+        group: ${IOT_NACOS_GROUP:DEFAULT_GROUP}
+      config:
+        namespace: ${IOT_NACOS_NAMESPACE:}
+        group: ${IOT_NACOS_GROUP:DEFAULT_GROUP}
+  datasource:
+    dynamic:
+      primary: master
+      # 数据源名称错误时直接失败，不能静默回落到其他业务库。
+      strict: true
+      datasource:
+        master:
+          # 不创建数据库、不使用 root 账号；MariaDB 环境需先完成脚本兼容性验证。
+          url: ${IOT_DB_URL:jdbc:mysql://127.0.0.1:3306/wx_iot?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&nullCatalogMeansCurrent=true}
+          username: ${IOT_DB_USERNAME:iot_app}
+          password: ${IOT_DB_PASSWORD}
+  data:
+    redis:
+      host: ${IOT_REDIS_HOST:127.0.0.1}
+      port: ${IOT_REDIS_PORT:6379}
+      database: ${IOT_REDIS_DATABASE:0}
+      # 兼容当前开发 Redis 无认证场景；启用认证后由环境文件提供密码。
+      password: ${IOT_REDIS_PASSWORD:}
+  kafka:
+    # 必须确认 Broker 的 advertised.listeners 对应用可达，Kafka UI 地址不可代替此项。
+    bootstrap-servers: ${IOT_KAFKA_BOOTSTRAP_SERVERS:127.0.0.1:9092}
+    producer:
+      # 覆盖通用配置的 acks=1，等待全部同步副本确认；仍需消费端与 Inbox 业务幂等。
+      acks: all
+      properties:
+        enable.idempotence: true
+
+xxl:
+  job:
+    # IoT 当前没有 XXL-Job 任务，避免启动时强制依赖调度中心配置。
+    enabled: false
+
+wx:
+  web:
+    admin-ui:
+      # 满足框架管理前端属性校验，不关闭现有权限或租户功能。
+      url: ${IOT_ADMIN_UI_URL:http://127.0.0.1}
+
+logging:
+  file:
+    name: ${user.home}/logs/${spring.application.name}.log

@@ -5,7 +5,7 @@ DELETE FROM "wx_system_role_menu";
 DELETE FROM "wx_system_menu";
 DELETE FROM "wx_system_user_role";
 DELETE FROM "wx_system_dict_type";
-DELETE FROM "system_user_session";
+DELETE FROM "wx_system_user_session";
 DELETE FROM "wx_system_post";
 DELETE FROM "wx_system_user_post";
 DELETE FROM "wx_system_notice";

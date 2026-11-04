@@ -24,6 +24,12 @@
 		</dependency>
 
 		<!-- 依赖服务 -->
+		<!-- 只复用标准遥测契约，不依赖物联网接入服务的业务实现。 -->
+		<dependency>
+			<groupId>cn.iocoder.cloud</groupId>
+			<artifactId>wx-module-iot-api</artifactId>
+			<version>${revision}</version>
+		</dependency>
 		<dependency>
 			<groupId>cn.iocoder.cloud</groupId>
 			<artifactId>wx-module-system-api</artifactId>

@@ -182,6 +182,17 @@ spring:
           uri: grayLb://dimensions-server
           predicates: # 断言，作为路由的匹配条件，对应 RouteDefinition 数组
             - Path=/dimensions/ws/**
+        ## iot-server 服务
+        - id: iot-admin-api
+          uri: grayLb://iot-server
+          predicates:
+            - Path=/admin-api/iot/**
+          filters:
+            - RewritePath=/admin-api/iot/v3/api-docs, /v3/api-docs
+        - id: iot-open-api
+          uri: grayLb://iot-server
+          predicates:
+            - Path=/open-api/iot/**
         ## semi-server 服务
         - id: semi-admin-api # 路由的编号
           uri: grayLb://semi-server
@@ -246,6 +257,9 @@ knife4j:
       - name: dimensions-server
         service-name: dimensions-server
         url: /admin-api/dimensions/v3/api-docs
+      - name: iot-server
+        service-name: iot-server
+        url: /admin-api/iot/v3/api-docs
 
 --- #################### 九天相关配置 ####################
 

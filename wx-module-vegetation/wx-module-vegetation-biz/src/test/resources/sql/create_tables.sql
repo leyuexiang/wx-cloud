@@ -1,4 +1,4 @@
-CREATE TABLE veg_generation_task (
+CREATE TABLE wx_veg_generation_task (
   id BIGINT NOT NULL PRIMARY KEY,
   generator_task_id VARCHAR(128),
   scene_id VARCHAR(64) NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE veg_generation_task (
   CONSTRAINT uk_veg_task_generator_id UNIQUE (generator_task_id)
 );
 
-CREATE TABLE veg_generation_tile (
+CREATE TABLE wx_veg_generation_tile (
   id BIGINT NOT NULL PRIMARY KEY,
   task_id BIGINT NOT NULL,
   publication_version VARCHAR(64) NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE veg_generation_tile (
   CONSTRAINT uk_veg_tile_task_tile UNIQUE (task_id, tile_id)
 );
 
-CREATE TABLE veg_publication (
+CREATE TABLE wx_veg_publication (
   id BIGINT NOT NULL PRIMARY KEY,
   scene_id VARCHAR(64) NOT NULL,
   publication_version VARCHAR(64) NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE veg_publication (
 );
 
 -- 与生产表一致：发布事务锁定场景行，确保同一场景只有一个STABLE版本。
-CREATE TABLE veg_publication_lock (
+CREATE TABLE wx_veg_publication_lock (
   scene_id VARCHAR(64) NOT NULL PRIMARY KEY,
   create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

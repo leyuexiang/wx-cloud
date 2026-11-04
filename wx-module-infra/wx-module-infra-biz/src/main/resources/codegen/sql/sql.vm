@@ -1,5 +1,5 @@
 -- 菜单 SQL
-INSERT INTO system_menu(
+INSERT INTO wx_system_menu(
     name, permission, type, sort, parent_id,
     path, icon, component, status, component_name
 )
@@ -17,7 +17,7 @@ SELECT @parentId := LAST_INSERT_ID();
 #set ($functionOps = ['query', 'create', 'update', 'delete', 'export'])
 #foreach ($functionName in $functionNames)
 #set ($index = $foreach.count - 1)
-INSERT INTO system_menu(
+INSERT INTO wx_system_menu(
     name, permission, type, sort, parent_id,
     path, icon, component, status
 )

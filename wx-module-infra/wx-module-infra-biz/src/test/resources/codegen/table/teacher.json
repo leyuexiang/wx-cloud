@@ -1,7 +1,7 @@
 {
   "table": {
     "scene" : 1,
-    "tableName" : "infra_student_teacher",
+    "tableName" : "wx_infra_student_teacher",
     "tableComment" : "学生班主任表",
     "moduleName" : "infra",
     "businessName" : "demo",
