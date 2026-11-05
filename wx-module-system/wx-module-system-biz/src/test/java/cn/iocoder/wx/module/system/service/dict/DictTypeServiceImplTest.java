@@ -60,7 +60,8 @@ public class DictTypeServiceImplTest extends BaseDbUnitTest {
        // 准备参数
        DictTypePageReqVO reqVO = new DictTypePageReqVO();
        reqVO.setName("nai");
-       reqVO.setType("艿");
+       // 模糊查询条件须命中本例的“芸菲”，避免历史样例改名后仍使用旧汉字导致误报。
+       reqVO.setType("芸");
        reqVO.setStatus(CommonStatusEnum.ENABLE.getStatus());
        reqVO.setCreateTime(buildBetweenTime(2021, 1, 10, 2021, 1, 20));
 

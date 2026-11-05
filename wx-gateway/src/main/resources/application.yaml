@@ -18,6 +18,15 @@ spring:
     gateway:
       # 路由配置项，对应 RouteDefinition 数组
       routes:
+        # 字典属于登录后的公共元数据；只映射按类型读取路径，保留系统服务的认证及租户校验。
+        - id: system-dictionary-api
+          uri: grayLb://system-server
+          predicates:
+            - Path=/api/system/dict/data/type/{dictType}
+          filters:
+            - RemoveRequestHeader=x-bot-user
+            # 转义替换组，避免被配置系统当作环境变量占位符解析。
+            - RewritePath=/api/system/dict/data/type/(?<dictType>[^/]+), /admin-api/system/dict/data/type/$\{dictType}
         ## system-server 服务
         - id: system-admin-api # 路由的编号
           uri: grayLb://system-server

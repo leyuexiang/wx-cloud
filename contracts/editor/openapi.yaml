@@ -23,6 +23,30 @@ tags:
 - name: scene
 - name: preview
 paths:
+  /system/dict/data/type/{dictType}:
+    get:
+      tags:
+      - base
+      summary: 按类型读取启用的字典项
+      description: >-
+        当前前端公共字典入口，不插入运营或租户平台段。网关精确改写到
+        /admin-api/system/dict/data/type/{dictType}，沿用系统登录及租户一致性校验，
+        不要求字典维护权限。复用已有服务按 sort 升序返回启用项；
+        未配置或没有启用项时返回空数组，不伪造分类、不回退旧图标分类表。
+      security:
+      - bearerAuth: []
+        clientId: []
+      parameters:
+      - $ref: '#/components/parameters/DictType'
+      responses:
+        '200':
+          description: 成功业务码为 200，data 始终为数组；编号按字符串传输
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DictionaryResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
   /operation/dim3d/scene/page:
     get:
       tags:
@@ -587,9 +611,11 @@ components:
       name: dictType
       in: path
       required: true
+      description: 单个非空字典类型，最大长度与现有字典字段一致
       schema:
         type: string
-        pattern: ^[a-z0-9_]+$
+        minLength: 1
+        maxLength: 100
   responses:
     LoginSuccess:
       description: 登录成功
@@ -785,8 +811,24 @@ components:
             items:
               type: object
               required:
+              - dictCode
               - dictValue
               - dictLabel
+              - dictType
+              properties:
+                dictCode:
+                  type: string
+                  description: 现有字典项主键的十进制字符串，避免浏览器整数精度丢失
+                  pattern: ^[0-9]+$
+                dictValue:
+                  type: string
+                  description: 原始业务编码，用于筛选和提交，不替换为主键或展示名称
+                dictLabel:
+                  type: string
+                  description: 页面展示名称
+                dictType:
+                  type: string
+                  description: 请求指定的字典类型
               additionalProperties: true
     TenantPageResponse:
       allOf:
