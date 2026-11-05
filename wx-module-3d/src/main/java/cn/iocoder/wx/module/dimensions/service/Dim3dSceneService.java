@@ -153,9 +153,45 @@ public class Dim3dSceneService {
         requireLock(row, actor, token);
         int current = ((Number) row.get("current_revision")).intValue();
         if (current != body.path("baseRevisionNo").asInt()) return Map.of("sceneId", id, "conflict", true, "conflictRevisionNo", current);
+        validateNodeTree(parsed.get(1), "gis".equals(row.get("scene_type")));
         long revision = insertRevision(actor, requireId(id), current + 1, 1, packages, request, hash);
         jdbc.update("UPDATE wx_dim3d_scene SET current_revision=?,name=?,update_time=CURRENT_TIMESTAMP WHERE id=? AND tenant_id=?", current + 1, name, requireId(id), actor.tenant());
         return Map.of("sceneId", id, "revisionId", Long.toString(revision), "revisionNo", current + 1, "lockVersion", current + 1, "conflict", false, "savedTime", Instant.now().toString());
+    }
+
+    /** 校验完整三维节点集合，保留原始四包文本，不重写业务扩展字段。 */
+    private static void validateNodeTree(JsonNode threeD, boolean geospatial) {
+        Map<String, String> parents = new HashMap<>();
+        for (String key : List.of("objects", "components")) {
+            JsonNode nodes = threeD.path(key);
+            if (nodes.isMissingNode()) continue;
+            if (!nodes.isArray()) throw bad("三维节点集合必须为数组");
+            for (JsonNode node : nodes) {
+                String id = text(node, "instanceId", 4 * 1024 * 1024);
+                JsonNode parent = node.get("parentInstanceId");
+                JsonNode order = node.get("sortNo");
+                if (order != null && (!order.isIntegralNumber() || !order.canConvertToInt() || order.intValue() < 0))
+                    throw bad("节点顺序必须为非负整数");
+                if (parent != null && (!parent.isTextual() || parent.textValue().isBlank() || geospatial))
+                    throw bad("父实例编号无效或当前场景不支持父子关系");
+                if (parents.putIfAbsent(id, parent == null ? "" : parent.textValue()) != null)
+                    throw bad("重复实例编号：" + id);
+            }
+        }
+        // 复用路径集合并缓存已校验的节点，长链仍只线性访问，不递归。
+        Set<String> done = new HashSet<>();
+        Set<String> path = new HashSet<>();
+        for (String id : parents.keySet()) {
+            path.clear();
+            String cursor = id;
+            while (!cursor.isEmpty() && !done.contains(cursor)) {
+                if (!path.add(cursor)) throw bad("父子关系包含循环");
+                String parent = parents.get(cursor);
+                if (parent == null) throw bad("父实例不存在：" + cursor);
+                cursor = parent;
+            }
+            done.addAll(path);
+        }
     }
 
     private long insertRevision(ArtResourceAccess.Actor actor, long id, int number, int schema, List<String> packages, String request, String hash) {

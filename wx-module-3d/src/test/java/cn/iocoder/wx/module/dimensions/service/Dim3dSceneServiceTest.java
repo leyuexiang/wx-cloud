@@ -51,6 +51,21 @@ class Dim3dSceneServiceTest {
         return body;
     }
 
+    @Test void invalidNodeTreesCannotCreateRevision() throws Exception {
+        String id = create(); String token = (String) service.lock(id, "nodes").get("lockToken");
+        // 直接调用真实保存事务，证明非法树在写修订前被拒绝。
+        for (String nodes : java.util.List.of(
+                "[{\"instanceId\":\"a\"},{\"instanceId\":\"a\"}]",
+                "[{\"instanceId\":\"a\",\"parentInstanceId\":\"missing\"}]",
+                "[{\"instanceId\":\"a\",\"parentInstanceId\":\"b\"},{\"instanceId\":\"b\",\"parentInstanceId\":\"a\"}]")) {
+            ObjectNode body = saveBody(id, token);
+            ObjectNode threeD = (ObjectNode) json.readTree(body.path("threeDJson").asText());
+            threeD.set("objects", json.readTree(nodes)); body.put("threeDJson", threeD.toString());
+            assertThrows(ServiceException.class, () -> service.save(body));
+        }
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_dim3d_scene_revision", Integer.class));
+    }
+
     @Test void creationIncludesCompleteFirstRevisionAndTenant() {
         String id = create(); var detail = service.info(id);
         assertEquals("2", detail.get("tenantId")); assertTrue(Long.parseLong(id) > Integer.MAX_VALUE);
