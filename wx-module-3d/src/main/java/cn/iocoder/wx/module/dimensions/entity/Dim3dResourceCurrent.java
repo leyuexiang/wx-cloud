@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("wx_dim3d_resource")
+@TableName("wx_3d_resource")
 public class Dim3dResourceCurrent extends Dim3dConvertedResource {
     /** NULL 表示未分类旧数据，新消费查询必须排除。 */
     private String resourceScope;

@@ -8,10 +8,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-/** 新模板资源实体，对应 wx_dim3d_template 表。 */
+/** 新模板资源实体，对应 wx_3d_template 表。 */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("wx_dim3d_template")
+@TableName("wx_3d_template")
 public class Dim3dTemplate extends Dim3dResourceBaseEntity {
     @NotBlank @Size(min = 2, max = 50) private String templateName;
     @Size(max = 500) private String templateDesc;

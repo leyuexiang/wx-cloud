@@ -7,6 +7,7 @@ import cn.iocoder.wx.module.dimensions.entity.Dim3dIcon;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dModel;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dTemplate;
 import cn.iocoder.wx.module.dimensions.service.Dim3dResourceCatalogService;
+import cn.iocoder.wx.module.dimensions.service.Dim3dSceneService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -15,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 
 /**
  * 新资源管理接口。
@@ -26,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "3D资源管理")
 public class Dim3dResourceController {
     @Resource private Dim3dResourceCatalogService service;
+    @Resource private Dim3dSceneService sceneService;
 
     @PostMapping("/model/add") @Operation(summary = "新增模型") @PreAuthorize("@ss.hasPermission('dim3d:model:add')")
     public CommonResult<Long> addModel(@Valid @RequestBody Dim3dModel body) { return CommonResult.success(service.createModel(body)); }
@@ -60,7 +63,14 @@ public class Dim3dResourceController {
     @GetMapping("/template/info/{id}") @Operation(summary = "查询模板详情") @PreAuthorize("@ss.hasPermission('dim3d:template:query')")
     public CommonResult<Dim3dTemplate> templateInfo(@PathVariable Long id) { return CommonResult.success(service.getTemplate(id)); }
     @GetMapping("/template/page") @Operation(summary = "分页查询模板") @PreAuthorize("@ss.hasPermission('dim3d:template:query')")
-    public CommonResult<PageResult<Dim3dTemplate>> templatePage(String templateName, String templateType, String category, String resourceBelong, String status, Integer pageNum, Integer pageSize) { return CommonResult.success(service.getTemplatePage(templateName, templateType, category, resourceBelong, status, pageNum, pageSize)); }
+    public CommonResult<?> templatePage(String templateName, String templateType, String category, String resourceBelong,
+                                        String status, Integer pageNum, Integer pageSize,
+                                        @RequestParam(defaultValue = "false") boolean includeSnapshots) {
+        // 只有管理页显式请求合并目录，既有消费者继续沿用原分页及权限过滤。
+        if (includeSnapshots)
+            return CommonResult.success(sceneService.templatePageCombined(templateName, templateType, category, resourceBelong, status, pageNum, pageSize));
+        return CommonResult.success(service.getTemplatePage(templateName, templateType, category, resourceBelong, status, pageNum, pageSize));
+    }
     @PutMapping("/template/{status}/{id}") @Operation(summary = "模板上线或下线") @PreAuthorize("@ss.hasPermission('dim3d:template:edit')")
     public CommonResult<Boolean> templateStatus(@PathVariable String status, @PathVariable Long id) { service.changeTemplateStatus(id, status); return CommonResult.success(true); }
     @DeleteMapping("/template/remove/{id}") @Operation(summary = "删除模板") @PreAuthorize("@ss.hasPermission('dim3d:template:delete')")

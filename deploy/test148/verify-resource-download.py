@@ -33,7 +33,7 @@ def main():
             code,_=s3.request("PUT","/wx-art-test148/"+key,payload);check("上传隔离验收文件:"+scope,code==200);objects.append(key)
             code,raw=s3.request("GET","/wx-art-test148/"+key);check("内部回读摘要:"+scope,code==200 and hashlib.sha256(raw).hexdigest()==digest)
             rows.append(rid)
-            api.sql(f"INSERT INTO wx_dim3d_resource(id,resource_name,resource_type,asset_name,resource_relative_path,resource_scope,tenant_id,content_state) VALUES({rid},'ART02-下载夹具','MODEL','test','test','{scope}','{owner}','PENDING'); INSERT INTO wx_dim3d_resource_operation(id,resource_id,operation_type,resource_scope,tenant_id,operator_id,request_hash,expected_revision,status,committed_revision,after_snapshot,expires_at) VALUES('{op}',{rid},'CREATE','{scope}','{owner}',1,'{'a'*64}',0,'COMMITTED',1,JSON_OBJECT('fixture',true),'2030-01-01'); UPDATE wx_dim3d_resource SET content_state='READY',storage_prefix='{prefix}',manifest_path='manifest.json',manifest_sha256='{digest}',content_hash='{'b'*64}',content_format='unity.assetbundle.v1',platform='WebGL',app_compatibility='download-fixture',current_revision=1,current_operation_id='{op}' WHERE id={rid};")
+            api.sql(f"INSERT INTO wx_3d_resource(id,resource_name,resource_type,asset_name,resource_relative_path,resource_scope,tenant_id,content_state) VALUES({rid},'ART02-下载夹具','MODEL','test','test','{scope}','{owner}','PENDING'); INSERT INTO wx_3d_resource_operation(id,resource_id,operation_type,resource_scope,tenant_id,operator_id,request_hash,expected_revision,status,committed_revision,after_snapshot,expires_at) VALUES('{op}',{rid},'CREATE','{scope}','{owner}',1,'{'a'*64}',0,'COMMITTED',1,JSON_OBJECT('fixture',true),'2030-01-01'); UPDATE wx_3d_resource SET content_state='READY',storage_prefix='{prefix}',manifest_path='manifest.json',manifest_sha256='{digest}',content_hash='{'b'*64}',content_format='unity.assetbundle.v1',platform='WebGL',app_compatibility='download-fixture',current_revision=1,current_operation_id='{op}' WHERE id={rid};")
             result=api.request(12522,"/admin-api/dim3d/resources/"+str(rid)+"/current",a);check("当前描述签发:"+scope,result.get("code")==200)
             descriptor=result["data"];url=descriptor["manifestUrl"]
             check("签名HTTPS且限定五分钟:"+scope,url.startswith("https://192.168.10.148:9444/") and "X-Amz-Expires=300" in url)
@@ -57,7 +57,7 @@ def main():
         result={"passed":True,"checks":checks,"count":len(checks),"scope":"真实私有桶/TLS/签名/API授权；合成对象和手动元数据夹具，不是ART-03发布事务或模型包验收","certificateVerificationDisabled":False,"signedUrlsLogged":False,"cleanup":False}
     finally:
         if rows:
-            ids=",".join(map(str,rows));api.sql("START TRANSACTION; UPDATE wx_dim3d_resource SET content_state='PENDING',current_operation_id=NULL WHERE id IN ("+ids+") AND resource_name='ART02-下载夹具'; DELETE FROM wx_dim3d_resource_operation WHERE resource_id IN ("+ids+"); DELETE FROM wx_dim3d_resource WHERE id IN ("+ids+") AND resource_name='ART02-下载夹具'; COMMIT;")
+            ids=",".join(map(str,rows));api.sql("START TRANSACTION; UPDATE wx_3d_resource SET content_state='PENDING',current_operation_id=NULL WHERE id IN ("+ids+") AND resource_name='ART02-下载夹具'; DELETE FROM wx_3d_resource_operation WHERE resource_id IN ("+ids+"); DELETE FROM wx_3d_resource WHERE id IN ("+ids+") AND resource_name='ART02-下载夹具'; COMMIT;")
         for key in objects:
             code,_=s3.request("DELETE","/wx-art-test148/"+key)
             if code not in [200,204]:raise RuntimeError("验收对象清理失败")

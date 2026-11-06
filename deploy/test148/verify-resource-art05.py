@@ -52,7 +52,7 @@ def main():
     check('真实系统汽车当前为B', current.get('code') == 200 and current['data']['currentRevision'] == '2')
     hashes = {}
     for revision in ['1', '2']:
-        stored = api.sql("SELECT JSON_UNQUOTE(JSON_EXTRACT(after_snapshot,'$.resource.content_hash')) FROM wx_dim3d_resource_operation WHERE resource_id=" + RESOURCE + " AND committed_revision=" + revision + " AND status='COMMITTED';")
+        stored = api.sql("SELECT JSON_UNQUOTE(JSON_EXTRACT(after_snapshot,'$.resource.content_hash')) FROM wx_3d_resource_operation WHERE resource_id=" + RESOURCE + " AND committed_revision=" + revision + " AND status='COMMITTED';")
         if len(stored) != 64 or any(c not in '0123456789abcdef' for c in stored):
             raise RuntimeError('缺少真实汽车已提交快照')
         hashes[revision] = stored

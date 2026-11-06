@@ -118,7 +118,7 @@ for service, (module, port) in MODULES.items():
             "primary": "master",
             "datasource": {"master": {
                 # 数据库端口可独立指定，避免误连服务器已有的 MariaDB 或 MySQL 实例。
-                "url": f"jdbc:mysql://127.0.0.1:{int(os.environ.get('WX_DB_PORT', '13306'))}/wx_editor_test148?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true",
+                "url": f"jdbc:mysql://127.0.0.1:{int(os.environ.get('WX_DB_PORT', '13306'))}/{os.environ.get('WX_DB_NAME', 'wx_editor')}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true",
                 "username": "wx_editor_test148",
                 "password": "${WX_DB_PASSWORD}",
                 "driver-class-name": "com.mysql.cj.jdbc.Driver",
@@ -165,7 +165,7 @@ for service, (module, port) in MODULES.items():
                              "2d": {"base-url": "${preview.base-url}/babylonWeb/editor"},
                              "3d": {"base-url": "${preview.base-url}/web/#/scenePreview"}}
         if service == "infra":
-            config["spring"]["datasource"]["dynamic"]["datasource"]["master"]["name"] = "wx_editor_test148"
+            config["spring"]["datasource"]["dynamic"]["datasource"]["master"]["name"] = "wx_editor"
     path = OUT / f"{service}.yaml"
     path.write_text("# 测试服务器独立配置；密钥仅通过服务器环境变量注入。\n" +
                     yaml.safe_dump(config, allow_unicode=True, sort_keys=False), encoding="utf-8")

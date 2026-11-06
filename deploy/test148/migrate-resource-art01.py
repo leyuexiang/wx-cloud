@@ -37,7 +37,8 @@ def scalar(database, sql):
 
 
 def validate_database(database):
-    if database != "wx_editor_test148" and not re.fullmatch(r"wx_editor_art01_rehearsal_[a-z0-9_]+", database):
+    # 验证库使用带 test 的专用前缀，避免和常驻业务库混淆。
+    if database != "wx_editor" and not re.fullmatch(r"wx_editor_art01_test_rehearsal_[0-9a-f]{12}", database):
         raise RuntimeError("只能操作独立测试库或本迁移的演练库")
     version = scalar(database, "SELECT VERSION();").split("-")[0]
     if tuple(map(int, version.split(".")[:3])) < (8, 0, 16):
@@ -172,7 +173,7 @@ def execute(action, database, migration_dir):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("apply", "rollback"))
-    parser.add_argument("--database", default="wx_editor_test148")
+    parser.add_argument("--database", default="wx_editor")
     parser.add_argument("--migration-dir", type=Path, default=Path(__file__).resolve().parent / "migrations" / "art01")
     args = parser.parse_args()
     os.umask(0o077)

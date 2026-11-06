@@ -24,15 +24,15 @@ class ArtResourceServiceTest {
         ReflectionTestUtils.setField(service,"store",store);ReflectionTestUtils.setField(service,"verifier",verifier);
         ReflectionTestUtils.setField(service,"modelVerifier",new ModelResourceManifestVerifier());
         ReflectionTestUtils.setField(service,"jdbc",db);ReflectionTestUtils.setField(service,"access",access);ReflectionTestUtils.setField(service,"signer",signer);ReflectionTestUtils.setField(service,"json",json);ReflectionTestUtils.setField(service,"transactions",new DataSourceTransactionManager(data));
-        db.execute("CREATE TABLE wx_dim3d_resource(id BIGINT PRIMARY KEY,resource_name VARCHAR(150),resource_type VARCHAR(20),asset_name VARCHAR(150),resource_relative_path VARCHAR(255),resource_scope VARCHAR(20),tenant_id VARCHAR(20),content_state VARCHAR(16),current_revision BIGINT DEFAULT 0,content_hash VARCHAR(64),manifest_sha256 VARCHAR(64),storage_prefix VARCHAR(512),manifest_path VARCHAR(512),platform VARCHAR(20),content_format VARCHAR(32),app_compatibility VARCHAR(128),create_by BIGINT,del_flag CHAR DEFAULT '0')");
-        db.execute("CREATE TABLE wx_dim3d_resource_operation(id VARCHAR(36) PRIMARY KEY,resource_id BIGINT,operation_type VARCHAR(16),resource_scope VARCHAR(20),tenant_id VARCHAR(20),operator_id BIGINT,request_hash VARCHAR(64),expected_revision BIGINT,committed_revision BIGINT,status VARCHAR(16) DEFAULT 'UPLOADING',storage_prefix VARCHAR(512),candidate_descriptor VARCHAR(4096),after_snapshot CLOB,expires_at TIMESTAMP,error_code VARCHAR(64))");
-        for(long id:List.of(11L,21L,31L,41L,51L))db.update("INSERT INTO wx_dim3d_resource(id,resource_name,resource_type,resource_scope,tenant_id,content_state,current_revision,content_hash,manifest_sha256,storage_prefix,manifest_path,content_format,platform,app_compatibility,del_flag) VALUES(?,'汽车','MODEL',?,?,?,1,?,?,'resources/a/','manifest.json','unity.assetbundle.v1','WebGL','test',?)",id,id==11?"GLOBAL_SYSTEM":id==41?null:"TENANT_SHARED",id==11?"0":id==31?"3":"2",id==41?"LEGACY":"READY","a".repeat(64),"b".repeat(64),id==51?"1":"0");
+        db.execute("CREATE TABLE wx_3d_resource(id BIGINT PRIMARY KEY,resource_name VARCHAR(150),resource_type VARCHAR(20),asset_name VARCHAR(150),resource_relative_path VARCHAR(255),resource_scope VARCHAR(20),tenant_id VARCHAR(20),content_state VARCHAR(16),current_revision BIGINT DEFAULT 0,content_hash VARCHAR(64),manifest_sha256 VARCHAR(64),storage_prefix VARCHAR(512),manifest_path VARCHAR(512),platform VARCHAR(20),content_format VARCHAR(32),app_compatibility VARCHAR(128),create_by BIGINT,del_flag CHAR DEFAULT '0')");
+        db.execute("CREATE TABLE wx_3d_resource_operation(id VARCHAR(36) PRIMARY KEY,resource_id BIGINT,operation_type VARCHAR(16),resource_scope VARCHAR(20),tenant_id VARCHAR(20),operator_id BIGINT,request_hash VARCHAR(64),expected_revision BIGINT,committed_revision BIGINT,status VARCHAR(16) DEFAULT 'UPLOADING',storage_prefix VARCHAR(512),candidate_descriptor VARCHAR(4096),after_snapshot CLOB,expires_at TIMESTAMP,error_code VARCHAR(64))");
+        for(long id:List.of(11L,21L,31L,41L,51L))db.update("INSERT INTO wx_3d_resource(id,resource_name,resource_type,resource_scope,tenant_id,content_state,current_revision,content_hash,manifest_sha256,storage_prefix,manifest_path,content_format,platform,app_compatibility,del_flag) VALUES(?,'汽车','MODEL',?,?,?,1,?,?,'resources/a/','manifest.json','unity.assetbundle.v1','WebGL','test',?)",id,id==11?"GLOBAL_SYSTEM":id==41?null:"TENANT_SHARED",id==11?"0":id==31?"3":"2",id==41?"LEGACY":"READY","a".repeat(64),"b".repeat(64),id==51?"1":"0");
     }
     @Test void visibleListIncludesGlobalAndOwnOnly(){var page=service.page(1,20);assertEquals(2L,page.get("total"));assertEquals(2,((List<?>)page.get("list")).size());}
     @Test void ownAndGlobalCurrentReadable(){assertEquals("11",service.current("11").get("resourceId"));assertEquals("21",service.current("21").get("resourceId"));}
     @Test void otherTenantAndLegacyAndDeletedHidden(){for(String id:List.of("31","41","51"))assertThrows(ServiceException.class,()->service.current(id));}
     @Test void numericOverflowAndPagingRejected(){assertThrows(ServiceException.class,()->service.current("9223372036854775808"));assertThrows(ServiceException.class,()->service.page(0,20));assertThrows(ServiceException.class,()->service.page(1,101));}
-    @Test void createReplayDoesNotAllocateSecondResource()throws Exception{var body=json.readTree(create());var first=service.create(body);assertEquals(first.get("resourceId"),service.create(body).get("resourceId"));assertEquals(6,db.queryForObject("SELECT COUNT(*) FROM wx_dim3d_resource",Integer.class));}
+    @Test void createReplayDoesNotAllocateSecondResource()throws Exception{var body=json.readTree(create());var first=service.create(body);assertEquals(first.get("resourceId"),service.create(body).get("resourceId"));assertEquals(6,db.queryForObject("SELECT COUNT(*) FROM wx_3d_resource",Integer.class));}
     @Test void sameIdDifferentPayloadRejected()throws Exception{service.create(json.readTree(create()));assertThrows(ServiceException.class,()->service.create(json.readTree(create().replace("汽车模板","另一汽车"))));}
     @Test void forgedOwnerAndNumericIdRejected()throws Exception{assertThrows(ServiceException.class,()->service.create(json.readTree(create().replace("\"metadata\":","\"tenantId\":\"3\",\"metadata\":"))));assertThrows(ServiceException.class,()->service.create(json.readTree("{\"operationId\":\"6063365a-210b-486b-8c2d-928b10e66a39\",\"operationType\":\"REPLACE\",\"resourceId\":21,\"expectedRevision\":\"1\"}")));}
     @Test void crossTenantOperationHidden()throws Exception{service.create(json.readTree(create()));when(access.actor()).thenReturn(new ArtResourceAccess.Actor(20,3));assertThrows(ServiceException.class,()->service.operation("6063365a-210b-486b-8c2d-928b10e66a39"));}
@@ -43,14 +43,14 @@ class ArtResourceServiceTest {
             var body=json.readTree(create());
             var first=pool.submit(()->service.create(body));var second=pool.submit(()->service.create(body));
             assertEquals(first.get().get("resourceId"),second.get().get("resourceId"));
-            assertEquals(1,db.queryForObject("SELECT COUNT(*) FROM wx_dim3d_resource_operation",Integer.class));
-            assertEquals(6,db.queryForObject("SELECT COUNT(*) FROM wx_dim3d_resource",Integer.class));
+            assertEquals(1,db.queryForObject("SELECT COUNT(*) FROM wx_3d_resource_operation",Integer.class));
+            assertEquals(6,db.queryForObject("SELECT COUNT(*) FROM wx_3d_resource",Integer.class));
         }finally{pool.shutdownNow();}
     }
     /** 使用真实清单校验器和SQL；签发器必须收到旧冻结前缀，不能回退到当前资源行。 */
     @Test void unreadOldFileAndRenewalRemainPinnedAfterReplacement()throws Exception{
         String hash=committedFixture();
-        db.update("UPDATE wx_dim3d_resource SET current_revision=2,content_hash=?,storage_prefix='resources/new/' WHERE id=21","b".repeat(64));
+        db.update("UPDATE wx_3d_resource SET current_revision=2,content_hash=?,storage_prefix='resources/new/' WHERE id=21","b".repeat(64));
         service.file("21","1",hash,"models/car");service.file("21","1",hash,"models/car");
         verify(signer,times(2)).sign("resources/old/frozen/","models/car");
         verify(signer,never()).sign(eq("resources/new/"),anyString());
@@ -71,15 +71,15 @@ class ArtResourceServiceTest {
         when(access.actor()).thenReturn(new ArtResourceAccess.Actor(20,3));
         assertThrows(ServiceException.class,()->service.file("21","1",hash,"models/car"));
         when(access.actor()).thenReturn(new ArtResourceAccess.Actor(10,2));
-        db.update("UPDATE wx_dim3d_resource SET del_flag='1' WHERE id=21");
+        db.update("UPDATE wx_3d_resource SET del_flag='1' WHERE id=21");
         assertThrows(ServiceException.class,()->service.file("21","1",hash,"models/car"));
         verifyNoInteractions(store,signer);
     }
     @Test void pendingAndWrongScopeSnapshotsCannotBeSigned()throws Exception{
         String hash=committedFixture();
-        db.update("UPDATE wx_dim3d_resource_operation SET status='VERIFYING'");
+        db.update("UPDATE wx_3d_resource_operation SET status='VERIFYING'");
         assertThrows(ServiceException.class,()->service.file("21","1",hash,"models/car"));
-        db.update("UPDATE wx_dim3d_resource_operation SET status='COMMITTED',tenant_id='3'");
+        db.update("UPDATE wx_3d_resource_operation SET status='COMMITTED',tenant_id='3'");
         assertThrows(ServiceException.class,()->service.file("21","1",hash,"models/car"));
         verifyNoInteractions(signer);
     }
@@ -94,7 +94,7 @@ class ArtResourceServiceTest {
     // 普通模型文件签发同样固定在已提交修订，不允许读取原 ZIP 或当前修订的对象。
     @Test void modelFilesUsePinnedModelManifestAndKeepAttachmentsPrivate() throws Exception {
         String hash=committedModelFixture("model.gltf.v1","test-loader");
-        db.update("UPDATE wx_dim3d_resource SET current_revision=2,storage_prefix='resources/new/' WHERE id=21");
+        db.update("UPDATE wx_3d_resource SET current_revision=2,storage_prefix='resources/new/' WHERE id=21");
         service.file("21","1",hash,"models/texture.png");
         service.file("21","1",hash,"manifest.json");
         assertThrows(ServiceException.class,()->service.file("21","1",hash,"converted.zip"));
@@ -127,8 +127,8 @@ class ArtResourceServiceTest {
                 .put("content_state","READY").put("del_flag","0").put("storage_prefix","resources/old/frozen/")
                 .put("manifest_path","manifest.json").put("manifest_sha256",ArtResourceManifestVerifier.sha256(bytes))
                 .put("content_format",snapshotFormat).put("platform","WebGL").put("app_compatibility",compatibility);
-        db.update("DELETE FROM wx_dim3d_resource_operation WHERE id='old'");
-        db.update("INSERT INTO wx_dim3d_resource_operation(id,resource_id,resource_scope,tenant_id,committed_revision,status,after_snapshot) VALUES('old',21,'TENANT_SHARED','2',1,'COMMITTED',?)",
+        db.update("DELETE FROM wx_3d_resource_operation WHERE id='old'");
+        db.update("INSERT INTO wx_3d_resource_operation(id,resource_id,resource_scope,tenant_id,committed_revision,status,after_snapshot) VALUES('old',21,'TENANT_SHARED','2',1,'COMMITTED',?)",
                 json.writeValueAsString(snapshot));
         when(store.readManifest("resources/old/frozen/","manifest.json")).thenReturn(bytes);
         return hash;
@@ -147,7 +147,7 @@ class ArtResourceServiceTest {
         saved.put("id","21");saved.put("current_revision","1");saved.put("content_hash",hash);saved.put("content_state","READY");saved.put("del_flag","0");
         saved.put("storage_prefix","resources/old/frozen/");saved.put("manifest_path","manifest.json");saved.put("manifest_sha256",ArtResourceManifestVerifier.sha256(bytes));
         var snapshot=json.createObjectNode();snapshot.set("resource",saved);
-        db.update("INSERT INTO wx_dim3d_resource_operation(id,resource_id,resource_scope,tenant_id,committed_revision,status,after_snapshot) VALUES('old',21,'TENANT_SHARED','2',1,'COMMITTED',?)",json.writeValueAsString(snapshot));
+        db.update("INSERT INTO wx_3d_resource_operation(id,resource_id,resource_scope,tenant_id,committed_revision,status,after_snapshot) VALUES('old',21,'TENANT_SHARED','2',1,'COMMITTED',?)",json.writeValueAsString(snapshot));
         when(store.readManifest("resources/old/frozen/","manifest.json")).thenReturn(bytes);
         return hash;
     }

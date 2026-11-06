@@ -34,7 +34,7 @@ public class ArtResourceService {
     public Map<String,Object> page(int number, int size) {
         var actor=access.actor();
         if(number<1 || number>1000 || size<1 || size>100) throw new ServiceException(400,"分页范围无效");
-        String predicate=" FROM wx_dim3d_resource WHERE del_flag='0' AND content_state='READY' AND "+VISIBLE;
+        String predicate=" FROM wx_3d_resource WHERE del_flag='0' AND content_state='READY' AND "+VISIBLE;
         String owner=Long.toString(actor.tenant());
         Long total=jdbc.queryForObject("SELECT COUNT(*)"+predicate,Long.class,owner);
         var rows=jdbc.queryForList("SELECT "+SUMMARY+predicate+" ORDER BY id DESC LIMIT ? OFFSET ?",owner,size,(number-1)*size);
@@ -62,7 +62,7 @@ public class ArtResourceService {
         long pinnedRevision=revision(revision);
         if(pinnedRevision==0 || !ArtResourceManifestVerifier.digest(contentHash)) bad();
         ArtResourceManifestVerifier.requirePath(path);
-        var snapshots=jdbc.queryForList("SELECT after_snapshot FROM wx_dim3d_resource_operation WHERE resource_id=? AND committed_revision=? AND status='COMMITTED' AND resource_scope=? AND tenant_id=?",
+        var snapshots=jdbc.queryForList("SELECT after_snapshot FROM wx_3d_resource_operation WHERE resource_id=? AND committed_revision=? AND status='COMMITTED' AND resource_scope=? AND tenant_id=?",
                 id(id),pinnedRevision,row.get("resource_scope"),row.get("tenant_id"));
         if(snapshots.size()!=1 || snapshots.get(0).get("after_snapshot")==null) throw ServiceException.of(SNAPSHOT_UNAVAILABLE);
         Object saved=snapshots.get(0).get("after_snapshot");
@@ -144,7 +144,7 @@ public class ArtResourceService {
                 resource=IdWorker.getId(); scope=body.get("resourceScope").asText();
                 owner=scope.equals("GLOBAL_SYSTEM")?"0":Long.toString(actor.tenant());
                 var m=body.get("metadata");
-                jdbc.update("INSERT INTO wx_dim3d_resource(id,resource_name,resource_type,asset_name,resource_relative_path,resource_scope,tenant_id,content_state,create_by) VALUES(?,?,?,?,?,?,?,'PENDING',?)",
+                jdbc.update("INSERT INTO wx_3d_resource(id,resource_name,resource_type,asset_name,resource_relative_path,resource_scope,tenant_id,content_state,create_by) VALUES(?,?,?,?,?,?,?,'PENDING',?)",
                     resource,m.get("resourceName").asText(),m.get("resourceType").asText(),m.get("assetName").asText(),"",scope,owner,actor.user());
             } else {
                 var row=visible(body.get("resourceId").asText(),actor,type.equals("RESTORE"));
@@ -155,17 +155,17 @@ public class ArtResourceService {
                 if(!"READY".equals(row.get("content_state"))) throw ServiceException.of(LEGACY_UNCLASSIFIED);
                 resource=id(body.get("resourceId").asText());expected=revision(body.get("expectedRevision").asText());
                 if(expected!=((Number)row.get("current_revision")).longValue()) throw ServiceException.of(REVISION_CONFLICT);
-                if(type.equals("RESTORE") && jdbc.queryForObject("SELECT COUNT(*) FROM wx_dim3d_resource_operation WHERE id=? AND resource_id=? AND status='COMMITTED'",Long.class,body.get("snapshotOperationId").asText(),resource)==0)
+                if(type.equals("RESTORE") && jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_resource_operation WHERE id=? AND resource_id=? AND status='COMMITTED'",Long.class,body.get("snapshotOperationId").asText(),resource)==0)
                     throw ServiceException.of(SNAPSHOT_UNAVAILABLE);
             }
             String prefix="resources/"+scope+"/"+owner+"/"+resource+"/operations/"+operation+"/";
             if(modelImport) {
                 // 来源一经确定不能跨来源替换；旧未分类资源不能由导入入口自动认领。
-                if(creating) jdbc.update("UPDATE wx_dim3d_resource SET upload_source='WEB_UPLOAD' WHERE id=?",resource);
-                else if(jdbc.queryForObject("SELECT COUNT(*) FROM wx_dim3d_resource WHERE id=? AND upload_source='WEB_UPLOAD'",Long.class,resource)!=1)
+                if(creating) jdbc.update("UPDATE wx_3d_resource SET upload_source='WEB_UPLOAD' WHERE id=?",resource);
+                else if(jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_resource WHERE id=? AND upload_source='WEB_UPLOAD'",Long.class,resource)!=1)
                     throw ServiceException.of(LEGACY_UNCLASSIFIED);
             }
-            jdbc.update("INSERT INTO wx_dim3d_resource_operation(id,resource_id,operation_type,resource_scope,tenant_id,operator_id,request_hash,expected_revision,storage_prefix,candidate_descriptor,expires_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+            jdbc.update("INSERT INTO wx_3d_resource_operation(id,resource_id,operation_type,resource_scope,tenant_id,operator_id,request_hash,expected_revision,storage_prefix,candidate_descriptor,expires_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
                 operation,resource,type,scope,owner,actor.user(),hash,expected,prefix,
                 modelImport?"{\"modelImport\":true}":type.equals("RESTORE")?"{\"snapshotOperationId\":\""+body.get("snapshotOperationId").asText()+"\"}":null,
                 Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC).plusHours(1)));
@@ -184,18 +184,18 @@ public class ArtResourceService {
     }
     public Map<String,Object> cancel(String operation) {
         operation(operation);
-        int changed=jdbc.update("UPDATE wx_dim3d_resource_operation SET status='CANCELLED' WHERE id=? AND status='UPLOADING' AND expires_at>UTC_TIMESTAMP(3)",operation);
+        int changed=jdbc.update("UPDATE wx_3d_resource_operation SET status='CANCELLED' WHERE id=? AND status='UPLOADING' AND expires_at>UTC_TIMESTAMP(3)",operation);
         if(changed==0 && !"CANCELLED".equals(operation(operation).get("status"))) throw ServiceException.of(INVALID_OPERATION_STATE);
         return operation(operation);
     }
     private Map<String,Object> visible(String value,ArtResourceAccess.Actor actor,boolean deleted) {
-        var rows=jdbc.queryForList("SELECT * FROM wx_dim3d_resource WHERE id=? AND "+VISIBLE+(deleted?"":" AND del_flag='0'"),id(value),Long.toString(actor.tenant()));
+        var rows=jdbc.queryForList("SELECT * FROM wx_3d_resource WHERE id=? AND "+VISIBLE+(deleted?"":" AND del_flag='0'"),id(value),Long.toString(actor.tenant()));
         if(rows.isEmpty()) throw ServiceException.of(NOT_VISIBLE);
         return rows.get(0);
     }
     private List<Map<String,Object>> operationRows(String operation,ArtResourceAccess.Actor actor) {
         // 参数绑定防止操作编号成为SQL；返回内容只经操作者和范围复核后投影。
-        return jdbc.queryForList("SELECT id,resource_id,operation_type,resource_scope,tenant_id,operator_id,request_hash,expected_revision,committed_revision,status,expires_at,error_code,candidate_descriptor FROM wx_dim3d_resource_operation WHERE id=? AND operator_id=? AND "+VISIBLE,operation,actor.user(),Long.toString(actor.tenant()));
+        return jdbc.queryForList("SELECT id,resource_id,operation_type,resource_scope,tenant_id,operator_id,request_hash,expected_revision,committed_revision,status,expires_at,error_code,candidate_descriptor FROM wx_3d_resource_operation WHERE id=? AND operator_id=? AND "+VISIBLE,operation,actor.user(),Long.toString(actor.tenant()));
     }
     private Map<String,Object> replayMode(Map<String,Object> row,ArtResourceAccess.Actor actor,String hash,boolean modelImport) {
         var result=replay(row,actor,hash);
@@ -237,7 +237,7 @@ public class ArtResourceService {
     }
     /** 旧写入只允许未纳入新流程的资源，查询不返回跨租户数据。 */
     public void guardLegacyResource(Long id) {
-        if(id != null && jdbc.queryForObject("SELECT COUNT(*) FROM wx_dim3d_resource WHERE id=? AND (resource_scope IS NOT NULL OR content_state<>'LEGACY')",Long.class,id)>0)
+        if(id != null && jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_resource WHERE id=? AND (resource_scope IS NOT NULL OR content_state<>'LEGACY')",Long.class,id)>0)
             throw ServiceException.of(NOT_VISIBLE);
     }
     private static String camel(String value) {

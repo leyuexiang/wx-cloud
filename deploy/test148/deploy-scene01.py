@@ -11,7 +11,7 @@ def sha(path):
 
 def mysql(sql):
     command = ['docker', 'exec', '-i', 'mysql8', 'sh', '-c',
-        'export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"; exec mysql --default-character-set=utf8mb4 -uroot -N -B -r wx_editor_test148']
+        'export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"; exec mysql --default-character-set=utf8mb4 -uroot -N -B -r wx_editor']
     result = subprocess.run(command, input=sql, text=True, capture_output=True)
     if result.returncode: raise RuntimeError('场景迁移SQL未成功，原始输出仅留在内存')
     return result.stdout
@@ -44,7 +44,7 @@ def main():
     shutil.copy2(target, backup / 'dimensions.jar')
     # 只备份结构，本增量不修改任何旧表数据；新场景及修订只写入新增表。
     dump = subprocess.run(['docker', 'exec', 'mysql8', 'sh', '-c',
-        'export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"; exec mysqldump -uroot --no-data --skip-comments --set-gtid-purged=OFF wx_editor_test148'], capture_output=True)
+        'export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"; exec mysqldump -uroot --no-data --skip-comments --set-gtid-purged=OFF wx_editor'], capture_output=True)
     if dump.returncode: raise RuntimeError('数据库结构备份失败')
     (backup / 'schema-before.sql').write_bytes(dump.stdout)
     resource_before = mysql('SELECT id,current_revision,content_hash FROM wx_dim3d_resource WHERE id=2117612791529533441;')

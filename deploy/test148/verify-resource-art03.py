@@ -63,8 +63,8 @@ def main():
     try:
         created=operation();rid=created["resourceId"];body,targets,files=content(created,"A")
         result=commit(created,body);check("真实汽车闭包首次提交",result.get("code")==200 and result["data"]["status"]=="COMMITTED" and result["data"]["committedRevision"]=="1")
-        directory_id=int(api.sql("INSERT INTO wx_dim3d_model(model_name,category,model_file_id,resource_id,tenant_id,resource_belong,status) VALUES('ART03-关联目录-"+tag+"','TEST',"+rid+","+rid+",'"+str(actor["tenantId"])+"','MINE','ONLINE'); SELECT LAST_INSERT_ID();").splitlines()[-1])
-        check("受控目录关联可追溯",api.sql("SELECT COUNT(*) FROM wx_dim3d_model WHERE id="+str(directory_id)+" AND resource_id="+rid)=="1")
+        directory_id=int(api.sql("INSERT INTO wx_3d_model(model_name,category,model_file_id,resource_id,tenant_id,resource_belong,status) VALUES('ART03-关联目录-"+tag+"','TEST',"+rid+","+rid+",'"+str(actor["tenantId"])+"','MINE','ONLINE'); SELECT LAST_INSERT_ID();").splitlines()[-1])
+        check("受控目录关联可追溯",api.sql("SELECT COUNT(*) FROM wx_3d_model WHERE id="+str(directory_id)+" AND resource_id="+rid)=="1")
         first=current();check("普通用户取得当前描述",first.get("code")==200 and first["data"]["contentHash"]==body["contentHash"])
         old_url=first["data"]["manifestUrl"];check("提交后清单可下载",hashlib.sha256(get(old_url)).hexdigest()==body["manifestSha256"])
         replay=commit(created,body);check("响应丢失重试不递增",replay.get("code")==200 and replay["data"]["committedRevision"]=="1")
@@ -86,14 +86,14 @@ def main():
         delete=operation("DELETE",3);deleted=commit(delete,{})
         check("逻辑删除提交",deleted.get("code")==200 and deleted["data"]["committedRevision"]=="4")
         check("删除后新增消费拒绝",current().get("code")==2030001001)
-        check("删除事务同步下线关联目录",api.sql("SELECT CONCAT(del_flag,':',status) FROM wx_dim3d_model WHERE id="+str(directory_id))=="1:OFFLINE")
+        check("删除事务同步下线关联目录",api.sql("SELECT CONCAT(del_flag,':',status) FROM wx_3d_model WHERE id="+str(directory_id))=="1:OFFLINE")
         restored=operation("RESTORE",4,delete["operationId"]);restored_result=commit(restored,{})
         check("受控快照恢复",restored_result.get("code")==200 and restored_result["data"]["committedRevision"]=="5" and current().get("code")==200)
-        check("快照恢复同步还原关联目录",api.sql("SELECT CONCAT(del_flag,':',status) FROM wx_dim3d_model WHERE id="+str(directory_id))=="0:ONLINE")
+        check("快照恢复同步还原关联目录",api.sql("SELECT CONCAT(del_flag,':',status) FROM wx_3d_model WHERE id="+str(directory_id))=="0:ONLINE")
         rollback_op=operation("REPLACE",5);rollback_body,rollback_targets,_=content(rollback_op,"F")
         trigger="wx_art03_reject_"+tag
         try:
-            api.sql("DELIMITER $$\nCREATE TRIGGER "+trigger+" BEFORE UPDATE ON wx_dim3d_resource_operation FOR EACH ROW BEGIN IF NEW.resource_id="+rid+" AND NEW.status='COMMITTED' THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='ART03 synthetic receipt failure'; END IF; END$$\nDELIMITER ;\n")
+            api.sql("DELIMITER $$\nCREATE TRIGGER "+trigger+" BEFORE UPDATE ON wx_3d_resource_operation FOR EACH ROW BEGIN IF NEW.resource_id="+rid+" AND NEW.status='COMMITTED' THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='ART03 synthetic receipt failure'; END IF; END$$\nDELIMITER ;\n")
             denied=commit(rollback_op,rollback_body)
             check("真实MySQL写回执失败拒绝提交",denied.get("code")==2030001015)
             check("数据库失败保留原指针及修订",current()["data"]["currentRevision"]=="5")
@@ -117,7 +117,7 @@ def main():
     finally:
         if rid:
             # 只回收本验收创建的记录；先收集服务端冻结键，避免清理用户或其它操作目录。
-            snapshots=api.sql("SELECT storage_prefix FROM wx_dim3d_resource_operation WHERE resource_id="+rid+";").splitlines()
+            snapshots=api.sql("SELECT storage_prefix FROM wx_3d_resource_operation WHERE resource_id="+rid+";").splitlines()
             for operation_id in opids:
                 source_prefix="resources/TENANT_SHARED/"+str(actor["tenantId"])+"/"+rid+"/operations/"+operation_id+"/"
                 # ListObjects仅使用服务端私有凭据，精确前缀范围，不记录对象内容。
@@ -127,8 +127,8 @@ def main():
                 if code==200:
                     for key in ET.fromstring(raw).findall('.//{*}Key'):
                         if key.text.startswith(source_prefix):allkeys.add(key.text)
-            api.sql("DELETE FROM wx_dim3d_model WHERE resource_id="+rid+" AND model_name='ART03-关联目录-"+tag+"';")
-            api.sql("START TRANSACTION; UPDATE wx_dim3d_resource SET content_state='PENDING',current_operation_id=NULL WHERE id="+rid+" AND resource_name='ART03-汽车事务-"+tag+"'; DELETE FROM wx_dim3d_resource_operation WHERE resource_id="+rid+"; DELETE FROM wx_dim3d_resource WHERE id="+rid+" AND resource_name='ART03-汽车事务-"+tag+"'; COMMIT;")
+            api.sql("DELETE FROM wx_3d_model WHERE resource_id="+rid+" AND model_name='ART03-关联目录-"+tag+"';")
+            api.sql("START TRANSACTION; UPDATE wx_3d_resource SET content_state='PENDING',current_operation_id=NULL WHERE id="+rid+" AND resource_name='ART03-汽车事务-"+tag+"'; DELETE FROM wx_3d_resource_operation WHERE resource_id="+rid+"; DELETE FROM wx_3d_resource WHERE id="+rid+" AND resource_name='ART03-汽车事务-"+tag+"'; COMMIT;")
         for key in allkeys:
             code,_=s3.request("DELETE","/wx-art-test148/"+key)
             if code not in [200,204]:raise RuntimeError("测试对象清理失败")

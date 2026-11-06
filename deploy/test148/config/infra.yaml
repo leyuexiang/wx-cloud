@@ -55,11 +55,11 @@ spring:
       primary: master
       datasource:
         master:
-          url: jdbc:mysql://127.0.0.1:13306/wx_editor_test148?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
+          url: jdbc:mysql://127.0.0.1:13306/wx_editor?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
           username: wx_editor_test148
           password: ${WX_DB_PASSWORD}
           driver-class-name: com.mysql.cj.jdbc.Driver
-          name: wx_editor_test148
+          name: wx_editor
       druid:
         initial-size: 1
         min-idle: 1

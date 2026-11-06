@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * 全局记录的 tenantId 为字符串 0，必须由专用且显式带范围条件的服务访问。
  */
 @Data
-@TableName("wx_dim3d_resource_operation")
+@TableName("wx_3d_resource_operation")
 public class Dim3dResourceOperation {
     @TableId(type = IdType.INPUT)
     private String id;

@@ -5,7 +5,7 @@ from server_support import mysql_command
 ROOT=Path("/opt/wx/editor-test148")
 PORT=int(os.environ.get("WX_ART02_PORT","48192"))
 # 验收夹具只进入独立测试库，复用部署环境适配以兼容宿主 MySQL。
-SQL=mysql_command("wx_editor_test148")+["-N","-B"]
+SQL=mysql_command("wx_editor")+["-N","-B"]
 def sql(q):return subprocess.check_output(SQL,input=q.encode()).decode().strip()
 def request(port,path,who=None,method="GET",body=None,headers=None):
     h={"Content-Type":"application/json"}
@@ -72,7 +72,7 @@ def main():
         # 构造只用于范围过滤的元数据；不代表对象已上传，不执行真实下载。
         for scope,owner in [("GLOBAL_SYSTEM","0"),("TENANT_SHARED","2"),("TENANT_SHARED",str(badmin["tenantId"]))]:
             rid=3000000000000000000+secrets.randbelow(100000000);op=str(uuid.uuid4());fixture_ids.append(rid)
-            sql(f"INSERT INTO wx_dim3d_resource(id,resource_name,resource_type,asset_name,resource_relative_path,resource_scope,tenant_id,content_state) VALUES({rid},'ART02-范围夹具','MODEL','test','test','{scope}','{owner}','PENDING'); INSERT INTO wx_dim3d_resource_operation(id,resource_id,operation_type,resource_scope,tenant_id,operator_id,request_hash,expected_revision,status,committed_revision,after_snapshot,expires_at) VALUES('{op}',{rid},'CREATE','{scope}','{owner}',1,'{'a'*64}',0,'COMMITTED',1,JSON_OBJECT('fixture',true),'2030-01-01'); UPDATE wx_dim3d_resource SET content_state='READY',storage_prefix='art02/fixture/',manifest_path='manifest.json',manifest_sha256='{'a'*64}',content_hash='{'b'*64}',content_format='unity.assetbundle.v1',platform='WebGL',app_compatibility='test',current_revision=1,current_operation_id='{op}' WHERE id={rid};")
+            sql(f"INSERT INTO wx_3d_resource(id,resource_name,resource_type,asset_name,resource_relative_path,resource_scope,tenant_id,content_state) VALUES({rid},'ART02-范围夹具','MODEL','test','test','{scope}','{owner}','PENDING'); INSERT INTO wx_3d_resource_operation(id,resource_id,operation_type,resource_scope,tenant_id,operator_id,request_hash,expected_revision,status,committed_revision,after_snapshot,expires_at) VALUES('{op}',{rid},'CREATE','{scope}','{owner}',1,'{'a'*64}',0,'COMMITTED',1,JSON_OBJECT('fixture',true),'2030-01-01'); UPDATE wx_3d_resource SET content_state='READY',storage_prefix='art02/fixture/',manifest_path='manifest.json',manifest_sha256='{'a'*64}',content_hash='{'b'*64}',content_format='unity.assetbundle.v1',platform='WebGL',app_compatibility='test',current_revision=1,current_operation_id='{op}' WHERE id={rid};")
         global_id,a_id,b_id=fixture_ids
         for who,visible,hidden in [(aview,{global_id,a_id},b_id),(bview,{global_id,b_id},a_id)]:
             data=check("可见列表:"+str(who["id"]),request(PORT,"/admin-api/dim3d/resources",who),{200})
@@ -98,6 +98,6 @@ def main():
         ids=fixture_ids+[int(value) for _,value in created]
         if ids:
             values=",".join(map(str,ids))
-            sql("START TRANSACTION; UPDATE wx_dim3d_resource SET content_state='PENDING',current_operation_id=NULL WHERE id IN ("+values+") AND resource_name LIKE 'ART02-%'; DELETE FROM wx_dim3d_resource_operation WHERE resource_id IN ("+values+"); DELETE FROM wx_dim3d_resource WHERE id IN ("+values+") AND resource_name LIKE 'ART02-%'; COMMIT;")
+            sql("START TRANSACTION; UPDATE wx_3d_resource SET content_state='PENDING',current_operation_id=NULL WHERE id IN ("+values+") AND resource_name LIKE 'ART02-%'; DELETE FROM wx_3d_resource_operation WHERE resource_id IN ("+values+"); DELETE FROM wx_3d_resource WHERE id IN ("+values+") AND resource_name LIKE 'ART02-%'; COMMIT;")
     (ROOT/"verification-art02.json").write_text(json.dumps(result,ensure_ascii=False,indent=2));print(json.dumps({"passed":True,"checks":len(checks)}))
 if __name__=="__main__":main()

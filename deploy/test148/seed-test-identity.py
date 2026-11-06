@@ -89,6 +89,6 @@ for offset, action in enumerate(permissions, start=100):
 sql.append("INSERT IGNORE INTO wx_system_role_menu (id,role_id,menu_id,tenant_id) VALUES (200,3,100,2);")
 sql.append("COMMIT;")
 # 自动选择宿主或容器客户端，身份初始化始终只写入独立测试库。
-subprocess.run(mysql_command("wx_editor_test148"), check=True, input="\n".join(sql).encode())
+subprocess.run(mysql_command("wx_editor"), check=True, input="\n".join(sql).encode())
 print("测试身份已初始化：平台管理员、租户管理员、普通查看者。")
 print(f"凭据仅存放于服务器 {identity_path}，未写入日志或仓库。")

@@ -1,0 +1,11 @@
+# TPL-01 场景快照模板目录
+
+2026-11-06。本迁移为场景快照模板首期数据结构，服务 `POST /admin-api/dim3d/scene/saveAsTemplateFromSnapshot` 使用。快照模板目录独立于旧文件型 `wx_3d_template`，模板场景复用 `wx_3d_scene` 和 `wx_3d_scene_revision` 的四包身份及修订结构。
+
+本批新增 `wx_3d_scene_template`，保存模板目录身份、来源场景、模板场景、保存范围、资源归属、请求摘要及状态。快照目录通过 `/dim3d/scene/template/*` 提供分页、详情、上下线和清理。148 部署及真实联验属于 TPL-04。
+
+148 联验使用带 `test` 的专用库 `wx_editor_tpl04_test` 和候选端口。现网常驻业务库为 `wx_editor`。先在服务器执行 `python3 prepare-template-test-db.py` 做只读基线核对，确认无误后再加 `--apply` 创建迁移表和联验分类。隔离库先核对已采用 `wx_3d_*` 表名，再备份并执行 `001-scene-template.up.sql`，然后启动候选服务。普通场景列表也依赖模板表判定身份。失败时回退程序并保留目录表与四包数据。只有确认从未创建模板的空隔离库才可执行 `001-scene-template.down.sql`，避免模板场景失去目录标记。
+
+候选联验需配置平台租户管理员，并通过系统服务确认 `dim3d_template_industry` 和 `dim3d_template_exhibition` 中有启用分类。先验证普通场景列表、授权拒绝及分类校验，再用同一含未保存修改的场景验仅二维、仅三维和全部。核对目录、四包、源修订、失败回滚和测试模板清理。首期样本使用无封面模板。
+
+本地验证：`Dim3dSceneServiceTest` 11 项通过，覆盖独立模板场景、二维裁剪、幂等请求、来源修订冲突、目录详情、上下线、软删除、租户边界和既有场景保存行为。当前未部署 148，不能据此标记 TPL-01～04 已验收。

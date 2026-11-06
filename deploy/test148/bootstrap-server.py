@@ -74,20 +74,20 @@ else:
 # 账号仅能访问新测试库，旧库及其他应用库保持独立。
 password = env["WX_DB_PASSWORD"]
 sql = (
-    "CREATE DATABASE IF NOT EXISTS wx_editor_test148 CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;\n"
+    "CREATE DATABASE IF NOT EXISTS wx_editor CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;\n"
     f"CREATE USER IF NOT EXISTS 'wx_editor_test148'@'%' IDENTIFIED BY '{password}';\n"
     f"ALTER USER 'wx_editor_test148'@'%' IDENTIFIED BY '{password}';\n"
-    "GRANT ALL ON wx_editor_test148.* TO 'wx_editor_test148'@'%';\n"
+    "GRANT ALL ON wx_editor.* TO 'wx_editor_test148'@'%';\n"
 )
 run(mysql_cmd, input=sql.encode())
 
-check_sql = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='wx_editor_test148';"
+check_sql = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='wx_editor';"
 count = subprocess.check_output(mysql_cmd + ["-NBe", check_sql], input=b"").decode().strip()
 # CREATE TABLE IF NOT EXISTS 支持首次初始化失败后继续补齐，不删除任何已建表或记录。
-run(mysql_cmd + ["wx_editor_test148"], input=(ROOT / "schema-core.sql").read_bytes())
+run(mysql_cmd + ["wx_editor"], input=(ROOT / "schema-core.sql").read_bytes())
 expected = set(json.loads((ROOT / "table-map.json").read_text()).values())
 actual = set(subprocess.check_output(mysql_cmd + ["-NBe",
-    "SELECT table_name FROM information_schema.tables WHERE table_schema='wx_editor_test148';"],
+    "SELECT table_name FROM information_schema.tables WHERE table_schema='wx_editor';"],
     input=b"").decode().splitlines())
 if expected - actual:
     raise RuntimeError("测试库仍有缺表：" + ",".join(sorted(expected - actual)))

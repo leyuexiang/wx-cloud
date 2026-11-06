@@ -21,16 +21,16 @@ class ServerSupportTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             defaults = Path(directory) / "mysql.cnf"
             defaults.write_text('[client]\npassword="secret"\n', encoding="utf-8")
-            command = mysql_command("wx_editor_test148", defaults=defaults)
+            command = mysql_command("wx_editor", defaults=defaults)
         self.assertEqual(command[0], "mysql")
         self.assertTrue(command[1].startswith("--defaults-extra-file="))
-        self.assertEqual(command[-1], "wx_editor_test148")
+        self.assertEqual(command[-1], "wx_editor")
         self.assertNotIn("secret", " ".join(command))
 
     def test_container_mysql_retains_existing_environment_support(self):
         """没有宿主凭据文件时，沿用原有 mysql8 容器方案。"""
         from server_support import mysql_command
-        command = mysql_command("wx_editor_test148", defaults=Path("does-not-exist.cnf"))
+        command = mysql_command("wx_editor", defaults=Path("does-not-exist.cnf"))
         self.assertEqual(command[:4], ["docker", "exec", "-i", "mysql8"])
         self.assertIn("MYSQL_ROOT_PASSWORD", " ".join(command))
         self.assertIn("--protocol=TCP", " ".join(command))
@@ -41,7 +41,7 @@ class ServerSupportTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             defaults = Path(directory) / "mysql.cnf"
             defaults.touch()
-            command = mysql_command("wx_editor_test148", dump=True, defaults=defaults)
+            command = mysql_command("wx_editor", dump=True, defaults=defaults)
         self.assertEqual(command[0], "mysqldump")
         self.assertIn("--single-transaction", command)
         self.assertIn("--no-tablespaces", command)

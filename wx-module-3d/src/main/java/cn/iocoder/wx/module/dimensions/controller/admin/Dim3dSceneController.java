@@ -1,6 +1,7 @@
 package cn.iocoder.wx.module.dimensions.controller.admin;
 
 import cn.iocoder.wx.framework.common.pojo.CommonResult;
+import cn.iocoder.wx.framework.common.pojo.PageResult;
 import cn.iocoder.wx.module.dimensions.service.Dim3dSceneService;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.Resource;
@@ -37,4 +38,26 @@ public class Dim3dSceneController {
     public CommonResult<Boolean> unlock(@PathVariable String id, @RequestParam String clientKey) { service.unlock(id, clientKey); return CommonResult.success(true); }
     @PutMapping("/saveAll") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
     public CommonResult<Map<String, Object>> save(@RequestBody JsonNode body) { return CommonResult.success(service.save(body)); }
+
+    /** 从同一次采集的四包快照创建独立模板场景；旧文件型模板接口保持不变。 */
+    @PostMapping("/saveAsTemplateFromSnapshot") @PreAuthorize("@ss.hasAnyRoles('super_admin')")
+    public CommonResult<Map<String, Object>> saveAsTemplateFromSnapshot(@RequestBody JsonNode body) {
+        return CommonResult.success(service.saveAsTemplateFromSnapshot(body));
+    }
+
+    /** 快照模板的独立目录入口，旧文件型模板仍由资源目录控制器维护。 */
+    @GetMapping("/template/page") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<PageResult<Map<String, Object>>> templatePage(String templateName, String templateType, String category,
+                                                                        String status, Integer pageNum, Integer pageSize) {
+        return CommonResult.success(service.templatePage(templateName, templateType, category, status, pageNum, pageSize));
+    }
+
+    @GetMapping("/template/info/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Map<String, Object>> templateInfo(@PathVariable String id) { return CommonResult.success(service.templateInfo(id)); }
+
+    @PutMapping("/template/{status}/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Boolean> templateStatus(@PathVariable String status, @PathVariable String id) { service.changeTemplateStatus(id, status); return CommonResult.success(true); }
+
+    @DeleteMapping("/template/remove/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Boolean> removeTemplate(@PathVariable String id) { service.removeTemplate(id); return CommonResult.success(true); }
 }

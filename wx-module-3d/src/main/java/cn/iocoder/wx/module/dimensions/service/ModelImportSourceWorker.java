@@ -59,7 +59,7 @@ public class ModelImportSourceWorker implements AutoCloseable {
             case PUBLICATION -> "status='PUBLISHING' AND lease_until<=? AND publish_descriptor IS NOT NULL";
         };
         String order=stage==ClaimStage.SOURCE?"available_at":"lease_until";
-        var candidates=jdbc.queryForList("SELECT operation_id FROM wx_dim3d_resource_import WHERE cancel_requested=FALSE AND "+
+        var candidates=jdbc.queryForList("SELECT operation_id FROM wx_3d_resource_import WHERE cancel_requested=FALSE AND "+
                 selection+" ORDER BY "+order+",operation_id LIMIT 16",String.class,
                 stage==ClaimStage.SOURCE?new Object[]{now,now}:new Object[]{now});
         for(String id:candidates) {
@@ -85,17 +85,17 @@ public class ModelImportSourceWorker implements AutoCloseable {
             // 无效候选不能长期占据首批位置；成功状态只同步原操作回执。
             String terminal=Set.of("COMMITTED","CANCELLED","EXPIRED","CONFLICT").contains(op.get("status"))?(String)op.get("status"):
                     !time(op.get("expires_at")).isAfter(now)?"EXPIRED":"FAILED";
-            jdbc.update("UPDATE wx_dim3d_resource_import SET status=?,error_code=?,lease_until=NULL,row_version=row_version+1 WHERE operation_id=?",terminal,
+            jdbc.update("UPDATE wx_3d_resource_import SET status=?,error_code=?,lease_until=NULL,row_version=row_version+1 WHERE operation_id=?",terminal,
                     "FAILED".equals(terminal)?ModelImportErrorCode.INVALID_MODEL.name():null,id);
             return null;
         }
         try { maintain(op); } catch(ServiceException denied) {
-            jdbc.update("UPDATE wx_dim3d_resource_import SET status='FAILED',error_code=?,lease_until=NULL,row_version=row_version+1 WHERE operation_id=?",classify(denied).name(),id);return null;
+            jdbc.update("UPDATE wx_3d_resource_import SET status='FAILED',error_code=?,lease_until=NULL,row_version=row_version+1 WHERE operation_id=?",classify(denied).name(),id);return null;
         }
         now=databaseNow();
         if(!time(op.get("expires_at")).isAfter(now))return null;
         String attempt=UUID.randomUUID().toString();
-        jdbc.update("UPDATE wx_dim3d_resource_import SET status=?,attempt_id=?,lease_until=?,error_code=NULL,row_version=row_version+1 WHERE operation_id=?",
+        jdbc.update("UPDATE wx_3d_resource_import SET status=?,attempt_id=?,lease_until=?,error_code=NULL,row_version=row_version+1 WHERE operation_id=?",
                 stage==ClaimStage.SOURCE?"VERIFYING_SOURCE":state,attempt,now.plusSeconds(120),id);
         return new Lease(id,attempt,op.get("resource_id").toString(),((Number)task.get("source_size")).longValue(),(String)task.get("source_sha256"),(String)task.get("frozen_source_key"));
     }
@@ -111,7 +111,7 @@ public class ModelImportSourceWorker implements AutoCloseable {
         try {
             if(!freezeSource(lease))return Optional.empty();
             // 续租期间拿不到新领取资格；若进程在阶段切换后退出，超时后由新尝试接手。
-            var keys=jdbc.queryForList("SELECT frozen_source_key FROM wx_dim3d_resource_import WHERE operation_id=? AND attempt_id=? AND status='CONVERTING'",
+            var keys=jdbc.queryForList("SELECT frozen_source_key FROM wx_3d_resource_import WHERE operation_id=? AND attempt_id=? AND status='CONVERTING'",
                     String.class,lease.operationId(),lease.attemptId());
             if(keys.isEmpty())return Optional.empty();
             return Optional.of(new Lease(lease.operationId(),lease.attemptId(),lease.resourceId(),lease.sourceSize(),lease.sourceSha256(),keys.get(0)));
@@ -148,7 +148,7 @@ public class ModelImportSourceWorker implements AutoCloseable {
             var rows=current(lease,phase);if(rows==null)return false;
             maintain(rows.get(0));
             var now=databaseNow();if(!liveLease(rows,now))return false;
-            jdbc.update("UPDATE wx_dim3d_resource_import SET lease_until=? WHERE operation_id=?",now.plusSeconds(120),lease.operationId());return true;
+            jdbc.update("UPDATE wx_3d_resource_import SET lease_until=? WHERE operation_id=?",now.plusSeconds(120),lease.operationId());return true;
         });
     }
 
@@ -179,7 +179,7 @@ public class ModelImportSourceWorker implements AutoCloseable {
                     maintain(rows.get(0));
                     // 权限调用也可能跨过租约截止；回写前使用同一数据库时钟再次确认。
                     var now=databaseNow();if(!liveLease(rows,now))return false;
-                    jdbc.update("UPDATE wx_dim3d_resource_import SET status='VALIDATING',artifact_descriptor=?,lease_until=?,row_version=row_version+1 WHERE operation_id=?",
+                    jdbc.update("UPDATE wx_3d_resource_import SET status='VALIDATING',artifact_descriptor=?,lease_until=?,row_version=row_version+1 WHERE operation_id=?",
                             descriptor,now,lease.operationId());
                     return true;
                 });
@@ -221,7 +221,7 @@ public class ModelImportSourceWorker implements AutoCloseable {
                 var now=databaseNow();
                 // 固定 ZIP 身份及当前租约都必须与校验开始时一致。
                 if(!liveLease(rows,now) || !input.descriptor().equals(readArtifact(rows.get(1).get("artifact_descriptor"))))return false;
-                jdbc.update("UPDATE wx_dim3d_resource_import SET status='PUBLISHING',artifact_descriptor=?,lease_until=?,row_version=row_version+1 WHERE operation_id=?",
+                jdbc.update("UPDATE wx_3d_resource_import SET status='PUBLISHING',artifact_descriptor=?,lease_until=?,row_version=row_version+1 WHERE operation_id=?",
                         result.toString(),now,lease.operationId());
                 return true;
             });
@@ -256,7 +256,7 @@ public class ModelImportSourceWorker implements AutoCloseable {
                 var rows=current(lease,phase);
                 if(rows==null)return null;
                 var op=rows.get(0);var task=rows.get(1);
-                String assetName=jdbc.queryForObject("SELECT asset_name FROM wx_dim3d_resource WHERE id=?",String.class,lease.resourceId());
+                String assetName=jdbc.queryForObject("SELECT asset_name FROM wx_3d_resource WHERE id=?",String.class,lease.resourceId());
                 String prefix=op.get("storage_prefix")+"frozen/"+lease.attemptId()+"/";
                 return new PublicationInput((String)task.get("target_format"),prefix,
                         readObject(task.get("artifact_descriptor")),readObject(task.get("publish_descriptor")),assetName);
@@ -266,7 +266,7 @@ public class ModelImportSourceWorker implements AutoCloseable {
                     input.prefix(),input.artifact(),active::get);
             return tx(()->{
                 // 资源行先加锁，与既有 ART 最终事务的顺序一致。
-                var resources=jdbc.queryForList("SELECT * FROM wx_dim3d_resource WHERE id=? FOR UPDATE",lease.resourceId());
+                var resources=jdbc.queryForList("SELECT * FROM wx_3d_resource WHERE id=? FOR UPDATE",lease.resourceId());
                 if(resources.isEmpty())return false;
                 var rows=current(lease,phase);
                 if(rows==null)return false;
@@ -276,7 +276,7 @@ public class ModelImportSourceWorker implements AutoCloseable {
                 maintain(op);
                 if(!liveLease(rows,databaseNow()))return false;
                 boolean committed=resourceTransactions.commitModel(resources.get(0),op,ready,input.directory());
-                jdbc.update("UPDATE wx_dim3d_resource_import SET status=?,lease_until=NULL,error_code=NULL,row_version=row_version+1 WHERE operation_id=?",
+                jdbc.update("UPDATE wx_3d_resource_import SET status=?,lease_until=NULL,error_code=NULL,row_version=row_version+1 WHERE operation_id=?",
                         committed?"COMMITTED":"CONFLICT",lease.operationId());
                 // 若目录锁等待跨过截止，回滚本事务的全部写入。
                 if(!liveLease(rows,databaseNow()))throw new CancellationException();
@@ -348,7 +348,7 @@ public class ModelImportSourceWorker implements AutoCloseable {
             return tx(()->{
                 var rows=current(lease,"VERIFYING_SOURCE");if(rows==null)return false;maintain(rows.get(0));
                 var now=databaseNow();if(!liveLease(rows,now))return false;
-                jdbc.update("UPDATE wx_dim3d_resource_import SET status='CONVERTING',frozen_source_key=?,lease_until=?,row_version=row_version+1 WHERE operation_id=?",key,now.plusSeconds(120),lease.operationId());return true;
+                jdbc.update("UPDATE wx_3d_resource_import SET status='CONVERTING',frozen_source_key=?,lease_until=?,row_version=row_version+1 WHERE operation_id=?",key,now.plusSeconds(120),lease.operationId());return true;
             });
         } catch(RuntimeException error) {
             recordFailure(lease,"VERIFYING_SOURCE",classify(error));return false;
@@ -357,7 +357,7 @@ public class ModelImportSourceWorker implements AutoCloseable {
     private void recordFailure(Lease lease,String phase,ModelImportErrorCode error) {
         // 数据库不可用或本尝试失租约时不写错误覆盖新尝试，保留可恢复状态。
         tx(()->{
-            if(current(lease,phase)!=null)jdbc.update("UPDATE wx_dim3d_resource_import SET status='FAILED',error_code=?,lease_until=NULL,row_version=row_version+1 WHERE operation_id=?",error.name(),lease.operationId());
+            if(current(lease,phase)!=null)jdbc.update("UPDATE wx_3d_resource_import SET status='FAILED',error_code=?,lease_until=NULL,row_version=row_version+1 WHERE operation_id=?",error.name(),lease.operationId());
             return null;
         });
     }
@@ -375,9 +375,9 @@ public class ModelImportSourceWorker implements AutoCloseable {
         return leaseUntil!=null && time(leaseUntil).isAfter(now) && time(rows.get(0).get("expires_at")).isAfter(now);
     }
     private List<Map<String,Object>> lock(String id) {
-        var op=jdbc.queryForList("SELECT * FROM wx_dim3d_resource_operation WHERE id=? FOR UPDATE",id);
+        var op=jdbc.queryForList("SELECT * FROM wx_3d_resource_operation WHERE id=? FOR UPDATE",id);
         if(op.isEmpty())return null;
-        var task=jdbc.queryForList("SELECT * FROM wx_dim3d_resource_import WHERE operation_id=? FOR UPDATE",id);
+        var task=jdbc.queryForList("SELECT * FROM wx_3d_resource_import WHERE operation_id=? FOR UPDATE",id);
         return task.isEmpty()?null:List.of(op.get(0),task.get(0));
     }
     private boolean eligible(Map<String,Object> op,Map<String,Object> task,LocalDateTime now) {
@@ -386,7 +386,7 @@ public class ModelImportSourceWorker implements AutoCloseable {
         try {
             if(!json.readTree(jsonText(op.get("candidate_descriptor"))).path("modelImport").asBoolean(false))return false;
         }catch(Exception invalid){return false;}
-        return jdbc.queryForObject("SELECT COUNT(*) FROM wx_dim3d_resource WHERE id=? AND resource_scope=? AND tenant_id=? AND upload_source='WEB_UPLOAD' AND del_flag='0'",Long.class,
+        return jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_resource WHERE id=? AND resource_scope=? AND tenant_id=? AND upload_source='WEB_UPLOAD' AND del_flag='0'",Long.class,
                 op.get("resource_id"),op.get("resource_scope"),op.get("tenant_id"))==1;
     }
     private static String jsonText(Object raw) throws java.sql.SQLException {

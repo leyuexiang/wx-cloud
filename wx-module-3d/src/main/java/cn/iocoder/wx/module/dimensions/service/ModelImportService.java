@@ -55,8 +55,8 @@ public class ModelImportService {
     private ModelImportStatusView createInside(ObjectNode body,String format,long size,String hash) {
         var op=resources.createModelImport(body);String id=(String)op.get("operationId");
         var operation=lockOperation(id);
-        var rows=jdbc.queryForList("SELECT * FROM wx_dim3d_resource_import WHERE operation_id=? FOR UPDATE",id);
-        if(rows.isEmpty()) jdbc.update("INSERT INTO wx_dim3d_resource_import(operation_id,resource_id,target_format,source_size,source_sha256) VALUES(?,?,?,?,?)",
+        var rows=jdbc.queryForList("SELECT * FROM wx_3d_resource_import WHERE operation_id=? FOR UPDATE",id);
+        if(rows.isEmpty()) jdbc.update("INSERT INTO wx_3d_resource_import(operation_id,resource_id,target_format,source_size,source_sha256) VALUES(?,?,?,?,?)",
                 id,op.get("resourceId"),format,size,hash);
         else {
             var saved=rows.get(0);
@@ -85,7 +85,7 @@ public class ModelImportService {
             if(!"UPLOADING".equals(op.get("status"))) throw ServiceException.of(INVALID_OPERATION_STATE);
             String state=(String)task.get("status");
             if("RECEIVING".equals(state)) {
-                jdbc.update("UPDATE wx_dim3d_resource_import SET status='QUEUED',row_version=row_version+1 WHERE operation_id=?",id);
+                jdbc.update("UPDATE wx_3d_resource_import SET status='QUEUED',row_version=row_version+1 WHERE operation_id=?",id);
                 task=task(id);
             } else if(!RUNNING.contains(state)) throw ServiceException.of(INVALID_OPERATION_STATE);
             // 只持久化待处理状态；原文件验证和转换不得占用本次请求线程或数据库锁。
@@ -105,7 +105,7 @@ public class ModelImportService {
                 throw ServiceException.of(INVALID_OPERATION_STATE);
             if(previous==null) {
                 // 目录输入与任务同锁固定，重放只查询当前状态。
-                jdbc.update("UPDATE wx_dim3d_resource_import SET publish_descriptor=?,row_version=row_version+1 WHERE operation_id=?",
+                jdbc.update("UPDATE wx_3d_resource_import SET publish_descriptor=?,row_version=row_version+1 WHERE operation_id=?",
                         directory.toString(),id);
             }
             return view(op,task);
@@ -137,13 +137,13 @@ public class ModelImportService {
     }
     private Map<String,Object> lockOperation(String id) {
         operationId(id);var actor=access.actor();
-        var rows=jdbc.queryForList("SELECT * FROM wx_dim3d_resource_operation WHERE id=? AND operator_id=? AND ((resource_scope='GLOBAL_SYSTEM' AND tenant_id='0') OR (resource_scope='TENANT_SHARED' AND tenant_id=?)) FOR UPDATE",
+        var rows=jdbc.queryForList("SELECT * FROM wx_3d_resource_operation WHERE id=? AND operator_id=? AND ((resource_scope='GLOBAL_SYSTEM' AND tenant_id='0') OR (resource_scope='TENANT_SHARED' AND tenant_id=?)) FOR UPDATE",
                 id,actor.user(),Long.toString(actor.tenant()));
         if(rows.isEmpty()) throw ServiceException.of(NOT_VISIBLE);
         var row=rows.get(0);access.maintain(actor,(String)row.get("resource_scope"),(String)row.get("tenant_id"));return row;
     }
     private Map<String,Object> task(String id) {
-        var rows=jdbc.queryForList("SELECT * FROM wx_dim3d_resource_import WHERE operation_id=? FOR UPDATE",id);
+        var rows=jdbc.queryForList("SELECT * FROM wx_3d_resource_import WHERE operation_id=? FOR UPDATE",id);
         if(rows.isEmpty()) throw ServiceException.of(NOT_VISIBLE);return rows.get(0);
     }
     private ModelImportStatusView view(Map<String,Object> op,Map<String,Object> task) {

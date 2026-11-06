@@ -1,0 +1,26 @@
+-- 场景快照模板目录。与旧文件型 wx_3d_template 分开，避免把模板文件编号当作四包场景身份。
+CREATE TABLE IF NOT EXISTS wx_3d_scene_template (
+ id BIGINT NOT NULL PRIMARY KEY,
+ tenant_id BIGINT NOT NULL,
+ template_scene_id BIGINT NOT NULL,
+ source_scene_id BIGINT NOT NULL,
+ template_name VARCHAR(100) NOT NULL,
+ template_desc VARCHAR(500) NOT NULL DEFAULT '',
+ template_type VARCHAR(16) NOT NULL,
+ scene_type VARCHAR(16) NOT NULL,
+ category VARCHAR(100) NOT NULL DEFAULT '',
+ resource_belong VARCHAR(16) NOT NULL DEFAULT 'MINE',
+ save_scope VARCHAR(16) NOT NULL,
+ cover_asset_id VARCHAR(32) NOT NULL DEFAULT '',
+ status VARCHAR(16) NOT NULL DEFAULT 'ONLINE',
+ request_id VARCHAR(128) NOT NULL,
+ request_hash CHAR(64) NOT NULL,
+ create_by BIGINT NOT NULL,
+ create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ deleted TINYINT NOT NULL DEFAULT 0,
+ UNIQUE KEY uk_scene_template_request (tenant_id,request_id),
+ UNIQUE KEY uk_scene_template_scene (tenant_id,template_scene_id),
+ KEY idx_scene_template_catalog (tenant_id,deleted,status,update_time,id),
+ CONSTRAINT chk_scene_template_scope CHECK (save_scope IN ('twoD','threeD','all'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

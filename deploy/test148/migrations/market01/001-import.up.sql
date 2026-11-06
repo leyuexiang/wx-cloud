@@ -1,10 +1,10 @@
 -- MARKET-01增量：旧资源保持NULL，不按前端历史平台字段推断来源。
-ALTER TABLE wx_dim3d_resource
+ALTER TABLE wx_3d_resource
   ADD COLUMN upload_source varchar(20) COLLATE utf8mb4_0900_as_cs DEFAULT NULL COMMENT '可信上传来源；旧数据待审计',
   ADD CONSTRAINT ck_dim3d_resource_upload_source CHECK (upload_source IS NULL OR upload_source IN ('UNITY_EDITOR','WEB_UPLOAD'));
 
 -- 身份、权限和截止时间通过关联操作读取，不在导入表复制另一份可变租户/操作者。
-CREATE TABLE wx_dim3d_resource_import (
+CREATE TABLE wx_3d_resource_import (
   operation_id char(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
   resource_id bigint NOT NULL,
   target_format varchar(4) COLLATE utf8mb4_0900_as_cs NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE wx_dim3d_resource_import (
   KEY idx_dim3d_import_schedule (status,available_at,operation_id),
   KEY idx_dim3d_import_lease (status,lease_until,operation_id),
   CONSTRAINT fk_dim3d_import_operation FOREIGN KEY (resource_id,operation_id)
-    REFERENCES wx_dim3d_resource_operation(resource_id,id) ON DELETE RESTRICT,
+    REFERENCES wx_3d_resource_operation(resource_id,id) ON DELETE RESTRICT,
   CONSTRAINT ck_dim3d_import_format CHECK (target_format IN ('gltf','glb')),
   CONSTRAINT ck_dim3d_import_size CHECK (source_size BETWEEN 1 AND 524288000),
   CONSTRAINT ck_dim3d_import_hash CHECK (REGEXP_LIKE(source_sha256,'^[0-9a-f]{64}$','c')),

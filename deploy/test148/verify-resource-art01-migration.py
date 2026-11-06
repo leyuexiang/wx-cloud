@@ -17,7 +17,8 @@ def verify():
     os.umask(0o077)
     if Path.cwd().resolve() != M.ROOT:
         raise RuntimeError("必须从测试部署目录运行")
-    database = "wx_editor_art01_rehearsal_" + uuid.uuid4().hex[:12]
+    # 验证库名显式带 test，随机后缀区分各轮演练。
+    database = "wx_editor_art01_test_rehearsal_" + uuid.uuid4().hex[:12]
     # 只创建唯一命名的新库，不复用、不删除任何已有数据库。
     M.mysql("mysql", f"CREATE DATABASE `{database}` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;")
     M.mysql(database, (M.ROOT / "schema-core.sql").read_text())
