@@ -43,7 +43,8 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
     @Resource private ObjectMapper objectMapper;
     @Resource private cn.iocoder.wx.module.dimensions.service.ArtResourceService artResources;
 
-    @Value("${dim3d.resource-convert-url:http://192.168.10.200:30080/api/dim3d/resource/uploadConvert}")
+    // 旧转换合同仍由部署显式配置；缺失时不能向历史测试主机转发文件和认证信息。
+    @Value("${dim3d.resource-convert-url:}")
     private String convertUrl;
 
     @Override public Long createModel(Dim3dModel model) { legacy(model); applyTenant(model); modelMapper.insert(model); return model.getId(); }
@@ -92,6 +93,9 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
         if (file == null || file.isEmpty() || !StringUtils.hasText(originalFilename)
                 || !originalFilename.toLowerCase(Locale.ROOT).endsWith(".zip")) {
             throw ServiceException.of(ErrorCodeConstants.FILE_TYPE_ERROR_PLEASE_ZIP);
+        }
+        if (!StringUtils.hasText(convertUrl)) {
+            throw new ServiceException(503, "旧资源转换服务未配置");
         }
         try {
             MultipartBodyBuilder body = new MultipartBodyBuilder();

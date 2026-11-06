@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-04",
+  "java": {
+    "suites": [
+      {
+        "name": "cn.iocoder.wx.module.dimensions.config.CommonKafkaProducerConfigurationTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.entity.ArtResourceLegacyWriteBoundaryTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.iot.IotStateConfigurationTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceAccessTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceClosureVerifierTest",
+        "tests": "18",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceManifestVerifierTest",
+        "tests": "41",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceObjectStoreTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceServiceTest",
+        "tests": "18",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceTransactionTest",
+        "tests": "11",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.Dim3dResourceConvertConfigurationTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.Dim3dSceneServiceTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ModelImportArtifactVerifierTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ModelImportControllerTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ModelImportConversionClientTest",
+        "tests": "12",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ModelImportServiceTest",
+        "tests": "15",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ModelImportSourceWorkerTest",
+        "tests": "29",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ModelImportStatusViewTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "tests": 192,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "command": "mvn -o -pl wx-module-3d -am '-Dtest=CommonKafkaProducerConfigurationTest,Dim3dResourceConvertConfigurationTest,IotStateConfigurationTest,ArtResource*Test,ModelImport*Test,Dim3dSceneServiceTest' '-Dsurefire.failIfNoSpecifiedTests=false' test -q"
+  },
+  "focusedRerun": {
+    "tests": 2,
+    "passed": true
+  },
+  "deployTools": {
+    "command": "python -m unittest discover -s deploy/test148 -p test_*.py",
+    "tests": 8,
+    "passed": true
+  },
+  "deployed": false
+}

@@ -4,22 +4,18 @@ import cn.hutool.json.JSONUtil;
 import cn.iocoder.wx.framework.common.pojo.CommonResult;
 import cn.iocoder.wx.framework.core.LicenseVerify;
 import cn.iocoder.wx.module.dimensions.consumer.common.KafkaTopicVO;
+import cn.iocoder.wx.module.dimensions.config.CommonKafkaProducerConfiguration.StringProducerResources;
 import cn.iocoder.wx.module.dimensions.domain.dto.KafkaMessageDTO;
 import cn.iocoder.wx.module.dimensions.utils.KafkaUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -31,13 +27,9 @@ public class CommonController extends BaseCrudController<String, Long> {
     @Autowired
     private LicenseVerify licenseVerify;
 
-    private KafkaTemplate<String, String> createStringKafkaTemplate() {
-        Map<String, Object> configProps = new HashMap<>();
-        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092"); // 替换成实际地址
-        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(configProps));
-    }
+    // 每批复用同一生产者，继承当前环境的地址和认证，避免请求级创建且未释放连接。
+    @Autowired
+    private StringProducerResources stringProducerResources;
 
     @Operation(summary = "批量发送kafka数据（每条延迟200ms）")
     @PostMapping("/send/batch/{topic}/{isSleep}")
@@ -49,7 +41,7 @@ public class CommonController extends BaseCrudController<String, Long> {
             return ResponseEntity.badRequest().body("非法的 topic: " + topic);
         }
 
-        KafkaTemplate<String, String> kafkaTemplate = createStringKafkaTemplate();
+        KafkaTemplate<String, String> kafkaTemplate = stringProducerResources.template();
 
         CompletableFuture.runAsync(() -> {
             for (KafkaMessageDTO messageDTO : messages) {

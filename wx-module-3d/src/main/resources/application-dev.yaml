@@ -203,8 +203,8 @@ justauth:
 minio:
   # 测试环境的对象存储已独立部署在 192.168.10.120，资源转换结果和预览文件均通过该地址访问。
   url: http://192.168.10.120:9000
-  accessKey: ${REDACTED_SECRET} #账户
-  secretKey: admin123 #密码
+  accessKey: ${WX_MINIO_ACCESS_KEY}
+  secretKey: ${WX_MINIO_SECRET_KEY} # 凭据由当前部署环境提供，不设置源码默认值。
   bucketName: 9tyf
   expiry: 1 # redis 文件信息失效时间 天
   breakpointTime: 1 # 分片地址失效时间 天

@@ -9,9 +9,10 @@ import java.util.*;
 
 public class DataGenUtil {
     public static void main(String[] args)  {
-        String url = "jdbc:mysql://172.27.17.108:30030/test_3d_resource";
-        String username = "root";
-        String password = "123456";
+        // 历史离线样例保持不执行写库；需要启用时从环境读取，源码不保存连接凭据。
+        String url = System.getenv("JTYF_DEMO_JDBC_URL");
+        String username = System.getenv("JTYF_DEMO_JDBC_USER");
+        String password = System.getenv("JTYF_DEMO_JDBC_PASSWORD");
 
 //        try{
 //            Connection connection = DriverManager.getConnection(url, username, password);

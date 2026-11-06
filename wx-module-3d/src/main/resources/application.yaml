@@ -235,6 +235,6 @@ preview:
   3d:
     base-url: "${preview.base-url}/web/#/scenePreview"
 
-# 模型转换服务地址。部署环境可通过 Nacos 同名配置覆盖，避免在业务代码中固化网络地址。
+# 旧转换接口需返回资源元数据 JSON，不能直接填写返回 ZIP 的独立转换器；未配置时拒绝该功能。
 dim3d:
-  resource-convert-url: http://192.168.10.200:30080/api/dim3d/resource/uploadConvert
+  resource-convert-url: ${DIM3D_RESOURCE_CONVERT_URL:}
