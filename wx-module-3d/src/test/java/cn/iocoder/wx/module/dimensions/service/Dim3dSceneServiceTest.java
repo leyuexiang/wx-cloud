@@ -269,6 +269,23 @@ class Dim3dSceneServiceTest {
         assertEquals("TEMPLATE", service.info(template.get("templateSceneId").toString()).get("sceneKind"));
     }
 
+    @Test void templateInstantiationRequiresOnlineTemplateAndSameTenant() {
+        String sourceId = create();
+        @SuppressWarnings("unchecked") var revision = (Map<String, Object>) service.info(sourceId).get("currentRevision");
+        ObjectNode templateBody = json.createObjectNode().put("sourceSceneId", sourceId).put("sourceRevisionNo", 1)
+                .put("requestId", "tpl-instance-guard-source").put("templateName", "状态模板").put("templateType", "INDUSTRY")
+                .put("category", "测试").put("saveScope", "all");
+        for (String key : java.util.List.of("sceneJson", "threeDJson", "twoDJson", "dependenciesJson")) templateBody.put(key, (String) revision.get(key));
+        var template = service.saveAsTemplateFromSnapshot(templateBody);
+        ObjectNode instanceBody = json.createObjectNode().put("templateSceneId", template.get("templateSceneId").toString())
+                .put("requestId", "tpl-instance-guard").put("name", "受保护实例");
+        service.changeTemplateStatus(template.get("templateId").toString(), "OFFLINE");
+        assertThrows(ServiceException.class, () -> service.createFromTemplate(instanceBody));
+        service.changeTemplateStatus(template.get("templateId").toString(), "ONLINE");
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(9, 9));
+        assertThrows(ServiceException.class, () -> service.createFromTemplate(instanceBody));
+    }
+
     @Test void combinedTemplatePageKeepsLegacyAndSnapshotRecords() {
         jdbc.update("INSERT INTO wx_3d_template(id,template_name,template_type,category,resource_belong,template_file_id,status,tenant_id,del_flag,update_time) VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)",
                 9001L, "旧文件模板", "INDUSTRY", "测试", "MINE", 7001L, "ONLINE", "2", "0");
