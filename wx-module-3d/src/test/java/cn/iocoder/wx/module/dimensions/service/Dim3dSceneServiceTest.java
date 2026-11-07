@@ -4,7 +4,9 @@ import cn.iocoder.wx.framework.common.exception.ServiceException;
 import cn.iocoder.wx.framework.common.pojo.CommonResult;
 import cn.iocoder.wx.module.system.api.dict.DictDataApi;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.aop.framework.ProxyFactory;
@@ -233,6 +235,38 @@ class Dim3dSceneServiceTest {
         service.removeTemplate(created.get("templateId").toString());
         assertEquals(0, service.templatePage(null, null, null, null, 1, 10).getTotal());
         assertEquals(sourceId, service.info(sourceId).get("sceneId"));
+    }
+
+    @Test void templateInstantiationCreatesIndependentSceneAndRemapsNodeReferences() throws Exception {
+        String sourceId = create();
+        @SuppressWarnings("unchecked") var revision = (Map<String, Object>) service.info(sourceId).get("currentRevision");
+        ObjectNode threeD = (ObjectNode) json.readTree((String) revision.get("threeDJson"));
+        ArrayNode objects = threeD.putArray("objects");
+        objects.addObject().put("instanceId", "source-parent").put("sortNo", 0);
+        objects.addObject().put("instanceId", "source-child").put("parentInstanceId", "source-parent").put("sortNo", 1);
+        threeD.with("streaming").putArray("chunks").addObject().put("sceneId", sourceId).putArray("objectIds").add("source-child");
+        ObjectNode templateBody = json.createObjectNode().put("sourceSceneId", sourceId).put("sourceRevisionNo", 1)
+                .put("requestId", "tpl-instance-source").put("templateName", "实例化模板").put("templateType", "INDUSTRY")
+                .put("category", "测试").put("saveScope", "all");
+        templateBody.put("threeDJson", threeD.toString());
+        for (String key : java.util.List.of("sceneJson", "twoDJson", "dependenciesJson")) templateBody.put(key, (String) revision.get(key));
+        var template = service.saveAsTemplateFromSnapshot(templateBody);
+        ObjectNode instanceBody = json.createObjectNode().put("templateSceneId", template.get("templateSceneId").toString())
+                .put("requestId", "tpl-instance-request").put("name", "实例场景");
+        var instance = service.createFromTemplate(instanceBody);
+        assertEquals("INSTANCE", instance.get("sceneKind"));
+        assertEquals("实例场景", service.info(instance.get("sceneId").toString()).get("name"));
+        @SuppressWarnings("unchecked") var instanceRevision = (Map<String, Object>) service.info(instance.get("sceneId").toString()).get("currentRevision");
+        JsonNode savedThreeD = json.readTree((String) instanceRevision.get("threeDJson"));
+        String parent = savedThreeD.path("objects").get(0).path("instanceId").asText();
+        String child = savedThreeD.path("objects").get(1).path("instanceId").asText();
+        assertNotEquals("source-parent", parent);
+        assertNotEquals("source-child", child);
+        assertEquals(parent, savedThreeD.path("objects").get(1).path("parentInstanceId").asText());
+        assertEquals(instance.get("sceneId").toString(), savedThreeD.path("streaming").path("chunks").get(0).path("sceneId").asText());
+        assertEquals(instance.get("sceneId"), service.createFromTemplate(instanceBody).get("sceneId"));
+        assertEquals(2L, service.page(null, null, null, null, null, null, 1, 10).get("total"));
+        assertEquals("TEMPLATE", service.info(template.get("templateSceneId").toString()).get("sceneKind"));
     }
 
     @Test void combinedTemplatePageKeepsLegacyAndSnapshotRecords() {

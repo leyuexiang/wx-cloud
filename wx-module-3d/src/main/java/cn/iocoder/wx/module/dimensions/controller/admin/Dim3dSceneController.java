@@ -45,6 +45,12 @@ public class Dim3dSceneController {
         return CommonResult.success(service.saveAsTemplateFromSnapshot(body));
     }
 
+    /** 从快照模板创建新的独立场景；模板正文只读，实例场景拥有自己的编号和首版修订。 */
+    @PostMapping("/fromTemplate") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Map<String, Object>> createFromTemplate(@RequestBody JsonNode body) {
+        return CommonResult.success(service.createFromTemplate(body));
+    }
+
     /** 快照模板的独立目录入口，旧文件型模板仍由资源目录控制器维护。 */
     @GetMapping("/template/page") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
     public CommonResult<PageResult<Map<String, Object>>> templatePage(String templateName, String templateType, String category,

@@ -225,6 +225,44 @@ public class Dim3dSceneService {
         return templateReceipt(Long.toString(templateId), Long.toString(templateSceneId), source.get("scene_type"), scope);
     }
 
+    /**
+     * 从快照模板创建独立场景。模板四包先在内存中完成编号映射，再与新场景主记录、首版修订一起落库。
+     * 这样模板始终保持不可编辑，实例保存时也不会继续引用模板场景编号。
+     */
+    @Transactional
+    public Map<String, Object> createFromTemplate(JsonNode body) {
+        var actor = access.actor();
+        String templateSceneId = text(body, "templateSceneId", 19);
+        String request = text(body, "requestId", 110);
+        String name = text(body, "name", 100);
+        String description = optional(body, "sceneDesc", 500);
+        String category = optional(body, "sceneCategory", 100);
+        var template = templateBySceneId(templateSceneId, actor, true);
+        if (!"ONLINE".equals(template.get("status"))) throw new ServiceException(409, "模板当前未上线");
+        var revisions = jdbc.queryForList("SELECT * FROM wx_3d_scene_revision WHERE tenant_id=? AND scene_id=? AND revision_no=1",
+                actor.tenant(), requireId(templateSceneId));
+        if (revisions.size() != 1) throw new ServiceException(500, "模板场景修订不完整");
+        var sourceRevision = revisions.get(0);
+        String storedRequest = "TPL6:" + request;
+        String requestHash = digest(templateSceneId + "\n" + name + "\n" + description + "\n" + category + "\n"
+                + sourceRevision.get("request_hash"));
+        var replay = jdbc.queryForList("SELECT scene_id,request_hash FROM wx_3d_scene_revision WHERE tenant_id=? AND request_id=?",
+                actor.tenant(), storedRequest);
+        if (!replay.isEmpty()) {
+            var previous = replay.get(0);
+            if (!requestHash.equals(previous.get("request_hash"))) throw new ServiceException(409, "实例化请求号已绑定其他内容");
+            return instanceReceipt(previous.get("scene_id").toString(), templateSceneId, template.get("scene_type"));
+        }
+        long sceneId = IdWorker.getId();
+        List<String> packages = instantiatePackages(sourceRevision, template.get("source_scene_id").toString(), templateSceneId, Long.toString(sceneId), name);
+        jdbc.update("INSERT INTO wx_3d_scene(id,tenant_id,name,scene_desc,scene_category,scene_type,cover_asset_id,create_by) VALUES(?,?,?,?,?,?,?,?)",
+                sceneId, actor.tenant(), name, description.isEmpty() ? template.get("template_desc") : description,
+                category.isEmpty() ? template.get("category") : category, template.get("scene_type"), template.get("cover_asset_id"), actor.user());
+        long revision = insertRevision(actor, sceneId, 1, 1, packages, storedRequest, requestHash);
+        return Map.of("sceneId", Long.toString(sceneId), "templateSceneId", templateSceneId, "sceneKind", "INSTANCE",
+                "sceneType", template.get("scene_type"), "revisionId", Long.toString(revision), "revisionNo", 1);
+    }
+
     /** 查询当前租户的快照模板目录，目录只返回摘要，不把四包正文带入分页结果。 */
     public PageResult<Map<String, Object>> templatePage(String name, String type, String category, String status, Integer number, Integer size) {
         var actor = access.actor();
@@ -416,8 +454,64 @@ public class Dim3dSceneService {
         return twoD.toString();
     }
 
+    /** 复制模板四包并重建场景内节点、父级、图层和分块引用。 */
+    private List<String> instantiatePackages(Map<String, Object> sourceRevision, String sourceSceneId, String templateSceneId, String sceneId, String name) {
+        try {
+            ObjectNode scene = (ObjectNode) json.readTree(sourceRevision.get("scene_json").toString());
+            ObjectNode threeD = (ObjectNode) json.readTree(sourceRevision.get("three_d_json").toString());
+            ObjectNode twoD = (ObjectNode) json.readTree(sourceRevision.get("two_d_json").toString());
+            ObjectNode dependencies = (ObjectNode) json.readTree(sourceRevision.get("dependencies_json").toString());
+            scene.put("name", name);
+            Map<String, String> references = new LinkedHashMap<>();
+            collectReferenceIds(threeD.path("objects"), "instanceId", references);
+            collectReferenceIds(threeD.path("components"), "instanceId", references);
+            collectReferenceIds(threeD.path("layers"), "id", references);
+            remapReferences(threeD, references, sourceSceneId, templateSceneId, sceneId);
+            remapReferences(twoD, references, sourceSceneId, templateSceneId, sceneId);
+            remapReferences(dependencies, references, sourceSceneId, templateSceneId, sceneId);
+            JsonNode chunks = threeD.path("streaming").path("chunks");
+            if (chunks.isArray()) for (JsonNode chunk : chunks)
+                if (chunk.isObject() && (sourceSceneId.equals(chunk.path("sceneId").asText()) || templateSceneId.equals(chunk.path("sceneId").asText())))
+                    ((ObjectNode) chunk).put("sceneId", sceneId);
+            return List.of(scene.toString(), threeD.toString(), twoD.toString(), dependencies.toString());
+        } catch (java.io.IOException error) {
+            throw new ServiceException(500, "模板四包无法解析");
+        }
+    }
+
+    private void collectReferenceIds(JsonNode values, String key, Map<String, String> references) {
+        if (!values.isArray()) return;
+        for (JsonNode value : values) {
+            String source = value.path(key).asText();
+            if (!source.isBlank()) references.computeIfAbsent(source, ignored -> Long.toString(IdWorker.getId()));
+        }
+    }
+
+    private void remapReferences(JsonNode node, Map<String, String> references, String sourceSceneId, String templateSceneId, String sceneId) {
+        if (node.isArray()) {
+            for (JsonNode child : node) remapReferences(child, references, sourceSceneId, templateSceneId, sceneId);
+            return;
+        }
+        if (!node.isObject()) return;
+        node.fields().forEachRemaining(entry -> {
+            JsonNode value = entry.getValue();
+            if (value.isTextual()) {
+                String text = value.asText();
+                String mapped = references.get(text);
+                if (mapped != null && Set.of("instanceId", "parentInstanceId", "objectId", "sourceObjectId", "targetObjectId",
+                        "layerId", "sourceLayerId", "targetLayerId", "id").contains(entry.getKey()))
+                    ((ObjectNode) node).put(entry.getKey(), mapped);
+                else if ((sourceSceneId.equals(text) || templateSceneId.equals(text)) && "sceneId".equals(entry.getKey())) ((ObjectNode) node).put(entry.getKey(), sceneId);
+            } else remapReferences(value, references, sourceSceneId, templateSceneId, sceneId);
+        });
+    }
+
     private Map<String, Object> templateResult(Map<String, Object> row) {
         return templateReceipt(row.get("id").toString(), row.get("template_scene_id").toString(), row.get("scene_type"), row.get("save_scope"));
+    }
+
+    private Map<String, Object> instanceReceipt(String sceneId, String templateSceneId, Object sceneType) {
+        return Map.of("sceneId", sceneId, "templateSceneId", templateSceneId, "sceneKind", "INSTANCE", "sceneType", sceneType, "revisionNo", 1);
     }
 
     private Map<String, Object> templateReceipt(String id, String sceneId, Object sceneType, Object scope) {
@@ -451,6 +545,12 @@ public class Dim3dSceneService {
 
     private Map<String, Object> template(String id, ArtResourceAccess.Actor actor, boolean lock) {
         var rows = jdbc.queryForList("SELECT * FROM wx_3d_scene_template WHERE id=? AND tenant_id=? AND deleted=0" + (lock ? " FOR UPDATE" : ""), requireId(id), actor.tenant());
+        if (rows.isEmpty()) throw new ServiceException(404, "模板不存在或当前身份不可见");
+        return rows.get(0);
+    }
+
+    private Map<String, Object> templateBySceneId(String sceneId, ArtResourceAccess.Actor actor, boolean lock) {
+        var rows = jdbc.queryForList("SELECT * FROM wx_3d_scene_template WHERE template_scene_id=? AND tenant_id=? AND deleted=0" + (lock ? " FOR UPDATE" : ""), requireId(sceneId), actor.tenant());
         if (rows.isEmpty()) throw new ServiceException(404, "模板不存在或当前身份不可见");
         return rows.get(0);
     }
