@@ -93,6 +93,27 @@ class Dim3dSceneServiceTest {
         assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_revision", Integer.class));
     }
 
+    @Test void readChunksUsesFixedRevisionAndParentRelations() throws Exception {
+        String id = create(); String token = (String) service.lock(id, "read-chunks").get("lockToken");
+        ObjectNode body = saveBody(id, token);
+        ObjectNode threeD = (ObjectNode) json.readTree(body.path("threeDJson").asText());
+        threeD.set("objects", json.readTree("[{\"instanceId\":\"root\",\"sortNo\":0},{\"instanceId\":\"child\",\"parentInstanceId\":\"root\",\"sortNo\":1}]"));
+        threeD.with("streaming").set("chunks", json.readTree("[{\"id\":\"chunk-a\",\"objectIds\":[\"child\"]}]"));
+        body.put("threeDJson", threeD.toString());
+        assertEquals(2, service.save(body).get("revisionNo"));
+
+        @SuppressWarnings("unchecked") Map<String, Object> result = service.readChunks(id, 2, null, 1, 1, true);
+        assertEquals(Map.of("sceneId", id, "revisionNo", 2), result.get("completeBaseline"));
+        assertEquals(1, result.get("total")); assertEquals(false, result.get("hasMore"));
+        @SuppressWarnings("unchecked") Map<String, Object> row = ((List<Map<String, Object>>) result.get("rows")).get(0);
+        assertEquals("chunk-a", row.get("chunkId")); assertEquals(List.of("child"), row.get("instanceIds"));
+        @SuppressWarnings("unchecked") List<Map<String, Object>> relations = (List<Map<String, Object>>) row.get("relations");
+        assertEquals("root", relations.get(0).get("instanceId"));
+        assertThrows(ServiceException.class, () -> service.readChunks(id, 2, "missing", 1, 1, true));
+        @SuppressWarnings("unchecked") Map<String, Object> oldRevision = service.readChunks(id, 1, null, 1, 1, true);
+        assertEquals(0, oldRevision.get("total"));
+    }
+
     @Test void creationIncludesCompleteFirstRevisionAndTenant() {
         String id = create(); var detail = service.info(id);
         assertEquals("2", detail.get("tenantId")); assertTrue(Long.parseLong(id) > Integer.MAX_VALUE);

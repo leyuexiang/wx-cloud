@@ -94,6 +94,86 @@ public class Dim3dSceneService {
         return result;
     }
 
+    /**
+     * 从指定修订的完整三维包重建只读区块结果。
+     *
+     * <p>区块索引是派生数据，读取时仍以修订四包为权威来源。这样索引缺失时可以重建，
+     * 也不会因为客户端只拿到部分区块而改变保存语义。</p>
+     */
+    public Map<String, Object> readChunks(String id, int revisionNo, String chunkId,
+                                           int pageNum, int pageSize, boolean includeRelations) {
+        var actor = access.actor();
+        if (revisionNo < 1) throw bad("修订号无效");
+        if (pageNum < 1 || pageNum > 10000 || pageSize < 1 || pageSize > 500) throw bad("分页范围无效");
+        var scene = scene(id, actor, false);
+        var revisions = jdbc.queryForList("SELECT * FROM wx_3d_scene_revision WHERE tenant_id=? AND scene_id=? AND revision_no=?",
+                actor.tenant(), requireId(id), revisionNo);
+        if (revisions.size() != 1) throw new ServiceException(404, "场景修订不存在或当前身份不可见");
+        var revision = revisions.get(0);
+        try {
+            List<String> packages = List.of(
+                    Objects.toString(revision.get("scene_json"), ""),
+                    Objects.toString(revision.get("three_d_json"), ""),
+                    Objects.toString(revision.get("two_d_json"), ""),
+                    Objects.toString(revision.get("dependencies_json"), ""));
+            JsonNode threeD = json.readTree(packages.get(1));
+            String sourceHash = digest(String.join("\n", packages));
+            var index = SceneRevisionDerivedIndex.build(actor.tenant(), id, revisionNo, sourceHash, threeD);
+            Map<String, JsonNode> nodes = new LinkedHashMap<>();
+            for (String collection : List.of("objects", "components")) {
+                JsonNode values = threeD.path(collection);
+                if (values.isArray()) for (JsonNode value : values) nodes.put(value.path("instanceId").asText(), value);
+            }
+            Map<String, SceneRevisionDerivedIndex.Instance> instancesById = new HashMap<>();
+            index.instances().forEach(value -> instancesById.put(value.instanceId(), value));
+            List<SceneRevisionDerivedIndex.Chunk> selected = index.chunks().stream()
+                    .filter(chunk -> chunkId == null || chunkId.isBlank() || chunk.chunkId().equals(chunkId))
+                    .toList();
+            if (chunkId != null && !chunkId.isBlank() && selected.isEmpty()) throw new ServiceException(404, "区块不存在或当前修订不可见");
+            int total = selected.size();
+            int from = Math.min((pageNum - 1) * pageSize, total);
+            int to = Math.min(from + pageSize, total);
+            List<Map<String, Object>> rows = new ArrayList<>();
+            for (SceneRevisionDerivedIndex.Chunk chunk : selected.subList(from, to)) {
+                List<JsonNode> chunkInstances = chunk.instanceIds().stream().map(nodes::get).filter(Objects::nonNull).toList();
+                List<Map<String, Object>> relations = includeRelations
+                        ? relations(chunk.instanceIds(), instancesById)
+                        : List.of();
+                rows.add(Map.of("chunkId", chunk.chunkId(), "instanceIds", chunk.instanceIds(),
+                        "instances", chunkInstances, "relations", relations));
+            }
+            Map<String, Object> result = new LinkedHashMap<>();
+            result.put("sceneId", id); result.put("sceneType", scene.get("scene_type")); result.put("revisionNo", revisionNo);
+            result.put("indexVersion", index.indexVersion()); result.put("sourceHash", sourceHash);
+            result.put("completeBaseline", Map.of("sceneId", id, "revisionNo", revisionNo));
+            result.put("pageNum", pageNum); result.put("pageSize", pageSize); result.put("total", total);
+            result.put("hasMore", to < total); result.put("rows", rows);
+            if (json.writeValueAsBytes(result).length > 2 * 1024 * 1024) throw new ServiceException(413, "分片响应超过大小限制");
+            return result;
+        } catch (ServiceException error) {
+            throw error;
+        } catch (java.io.IOException error) {
+            throw new ServiceException(500, "场景修订三维包无法解析");
+        }
+    }
+
+    /** 返回补齐父级链所需的只读关系，避免把未请求区块伪装成实例正文。 */
+    private List<Map<String, Object>> relations(List<String> instanceIds,
+                                                Map<String, SceneRevisionDerivedIndex.Instance> instancesById) {
+        LinkedHashMap<String, Map<String, Object>> result = new LinkedHashMap<>();
+        for (String instanceId : instanceIds) {
+            String parent = instancesById.get(instanceId).parentInstanceId();
+            while (parent != null && !parent.isBlank()) {
+                var relation = instancesById.get(parent);
+                if (relation == null) break;
+                result.putIfAbsent(parent, Map.of("instanceId", parent,
+                        "parentInstanceId", relation.parentInstanceId(), "relationType", "parent"));
+                parent = relation.parentInstanceId();
+            }
+        }
+        return List.copyOf(result.values());
+    }
+
     @Transactional
     public void edit(String id, JsonNode body) {
         var actor = access.actor(); var row = scene(id, actor, true);

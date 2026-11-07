@@ -23,6 +23,17 @@ public class Dim3dSceneController {
     @GetMapping("/info/{id}")
     public CommonResult<Map<String, Object>> info(@PathVariable String id) { return CommonResult.success(service.info(id)); }
 
+    /** 读取固定修订的区块实例；分片读取只读，不改变场景租约和完整四包。 */
+    @GetMapping("/chunks/{id}")
+    public CommonResult<Map<String, Object>> chunks(@PathVariable String id,
+                                                     @RequestParam int revisionNo,
+                                                     String chunkId,
+                                                     @RequestParam(defaultValue = "1") int pageNum,
+                                                     @RequestParam(defaultValue = "100") int pageSize,
+                                                     @RequestParam(defaultValue = "true") boolean includeRelations) {
+        return CommonResult.success(service.readChunks(id, revisionNo, chunkId, pageNum, pageSize, includeRelations));
+    }
+
     // 复用已部署的平台/租户管理员角色；普通查看者只能查询本租户，不能保存或取得编辑租约。
     @PostMapping("/add") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
     public CommonResult<Map<String, Object>> add(@RequestBody JsonNode body) { return CommonResult.success(service.create(body)); }
