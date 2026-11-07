@@ -169,7 +169,12 @@ public class Dim3dSceneService {
         if (current != body.path("baseRevisionNo").asInt()) return Map.of("sceneId", id, "conflict", true, "conflictRevisionNo", current);
         validateNodeTree(parsed.get(1), "gis".equals(row.get("scene_type")));
         // DATA-06 先在保存门禁构建同书签派生索引，来源摘要只覆盖四包正文，确保后续索引存储不会接受无法重建的区块成员。
-        SceneRevisionDerivedIndex.build(actor.tenant(), id, current + 1, digest(String.join("\n", packages)), parsed.get(1));
+        try {
+            SceneRevisionDerivedIndex.build(actor.tenant(), id, current + 1,
+                    digest(String.join("\n", packages)), parsed.get(1));
+        } catch (IllegalArgumentException error) {
+            throw bad(error.getMessage());
+        }
         long revision = insertRevision(actor, requireId(id), current + 1, 1, packages, request, hash);
         jdbc.update("UPDATE wx_3d_scene SET current_revision=?,name=?,update_time=CURRENT_TIMESTAMP WHERE id=? AND tenant_id=?", current + 1, name, requireId(id), actor.tenant());
         return Map.of("sceneId", id, "revisionId", Long.toString(revision), "revisionNo", current + 1, "lockVersion", current + 1, "conflict", false, "savedTime", Instant.now().toString());

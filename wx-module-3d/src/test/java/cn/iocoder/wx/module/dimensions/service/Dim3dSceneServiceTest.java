@@ -81,6 +81,18 @@ class Dim3dSceneServiceTest {
         assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_revision", Integer.class));
     }
 
+    @Test void invalidChunkMembersCannotCreateRevision() throws Exception {
+        String id = create(); String token = (String) service.lock(id, "chunks").get("lockToken");
+        ObjectNode body = saveBody(id, token);
+        ObjectNode threeD = (ObjectNode) json.readTree(body.path("threeDJson").asText());
+        threeD.set("objects", json.readTree("[{\"instanceId\":\"root\"}]"));
+        threeD.with("streaming").set("chunks", json.readTree("[{\"id\":\"chunk-a\",\"objectIds\":[\"missing\"]}]"));
+        body.put("threeDJson", threeD.toString());
+
+        assertThrows(ServiceException.class, () -> service.save(body));
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_revision", Integer.class));
+    }
+
     @Test void creationIncludesCompleteFirstRevisionAndTenant() {
         String id = create(); var detail = service.info(id);
         assertEquals("2", detail.get("tenantId")); assertTrue(Long.parseLong(id) > Integer.MAX_VALUE);
