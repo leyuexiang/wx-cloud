@@ -11,4 +11,5 @@
 - 在 148 独立端口和独立数据库中完成真实接口联验。未登录返回401，合法保存后固定修订2读取到区块和父级关系，修订1返回空区块基线，页大小501返回400，未知区块返回404，租户2读取租户1场景返回404。
 - 联验结束后已停止并删除隔离容器、数据库、账号和远端临时目录。
 
-Web 已新增 `getDim3dSceneChunks`、`readDim3dSceneChunkPage` 和只读会话状态。会话固定场景修订，记录已加载区块、实例和未加载集合，并提供状态订阅。4项适配器测试通过，`pnpm type-check` 通过，最新提交为 `c828b0c`。场景编辑页继续以完整 `SceneStore` 作为编辑主数据源，分片会话只允许显式只读调用，不自动覆盖页面对象或进入 `saveAll`。共享 148 未部署，数据库未迁移。
+Web 已新增 `getDim3dSceneChunks`、`readDim3dSceneChunkPage`、只读会话状态和 `projectSceneForUnityLoadedInstances` 运行投影。会话固定场景修订，记录已加载区块、实例和未加载集合，并提供状态订阅。分片投影自动补齐父级链，不改写完整 `SceneDefinition`。适配器4项和 Unity 投影14项测试通过，`pnpm type-check` 通过，最新 Web 提交为 `204ac9e`。场景编辑页继续以完整 `SceneStore` 作为编辑主数据源，分片会话只允许显式只读调用，不自动覆盖页面对象或进入 `saveAll`。共享 148 未部署，数据库未迁移。
+- 官方 Unity CLI 已执行 `unity status --format json --project-path E:\Products\3D-editor\Unity\jtyf-dts-webgpu`，返回 `STATUS_NO_INSTANCES`，当前没有安装 Pipeline 包并可连接的 Unity Editor。真实运行投影、卸载、恢复和保存保全仍待 Unity Editor 恢复可操作后执行。
