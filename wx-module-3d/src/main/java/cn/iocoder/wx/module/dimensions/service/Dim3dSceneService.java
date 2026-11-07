@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import jakarta.annotation.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,11 @@ public class Dim3dSceneService {
     @Resource private DictDataApi dictionaries;
     private static final String SUMMARY = "id,tenant_id,name,scene_desc,scene_category,scene_type,cover_asset_id,current_revision,update_time";
     private static final List<String> PACKAGE_KEYS = List.of("sceneJson", "threeDJson", "twoDJson", "dependenciesJson");
+    // 只映射已定义的场景引用字段，资源编号和未知扩展中的普通 id 保持原值。
+    private static final Set<String> TEMPLATE_REFERENCE_FIELDS = Set.of("instanceId", "parentInstanceId", "parentId",
+            "objectId", "sourceObjectId", "targetObjectId", "layerId", "sourceLayerId", "targetLayerId",
+            "layerKey", "ownerKey", "actionTargetUuid", "observationTargetUuid");
+    private static final Set<String> TEMPLATE_REFERENCE_ARRAYS = Set.of("objectIds", "actionTargetWidgetIds");
     // 模板首版复用场景修订表，目录关联用于阻止普通编辑入口改写模板。
     private static final String TEMPLATE_SCENE = """
             EXISTS (SELECT 1 FROM wx_3d_scene_template t
@@ -466,13 +472,26 @@ public class Dim3dSceneService {
             collectReferenceIds(threeD.path("objects"), "instanceId", references);
             collectReferenceIds(threeD.path("components"), "instanceId", references);
             collectReferenceIds(threeD.path("layers"), "id", references);
+            collectReferenceIds(threeD.path("layers"), "layerKey", references);
+            collectReferenceIds(twoD.path("components"), "instanceId", references);
+            // 二维结构树保存分组编号和成员字符串，不能只处理 components 中的实例编号。
+            var layerNodes = new ArrayDeque<JsonNode>();
+            twoD.path("layerTree").forEach(layerNodes::add);
+            while (!layerNodes.isEmpty()) {
+                JsonNode layer = layerNodes.removeFirst();
+                String id = layer.path("id").asText();
+                if (!id.isBlank()) references.computeIfAbsent(id, ignored -> Long.toString(IdWorker.getId()));
+                for (JsonNode child : layer.path("children")) if (child.isObject()) layerNodes.addLast(child);
+            }
+            remapReferences(scene, references, sourceSceneId, templateSceneId, sceneId);
             remapReferences(threeD, references, sourceSceneId, templateSceneId, sceneId);
             remapReferences(twoD, references, sourceSceneId, templateSceneId, sceneId);
             remapReferences(dependencies, references, sourceSceneId, templateSceneId, sceneId);
-            JsonNode chunks = threeD.path("streaming").path("chunks");
-            if (chunks.isArray()) for (JsonNode chunk : chunks)
-                if (chunk.isObject() && (sourceSceneId.equals(chunk.path("sceneId").asText()) || templateSceneId.equals(chunk.path("sceneId").asText())))
-                    ((ObjectNode) chunk).put("sceneId", sceneId);
+            // 普通 id 只在明确的场景身份位置更新，避免误改同值的资源编号、接口编号或自定义字段。
+            for (JsonNode layer : threeD.path("layers")) remapIdentity(layer, references);
+            for (JsonNode component : twoD.path("components"))
+                remapIdentity(component.path("contentJson").path("widget"), references);
+            remapWidgetLayerTree(twoD.path("layerTree"), references);
             return List.of(scene.toString(), threeD.toString(), twoD.toString(), dependencies.toString());
         } catch (java.io.IOException error) {
             throw new ServiceException(500, "模板四包无法解析");
@@ -487,6 +506,33 @@ public class Dim3dSceneService {
         }
     }
 
+    private void remapIdentity(JsonNode node, Map<String, String> references) {
+        String mapped = references.get(node.path("id").asText());
+        if (mapped != null && node.isObject()) ((ObjectNode) node).put("id", mapped);
+    }
+
+    /** 分组 children 可同时包含成员字符串和嵌套分组，用队列处理以避免深树递归。 */
+    private void remapWidgetLayerTree(JsonNode tree, Map<String, String> references) {
+        var pending = new ArrayDeque<JsonNode>();
+        tree.forEach(pending::add);
+        while (!pending.isEmpty()) {
+            JsonNode layer = pending.removeFirst();
+            remapIdentity(layer, references);
+            JsonNode children = layer.path("children");
+            remapReferenceArray(children, references);
+            for (JsonNode child : children) if (child.isObject()) pending.addLast(child);
+        }
+    }
+
+    private void remapReferenceArray(JsonNode node, Map<String, String> references) {
+        if (!(node instanceof ArrayNode values)) return;
+        for (int index = 0; index < values.size(); index++) {
+            JsonNode value = values.get(index);
+            String mapped = value.isTextual() ? references.get(value.asText()) : null;
+            if (mapped != null) values.set(index, json.getNodeFactory().textNode(mapped));
+        }
+    }
+
     private void remapReferences(JsonNode node, Map<String, String> references, String sourceSceneId, String templateSceneId, String sceneId) {
         if (node.isArray()) {
             for (JsonNode child : node) remapReferences(child, references, sourceSceneId, templateSceneId, sceneId);
@@ -498,11 +544,13 @@ public class Dim3dSceneService {
             if (value.isTextual()) {
                 String text = value.asText();
                 String mapped = references.get(text);
-                if (mapped != null && Set.of("instanceId", "parentInstanceId", "objectId", "sourceObjectId", "targetObjectId",
-                        "layerId", "sourceLayerId", "targetLayerId", "id").contains(entry.getKey()))
+                if (mapped != null && TEMPLATE_REFERENCE_FIELDS.contains(entry.getKey()))
                     ((ObjectNode) node).put(entry.getKey(), mapped);
                 else if ((sourceSceneId.equals(text) || templateSceneId.equals(text)) && "sceneId".equals(entry.getKey())) ((ObjectNode) node).put(entry.getKey(), sceneId);
-            } else remapReferences(value, references, sourceSceneId, templateSceneId, sceneId);
+            } else {
+                if (TEMPLATE_REFERENCE_ARRAYS.contains(entry.getKey())) remapReferenceArray(value, references);
+                remapReferences(value, references, sourceSceneId, templateSceneId, sceneId);
+            }
         });
     }
 

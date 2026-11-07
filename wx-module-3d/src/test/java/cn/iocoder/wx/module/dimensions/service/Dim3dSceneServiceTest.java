@@ -243,13 +243,29 @@ class Dim3dSceneServiceTest {
         ObjectNode threeD = (ObjectNode) json.readTree((String) revision.get("threeDJson"));
         ArrayNode objects = threeD.putArray("objects");
         objects.addObject().put("instanceId", "source-parent").put("sortNo", 0);
-        objects.addObject().put("instanceId", "source-child").put("parentInstanceId", "source-parent").put("sortNo", 1);
+        objects.addObject().put("instanceId", "source-child").put("parentInstanceId", "source-parent").put("layerKey", "source-layer").put("sortNo", 1);
+        threeD.putArray("layers").addObject().put("layerKey", "source-layer");
         threeD.with("streaming").putArray("chunks").addObject().put("sceneId", sourceId).putArray("objectIds").add("source-child");
         ObjectNode templateBody = json.createObjectNode().put("sourceSceneId", sourceId).put("sourceRevisionNo", 1)
                 .put("requestId", "tpl-instance-source").put("templateName", "实例化模板").put("templateType", "INDUSTRY")
                 .put("category", "测试").put("saveScope", "all");
         templateBody.put("threeDJson", threeD.toString());
         for (String key : java.util.List.of("sceneJson", "twoDJson", "dependenciesJson")) templateBody.put(key, (String) revision.get(key));
+        // 使用正式四包字段，避免只检查父链而遗漏分块、二维和行为的悬空引用。
+        ObjectNode twoD = (ObjectNode) json.readTree(templateBody.path("twoDJson").asText());
+        ObjectNode widget = twoD.putArray("components").addObject().put("instanceId", "source-widget");
+        widget.putObject("contentJson").putObject("widget").put("id", "source-widget");
+        twoD.putArray("layerTree").addObject().put("id", "source-widget").put("type", "widget");
+        templateBody.put("twoDJson", twoD.toString());
+        templateBody.put("dependenciesJson", """
+                {"resources":[{"id":"source-child","assetId":"source-child","owners":[{"domain":"threeD","ownerType":"layer","ownerKey":"source-layer"}]}],
+                 "dataBindings":[{"owner":{"domain":"twoD","ownerType":"instance","instanceId":"source-widget"}}],
+                 "behaviors":[{"owner":{"domain":"threeD","ownerType":"instance","instanceId":"source-child"},
+                   "config":{"actionTargetUuid":"source-child","actionTargetWidgetIds":["source-widget"]}}],"deviceBindings":[]}
+                """);
+        ObjectNode scenePackage = (ObjectNode) json.readTree(templateBody.path("sceneJson").asText());
+        scenePackage.putArray("sceneActions").addObject().putObject("config").put("actionTargetUuid", "source-child");
+        templateBody.put("sceneJson", scenePackage.toString());
         var template = service.saveAsTemplateFromSnapshot(templateBody);
         ObjectNode instanceBody = json.createObjectNode().put("templateSceneId", template.get("templateSceneId").toString())
                 .put("requestId", "tpl-instance-request").put("name", "实例场景");
@@ -263,6 +279,23 @@ class Dim3dSceneServiceTest {
         assertNotEquals("source-parent", parent);
         assertNotEquals("source-child", child);
         assertEquals(parent, savedThreeD.path("objects").get(1).path("parentInstanceId").asText());
+        assertEquals(child, savedThreeD.path("streaming").path("chunks").get(0).path("objectIds").get(0).asText());
+        String layer = savedThreeD.path("layers").get(0).path("layerKey").asText();
+        assertNotEquals("source-layer", layer);
+        assertEquals(layer, savedThreeD.path("objects").get(1).path("layerKey").asText());
+        JsonNode savedTwoD = json.readTree(instanceRevision.get("twoDJson").toString());
+        String widgetId = savedTwoD.path("components").get(0).path("instanceId").asText();
+        assertNotEquals("source-widget", widgetId);
+        assertEquals(widgetId, savedTwoD.path("components").get(0).path("contentJson").path("widget").path("id").asText());
+        assertEquals(widgetId, savedTwoD.path("layerTree").get(0).path("id").asText());
+        JsonNode savedDependencies = json.readTree(instanceRevision.get("dependenciesJson").toString());
+        assertEquals("source-child", savedDependencies.path("resources").get(0).path("id").asText());
+        assertEquals("source-child", savedDependencies.path("resources").get(0).path("assetId").asText());
+        assertEquals(layer, savedDependencies.path("resources").get(0).path("owners").get(0).path("ownerKey").asText());
+        assertEquals(widgetId, savedDependencies.path("dataBindings").get(0).path("owner").path("instanceId").asText());
+        assertEquals(child, savedDependencies.path("behaviors").get(0).path("config").path("actionTargetUuid").asText());
+        assertEquals(widgetId, savedDependencies.path("behaviors").get(0).path("config").path("actionTargetWidgetIds").get(0).asText());
+        assertEquals(child, json.readTree(instanceRevision.get("sceneJson").toString()).path("sceneActions").get(0).path("config").path("actionTargetUuid").asText());
         assertEquals(instance.get("sceneId").toString(), savedThreeD.path("streaming").path("chunks").get(0).path("sceneId").asText());
         assertEquals(instance.get("sceneId"), service.createFromTemplate(instanceBody).get("sceneId"));
         assertEquals(2L, service.page(null, null, null, null, null, null, 1, 10).get("total"));
