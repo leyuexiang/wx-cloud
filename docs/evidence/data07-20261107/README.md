@@ -12,4 +12,4 @@
 - 联验结束后已停止并删除隔离容器、数据库、账号和远端临时目录。
 
 Web 已新增 `getDim3dSceneChunks`、`readDim3dSceneChunkPage`、只读会话状态和 `projectSceneForUnityLoadedInstances` 运行投影。会话固定场景修订，记录已加载区块、实例和未加载集合，并提供状态订阅。分片投影自动补齐父级链，不改写完整 `SceneDefinition`。适配器4项和 Unity 投影14项测试通过，`pnpm type-check` 通过，最新 Web 提交为 `204ac9e`。场景编辑页继续以完整 `SceneStore` 作为编辑主数据源，分片会话只允许显式只读调用，不自动覆盖页面对象或进入 `saveAll`。共享 148 未部署，数据库未迁移。
-- 官方 Unity CLI 已执行 `unity status --format json --project-path E:\Products\3D-editor\Unity\jtyf-dts-webgpu`，返回 `STATUS_NO_INSTANCES`，当前没有安装 Pipeline 包并可连接的 Unity Editor。真实运行投影、卸载、恢复和保存保全仍待 Unity Editor 恢复可操作后执行。
+- 官方 Unity CLI 已恢复连接项目 `6000.6.7f1` 编辑器，`unity status` 返回 `ready`，`scene list_open` 确认当前活动场景为既有 `HotfixSandbox`。未修改该场景。真实 WebGPU 分片投影、卸载、恢复和保存保全仍待专用测试场景或运行入口执行。
