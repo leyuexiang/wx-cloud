@@ -1,0 +1,16 @@
+# DATA-08 发布告警验证用覆盖编排。
+# 先执行 prepare-exploded-runtime.py，再使用此文件重建 dimensions 服务。
+services:
+  dimensions:
+    entrypoint:
+      - java
+      - -Xms128m
+      - -Xmx1024m
+      - -cp
+      - /opt/wx/extracted/application/BOOT-INF/classes:/opt/wx/extracted/application/BOOT-INF/lib/*:/opt/wx/extracted/dependencies/BOOT-INF/lib/*:/opt/wx/extracted/snapshot-dependencies/BOOT-INF/lib/*
+      - cn.iocoder.wx.module.dimensions.DimensionsApplication
+      - --spring.config.location=file:/opt/wx/application.yaml
+    volumes:
+      - ./extracted/dimensions:/opt/wx/extracted:ro
+      - ./config/dimensions.yaml:/opt/wx/application.yaml:ro
+      - ./data:/data

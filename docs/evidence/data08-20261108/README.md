@@ -159,6 +159,12 @@
 
 全量灰度期间产生的 8 条旧路径空引用已在停写窗口内完成最终回填。回填前重新备份三张业务表，回填后全量正文往返校验通过，43 条修订全部建立共享正文引用，42 条共享正文的摘要、字节数、四包内容和租户隔离校验均通过，保留引用审计可回收候选仍为 0。[最终备份标记](business-final-backup.marker) · [最终迁移统计](business-final-post-migration.json) · [最终保留审计](business-final-retention.json)
 
+## 重启告警清理
+
+候选包直接以嵌套 JAR 运行时，服务停止阶段曾出现 `NoClassDefFoundError: ch/qos/logback/classic/spi/ThrowableProxy`。已通过 Spring Boot layertools 解包为文件系统目录，并使用覆盖编排重建业务三维服务。端口 `48092` 健康检查为 `UP`，启动日志正常，最近一次停止阶段未再出现该异常。基础 `compose.yaml` 未改写，展开运行由 `compose.exploded.yaml` 和 `prepare-exploded-runtime.py` 显式启用。[展开运行证据](exploded-runtime.json)
+
+展开运行切换后，43 条修订和 42 条共享正文再次完成只读往返校验，缺失引用、租户隔离、摘要、字节数和四包差异均为 0。[展开运行回读报告](business-gray-load-exploded.json)
+
 ## 请求大小边界
 
 网关 `12525` 的聚合上限为 16 MiB，三维服务每个四包字段的校验上限为 4 MiB。通过隔离网关验证，`threeDJson` 为 4,129,025 字节时保存成功并生成修订 2，`threeDJson` 为 4,260,097 字节时返回业务码 400 和 `threeDJson格式无效`，场景没有新增修订。[大小边界报告](size-boundary.json)

@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "service": "wx-editor-dimensions",
+  "mode": "spring-boot-exploded-layers",
+  "jarSha256": "8143caa0a2d1343a055cdba6c3289c076dcf3cff13d4f3c4fb9ee32caecb2fa1",
+  "port": 48092,
+  "health": "UP",
+  "started": true,
+  "shutdownNoClassDefFoundError": false,
+  "productionComposeUnchanged": true,
+  "override": "deploy/test148/compose.exploded.yaml"
+}
