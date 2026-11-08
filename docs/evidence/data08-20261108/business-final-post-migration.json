@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "structureReady": true,
+  "tables": [
+    "wx_3d_scene",
+    "wx_3d_scene_content",
+    "wx_3d_scene_revision",
+    "wx_3d_scene_template"
+  ],
+  "revisionCount": 43,
+  "expectedUniqueContentCount": 42,
+  "rawBytes": 33882,
+  "expectedUniqueBytes": 32126,
+  "estimatedSavingsBytes": 1756,
+  "estimatedSavingsRatio": 0.051827,
+  "contentRowCount": 42,
+  "missingReferences": 0,
+  "hashMismatches": 0,
+  "byteMismatches": 0,
+  "tenantIsolationViolations": 0
+}

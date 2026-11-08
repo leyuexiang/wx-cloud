@@ -1,0 +1,5 @@
+DATA08 final gray backup
+database=wx_editor
+tables=wx_3d_scene,wx_3d_scene_revision,wx_3d_scene_template
+dump=/opt/wx/editor-test148/backups/data08-business-final-20261108T154323Z/data08-business.sql.gz
+sha256=4f653a1bc931616ba695e77e62f7a3ffedf289cc50ec7005284e7b30452f9418

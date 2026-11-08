@@ -1,0 +1,597 @@
+{
+  "passed": true,
+  "readOnly": true,
+  "sceneCount": 19,
+  "revisionCount": 43,
+  "tables": {
+    "wx_3d_scene": true,
+    "wx_3d_scene_revision": true,
+    "wx_3d_scene_publication": false,
+    "wx_3d_scene_bookmark": false,
+    "wx_3d_scene_template": true
+  },
+  "reasonCounts": {
+    "current_pointer": 19,
+    "deleted_scene_audit_window": 38,
+    "publication_reference_table_absent": 43,
+    "persistent_bookmark_table_absent": 43,
+    "request_id_expiry_unmodeled": 43
+  },
+  "reclaimCandidateCount": 0,
+  "rows": [
+    {
+      "tenantId": 1,
+      "sceneId": 2119113594777956353,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119241276224237570,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119248949321723905,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119248949321723905,
+      "revisionNo": 2,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119248949321723905,
+      "revisionNo": 3,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119262083159748609,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119262083159748609,
+      "revisionNo": 2,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119443962487959554,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119443962487959554,
+      "revisionNo": 2,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119444023859015681,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119444023859015681,
+      "revisionNo": 2,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119444304868995073,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119444304868995073,
+      "revisionNo": 2,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119444372711862274,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119444372711862274,
+      "revisionNo": 2,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119451275105988609,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119451275105988609,
+      "revisionNo": 2,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 1,
+      "sceneId": 2119451275105988609,
+      "revisionNo": 3,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2117783507734425602,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2117783507734425602,
+      "revisionNo": 2,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2117784269373894658,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2117784269373894658,
+      "revisionNo": 2,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2117784269373894658,
+      "revisionNo": 3,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2118506734353969153,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2118506734353969153,
+      "revisionNo": 2,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2118506734353969153,
+      "revisionNo": 3,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2118506734353969153,
+      "revisionNo": 4,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2118506734353969153,
+      "revisionNo": 5,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2118528672807841794,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2119443964039852033,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2119443964039852033,
+      "revisionNo": 2,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2119444025108918273,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2119444025108918273,
+      "revisionNo": 2,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2119444306068566017,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2119444306068566017,
+      "revisionNo": 2,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2119444373760438274,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2119444373760438274,
+      "revisionNo": 2,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2119447473783107585,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2119447473783107585,
+      "revisionNo": 2,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2119447473783107585,
+      "revisionNo": 3,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2119449114498363394,
+      "revisionNo": 1,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2119449114498363394,
+      "revisionNo": 2,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    },
+    {
+      "tenantId": 2,
+      "sceneId": 2119449114498363394,
+      "revisionNo": 3,
+      "requestIdPresent": true,
+      "reclaimCandidate": false,
+      "reasons": [
+        "current_pointer",
+        "deleted_scene_audit_window",
+        "publication_reference_table_absent",
+        "persistent_bookmark_table_absent",
+        "request_id_expiry_unmodeled"
+      ]
+    }
+  ],
+  "decision": "当前仅输出引用审计，不允许据此直接删除修订或共享正文"
+}
