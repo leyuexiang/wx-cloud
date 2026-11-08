@@ -22,3 +22,4 @@ Web 已新增 `getDim3dSceneChunks`、`readDim3dSceneChunkPage`、只读会话�
 - 之前的 `startup-failed-retryable` 已定位为网关混用 Windows 资源发布清单导致的平台和 Unity 版本不匹配。Windows 清单为 `StandaloneWindows64/2021.3.33f1`，不能作为 WebGPU 资源清单。
 - 临时场景已删除，服务器列表恢复为0条记录，临时发布目录、启动描述和凭据文件已清理。该联验只证明运行入口和启动元数据链路，不替代区块卸载、恢复和保存保全验收。
 - Web 端已补充 `SceneRuntime.applyLoadedInstanceProjection` 和分片会话串行绑定器。绑定器只传递已加载实例编号，旧 Runtime 无投影能力时保持空操作，完整 `SceneStore`、对象缓存和 `saveAll` 边界不变。对应测试共29项通过，`pnpm type-check` 通过。
+- 编辑页 `SceneCanvas` 已按锁定基准修订建立会话，并暴露 `loadSceneChunk`、`unloadSceneChunk`。会话只在显式调用时读取区块，区块卸载通过会话状态驱动 Unity 表现更新，不触碰业务保存数据。
