@@ -1,6 +1,6 @@
 # DATA-07 同书签分片读取首批实现
 
-日期：2026-11-08。当前状态：DATA-07-03 已完成，DATA-07-04 已完成，DATA-07-05 的 WebGPU 运行入口已联验，区块卸载、恢复和保存保全仍待执行。
+日期：2026-11-08。当前状态：DATA-07-03、DATA-07-04、DATA-07-05 已完成，DATA-07-06 正在统一归档三端证据。
 
 - 新增 `GET /admin-api/dim3d/scene/chunks/{id}`，按 `revisionNo` 固定修订读取，可选 `chunkId`、`pageNum`、`pageSize` 和 `includeRelations`。
 - 返回 `completeBaseline`、`indexVersion`、`sourceHash`、分页字段、区块成员和只读父级关系。读取仍从同一修订四包重建派生索引，未新增数据库表。
