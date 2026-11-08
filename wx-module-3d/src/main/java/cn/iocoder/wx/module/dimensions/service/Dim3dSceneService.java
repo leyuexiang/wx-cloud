@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,9 @@ public class Dim3dSceneService {
     @Resource private ArtResourceAccess access;
     @Resource private ObjectMapper json;
     @Resource private DictDataApi dictionaries;
+    /** 兼容期共享正文双写开关，默认关闭；未完成结构迁移时不得访问新表。 */
+    @Value("${dim3d.scene-content.dual-write-enabled:false}")
+    private boolean sceneContentDualWriteEnabled;
     private static final String SUMMARY = "id,tenant_id,name,scene_desc,scene_category,scene_type,cover_asset_id,current_revision,update_time";
     private static final List<String> PACKAGE_KEYS = List.of("sceneJson", "threeDJson", "twoDJson", "dependenciesJson");
     // 只映射已定义的场景引用字段，资源编号和未知扩展中的普通 id 保持原值。
@@ -467,9 +472,44 @@ public class Dim3dSceneService {
 
     private long insertRevision(ArtResourceAccess.Actor actor, long id, int number, int schema, List<String> packages, String request, String hash) {
         long revision = IdWorker.getId();
-        jdbc.update("INSERT INTO wx_3d_scene_revision(id,tenant_id,scene_id,revision_no,schema_version,scene_json,three_d_json,two_d_json,dependencies_json,request_id,request_hash,create_by) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
-                revision, actor.tenant(), id, number, schema, packages.get(0), packages.get(1), packages.get(2), packages.get(3), request, hash, actor.user());
+        SceneRevisionContent content = sceneContentDualWriteEnabled
+                ? ensureSceneRevisionContent(actor.tenant(), schema, packages) : null;
+        if (content == null) {
+            jdbc.update("INSERT INTO wx_3d_scene_revision(id,tenant_id,scene_id,revision_no,schema_version,scene_json,three_d_json,two_d_json,dependencies_json,request_id,request_hash,create_by) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+                    revision, actor.tenant(), id, number, schema, packages.get(0), packages.get(1), packages.get(2), packages.get(3), request, hash, actor.user());
+        } else {
+            jdbc.update("INSERT INTO wx_3d_scene_revision(id,tenant_id,scene_id,revision_no,schema_version,scene_json,three_d_json,two_d_json,dependencies_json,request_id,request_hash,create_by,content_id,content_hash,content_bytes) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    revision, actor.tenant(), id, number, schema, packages.get(0), packages.get(1), packages.get(2), packages.get(3), request, hash, actor.user(),
+                    content.id(), content.contentHash(), content.contentBytes());
+        }
         return revision;
+    }
+
+    /** 在保存事务内确保共享正文存在，并在重复正文时复用同一内容行。 */
+    private SceneRevisionContent ensureSceneRevisionContent(long tenantId, int schema, List<String> packages) {
+        if (packages.size() != SceneRevisionContentHasher.PACKAGE_COUNT)
+            throw new IllegalArgumentException("场景修订必须包含四个正文包");
+        String contentHash = SceneRevisionContentHasher.sha256(schema, packages.get(0), packages.get(1), packages.get(2), packages.get(3));
+        long contentBytes = SceneRevisionContentHasher.contentBytes(packages.get(0), packages.get(1), packages.get(2), packages.get(3));
+        var rows = jdbc.queryForList("SELECT id FROM wx_3d_scene_content WHERE tenant_id=? AND content_hash=? AND schema_version=?",
+                tenantId, contentHash, schema);
+        if (rows.isEmpty()) {
+            try {
+                jdbc.update("INSERT INTO wx_3d_scene_content(id,tenant_id,content_hash,schema_version,scene_json,three_d_json,two_d_json,dependencies_json,content_bytes,last_referenced_time,deleted) VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP,0)",
+                        IdWorker.getId(), tenantId, contentHash, schema, packages.get(0), packages.get(1), packages.get(2), packages.get(3), contentBytes);
+            } catch (DuplicateKeyException ignored) {
+                // 并发事务可能已经插入相同租户和摘要，下面统一重新读取已提交内容行。
+            }
+            rows = jdbc.queryForList("SELECT id FROM wx_3d_scene_content WHERE tenant_id=? AND content_hash=? AND schema_version=?",
+                    tenantId, contentHash, schema);
+        }
+        if (rows.size() != 1) throw new ServiceException(500, "共享正文行不完整");
+        long id = ((Number) rows.get(0).get("id")).longValue();
+        jdbc.update("UPDATE wx_3d_scene_content SET last_referenced_time=CURRENT_TIMESTAMP,deleted=0 WHERE id=? AND tenant_id=?", id, tenantId);
+        return new SceneRevisionContent(id, contentHash, contentBytes);
+    }
+
+    private record SceneRevisionContent(long id, String contentHash, long contentBytes) {
     }
 
     /** 校验并按保存范围生成四包；未选中的域写入标准空结构，避免模板误带入另一域内容。 */

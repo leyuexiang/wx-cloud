@@ -29,3 +29,5 @@
 迁移结构草案已归档于 `deploy/test148/migrations/data08/`：只新增 `wx_3d_scene_content` 和修订可空引用列，保留旧四包列，不包含回填、删除和当前指针改写。草案明确标注为独立库演练材料，不能直接在148执行。
 
 `SceneRevisionContentMigrationRehearsalTest` 共2项通过。6条内存旧修订行回填出3条共享正文行：同租户正文复用，跨租户相同正文隔离；恢复旧四包后逐包内容、摘要和字节数一致。该结果只证明迁移映射和回退口径，不代表真实数据库性能。
+
+场景服务已增加 `dim3d.scene-content.dual-write-enabled` 双写开关，默认 `false`。开启时服务在同一事务内创建或复用共享正文并写入修订引用列，关闭时不访问新表；`Dim3dSceneServiceTest` 19项全部通过，覆盖默认旧路径和开启后的正文复用。148 当前没有开启该配置。
