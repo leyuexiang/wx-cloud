@@ -1,0 +1,88 @@
+{
+  "passed": true,
+  "readOnly": false,
+  "tenant": 1,
+  "sceneId": "2119451275105988609",
+  "first": {
+    "code": 200,
+    "revisionNo": 2,
+    "revisionId": "2119451275508641793"
+  },
+  "replay": {
+    "code": 200,
+    "sameRevisionId": true,
+    "revisionNo": 2
+  },
+  "concurrent": {
+    "responses": [
+      {
+        "code": 200,
+        "data": {
+          "sceneId": "2119451275105988609",
+          "conflictRevisionNo": 3,
+          "conflict": true
+        },
+        "msg": "成功"
+      },
+      {
+        "code": 200,
+        "data": {
+          "sceneId": "2119451275105988609",
+          "conflictRevisionNo": 3,
+          "conflict": true
+        },
+        "msg": "成功"
+      },
+      {
+        "code": 200,
+        "data": {
+          "conflict": false,
+          "revisionNo": 3,
+          "lockVersion": 3,
+          "revisionId": "2119451275693191170",
+          "sceneId": "2119451275105988609",
+          "savedTime": "2026-11-08T15:25:36.285352506Z"
+        },
+        "msg": "成功"
+      },
+      {
+        "code": 200,
+        "data": {
+          "sceneId": "2119451275105988609",
+          "conflictRevisionNo": 3,
+          "conflict": true
+        },
+        "msg": "成功"
+      }
+    ],
+    "successes": 1,
+    "conflicts": 3,
+    "revisionNos": [
+      null,
+      null,
+      3,
+      null
+    ]
+  },
+  "references": [
+    [
+      "1",
+      "2119451275198263297",
+      "2ce22c97d88e0bd8b18b68b4f0eab6a2dadf4f43a2d319cfbb6b515b24ef14dd",
+      "536"
+    ],
+    [
+      "2",
+      "2119451275508641794",
+      "b18b17548fc52b332965846fc5416a48621fa1eefaf9a82a3c2ad04bad3767e0",
+      "573"
+    ],
+    [
+      "3",
+      "2119451275693191171",
+      "ac55398c28c2dea035a237a5a2c469a861d3d6ed8849cd1e2623440044e739e8",
+      "596"
+    ]
+  ],
+  "removeCode": 200
+}
