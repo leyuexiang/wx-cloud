@@ -425,16 +425,37 @@ public class Dim3dSceneService {
 
     @Transactional
     public void changeTemplateStatus(String id, String status) {
+        changeTemplateStatus(id, status, "operator_status_change");
+    }
+
+    @Transactional
+    public void changeTemplateStatus(String id, String status, String reason) {
         if (!Set.of("ONLINE", "OFFLINE").contains(status)) throw bad("状态只能是ONLINE或OFFLINE");
-        var actor = access.actor(); template(id, actor, true);
+        var actor = access.actor();
+        var current = template(id, actor, true);
+        String fromStatus = Objects.toString(current.get("status"), "");
         jdbc.update("UPDATE wx_3d_scene_template SET status=?,update_time=CURRENT_TIMESTAMP WHERE id=? AND tenant_id=? AND deleted=0", status, requireId(id), actor.tenant());
+        insertTemplateAudit(actor, current, "STATUS_CHANGE", fromStatus, status, reason);
     }
 
     @Transactional
     public void removeTemplate(String id) {
+        removeTemplate(id, "operator_delete");
+    }
+
+    @Transactional
+    public void removeTemplate(String id, String reason) {
         var actor = access.actor(); var row = template(id, actor, true);
         jdbc.update("UPDATE wx_3d_scene_template SET deleted=1,status='OFFLINE',update_time=CURRENT_TIMESTAMP WHERE id=? AND tenant_id=?", requireId(id), actor.tenant());
         jdbc.update("UPDATE wx_3d_scene SET deleted=1,update_time=CURRENT_TIMESTAMP WHERE id=? AND tenant_id=? AND deleted=0", row.get("template_scene_id"), actor.tenant());
+        insertTemplateAudit(actor, row, "DELETE", Objects.toString(row.get("status"), ""), "OFFLINE", reason);
+    }
+
+    private void insertTemplateAudit(ArtResourceAccess.Actor actor, Map<String, Object> template, String action,
+                                     String fromStatus, String toStatus, String reason) {
+        jdbc.update("INSERT INTO wx_3d_scene_template_audit(id,tenant_id,template_id,template_scene_id,action,from_status,to_status,reason,operator_id) VALUES(?,?,?,?,?,?,?,?,?)",
+                IdWorker.getId(), actor.tenant(), template.get("id"), template.get("template_scene_id"), action,
+                fromStatus, toStatus, reason == null ? "" : reason.trim(), actor.user());
     }
 
     /** 校验完整三维节点集合，保留原始四包文本，不重写业务扩展字段。 */

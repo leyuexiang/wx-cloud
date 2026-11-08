@@ -73,8 +73,12 @@ public class Dim3dSceneController {
     public CommonResult<Map<String, Object>> templateInfo(@PathVariable String id) { return CommonResult.success(service.templateInfo(id)); }
 
     @PutMapping("/template/{status}/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
-    public CommonResult<Boolean> templateStatus(@PathVariable String status, @PathVariable String id) { service.changeTemplateStatus(id, status); return CommonResult.success(true); }
+    public CommonResult<Boolean> templateStatus(@PathVariable String status, @PathVariable String id, @RequestParam(required = false) String reason) {
+        service.changeTemplateStatus(id, status, reason); return CommonResult.success(true);
+    }
 
     @DeleteMapping("/template/remove/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
-    public CommonResult<Boolean> removeTemplate(@PathVariable String id) { service.removeTemplate(id); return CommonResult.success(true); }
+    public CommonResult<Boolean> removeTemplate(@PathVariable String id, @RequestParam(required = false) String reason) {
+        service.removeTemplate(id, reason); return CommonResult.success(true);
+    }
 }

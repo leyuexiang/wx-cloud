@@ -43,6 +43,9 @@ class Dim3dSceneServiceTest {
         String templateSchema = Files.readString(Path.of("../deploy/test148/migrations/tpl01/001-scene-template.up.sql"))
                 .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
         for (String sql : templateSchema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
+        String governanceSchema = Files.readString(Path.of("../deploy/test148/migrations/tpl01/002-template-governance-audit.up.sql"))
+                .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
+        for (String sql : governanceSchema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
         jdbc.execute("CREATE TABLE wx_3d_template(id BIGINT PRIMARY KEY,template_name VARCHAR(50) NOT NULL,template_desc VARCHAR(500),template_type VARCHAR(16) NOT NULL,category VARCHAR(32) NOT NULL,resource_belong VARCHAR(16) NOT NULL,cover_image_id BIGINT,template_file_id BIGINT NOT NULL,status VARCHAR(16) NOT NULL,tenant_id VARCHAR(20) NOT NULL,del_flag CHAR(1) NOT NULL,update_time TIMESTAMP)");
         var target = new Dim3dSceneService(); access = mock(ArtResourceAccess.class);
         when(access.actor()).thenReturn(new ArtResourceAccess.Actor(2, 2));
@@ -308,8 +311,10 @@ class Dim3dSceneServiceTest {
         assertEquals("目录模板", service.templateInfo(created.get("templateId").toString()).get("templateName"));
         service.changeTemplateStatus(created.get("templateId").toString(), "OFFLINE");
         assertEquals("OFFLINE", service.templateInfo(created.get("templateId").toString()).get("status"));
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_template_audit WHERE action='STATUS_CHANGE'", Integer.class));
         service.removeTemplate(created.get("templateId").toString());
         assertEquals(0, service.templatePage(null, null, null, null, 1, 10).getTotal());
+        assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_template_audit", Integer.class));
         assertEquals(sourceId, service.info(sourceId).get("sceneId"));
     }
 
