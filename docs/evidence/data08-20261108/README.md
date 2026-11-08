@@ -36,6 +36,8 @@
 
 迁移前只读预检脚本为 `deploy/test148/verify-data08-db.py`，支持 `--require-ready` 门禁。脚本只查询 `information_schema`、修订表和共享正文表，使用 Java 同构的分帧摘要计算，不执行DDL、不写入148；其摘要合同单元测试已通过。
 
+回填工具为 `deploy/test148/migrate-data08-db.py`，默认 dry-run；写入必须显式传入 `--apply --confirm DATA08-APPLY`，且结构迁移已完成。工具只回填共享正文和修订引用，不负责建表，也没有在148执行。
+
 ## 148 实际只读预检
 
 2026-11-08 在 `192.168.10.148` 的 `wx_editor` 执行预检，使用 MySQL 容器 `mysql8`，未执行 DDL、未写入业务表。结果如下：
