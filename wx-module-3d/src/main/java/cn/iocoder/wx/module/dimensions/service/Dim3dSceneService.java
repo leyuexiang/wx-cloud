@@ -322,6 +322,10 @@ public class Dim3dSceneService {
         jdbc.update("INSERT INTO wx_3d_scene_template(id,tenant_id,template_scene_id,source_scene_id,template_name,template_desc,template_type,scene_type,category,resource_belong,save_scope,cover_asset_id,status,request_id,request_hash,create_by) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 templateId, actor.tenant(), templateSceneId, requireId(sourceId), name, description, templateType, source.get("scene_type"), category, "MINE", scope,
                 cover, "ONLINE", request, hash, actor.user());
+        jdbc.update("UPDATE wx_3d_scene_template SET current_version_no=1,published_version_no=1,previous_published_version_no=NULL WHERE id=? AND tenant_id=?",
+                templateId, actor.tenant());
+        jdbc.update("INSERT INTO wx_3d_scene_template_version(id,tenant_id,template_id,template_scene_id,version_no,revision_no,content_hash,create_by) VALUES(?,?,?,?,?,?,?,?)",
+                IdWorker.getId(), actor.tenant(), templateId, templateSceneId, 1, 1, hash, actor.user());
         return templateReceipt(Long.toString(templateId), Long.toString(templateSceneId), source.get("scene_type"), scope);
     }
 
@@ -339,8 +343,13 @@ public class Dim3dSceneService {
         String category = optional(body, "sceneCategory", 100);
         var template = templateBySceneId(templateSceneId, actor, true);
         if (!"ONLINE".equals(template.get("status"))) throw new ServiceException(409, "模板当前未上线");
-        var revisions = jdbc.queryForList("SELECT * FROM wx_3d_scene_revision WHERE tenant_id=? AND scene_id=? AND revision_no=1",
-                actor.tenant(), requireId(templateSceneId));
+        int publishedVersion = template.get("published_version_no") == null ? 1 : ((Number) template.get("published_version_no")).intValue();
+        var versions = jdbc.queryForList("SELECT revision_no FROM wx_3d_scene_template_version WHERE tenant_id=? AND template_id=? AND version_no=? AND status='READY'",
+                actor.tenant(), template.get("id"), publishedVersion);
+        if (versions.size() != 1) throw new ServiceException(409, "模板发布版本不可用");
+        int publishedRevision = ((Number) versions.get(0).get("revision_no")).intValue();
+        var revisions = jdbc.queryForList("SELECT * FROM wx_3d_scene_revision WHERE tenant_id=? AND scene_id=? AND revision_no=?",
+                actor.tenant(), requireId(templateSceneId), publishedRevision);
         if (revisions.size() != 1) throw new ServiceException(500, "模板场景修订不完整");
         var sourceRevision = revisionRowWithContent(actor, revisions.get(0));
         String storedRequest = "TPL6:" + request;
@@ -436,6 +445,36 @@ public class Dim3dSceneService {
         String fromStatus = Objects.toString(current.get("status"), "");
         jdbc.update("UPDATE wx_3d_scene_template SET status=?,update_time=CURRENT_TIMESTAMP WHERE id=? AND tenant_id=? AND deleted=0", status, requireId(id), actor.tenant());
         insertTemplateAudit(actor, current, "STATUS_CHANGE", fromStatus, status, reason);
+    }
+
+    @Transactional
+    public void publishTemplate(String id, int versionNo, String reason) {
+        var actor = access.actor();
+        var current = template(id, actor, true);
+        templateVersion(current, actor, versionNo);
+        int previous = current.get("published_version_no") == null ? 0 : ((Number) current.get("published_version_no")).intValue();
+        jdbc.update("UPDATE wx_3d_scene_template SET status='ONLINE',previous_published_version_no=?,published_version_no=?,update_time=CURRENT_TIMESTAMP WHERE id=? AND tenant_id=? AND deleted=0",
+                previous == 0 ? null : previous, versionNo, requireId(id), actor.tenant());
+        insertTemplateAudit(actor, current, "PUBLISH", Integer.toString(previous), Integer.toString(versionNo), reason);
+    }
+
+    @Transactional
+    public void rollbackTemplate(String id, int versionNo, String reason) {
+        var actor = access.actor();
+        var current = template(id, actor, true);
+        templateVersion(current, actor, versionNo);
+        int previous = current.get("published_version_no") == null ? 0 : ((Number) current.get("published_version_no")).intValue();
+        jdbc.update("UPDATE wx_3d_scene_template SET status='ONLINE',previous_published_version_no=?,published_version_no=?,update_time=CURRENT_TIMESTAMP WHERE id=? AND tenant_id=? AND deleted=0",
+                previous == 0 ? null : previous, versionNo, requireId(id), actor.tenant());
+        insertTemplateAudit(actor, current, "ROLLBACK", Integer.toString(previous), Integer.toString(versionNo), reason);
+    }
+
+    private Map<String, Object> templateVersion(Map<String, Object> template, ArtResourceAccess.Actor actor, int versionNo) {
+        if (versionNo < 1) throw bad("模板版本无效");
+        var rows = jdbc.queryForList("SELECT * FROM wx_3d_scene_template_version WHERE tenant_id=? AND template_id=? AND version_no=? AND status='READY'",
+                actor.tenant(), template.get("id"), versionNo);
+        if (rows.size() != 1) throw new ServiceException(404, "模板版本不存在或不可发布");
+        return rows.get(0);
     }
 
     @Transactional
@@ -725,6 +764,8 @@ public class Dim3dSceneService {
         out.put("sceneType", row.get("scene_type")); out.put("category", row.get("category"));
         out.put("resourceBelong", row.get("resource_belong")); out.put("saveScope", row.get("save_scope"));
         out.put("coverAssetId", row.get("cover_asset_id")); out.put("status", row.get("status"));
+        out.put("currentVersionNo", row.get("current_version_no")); out.put("publishedVersionNo", row.get("published_version_no"));
+        out.put("previousPublishedVersionNo", row.get("previous_published_version_no"));
         out.put("updateTime", row.get("update_time") == null ? null : row.get("update_time").toString());
         return out;
     }

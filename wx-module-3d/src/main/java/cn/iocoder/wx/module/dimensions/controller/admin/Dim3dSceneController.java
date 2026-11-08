@@ -77,6 +77,16 @@ public class Dim3dSceneController {
         service.changeTemplateStatus(id, status, reason); return CommonResult.success(true);
     }
 
+    @PostMapping("/template/publish/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Boolean> publishTemplate(@PathVariable String id, @RequestParam int versionNo, @RequestParam(required = false) String reason) {
+        service.publishTemplate(id, versionNo, reason); return CommonResult.success(true);
+    }
+
+    @PostMapping("/template/rollback/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Boolean> rollbackTemplate(@PathVariable String id, @RequestParam int versionNo, @RequestParam(required = false) String reason) {
+        service.rollbackTemplate(id, versionNo, reason); return CommonResult.success(true);
+    }
+
     @DeleteMapping("/template/remove/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
     public CommonResult<Boolean> removeTemplate(@PathVariable String id, @RequestParam(required = false) String reason) {
         service.removeTemplate(id, reason); return CommonResult.success(true);
