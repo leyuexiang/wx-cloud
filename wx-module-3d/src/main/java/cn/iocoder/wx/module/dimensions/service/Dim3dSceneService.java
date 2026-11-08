@@ -14,6 +14,8 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -24,6 +26,7 @@ import java.util.*;
 /** 场景四包整体版本化。所有SQL显式限定认证租户，行锁协调编辑租约、保存和删除。 */
 @Service
 public class Dim3dSceneService {
+    private static final Logger log = LoggerFactory.getLogger(Dim3dSceneService.class);
     @Resource private JdbcTemplate jdbc;
     @Resource private ArtResourceAccess access;
     @Resource private ObjectMapper json;
@@ -95,7 +98,7 @@ public class Dim3dSceneService {
         var result = summary(row);
         var revisions = jdbc.queryForList("SELECT * FROM wx_3d_scene_revision WHERE tenant_id=? AND scene_id=? AND revision_no=?", actor.tenant(), requireId(id), row.get("current_revision"));
         if (revisions.size() != 1) throw new ServiceException(500, "场景修订不完整");
-        result.put("currentRevision", revision(revisions.get(0)));
+        result.put("currentRevision", revision(actor, revisions.get(0)));
         return result;
     }
 
@@ -116,11 +119,7 @@ public class Dim3dSceneService {
         if (revisions.size() != 1) throw new ServiceException(404, "场景修订不存在或当前身份不可见");
         var revision = revisions.get(0);
         try {
-            List<String> packages = List.of(
-                    Objects.toString(revision.get("scene_json"), ""),
-                    Objects.toString(revision.get("three_d_json"), ""),
-                    Objects.toString(revision.get("two_d_json"), ""),
-                    Objects.toString(revision.get("dependencies_json"), ""));
+            List<String> packages = revisionPackages(actor, revision);
             JsonNode threeD = json.readTree(packages.get(1));
             String sourceHash = digest(String.join("\n", packages));
             var index = SceneRevisionDerivedIndex.build(actor.tenant(), id, revisionNo, sourceHash, threeD);
@@ -340,7 +339,7 @@ public class Dim3dSceneService {
         var revisions = jdbc.queryForList("SELECT * FROM wx_3d_scene_revision WHERE tenant_id=? AND scene_id=? AND revision_no=1",
                 actor.tenant(), requireId(templateSceneId));
         if (revisions.size() != 1) throw new ServiceException(500, "模板场景修订不完整");
-        var sourceRevision = revisions.get(0);
+        var sourceRevision = revisionRowWithContent(actor, revisions.get(0));
         String storedRequest = "TPL6:" + request;
         String requestHash = digest(templateSceneId + "\n" + name + "\n" + description + "\n" + category + "\n"
                 + sourceRevision.get("request_hash"));
@@ -417,7 +416,7 @@ public class Dim3dSceneService {
         var result = templateSummary(row);
         var revisions = jdbc.queryForList("SELECT * FROM wx_3d_scene_revision WHERE tenant_id=? AND scene_id=? AND revision_no=1", actor.tenant(), row.get("template_scene_id"));
         if (revisions.size() != 1) throw new ServiceException(500, "模板场景修订不完整");
-        result.put("currentRevision", revision(revisions.get(0)));
+        result.put("currentRevision", revision(actor, revisions.get(0)));
         return result;
     }
 
@@ -752,11 +751,70 @@ public class Dim3dSceneService {
         return out;
     }
 
-    private Map<String, Object> revision(Map<String, Object> row) {
-        Map<String, Object> out = new LinkedHashMap<>(bookmark(row.get("scene_id").toString(), row));
-        out.put("schemaVersion", row.get("schema_version"));
-        out.put("sceneJson", row.get("scene_json")); out.put("threeDJson", row.get("three_d_json")); out.put("twoDJson", row.get("two_d_json")); out.put("dependenciesJson", row.get("dependencies_json"));
+    private Map<String, Object> revision(ArtResourceAccess.Actor actor, Map<String, Object> row) {
+        Map<String, Object> source = revisionRowWithContent(actor, row);
+        Object sceneId = source.get("scene_id");
+        if (sceneId == null) {
+            log.warn("场景修订行缺少scene_id：keys={}", source.keySet());
+            throw new ServiceException(500, "场景修订身份不完整");
+        }
+        Map<String, Object> out = new LinkedHashMap<>(bookmark(sceneId.toString(), source));
+        out.put("schemaVersion", source.get("schema_version"));
+        out.put("sceneJson", source.get("scene_json")); out.put("threeDJson", source.get("three_d_json")); out.put("twoDJson", source.get("two_d_json")); out.put("dependenciesJson", source.get("dependencies_json"));
         return out;
+    }
+
+    /** 兼容期优先读取共享正文，校验失败时回退修订行内四包并记录诊断。 */
+    private Map<String, Object> revisionRowWithContent(ArtResourceAccess.Actor actor, Map<String, Object> row) {
+        Map<String, Object> normalizedRow = normalizeRevisionRow(row);
+        if (!sceneContentDualWriteEnabled || normalizedRow.get("content_id") == null) return normalizedRow;
+        try {
+            long contentId = ((Number) normalizedRow.get("content_id")).longValue();
+            var contents = jdbc.queryForList("SELECT tenant_id,schema_version,scene_json,three_d_json,two_d_json,dependencies_json,content_hash,content_bytes FROM wx_3d_scene_content WHERE id=? AND tenant_id=? AND deleted=0",
+                    contentId, actor.tenant());
+            if (contents.size() != 1) return revisionFallback(row, "共享正文不存在");
+            var content = contents.get(0);
+            int schema = ((Number) content.get("schema_version")).intValue();
+            String sceneJson = Objects.toString(content.get("scene_json"), "");
+            String threeDJson = Objects.toString(content.get("three_d_json"), "");
+            String twoDJson = Objects.toString(content.get("two_d_json"), "");
+            String dependenciesJson = Objects.toString(content.get("dependencies_json"), "");
+            String calculatedHash = SceneRevisionContentHasher.sha256(schema, sceneJson, threeDJson, twoDJson, dependenciesJson);
+            long calculatedBytes = SceneRevisionContentHasher.contentBytes(sceneJson, threeDJson, twoDJson, dependenciesJson);
+            if (!Objects.equals(normalizedRow.get("schema_version"), content.get("schema_version"))
+                    || !Objects.equals(normalizedRow.get("content_hash"), content.get("content_hash"))
+                    || !Objects.equals(normalizedRow.get("content_hash"), calculatedHash)
+                    || !Objects.equals(normalizedRow.get("content_bytes"), content.get("content_bytes"))
+                    || !Objects.equals(content.get("content_bytes"), calculatedBytes))
+                return revisionFallback(normalizedRow, "共享正文摘要或结构版本不匹配");
+            Map<String, Object> source = new LinkedHashMap<>(normalizedRow);
+            source.put("schema_version", schema);
+            source.put("scene_json", sceneJson); source.put("three_d_json", threeDJson);
+            source.put("two_d_json", twoDJson); source.put("dependencies_json", dependenciesJson);
+            return source;
+        } catch (RuntimeException error) {
+            log.warn("场景修订共享正文读取异常，回退旧四包：tenantId={},sceneId={},revisionNo={}", actor.tenant(), row.get("scene_id"), row.get("revision_no"), error);
+            return normalizedRow;
+        }
+    }
+
+    /** 不同数据库驱动对新增列返回大小写不同，兼容读路径统一使用小写列名。 */
+    private static Map<String, Object> normalizeRevisionRow(Map<String, Object> row) {
+        if (row.keySet().stream().noneMatch(key -> key.equals(key.toUpperCase(Locale.ROOT)))) return row;
+        Map<String, Object> normalized = new LinkedHashMap<>();
+        row.forEach((key, value) -> normalized.put(key.toLowerCase(Locale.ROOT), value));
+        return normalized;
+    }
+
+    private Map<String, Object> revisionFallback(Map<String, Object> row, String reason) {
+        log.warn("场景修订共享正文回退旧四包：reason={},sceneId={},revisionNo={}", reason, row.get("scene_id"), row.get("revision_no"));
+        return row;
+    }
+
+    private List<String> revisionPackages(ArtResourceAccess.Actor actor, Map<String, Object> row) {
+        Map<String, Object> source = revisionRowWithContent(actor, row);
+        return List.of(Objects.toString(source.get("scene_json"), ""), Objects.toString(source.get("three_d_json"), ""),
+                Objects.toString(source.get("two_d_json"), ""), Objects.toString(source.get("dependencies_json"), ""));
     }
 
     private Map<String, Object> bookmark(String id, Map<String, Object> row) {

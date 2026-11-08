@@ -134,6 +134,11 @@ class Dim3dSceneServiceTest {
         assertNotNull(firstRevision.get("content_id"));
         assertEquals(SceneRevisionContentHasher.contentBytes(firstRevision.get("scene_json").toString(), firstRevision.get("three_d_json").toString(),
                 firstRevision.get("two_d_json").toString(), firstRevision.get("dependencies_json").toString()), ((Number) firstRevision.get("content_bytes")).longValue());
+        @SuppressWarnings("unchecked") Map<String, Object> sharedRead = (Map<String, Object>) service.info(id).get("currentRevision");
+        assertEquals(firstRevision.get("scene_json"), sharedRead.get("sceneJson"));
+        jdbc.update("DELETE FROM wx_3d_scene_content");
+        @SuppressWarnings("unchecked") Map<String, Object> fallbackRead = (Map<String, Object>) service.info(id).get("currentRevision");
+        assertEquals(firstRevision.get("three_d_json"), fallbackRead.get("threeDJson"), "共享正文缺失时应回退修订行四包");
 
         String token = (String) service.lock(id, "dual-write").get("lockToken");
         var saved = service.save(saveBody(id, token));
