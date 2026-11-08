@@ -23,3 +23,4 @@ Web 已新增 `getDim3dSceneChunks`、`readDim3dSceneChunkPage`、只读会话�
 - 临时场景已删除，服务器列表恢复为0条记录，临时发布目录、启动描述和凭据文件已清理。该联验只证明运行入口和启动元数据链路，不替代区块卸载、恢复和保存保全验收。
 - Web 端已补充 `SceneRuntime.applyLoadedInstanceProjection` 和分片会话串行绑定器。绑定器只传递已加载实例编号，旧 Runtime 无投影能力时保持空操作，完整 `SceneStore`、对象缓存和 `saveAll` 边界不变。对应测试共29项通过，`pnpm type-check` 通过。
 - 编辑页 `SceneCanvas` 已按锁定基准修订建立会话，并暴露 `loadSceneChunk`、`unloadSceneChunk`。会话只在显式调用时读取区块，区块卸载通过会话状态驱动 Unity 表现更新，不触碰业务保存数据。
+- 真实页面联验在共享 `192.168.10.148` 上创建修订3和两个测试区块后，请求 `/admin-api/dim3d/scene/chunks/{id}` 返回 HTTP200、业务码404，消息为接口地址不存在。当前共享部署尚未切换到包含 `26829bd0` 的后端候选包，DATA-07-05 的运行端验收因此保持阻塞。测试场景已删除。
