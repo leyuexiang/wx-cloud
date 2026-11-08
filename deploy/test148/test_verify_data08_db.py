@@ -44,6 +44,7 @@ class Data08DigestContractTest(unittest.TestCase):
         self.assertEqual(1, report["newContentRows"])
         self.assertEqual(2, report["revisionReferencesToWrite"])
         self.assertEqual(1, sql.count("INSERT INTO wx_3d_scene_content"))
+        self.assertIn(f",{revision['contentBytesExpected']},CURRENT_TIMESTAMP,0);", sql)
         self.assertEqual(2, sql.count("UPDATE wx_3d_scene_revision SET"))
         self.assertTrue(report["dryRun"])
 

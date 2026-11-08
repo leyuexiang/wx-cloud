@@ -68,7 +68,8 @@ def plan(args: argparse.Namespace) -> tuple[dict, str]:
             "INSERT INTO wx_3d_scene_content(id,tenant_id,content_hash,schema_version,scene_json,three_d_json,two_d_json,dependencies_json,content_bytes,last_referenced_time,deleted) "
             f"VALUES({sql_number(content_id)},{sql_number(tenant_id)},'{digest}',{sql_number(schema)},"
             f"UNHEX('{packages[0].hex()}'),UNHEX('{packages[1].hex()}'),UNHEX('{packages[2].hex()}'),UNHEX('{packages[3].hex()}'),"
-            f"CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,0);"
+            f"{sql_number(revision['contentBytesExpected'])},"
+            f"CURRENT_TIMESTAMP,0);"
         )
     for content_id in sorted(revive_ids):
         statements.append(f"UPDATE wx_3d_scene_content SET deleted=0,last_referenced_time=CURRENT_TIMESTAMP WHERE id={sql_number(content_id)};")
