@@ -53,7 +53,8 @@ def main():
         pending = target.with_suffix('.art05-ready')
         shutil.copy2(candidate, pending)
         pending.replace(target)
-        run('docker', 'compose', '-f', 'compose.yaml', 'up', '-d', '--no-deps', '--force-recreate', 'dimensions')
+        run('python3', 'prepare-exploded-runtime.py', '--service', 'dimensions')
+        run('docker', 'compose', '-f', 'compose.yaml', '-f', 'compose.exploded.yaml', 'up', '-d', '--no-deps', '--force-recreate', 'dimensions')
         healthy()
         environment = {**os.environ, 'WX_ART03_PORT': '48092', 'WX_ART03_SOURCE_DIR': str(ROOT / 'samples/art05-car-source'),
                        'WX_ART02_PORT': '48092', 'WX_ART02_DOWNLOAD_ENABLED': '1', 'WX_ART03_ENABLED': '1', 'WX_VERIFY_PORT': '12522'}
@@ -71,7 +72,8 @@ def main():
         pending = target.with_suffix('.art05-rollback')
         shutil.copy2(backup / 'dimensions.jar', pending)
         pending.replace(target)
-        run('docker', 'compose', '-f', 'compose.yaml', 'up', '-d', '--no-deps', '--force-recreate', 'dimensions')
+        run('python3', 'prepare-exploded-runtime.py', '--service', 'dimensions')
+        run('docker', 'compose', '-f', 'compose.yaml', '-f', 'compose.exploded.yaml', 'up', '-d', '--no-deps', '--force-recreate', 'dimensions')
         healthy()
         report.update(status='ROLLED_BACK', errorType=type(error).__name__, activeSha256=digest(target))
     finally:

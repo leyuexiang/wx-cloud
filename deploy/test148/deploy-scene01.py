@@ -18,7 +18,8 @@ def mysql(sql):
 
 
 def restart():
-    subprocess.run(['docker', 'compose', '-f', 'compose.yaml', 'up', '-d', '--no-deps', '--force-recreate', 'dimensions'], check=True, capture_output=True)
+    subprocess.run(['python3', 'prepare-exploded-runtime.py', '--service', 'dimensions'], check=True, capture_output=True)
+    subprocess.run(['docker', 'compose', '-f', 'compose.yaml', '-f', 'compose.exploded.yaml', 'up', '-d', '--no-deps', '--force-recreate', 'dimensions'], check=True, capture_output=True)
     for _ in range(60):
         try:
             body = json.loads(urllib.request.urlopen('http://127.0.0.1:48092/actuator/health', timeout=2).read())

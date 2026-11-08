@@ -31,7 +31,8 @@ def main():
     try:
         config.write_text(settings,encoding="utf-8")
         pending=target.with_suffix(".art03-ready");shutil.copy2(candidate,pending);pending.replace(target)
-        run("docker","compose","-f","compose.yaml","up","-d","--no-deps","--force-recreate","dimensions")
+        run("python3", "prepare-exploded-runtime.py", "--service", "dimensions")
+        run("docker","compose","-f","compose.yaml","-f","compose.exploded.yaml","up","-d","--no-deps","--force-recreate","dimensions")
         healthy()
         run("python3","verify-resource-art03.py",env={**os.environ,"WX_ART03_PORT":"48092"})
         run("python3","verify-resource-art02.py",env={**os.environ,"WX_ART02_PORT":"48092","WX_ART02_DOWNLOAD_ENABLED":"1","WX_ART03_ENABLED":"1"})
@@ -42,7 +43,8 @@ def main():
     except Exception as exc:
         pending=target.with_suffix(".art03-rollback");shutil.copy2(backup/"dimensions.jar",pending);pending.replace(target)
         shutil.copy2(backup/"dimensions.yaml",config)
-        run("docker","compose","-f","compose.yaml","up","-d","--no-deps","--force-recreate","dimensions")
+        run("python3", "prepare-exploded-runtime.py", "--service", "dimensions")
+        run("docker","compose","-f","compose.yaml","-f","compose.exploded.yaml","up","-d","--no-deps","--force-recreate","dimensions")
         healthy();report["status"]="ROLLED_BACK";report["errorType"]=type(exc).__name__
         (ROOT/"deployment-art03.json").write_text(json.dumps(report,indent=2));raise
     (ROOT/"deployment-art03.json").write_text(json.dumps(report,indent=2));print(json.dumps(report))

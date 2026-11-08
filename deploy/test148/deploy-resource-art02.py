@@ -28,7 +28,8 @@ def main():
     config.write_text(settings,encoding="utf-8")
     report={"backup":str(backup),"gatewayUnchanged":True,"databaseChanged":False,"downloadConfigured":False}
     try:
-        run("docker","compose","-f","compose.yaml","up","-d","--no-deps","--force-recreate","dimensions")
+        run("python3", "prepare-exploded-runtime.py", "--service", "dimensions")
+        run("docker","compose","-f","compose.yaml","-f","compose.exploded.yaml","up","-d","--no-deps","--force-recreate","dimensions")
         healthy()
         run("python3","verify-resource-art02.py",env={**os.environ,"WX_ART02_PORT":"48092","WX_ART02_DOWNLOAD_ENABLED":"1" if "download-endpoint:" in settings else "0"})
         run("python3","verify-api.py",env={**os.environ,"WX_VERIFY_PORT":"12522"})
@@ -37,7 +38,8 @@ def main():
     except Exception as exc:
         pending=target.with_suffix(".art02-rollback");shutil.copy2(backup/"dimensions.jar",pending);pending.replace(target)
         shutil.copy2(backup/"dimensions.yaml",config)
-        run("docker","compose","-f","compose.yaml","up","-d","--no-deps","--force-recreate","dimensions")
+        run("python3", "prepare-exploded-runtime.py", "--service", "dimensions")
+        run("docker","compose","-f","compose.yaml","-f","compose.exploded.yaml","up","-d","--no-deps","--force-recreate","dimensions")
         healthy();report["status"]="ROLLED_BACK";report["errorType"]=type(exc).__name__
         (ROOT/"deployment-art02.json").write_text(json.dumps(report,indent=2));raise
     (ROOT/"deployment-art02.json").write_text(json.dumps(report,indent=2));print(json.dumps(report))
