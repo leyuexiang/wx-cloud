@@ -38,6 +38,8 @@
 
 回填工具为 `deploy/test148/migrate-data08-db.py`，默认 dry-run；写入必须显式传入 `--apply --confirm DATA08-APPLY`，且结构迁移已完成。工具只回填共享正文和修订引用，不负责建表，也没有在148执行。
 
+结构迁移工具为 `deploy/test148/apply-data08-schema.py`，默认只读检查主表、修订表、目标表和引用列，写入必须显式确认并提供备份标记。148 dry-run 已通过，迁移顺序为内容表、修订引用列，未执行 DDL。
+
 迁移后回读校验工具为 `deploy/test148/verify-data08-roundtrip.py`。本地5项 DATA-08 Python 测试通过，148 当前执行结果为结构未就绪，未执行写入。结构迁移完成后，该工具将逐条校验四包、摘要、字节数、租户边界和修订引用。
 
 ## 148 实际只读预检

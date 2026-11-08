@@ -48,7 +48,8 @@ def mysql(args: argparse.Namespace, sql: str) -> list[list[str]]:
 
 def column_inventory(args: argparse.Namespace) -> dict[str, set[str]]:
     rows = mysql(args, "SELECT TABLE_NAME,COLUMN_NAME FROM information_schema.COLUMNS "
-                     "WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME IN ('wx_3d_scene_revision','wx_3d_scene_content')")
+                     "WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME IN "
+                     "('wx_3d_scene','wx_3d_scene_revision','wx_3d_scene_content','wx_3d_scene_template','wx_3d_scene_publication','wx_3d_scene_bookmark')")
     inventory: dict[str, set[str]] = defaultdict(set)
     for table, column in rows:
         inventory[table].add(column)
