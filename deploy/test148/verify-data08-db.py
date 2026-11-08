@@ -33,8 +33,13 @@ def mysql(args: argparse.Namespace, sql: str) -> list[list[str]]:
     env = os.environ.copy()
     if args.password_env:
         env["MYSQL_PWD"] = os.environ.get(args.password_env, "")
-    command = ["mysql", "--protocol=TCP", "-h", args.host, "-P", str(args.port), "-u", args.user,
-               "--batch", "--raw", "--skip-column-names", args.database, "-e", sql]
+    mysql_args = ["--protocol=TCP", "-h", args.host, "-P", str(args.port), "-u", args.user,
+                  "--batch", "--raw", "--skip-column-names", args.database, "-e", sql]
+    if args.mysql_container:
+        command = ["docker", "exec", "-i", args.mysql_container, "sh", "-c",
+                   'export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"; exec mysql "$@"', "--", *mysql_args]
+    else:
+        command = ["mysql", *mysql_args]
     result = subprocess.run(command, env=env, capture_output=True, text=True, encoding="utf-8")
     if result.returncode:
         raise RuntimeError(result.stderr.strip() or "mysql命令执行失败")
@@ -149,6 +154,7 @@ def main() -> int:
     parser.add_argument("--user", default="root")
     parser.add_argument("--database", default="wx_editor")
     parser.add_argument("--password-env", default="WX_MYSQL_ROOT_PASSWORD")
+    parser.add_argument("--mysql-container", help="在远端Docker MySQL容器内执行只读查询")
     parser.add_argument("--require-ready", action="store_true", help="结构未完成或校验失败时返回非零")
     args = parser.parse_args()
     try:
