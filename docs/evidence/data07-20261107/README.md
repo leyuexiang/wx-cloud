@@ -21,3 +21,4 @@ Web 已新增 `getDim3dSceneChunks`、`readDim3dSceneChunkPage`、只读会话�
 - 浏览器通过运营端测试身份创建临时普通场景 `DATA07-WEBGPU-20261108-R2`，选择“Unity WebGPU”后进入独立编辑页，页面显示“Unity 场景已就绪”。资源面板、场景画布和保存/发布入口均已加载。
 - 之前的 `startup-failed-retryable` 已定位为网关混用 Windows 资源发布清单导致的平台和 Unity 版本不匹配。Windows 清单为 `StandaloneWindows64/2021.3.33f1`，不能作为 WebGPU 资源清单。
 - 临时场景已删除，服务器列表恢复为0条记录，临时发布目录、启动描述和凭据文件已清理。该联验只证明运行入口和启动元数据链路，不替代区块卸载、恢复和保存保全验收。
+- Web 端已补充 `SceneRuntime.applyLoadedInstanceProjection` 和分片会话串行绑定器。绑定器只传递已加载实例编号，旧 Runtime 无投影能力时保持空操作，完整 `SceneStore`、对象缓存和 `saveAll` 边界不变。对应测试共29项通过，`pnpm type-check` 通过。
