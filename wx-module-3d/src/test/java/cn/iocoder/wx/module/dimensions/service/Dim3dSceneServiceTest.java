@@ -418,9 +418,17 @@ class Dim3dSceneServiceTest {
                 .put("requestId", "tpl-request-combined").put("name", "快照模板").put("templateType", "dim3d_template_industry")
                 .put("category", "测试").put("saveScope", "all");
         for (String key : java.util.List.of("sceneJson", "threeDJson", "twoDJson", "dependenciesJson")) body.put(key, (String) revision.get(key));
-        service.saveAsTemplateFromSnapshot(body);
+        var snapshot = service.saveAsTemplateFromSnapshot(body);
         var page = service.templatePageCombined(null, "dim3d_template_industry", null, null, null, 1, 10);
         assertEquals(2, page.getTotal());
         assertEquals(java.util.Set.of("LEGACY", "SNAPSHOT"), page.getList().stream().map(row -> row.get("recordKind")).collect(java.util.stream.Collectors.toSet()));
+        service.removeTemplate(snapshot.get("templateId").toString());
+        var afterRemoval = service.templatePageCombined(null, "dim3d_template_industry", null, null, null, 1, 10);
+        assertEquals(1, afterRemoval.getTotal());
+        assertEquals("LEGACY", afterRemoval.getList().get(0).get("recordKind"));
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(9, 3));
+        var otherTenant = service.templatePageCombined(null, "dim3d_template_industry", null, null, null, 1, 10);
+        assertEquals(1, otherTenant.getTotal());
+        assertEquals("其他租户模板", otherTenant.getList().get(0).get("templateName"));
     }
 }
