@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "ready": true,
+  "readOnly": true,
+  "revisionCount": 18,
+  "contentRowCount": 17,
+  "missingReferences": 0,
+  "tenantIsolationViolations": 0,
+  "schemaMismatches": 0,
+  "hashMismatches": 0,
+  "byteMismatches": 0,
+  "packageMismatches": 0,
+  "errorIdentities": []
+}

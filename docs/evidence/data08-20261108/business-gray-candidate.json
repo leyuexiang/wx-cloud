@@ -1,0 +1,11 @@
+{
+  "sourceDatabase": "wx_editor",
+  "readOnly": true,
+  "sharedContentTablePresent": false,
+  "tenants": [
+    {"tenantId": 1, "sceneCount": 4, "activeSceneCount": 0, "revisionCount": 7, "revisionSceneCount": 4, "rawBytes": 5458, "batch": "候选批次B"},
+    {"tenantId": 2, "sceneCount": 4, "activeSceneCount": 2, "revisionCount": 11, "revisionSceneCount": 4, "rawBytes": 14363, "batch": "候选批次A"}
+  ],
+  "recommendedOrder": [2, 1],
+  "readiness": {"businessDatabaseMigration": "未开始", "businessServiceSwitch": "未开始", "firstBatchPrerequisite": "先完成业务库结构迁移、回填和全量回读"}
+}

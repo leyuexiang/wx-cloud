@@ -1,0 +1,175 @@
+{
+  "passed": true,
+  "database": "wx_editor_data08",
+  "backup": "/opt/wx/editor-test148/backups/data08-recovery-20261108T115336Z/scene-tables.sql.gz",
+  "backupSha256": "4834c864a820b891aba7b06918a6ae4f16367964a18283cbd219fc8510ca400a",
+  "fixtures": [
+    {
+      "sceneId": "2119398019214405633",
+      "label": "wide128",
+      "nodes": 129,
+      "packageBytes": 24511,
+      "savesDisabledMs": [
+        60.505,
+        99.158
+      ],
+      "readDisabled": {
+        "samplesMs": [
+          14.977,
+          12.663,
+          13.165,
+          11.475,
+          10.959,
+          11.575,
+          10.963
+        ],
+        "medianMs": 11.575,
+        "maxMs": 14.977
+      },
+      "readEnabled": {
+        "samplesMs": [
+          217.558,
+          22.552,
+          12.511,
+          12.833,
+          15.707,
+          11.985,
+          13.38
+        ],
+        "medianMs": 13.38,
+        "maxMs": 217.558
+      },
+      "saveEnabledMs": 85.338,
+      "revisionReferences": [
+        [
+          "1",
+          "2119376444213751815"
+        ],
+        [
+          "2",
+          "2119376444213751816"
+        ],
+        [
+          "3",
+          "2119376444213751816"
+        ],
+        [
+          "4",
+          "2119376444213751816"
+        ]
+      ],
+      "softDeleted": true
+    },
+    {
+      "sceneId": "2119398020879544322",
+      "label": "wide1024-large",
+      "nodes": 1025,
+      "packageBytes": 1243430,
+      "savesDisabledMs": [
+        576.53,
+        205.697
+      ],
+      "readDisabled": {
+        "samplesMs": [
+          56.439,
+          56.743,
+          59.555,
+          43.967,
+          44.261,
+          43.83,
+          43.353
+        ],
+        "medianMs": 44.261,
+        "maxMs": 59.555
+      },
+      "readEnabled": {
+        "samplesMs": [
+          77.146,
+          62.861,
+          62.492,
+          60.824,
+          51.854,
+          47.816,
+          54.057
+        ],
+        "medianMs": 60.824,
+        "maxMs": 77.146
+      },
+      "saveEnabledMs": 196.905,
+      "revisionReferences": [
+        [
+          "1",
+          "2119376444213751817"
+        ],
+        [
+          "2",
+          "2119376444213751818"
+        ],
+        [
+          "3",
+          "2119376444213751818"
+        ],
+        [
+          "4",
+          "2119376444213751818"
+        ]
+      ],
+      "softDeleted": true
+    }
+  ],
+  "scope": "串行接口负载初测，未覆盖并发容量",
+  "lockCountersBefore": {
+    "Innodb_row_lock_time": 173,
+    "Innodb_row_lock_waits": 12
+  },
+  "backfillMs": 727.687,
+  "backfill": {
+    "revisionCount": 37,
+    "newContentRows": 4,
+    "revivedContentRows": 0,
+    "revisionReferencesToWrite": 6,
+    "dryRun": false,
+    "databaseWrite": true
+  },
+  "repeatedBackfill": {
+    "revisionCount": 37,
+    "newContentRows": 0,
+    "revivedContentRows": 0,
+    "revisionReferencesToWrite": 0,
+    "dryRun": false,
+    "databaseWrite": false
+  },
+  "roundtrip": {
+    "passed": true,
+    "ready": true,
+    "readOnly": true,
+    "revisionCount": 39,
+    "contentRowCount": 32,
+    "missingReferences": 0,
+    "tenantIsolationViolations": 0,
+    "schemaMismatches": 0,
+    "hashMismatches": 0,
+    "byteMismatches": 0,
+    "packageMismatches": 0,
+    "errorIdentities": []
+  },
+  "lockCountersAfter": {
+    "Innodb_row_lock_time": 173,
+    "Innodb_row_lock_waits": 12
+  },
+  "tableStorage": [
+    [
+      "wx_3d_scene_content",
+      "32",
+      "98304",
+      "32768"
+    ],
+    [
+      "wx_3d_scene_revision",
+      "36",
+      "3686400",
+      "49152"
+    ]
+  ],
+  "configRestored": true
+}

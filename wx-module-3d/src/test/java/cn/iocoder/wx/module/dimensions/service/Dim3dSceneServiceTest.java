@@ -146,6 +146,23 @@ class Dim3dSceneServiceTest {
         assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_content", Integer.class), "相同四包正文应复用内容行");
         assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_revision WHERE scene_id=? AND content_id IS NOT NULL", Integer.class, Long.parseLong(id)));
     }
+
+    @Test void dualWriteTenantAllowlistKeepsOtherTenantOnLegacyPackages() {
+        jdbc.execute("CREATE TABLE wx_3d_scene_content(id BIGINT PRIMARY KEY,tenant_id BIGINT NOT NULL,content_hash CHAR(64) NOT NULL,schema_version INT NOT NULL,scene_json LONGTEXT NOT NULL,three_d_json LONGTEXT NOT NULL,two_d_json LONGTEXT NOT NULL,dependencies_json LONGTEXT NOT NULL,content_bytes BIGINT NOT NULL,create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,last_referenced_time TIMESTAMP,deleted TINYINT DEFAULT 0,UNIQUE(tenant_id,content_hash,schema_version))");
+        jdbc.execute("ALTER TABLE wx_3d_scene_revision ADD content_id BIGINT NULL");
+        jdbc.execute("ALTER TABLE wx_3d_scene_revision ADD content_hash CHAR(64) NULL");
+        jdbc.execute("ALTER TABLE wx_3d_scene_revision ADD content_bytes BIGINT NULL");
+        ReflectionTestUtils.setField(service, "sceneContentDualWriteEnabled", true);
+        ReflectionTestUtils.setField(service, "sceneContentDualWriteTenants", "3, 5");
+
+        String tenantTwoScene = create();
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_content", Integer.class));
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(3, 3));
+        String tenantThreeScene = create();
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_content", Integer.class));
+        assertNull(jdbc.queryForObject("SELECT content_id FROM wx_3d_scene_revision WHERE scene_id=?", Object.class, Long.parseLong(tenantTwoScene)));
+        assertNotNull(jdbc.queryForObject("SELECT content_id FROM wx_3d_scene_revision WHERE scene_id=?", Object.class, Long.parseLong(tenantThreeScene)));
+    }
     @Test void otherTenantCannotReadOrLockEvenWithKnownId() {
         String id = create(); when(access.actor()).thenReturn(new ArtResourceAccess.Actor(5, 3));
         assertThrows(ServiceException.class, () -> service.info(id));

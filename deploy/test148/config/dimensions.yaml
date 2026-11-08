@@ -217,6 +217,10 @@ preview:
     base-url: ${preview.base-url}/web/#/scenePreview
 dim3d:
   resource-convert-url: http://192.168.10.200:30080/api/dim3d/resource/uploadConvert
+  scene-content:
+    # 灰度时通过环境变量填写租户编号，空值沿用全局开关覆盖所有租户。
+    dual-write-enabled: ${DIM3D_SCENE_CONTENT_DUAL_WRITE_ENABLED:false}
+    dual-write-tenants: ${DIM3D_SCENE_CONTENT_DUAL_WRITE_TENANTS:}
   resource:
     platform-tenant-id: 1
     download-endpoint: https://192.168.10.148:9444

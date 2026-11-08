@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "candidateJarSha256": "8143caa0a2d1343a055cdba6c3289c076dcf3cff13d4f3c4fb9ee32caecb2fa1",
+  "dimensionsPort": 48093,
+  "dualWriteEnabled": true,
+  "dualWriteTenants": [2],
+  "verificationSceneId": "2119420426075566081",
+  "checks": [
+    "tenant-2 creates a revision with shared content reference",
+    "idempotent replay keeps the same revision",
+    "fixed revision chunks remain readable",
+    "no revision remains without content_id after verification"
+  ],
+  "contentRowsAfterVerification": 44,
+  "unreferencedRevisionCount": 0,
+  "businessDatabaseChanged": false,
+  "businessServicePort": 48092
+}

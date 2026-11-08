@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "readWorkers": 8,
+  "writeWorkers": 4,
+  "parallelReads": {
+    "count": 8,
+    "elapsedMs": 27.851,
+    "medianRequestMs": 26.161,
+    "maxRequestMs": 27.302
+  },
+  "parallelWrites": {
+    "successCount": 1,
+    "conflictCount": 3,
+    "finalRevisionNo": 2,
+    "successRevisionNo": 2,
+    "conflictRevisionNo": 2
+  },
+  "scope": "同一场景、同一编辑锁、同一基线修订的并发读写基线。读请求固定读取修订1，写请求共享baseRevisionNo=1，期望一成功三冲突。"
+}

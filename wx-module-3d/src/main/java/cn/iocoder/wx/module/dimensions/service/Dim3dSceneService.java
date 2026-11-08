@@ -34,6 +34,9 @@ public class Dim3dSceneService {
     /** 兼容期共享正文双写开关，默认关闭；未完成结构迁移时不得访问新表。 */
     @Value("${dim3d.scene-content.dual-write-enabled:false}")
     private boolean sceneContentDualWriteEnabled;
+    /** 灰度租户白名单，逗号分隔；为空时沿用全局开关覆盖所有租户。 */
+    @Value("${dim3d.scene-content.dual-write-tenants:}")
+    private String sceneContentDualWriteTenants;
     private static final String SUMMARY = "id,tenant_id,name,scene_desc,scene_category,scene_type,cover_asset_id,current_revision,update_time";
     private static final List<String> PACKAGE_KEYS = List.of("sceneJson", "threeDJson", "twoDJson", "dependenciesJson");
     // 只映射已定义的场景引用字段，资源编号和未知扩展中的普通 id 保持原值。
@@ -471,7 +474,7 @@ public class Dim3dSceneService {
 
     private long insertRevision(ArtResourceAccess.Actor actor, long id, int number, int schema, List<String> packages, String request, String hash) {
         long revision = IdWorker.getId();
-        SceneRevisionContent content = sceneContentDualWriteEnabled
+        SceneRevisionContent content = sceneContentDualWriteEnabled(actor.tenant())
                 ? ensureSceneRevisionContent(actor.tenant(), schema, packages) : null;
         if (content == null) {
             jdbc.update("INSERT INTO wx_3d_scene_revision(id,tenant_id,scene_id,revision_no,schema_version,scene_json,three_d_json,two_d_json,dependencies_json,request_id,request_hash,create_by) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -767,7 +770,7 @@ public class Dim3dSceneService {
     /** 兼容期优先读取共享正文，校验失败时回退修订行内四包并记录诊断。 */
     private Map<String, Object> revisionRowWithContent(ArtResourceAccess.Actor actor, Map<String, Object> row) {
         Map<String, Object> normalizedRow = normalizeRevisionRow(row);
-        if (!sceneContentDualWriteEnabled || normalizedRow.get("content_id") == null) return normalizedRow;
+        if (!sceneContentDualWriteEnabled(actor.tenant()) || normalizedRow.get("content_id") == null) return normalizedRow;
         try {
             long contentId = ((Number) normalizedRow.get("content_id")).longValue();
             var contents = jdbc.queryForList("SELECT tenant_id,schema_version,scene_json,three_d_json,two_d_json,dependencies_json,content_hash,content_bytes FROM wx_3d_scene_content WHERE id=? AND tenant_id=? AND deleted=0",
@@ -796,6 +799,16 @@ public class Dim3dSceneService {
             log.warn("场景修订共享正文读取异常，回退旧四包：tenantId={},sceneId={},revisionNo={}", actor.tenant(), row.get("scene_id"), row.get("revision_no"), error);
             return normalizedRow;
         }
+    }
+
+    /** 全局开关开启后可用租户白名单逐步放量，空白名单表示兼容原有全量开启语义。 */
+    private boolean sceneContentDualWriteEnabled(long tenantId) {
+        if (!sceneContentDualWriteEnabled) return false;
+        if (sceneContentDualWriteTenants == null || sceneContentDualWriteTenants.isBlank()) return true;
+        return Arrays.stream(sceneContentDualWriteTenants.split(","))
+                .map(String::trim)
+                .filter(value -> !value.isEmpty())
+                .anyMatch(value -> value.equals(Long.toString(tenantId)));
     }
 
     /** 不同数据库驱动对新增列返回大小写不同，兼容读路径统一使用小写列名。 */

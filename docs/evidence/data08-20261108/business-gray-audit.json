@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "readOnly": true,
+  "database": "wx_editor",
+  "historicalRevisionCount": 18,
+  "totalRevisionCount": 40,
+  "totalContentCount": 31,
+  "nullReferenceCount": 8,
+  "tenant1NullReferenceCount": 8,
+  "tenant2NullReferenceCount": 0,
+  "tenant2SharedReferenceCount": 25,
+  "activeLocks": 0,
+  "grayScenes": 0
+}

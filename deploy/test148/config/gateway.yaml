@@ -4,6 +4,9 @@ spring:
     name: gateway-server
   main:
     allow-circular-references: true
+  codec:
+    # 场景四包沿用主网关的有界缓冲大小，避免测试入口先于服务拒绝正常保存。
+    max-in-memory-size: 16MB
   cloud:
     nacos:
       discovery:

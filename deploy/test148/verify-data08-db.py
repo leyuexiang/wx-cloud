@@ -33,14 +33,15 @@ def mysql(args: argparse.Namespace, sql: str) -> list[list[str]]:
     env = os.environ.copy()
     if args.password_env:
         env["MYSQL_PWD"] = os.environ.get(args.password_env, "")
+    # 四包回填的十六进制 SQL 可能超过单个进程参数上限，统一从标准输入传给客户端。
     mysql_args = ["--protocol=TCP", "-h", args.host, "-P", str(args.port), "-u", args.user,
-                  "--batch", "--raw", "--skip-column-names", args.database, "-e", sql]
+                  "--batch", "--raw", "--skip-column-names", args.database]
     if args.mysql_container:
         command = ["docker", "exec", "-i", args.mysql_container, "sh", "-c",
                    'export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"; exec mysql "$@"', "--", *mysql_args]
     else:
         command = ["mysql", *mysql_args]
-    result = subprocess.run(command, env=env, capture_output=True, text=True, encoding="utf-8")
+    result = subprocess.run(command, env=env, input=sql, capture_output=True, text=True, encoding="utf-8")
     if result.returncode:
         raise RuntimeError(result.stderr.strip() or "mysql命令执行失败")
     return [line.split("\t") for line in result.stdout.splitlines() if line]

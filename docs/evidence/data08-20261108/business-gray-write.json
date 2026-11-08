@@ -1,0 +1,88 @@
+{
+  "passed": true,
+  "readOnly": false,
+  "tenant": 2,
+  "sceneId": "2119449114498363394",
+  "first": {
+    "code": 200,
+    "revisionNo": 2,
+    "revisionId": "2119449114724855809"
+  },
+  "replay": {
+    "code": 200,
+    "sameRevisionId": true,
+    "revisionNo": 2
+  },
+  "concurrent": {
+    "responses": [
+      {
+        "code": 200,
+        "data": {
+          "conflict": true,
+          "conflictRevisionNo": 3,
+          "sceneId": "2119449114498363394"
+        },
+        "msg": "成功"
+      },
+      {
+        "code": 200,
+        "data": {
+          "revisionId": "2119449114850684929",
+          "lockVersion": 3,
+          "revisionNo": 3,
+          "conflict": false,
+          "savedTime": "2026-11-08T15:17:01.099768009Z",
+          "sceneId": "2119449114498363394"
+        },
+        "msg": "成功"
+      },
+      {
+        "code": 200,
+        "data": {
+          "conflict": true,
+          "conflictRevisionNo": 3,
+          "sceneId": "2119449114498363394"
+        },
+        "msg": "成功"
+      },
+      {
+        "code": 200,
+        "data": {
+          "conflict": true,
+          "conflictRevisionNo": 3,
+          "sceneId": "2119449114498363394"
+        },
+        "msg": "成功"
+      }
+    ],
+    "successes": 1,
+    "conflicts": 3,
+    "revisionNos": [
+      null,
+      3,
+      null,
+      null
+    ]
+  },
+  "references": [
+    [
+      "1",
+      "2119449114502557699",
+      "d1552423d9288e62ca0284ce95fb59abcee3d057b8e6f06f35cb0d9a865c29fd",
+      "541"
+    ],
+    [
+      "2",
+      "2119449114724855810",
+      "da5562b71a14af8806fd65788d9acbc071fc7bd58480845d429fa560d9de0e55",
+      "584"
+    ],
+    [
+      "3",
+      "2119449114854879234",
+      "7b01404f6813d7cc624eba67fc7d89eb5bfb7a539ce3fd29ab4fc2016259650a",
+      "613"
+    ]
+  ],
+  "removeCode": 200
+}

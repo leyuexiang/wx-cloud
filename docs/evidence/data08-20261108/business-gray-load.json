@@ -1,0 +1,121 @@
+{
+  "passed": true,
+  "readOnly": true,
+  "base": "http://127.0.0.1:12522/admin-api",
+  "tenant": 2,
+  "scenes": [
+    {
+      "sceneId": "2117783507734425602",
+      "revisionNo": 2,
+      "info": {
+        "8": {
+          "requests": 8,
+          "success": 8,
+          "failures": 0,
+          "medianMs": 17.538,
+          "p95Ms": 17.984,
+          "maxMs": 18.201,
+          "codes": [
+            "200"
+          ]
+        },
+        "32": {
+          "requests": 32,
+          "success": 32,
+          "failures": 0,
+          "medianMs": 24.881,
+          "p95Ms": 33.722,
+          "maxMs": 34.891,
+          "codes": [
+            "200"
+          ]
+        }
+      },
+      "chunks": {
+        "8": {
+          "requests": 8,
+          "success": 8,
+          "failures": 0,
+          "medianMs": 11.692,
+          "p95Ms": 12.022,
+          "maxMs": 12.375,
+          "codes": [
+            "200"
+          ]
+        },
+        "32": {
+          "requests": 32,
+          "success": 32,
+          "failures": 0,
+          "medianMs": 25.044,
+          "p95Ms": 34.323,
+          "maxMs": 35.364,
+          "codes": [
+            "200"
+          ]
+        }
+      }
+    },
+    {
+      "sceneId": "2117784269373894658",
+      "revisionNo": 3,
+      "info": {
+        "8": {
+          "requests": 8,
+          "success": 8,
+          "failures": 0,
+          "medianMs": 10.151,
+          "p95Ms": 10.744,
+          "maxMs": 11.167,
+          "codes": [
+            "200"
+          ]
+        },
+        "32": {
+          "requests": 32,
+          "success": 32,
+          "failures": 0,
+          "medianMs": 17.307,
+          "p95Ms": 21.835,
+          "maxMs": 22.849,
+          "codes": [
+            "200"
+          ]
+        }
+      },
+      "chunks": {
+        "8": {
+          "requests": 8,
+          "success": 8,
+          "failures": 0,
+          "medianMs": 11.796,
+          "p95Ms": 12.639,
+          "maxMs": 12.785,
+          "codes": [
+            "200"
+          ]
+        },
+        "32": {
+          "requests": 32,
+          "success": 32,
+          "failures": 0,
+          "medianMs": 15.525,
+          "p95Ms": 22.459,
+          "maxMs": 25.867,
+          "codes": [
+            "200"
+          ]
+        }
+      }
+    }
+  ],
+  "lockCountersBefore": {
+    "Innodb_row_lock_time": 397,
+    "Innodb_row_lock_waits": 22
+  },
+  "lockCountersAfter": {
+    "Innodb_row_lock_time": 397,
+    "Innodb_row_lock_waits": 22
+  },
+  "health": "checked-by-shell"
+}

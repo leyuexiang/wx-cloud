@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "gatewayBufferBytes": 16777216,
+  "servicePackageLimitBytes": 4194304,
+  "cases": [
+    {
+      "label": "under-limit",
+      "payloadBytes": 4129025,
+      "code": 200,
+      "revisionNo": 2
+    },
+    {
+      "label": "over-limit",
+      "payloadBytes": 4260097,
+      "code": 400,
+      "message": "threeDJson格式无效"
+    }
+  ],
+  "scope": "通过隔离网关 12525 验证三维服务单包边界"
+}

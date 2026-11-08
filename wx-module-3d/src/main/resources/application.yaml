@@ -238,3 +238,7 @@ preview:
 # 旧转换接口需返回资源元数据 JSON，不能直接填写返回 ZIP 的独立转换器；未配置时拒绝该功能。
 dim3d:
   resource-convert-url: ${DIM3D_RESOURCE_CONVERT_URL:}
+  scene-content:
+    # 兼容期默认关闭。开启后可用租户编号白名单逐步灰度，空值表示全量开启。
+    dual-write-enabled: ${DIM3D_SCENE_CONTENT_DUAL_WRITE_ENABLED:false}
+    dual-write-tenants: ${DIM3D_SCENE_CONTENT_DUAL_WRITE_TENANTS:}

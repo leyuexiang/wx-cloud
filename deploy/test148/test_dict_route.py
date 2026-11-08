@@ -45,6 +45,8 @@ class DictionaryRouteTest(unittest.TestCase):
                            env=environment, check=True, capture_output=True)
             config = yaml.safe_load((Path(directory) / "gateway.yaml").read_text(encoding="utf-8"))
             self.assert_dictionary_route(config)
+            # 四包正常保存可能超过默认 256 KiB，生成部署配置时需保留有界缓冲设置。
+            self.assertEqual("16MB", config.get("spring", {}).get("codec", {}).get("max-in-memory-size"))
             route = next(item for item in config["spring"]["cloud"]["gateway"]["routes"]
                          if item["id"].startswith("system-dictionary"))
             self.assertEqual(route["uri"], "http://127.0.0.1:49181")

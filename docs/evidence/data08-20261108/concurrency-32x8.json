@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "readWorkers": 32,
+  "writeWorkers": 8,
+  "parallelReads": {
+    "count": 32,
+    "elapsedMs": 37.491,
+    "medianRequestMs": 19.17,
+    "maxRequestMs": 28.272
+  },
+  "parallelWrites": {
+    "successCount": 1,
+    "conflictCount": 7,
+    "finalRevisionNo": 2,
+    "successRevisionNo": 2,
+    "conflictRevisionNo": 2
+  },
+  "scope": "同一场景、同一编辑锁、同一基线修订的第二档并发基线"
+}

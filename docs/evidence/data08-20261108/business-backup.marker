@@ -1,0 +1,6 @@
+DATA08 business backup marker
+created_at=20261108T144636Z
+database=wx_editor
+tables=wx_3d_scene,wx_3d_scene_revision,wx_3d_scene_template
+dump=/opt/wx/editor-test148/backups/data08-business-20261108T144636Z/data08-business.sql.gz
+sha256=add9df693d793fef916b52fcd9504e6fc5d8f70c89825e1c0e55f078b5b9c943

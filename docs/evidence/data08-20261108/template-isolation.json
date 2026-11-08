@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "checks": [
+    "模板完整四包回读",
+    "模板与来源相同正文复用",
+    "257节点编号与父子引用重建",
+    "实例第二版独立保存",
+    "实例编辑后模板正文保持一致",
+    "模板实例联验后全量回读"
+  ],
+  "sourceSceneId": "2119399451174957058",
+  "templateId": "2119399452160618498",
+  "templateSceneId": "2119399452160618497",
+  "instanceSceneId": "2119399452777181185",
+  "sharedContentId": "2119399451812491265",
+  "roundtrip": {
+    "passed": true,
+    "ready": true,
+    "readOnly": true,
+    "revisionCount": 44,
+    "contentRowCount": 36,
+    "missingReferences": 0,
+    "tenantIsolationViolations": 0,
+    "schemaMismatches": 0,
+    "hashMismatches": 0,
+    "byteMismatches": 0,
+    "packageMismatches": 0,
+    "errorIdentities": []
+  },
+  "cleanup": {
+    "softDeletedScenes": [
+      "2119399452777181185",
+      "2119399451174957058"
+    ],
+    "templateSoftDeleted": true,
+    "categoryRemoved": true
+  }
+}

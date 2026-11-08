@@ -8,6 +8,10 @@ spring:
   main:
     allow-circular-references: true # 允许循环依赖，因为项目是三层架构，无法避免这个情况。
 
+  codec:
+    # 场景完整四包保存会超过默认 256 KiB，保留 16 MiB 的请求聚合上限。
+    max-in-memory-size: 16MB
+
   config:
     import:
       - optional:classpath:application-${spring.profiles.active}.yaml # 加载【本地】配置

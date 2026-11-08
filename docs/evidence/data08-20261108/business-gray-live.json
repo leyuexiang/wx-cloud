@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "reports": [
+    {
+      "tenant": 1,
+      "username": "wxadmin",
+      "loginCode": 200,
+      "createCode": 200,
+      "lockCode": 200,
+      "saveCode": 200,
+      "revisionNo": 2,
+      "revisionReference": [
+        "NULL",
+        "NULL",
+        "NULL"
+      ],
+      "expectedSharedPath": true,
+      "removeCode": 200
+    },
+    {
+      "tenant": 2,
+      "username": "tenantadmin",
+      "loginCode": 200,
+      "createCode": 200,
+      "lockCode": 200,
+      "saveCode": 200,
+      "revisionNo": 2,
+      "revisionReference": [
+        "2119444373953376258",
+        "1af24c18517f3f24985dbf65250da3a56a1eaa5c8b88a78fbe876c530bed9437",
+        "573"
+      ],
+      "expectedSharedPath": true,
+      "removeCode": 200
+    }
+  ]
+}

@@ -25,6 +25,20 @@ class Data08DigestContractTest(unittest.TestCase):
         self.assertNotEqual(content_hash(1, [b"ab", b"c", b"d", b"e"]), content_hash(1, [b"a", b"bc", b"d", b"e"]))
         self.assertNotEqual(content_hash(1, packages), content_hash(2, packages))
 
+    def test_mysql_streams_large_backfill_to_standard_input(self):
+        # 大四包生成的十六进制 SQL 超过常见进程参数限制，连接参数仍单独传递。
+        sql = "SELECT UNHEX('" + "61" * (256 * 1024) + "');\n"
+        for container in (None, "mysql8"):
+            with self.subTest(container=container), patch.object(MODULE.subprocess, "run") as run:
+                run.return_value.returncode = 0
+                run.return_value.stdout = "1\t2\n"
+                args = Namespace(password_env=None, host="127.0.0.1", port=3306,
+                                 user="root", database="wx_editor_data08", mysql_container=container)
+                self.assertEqual([["1", "2"]], MODULE.mysql(args, sql))
+                command = run.call_args.args[0]
+                self.assertTrue("-e" not in command and sql not in command)
+                self.assertTrue(run.call_args.kwargs.get("input") == sql)
+
     def test_migration_plan_groups_same_tenant_content_without_writing(self):
         packages = [b'{"sceneType":"gis"}', b'{"nodes":[]}', b'{"layers":[]}', b'{"resources":[]}']
         revision = {

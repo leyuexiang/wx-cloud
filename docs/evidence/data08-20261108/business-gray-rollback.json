@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "readOnly": true,
+  "sceneId": "2117783507734425602",
+  "revisionNo": 2,
+  "before": {
+    "infoCode": 200,
+    "chunksCode": 200,
+    "currentRevision": 2,
+    "threeDJsonBytes": 278
+  },
+  "disabled": {
+    "infoCode": 200,
+    "chunksCode": 200,
+    "currentRevision": 2,
+    "sameCurrentPackages": true,
+    "sameChunks": true
+  },
+  "restored": {
+    "infoCode": 200,
+    "chunksCode": 200,
+    "sameCurrentPackages": true,
+    "sameChunks": true
+  }
+}
