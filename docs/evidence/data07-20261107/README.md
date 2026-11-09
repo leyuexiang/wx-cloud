@@ -1,6 +1,6 @@
 # DATA-07 同书签分片读取首批实现
 
-日期：2026-11-08。当前状态：DATA-07-03、DATA-07-04、DATA-07-05 已完成，DATA-07-06 正在统一归档三端证据。
+日期：2026-11-09。当前状态：DATA-07-01～DATA-07-06 已完成，三端证据已统一归档。汇总入口见 Unity 工程 [DATA-07 三端隔离联验收口](../../../Unity/jtyf-dts-webgpu/docs/evidence/data07-20261108/README.md)。
 
 - 新增 `GET /admin-api/dim3d/scene/chunks/{id}`，按 `revisionNo` 固定修订读取，可选 `chunkId`、`pageNum`、`pageSize` 和 `includeRelations`。
 - 返回 `completeBaseline`、`indexVersion`、`sourceHash`、分页字段、区块成员和只读父级关系。读取仍从同一修订四包重建派生索引，未新增数据库表。
@@ -12,7 +12,7 @@
 - 联验结束后已停止并删除隔离容器、数据库、账号和远端临时目录。
 
 Web 已新增 `getDim3dSceneChunks`、`readDim3dSceneChunkPage`、只读会话状态和 `projectSceneForUnityLoadedInstances` 运行投影。会话固定场景修订，记录已加载区块、实例和未加载集合，并提供状态订阅。分片投影自动补齐父级链，不改写完整 `SceneDefinition`。适配器4项和 Unity 投影14项测试通过，`pnpm type-check` 通过，最新 Web 提交为 `204ac9e`。场景编辑页继续以完整 `SceneStore` 作为编辑主数据源，分片会话只允许显式只读调用，不自动覆盖页面对象或进入 `saveAll`。共享 148 未部署，数据库未迁移。
-- 官方 Unity CLI 已恢复连接项目 `6000.6.7f1` 编辑器，`unity status` 返回 `ready`，`scene list_open` 确认当前活动场景为既有 `HotfixSandbox`。未修改该场景。真实 WebGPU 分片投影、卸载、恢复和保存保全仍待专用测试场景或运行入口执行。
+- 官方 Unity CLI 已恢复连接项目 `6000.6.7f1` 编辑器，`unity status` 返回 `ready`，`scene list_open` 确认当前活动场景为既有 `HotfixSandbox`。未修改该场景。真实 WebGPU 分片投影、卸载、恢复和保存保全已在运行入口完成，结果见三端汇总证据。
 - 使用官方 Unity CLI 创建隔离 `Data07ChunkValidation` 场景，验证父节点 `Data07Root`、已加载子节点 `Data07LoadedChild` 和未加载兄弟节点 `Data07UnloadedSibling` 的层级关系。临时禁用未加载节点后恢复并保存，最终切回 `HotfixSandbox`，隔离场景及元文件已清理，原场景保持干净。
 
 ## 2026-11-08 WebGPU 入口联验
