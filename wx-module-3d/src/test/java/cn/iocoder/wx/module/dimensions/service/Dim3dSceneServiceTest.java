@@ -49,6 +49,9 @@ class Dim3dSceneServiceTest {
         String versionSchema = Files.readString(Path.of("../deploy/test148/migrations/tpl01/003-template-version.up.sql"))
                 .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
         for (String sql : versionSchema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
+        String shareSchema = Files.readString(Path.of("../deploy/test148/migrations/tpl01/004-template-share.up.sql"))
+                .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
+        for (String sql : shareSchema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
         jdbc.execute("CREATE TABLE wx_3d_template(id BIGINT PRIMARY KEY,template_name VARCHAR(50) NOT NULL,template_desc VARCHAR(500),template_type VARCHAR(16) NOT NULL,category VARCHAR(32) NOT NULL,resource_belong VARCHAR(16) NOT NULL,cover_image_id BIGINT,template_file_id BIGINT NOT NULL,status VARCHAR(16) NOT NULL,tenant_id VARCHAR(20) NOT NULL,del_flag CHAR(1) NOT NULL,update_time TIMESTAMP)");
         var target = new Dim3dSceneService(); access = mock(ArtResourceAccess.class);
         when(access.actor()).thenReturn(new ArtResourceAccess.Actor(2, 2));
@@ -430,5 +433,27 @@ class Dim3dSceneServiceTest {
         var otherTenant = service.templatePageCombined(null, "dim3d_template_industry", null, null, null, 1, 10);
         assertEquals(1, otherTenant.getTotal());
         assertEquals("其他租户模板", otherTenant.getList().get(0).get("templateName"));
+    }
+
+    @Test void sharedTemplateCanInstantiateAndRevocationBlocksNewRequest() {
+        String sourceId = create();
+        @SuppressWarnings("unchecked") var revision = (Map<String, Object>) service.info(sourceId).get("currentRevision");
+        ObjectNode body = json.createObjectNode().put("sourceSceneId", sourceId).put("sourceRevisionNo", 1)
+                .put("requestId", "tpl-share-source").put("templateName", "共享模板").put("templateType", "INDUSTRY")
+                .put("category", "测试").put("saveScope", "all");
+        for (String key : java.util.List.of("sceneJson", "threeDJson", "twoDJson", "dependenciesJson")) body.put(key, (String) revision.get(key));
+        var template = service.saveAsTemplateFromSnapshot(body);
+        service.shareTemplate(template.get("templateId").toString(), 1, 3, "share-test");
+
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(9, 3));
+        ObjectNode instance = json.createObjectNode().put("templateSceneId", template.get("templateSceneId").toString())
+                .put("requestId", "shared-instance-1").put("name", "共享实例");
+        assertEquals("local3d", service.createFromTemplate(instance).get("sceneType"));
+
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(2, 2));
+        service.revokeTemplateShare(template.get("templateId").toString(), 1, 3, "revoke-test");
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(9, 3));
+        assertThrows(ServiceException.class, () -> service.createFromTemplate(instance.deepCopy().put("requestId", "shared-instance-2")));
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_template_share WHERE status='REVOKED'", Integer.class));
     }
 }

@@ -341,17 +341,18 @@ public class Dim3dSceneService {
         String name = text(body, "name", 100);
         String description = optional(body, "sceneDesc", 500);
         String category = optional(body, "sceneCategory", 100);
-        var template = templateBySceneId(templateSceneId, actor, true);
+        var template = templateForInstantiation(templateSceneId, actor);
         if (!"ONLINE".equals(template.get("status"))) throw new ServiceException(409, "模板当前未上线");
         int publishedVersion = template.get("published_version_no") == null ? 1 : ((Number) template.get("published_version_no")).intValue();
+        long ownerTenant = ((Number) template.get("tenant_id")).longValue();
         var versions = jdbc.queryForList("SELECT revision_no FROM wx_3d_scene_template_version WHERE tenant_id=? AND template_id=? AND version_no=? AND status='READY'",
-                actor.tenant(), template.get("id"), publishedVersion);
+                ownerTenant, template.get("id"), publishedVersion);
         if (versions.size() != 1) throw new ServiceException(409, "模板发布版本不可用");
         int publishedRevision = ((Number) versions.get(0).get("revision_no")).intValue();
         var revisions = jdbc.queryForList("SELECT * FROM wx_3d_scene_revision WHERE tenant_id=? AND scene_id=? AND revision_no=?",
-                actor.tenant(), requireId(templateSceneId), publishedRevision);
+                ownerTenant, requireId(templateSceneId), publishedRevision);
         if (revisions.size() != 1) throw new ServiceException(500, "模板场景修订不完整");
-        var sourceRevision = revisionRowWithContent(actor, revisions.get(0));
+        var sourceRevision = revisionRowWithContent(ownerTenant == actor.tenant() ? actor : new ArtResourceAccess.Actor(actor.user(), ownerTenant), revisions.get(0));
         String storedRequest = "TPL6:" + request;
         String requestHash = digest(templateSceneId + "\n" + name + "\n" + description + "\n" + category + "\n"
                 + sourceRevision.get("request_hash"));
@@ -370,6 +371,43 @@ public class Dim3dSceneService {
         long revision = insertRevision(actor, sceneId, 1, 1, packages, storedRequest, requestHash);
         return Map.of("sceneId", Long.toString(sceneId), "templateSceneId", templateSceneId, "sceneKind", "INSTANCE",
                 "sceneType", template.get("scene_type"), "revisionId", Long.toString(revision), "revisionNo", 1);
+    }
+
+    /** 授予目标租户使用指定已发布模板版本的权限。共享只开放实例化入口，不改变模板目录租户边界。 */
+    @Transactional
+    public void shareTemplate(String id, int versionNo, long targetTenantId, String reason) {
+        var actor = access.actor();
+        var template = template(id, actor, true);
+        if (targetTenantId < 1 || targetTenantId == actor.tenant()) throw bad("目标租户无效");
+        templateVersion(template, actor, versionNo);
+        int publishedVersion = template.get("published_version_no") == null ? 0 : ((Number) template.get("published_version_no")).intValue();
+        if (!"ONLINE".equals(template.get("status")) || publishedVersion != versionNo)
+            throw new ServiceException(409, "只能共享当前已发布版本");
+        if (jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_template_share WHERE owner_tenant_id=? AND target_tenant_id=? AND template_id=? AND status='ACTIVE'",
+                Integer.class, actor.tenant(), targetTenantId, id) > 0) throw new ServiceException(409, "模板已共享给目标租户");
+        jdbc.update("INSERT INTO wx_3d_scene_template_share(id,owner_tenant_id,target_tenant_id,template_id,template_scene_id,version_no,status,reason,operator_id) VALUES(?,?,?,?,?,?,?,?,?)",
+                IdWorker.getId(), actor.tenant(), targetTenantId, template.get("id"), template.get("template_scene_id"), versionNo, "ACTIVE", reason == null ? "" : reason.trim(), actor.user());
+        insertTemplateAudit(actor, template, "SHARE_GRANT", template.get("status").toString(), template.get("status").toString(), reason);
+    }
+
+    /** 撤销目标租户的模板实例化权限，历史共享记录保留用于审计。 */
+    @Transactional
+    public void revokeTemplateShare(String id, int versionNo, long targetTenantId, String reason) {
+        var actor = access.actor();
+        var template = template(id, actor, true);
+        int changed = jdbc.update("UPDATE wx_3d_scene_template_share SET status='REVOKED',revoked_time=CURRENT_TIMESTAMP,revoked_by=?,reason=? WHERE owner_tenant_id=? AND target_tenant_id=? AND template_id=? AND version_no=? AND status='ACTIVE'",
+                actor.user(), reason == null ? "" : reason.trim(), actor.tenant(), targetTenantId, template.get("id"), versionNo);
+        if (changed != 1) throw new ServiceException(404, "活动共享授权不存在");
+        insertTemplateAudit(actor, template, "SHARE_REVOKE", template.get("status").toString(), template.get("status").toString(), reason);
+    }
+
+    private Map<String, Object> templateForInstantiation(String sceneId, ArtResourceAccess.Actor actor) {
+        var own = jdbc.queryForList("SELECT * FROM wx_3d_scene_template WHERE tenant_id=? AND template_scene_id=? AND deleted=0", actor.tenant(), requireId(sceneId));
+        if (!own.isEmpty()) return own.get(0);
+        var shared = jdbc.queryForList("SELECT t.* FROM wx_3d_scene_template t JOIN wx_3d_scene_template_share s ON s.template_id=t.id AND s.template_scene_id=t.template_scene_id AND s.owner_tenant_id=t.tenant_id WHERE s.target_tenant_id=? AND s.template_scene_id=? AND s.status='ACTIVE' AND t.deleted=0 AND t.status='ONLINE' AND t.published_version_no=s.version_no",
+                actor.tenant(), requireId(sceneId));
+        if (shared.isEmpty()) throw new ServiceException(404, "模板不存在或当前租户无权使用");
+        return shared.get(0);
     }
 
     /** 查询当前租户的快照模板目录，目录只返回摘要，不把四包正文带入分页结果。 */

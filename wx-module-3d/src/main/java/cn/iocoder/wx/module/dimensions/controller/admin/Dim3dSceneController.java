@@ -87,6 +87,18 @@ public class Dim3dSceneController {
         service.rollbackTemplate(id, versionNo, reason); return CommonResult.success(true);
     }
 
+    @PostMapping("/template/share/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Boolean> shareTemplate(@PathVariable String id, @RequestParam int versionNo, @RequestParam long targetTenantId,
+                                               @RequestParam(required = false) String reason) {
+        service.shareTemplate(id, versionNo, targetTenantId, reason); return CommonResult.success(true);
+    }
+
+    @DeleteMapping("/template/share/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Boolean> revokeTemplateShare(@PathVariable String id, @RequestParam int versionNo, @RequestParam long targetTenantId,
+                                                     @RequestParam(required = false) String reason) {
+        service.revokeTemplateShare(id, versionNo, targetTenantId, reason); return CommonResult.success(true);
+    }
+
     @DeleteMapping("/template/remove/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
     public CommonResult<Boolean> removeTemplate(@PathVariable String id, @RequestParam(required = false) String reason) {
         service.removeTemplate(id, reason); return CommonResult.success(true);
