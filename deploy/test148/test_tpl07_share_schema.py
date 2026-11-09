@@ -4,6 +4,7 @@ import unittest
 
 
 SQL = Path(__file__).with_name("migrations") / "tpl01" / "004-template-share.up.sql"
+VERSION_SQL = Path(__file__).with_name("migrations") / "tpl01" / "003-template-version.up.sql"
 
 
 class Tpl07ShareSchemaTest(unittest.TestCase):
@@ -24,6 +25,12 @@ class Tpl07ShareSchemaTest(unittest.TestCase):
 
     def test_lookup_is_target_tenant_scoped(self):
         self.assertIn("idx_template_share_lookup (target_tenant_id,status,template_id,version_no)", self.sql)
+
+    def test_share_migration_is_after_version_migration(self):
+        version_sql = VERSION_SQL.read_text(encoding="utf-8").lower()
+        self.assertIn("wx_3d_scene_template_version", version_sql)
+        self.assertIn("published_version_no", version_sql)
+        self.assertIn("version_no", self.sql)
 
 
 if __name__ == "__main__":
