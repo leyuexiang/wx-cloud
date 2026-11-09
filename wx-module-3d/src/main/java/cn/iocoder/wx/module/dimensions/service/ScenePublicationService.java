@@ -2,6 +2,7 @@ package cn.iocoder.wx.module.dimensions.service;
 
 import cn.iocoder.wx.framework.common.exception.ServiceException;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.Objects;
 public class ScenePublicationService {
     @Resource private JdbcTemplate jdbc;
     @Resource private ArtResourceAccess access;
+    @Resource private ObjectMapper json;
 
     /** 按固定修订创建发布记录，重复请求返回首次回执。 */
     @Transactional
@@ -39,6 +41,12 @@ public class ScenePublicationService {
                 actor.tenant(), scene, revisionNo);
         if (revisions.size() != 1) throw new ServiceException(404, "场景修订不存在");
         var revision = revisions.get(0);
+        String dependencySnapshot = Objects.toString(revision.get("dependencies_json"), "");
+        try {
+            if (!json.readTree(dependencySnapshot).isObject()) throw new IllegalArgumentException();
+        } catch (Exception error) {
+            throw new ServiceException(409, "发布依赖快照无效");
+        }
         String sourceHash = Objects.toString(revision.get("content_hash"), "");
         if (sourceHash.isBlank()) {
             sourceHash = SceneRevisionContentHasher.sha256(((Number) revision.get("schema_version")).intValue(),
@@ -53,7 +61,7 @@ public class ScenePublicationService {
         String publicationId = "PUB-" + IdWorker.getId();
         jdbc.update("INSERT INTO wx_3d_scene_publication(id,publication_id,tenant_id,scene_id,revision_no,source_hash,index_version,dependency_snapshot,request_id,status,current_flag,created_by) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
                 IdWorker.getId(), publicationId, actor.tenant(), scene, revisionNo, sourceHash, 1,
-                Objects.toString(revision.get("dependencies_json"), "{}"), requestId, "PUBLISHED", 1, actor.user());
+                dependencySnapshot, requestId, "PUBLISHED", 1, actor.user());
         return Map.of("publicationId", publicationId, "sceneId", sceneId, "revisionNo", revisionNo, "status", "PUBLISHED");
     }
 
@@ -81,6 +89,11 @@ public class ScenePublicationService {
                 actor.tenant(), requireId(sceneId));
         if (rows.size() != 1) throw new ServiceException(404, "当前发布不存在");
         return receipt(rows.get(0));
+    }
+
+    /** 按发布编号读取当前租户的固定摘要，不返回可写草稿。 */
+    public Map<String, Object> read(String publicationId) {
+        return receipt(publication(publicationId, access.actor()));
     }
 
     private Map<String, Object> publication(String publicationId, ArtResourceAccess.Actor actor) {

@@ -3,6 +3,7 @@ package cn.iocoder.wx.module.dimensions.controller.admin;
 import cn.iocoder.wx.framework.common.pojo.CommonResult;
 import cn.iocoder.wx.framework.common.pojo.PageResult;
 import cn.iocoder.wx.module.dimensions.service.Dim3dSceneService;
+import cn.iocoder.wx.module.dimensions.service.ScenePublicationService;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,6 +15,7 @@ import java.util.Map;
 @RequestMapping("/dim3d/scene")
 public class Dim3dSceneController {
     @Resource private Dim3dSceneService service;
+    @Resource private ScenePublicationService publicationService;
 
     @GetMapping("/page")
     public CommonResult<Map<String, Object>> page(String sceneName, String sceneType, String sceneCategory, String sceneKind, Integer publishStatus, String tenantId,
@@ -49,6 +51,32 @@ public class Dim3dSceneController {
     public CommonResult<Boolean> unlock(@PathVariable String id, @RequestParam String clientKey) { service.unlock(id, clientKey); return CommonResult.success(true); }
     @PutMapping("/saveAll") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
     public CommonResult<Map<String, Object>> save(@RequestBody JsonNode body) { return CommonResult.success(service.save(body)); }
+
+    /** 发布接口只固定已有修订，查询和撤销均受当前租户身份约束。 */
+    @PostMapping("/publication/publish") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Map<String, Object>> publish(@RequestParam String sceneId, @RequestParam int revisionNo, @RequestParam String requestId) {
+        return CommonResult.success(publicationService.publish(sceneId, revisionNo, requestId));
+    }
+
+    @GetMapping("/publication/current/{sceneId}")
+    public CommonResult<Map<String, Object>> currentPublication(@PathVariable String sceneId) {
+        return CommonResult.success(publicationService.current(sceneId));
+    }
+
+    @GetMapping("/publication/{publicationId}")
+    public CommonResult<Map<String, Object>> publication(@PathVariable String publicationId) {
+        return CommonResult.success(publicationService.read(publicationId));
+    }
+
+    @PostMapping("/publication/{publicationId}/revoke") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Boolean> revokePublication(@PathVariable String publicationId, @RequestParam(required = false) String reason) {
+        publicationService.revoke(publicationId, reason); return CommonResult.success(true);
+    }
+
+    @PostMapping("/publication/{publicationId}/rollback") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Map<String, Object>> rollbackPublication(@PathVariable String publicationId, @RequestParam String requestId) {
+        return CommonResult.success(publicationService.rollback(publicationId, requestId));
+    }
 
     /** 从同一次采集的四包快照创建独立模板场景；旧文件型模板接口保持不变。 */
     @PostMapping("/saveAsTemplateFromSnapshot") @PreAuthorize("@ss.hasAnyRoles('super_admin')")

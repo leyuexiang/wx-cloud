@@ -10,6 +10,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.AnnotationTransactionAttributeSource;
 import org.springframework.transaction.interceptor.TransactionInterceptor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,6 +39,7 @@ class ScenePublicationServiceTest {
         var target = new ScenePublicationService();
         ReflectionTestUtils.setField(target, "jdbc", jdbc);
         ReflectionTestUtils.setField(target, "access", access);
+        ReflectionTestUtils.setField(target, "json", new ObjectMapper());
         var factory = new ProxyFactory(target);
         factory.addAdvice(new TransactionInterceptor(new DataSourceTransactionManager(data), new AnnotationTransactionAttributeSource()));
         service = (ScenePublicationService) factory.getProxy();
@@ -80,5 +82,11 @@ class ScenePublicationServiceTest {
         assertNotEquals(first.get("publicationId"), rollback.get("publicationId"));
         assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_publication WHERE current_flag=1 AND status='PUBLISHED'", Integer.class));
         assertEquals("REVOKED", jdbc.queryForObject("SELECT status FROM wx_3d_scene_publication WHERE publication_id=?", String.class, first.get("publicationId")));
+    }
+
+    @Test void invalidDependencySnapshotCannotBePublished() {
+        jdbc.update("UPDATE wx_3d_scene_revision SET dependencies_json=? WHERE scene_id=? AND revision_no=?", "[]", 101L, 1);
+        assertThrows(ServiceException.class, () -> service.publish("101", 1, "invalid-dependencies"));
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_publication", Integer.class));
     }
 }
