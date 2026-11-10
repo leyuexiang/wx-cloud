@@ -1,0 +1,14 @@
+{
+  "generatedAt": "2026-11-10",
+  "branch": "dev",
+  "commit": "5fc85ba3",
+  "artifact": "wx-module-3d/target/wx-module-3d.jar",
+  "sha256": "93E806E0FDB0343F384ABF124FB24DD7E5FE5D2BED06C1C3656C342EA3F065C1",
+  "classes": [
+    "cn/iocoder/wx/module/dimensions/service/ScenePublicationService.class",
+    "cn/iocoder/wx/module/dimensions/service/ScenePublicationTicketService.class",
+    "cn/iocoder/wx/module/dimensions/controller/admin/Dim3dSceneController.class"
+  ],
+  "databaseWrite": false,
+  "unityIntegration": false
+}

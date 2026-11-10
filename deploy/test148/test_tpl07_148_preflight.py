@@ -26,6 +26,16 @@ class Tpl07Test148PreflightTest(unittest.TestCase):
         config = (ROOT / "config" / "dimensions.yaml").read_text(encoding="utf-8")
         self.assertIn("base-url: http://192.168.10.148:12522", config)
 
+    def test_data09_readonly_verifier_has_no_write_switch(self):
+        source = (ROOT / "verify-data09-db.py").read_text(encoding="utf-8")
+        self.assertIn("readOnly", source)
+        self.assertNotIn("--apply", source)
+        self.assertIn("wx_3d_scene_publication_ticket", source)
+
+    def test_ticket_rollback_script_only_drops_ticket_table(self):
+        source = (ROOT / "migrations" / "data09" / "002-publication-ticket.down.sql").read_text(encoding="utf-8")
+        self.assertEqual("DROP TABLE IF EXISTS wx_3d_scene_publication_ticket;", source.strip())
+
 
 if __name__ == "__main__":
     unittest.main()
