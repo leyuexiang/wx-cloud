@@ -96,6 +96,15 @@ public class ScenePublicationService {
         return receipt(publication(publicationId, access.actor()));
     }
 
+    /** 读取发布时固定的依赖快照，不能回查当前草稿或当前资源指针。 */
+    public Map<String, Object> readSnapshot(String publicationId) {
+        var row = publication(publicationId, access.actor());
+        Map<String, Object> result = new LinkedHashMap<>(receipt(row));
+        result.put("dependencySnapshot", row.get("dependency_snapshot"));
+        result.put("indexVersion", row.get("index_version"));
+        return result;
+    }
+
     private Map<String, Object> publication(String publicationId, ArtResourceAccess.Actor actor) {
         if (publicationId == null || publicationId.isBlank() || publicationId.length() > 64) throw bad("发布编号无效");
         var rows = jdbc.queryForList("SELECT * FROM wx_3d_scene_publication WHERE publication_id=? AND tenant_id=?", publicationId, actor.tenant());

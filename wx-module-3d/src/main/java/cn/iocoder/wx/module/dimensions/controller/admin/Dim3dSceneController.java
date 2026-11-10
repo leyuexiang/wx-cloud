@@ -4,6 +4,7 @@ import cn.iocoder.wx.framework.common.pojo.CommonResult;
 import cn.iocoder.wx.framework.common.pojo.PageResult;
 import cn.iocoder.wx.module.dimensions.service.Dim3dSceneService;
 import cn.iocoder.wx.module.dimensions.service.ScenePublicationService;
+import cn.iocoder.wx.module.dimensions.service.ScenePublicationTicketService;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +17,7 @@ import java.util.Map;
 public class Dim3dSceneController {
     @Resource private Dim3dSceneService service;
     @Resource private ScenePublicationService publicationService;
+    @Resource private ScenePublicationTicketService publicationTicketService;
 
     @GetMapping("/page")
     public CommonResult<Map<String, Object>> page(String sceneName, String sceneType, String sceneCategory, String sceneKind, Integer publishStatus, String tenantId,
@@ -66,6 +68,22 @@ public class Dim3dSceneController {
     @GetMapping("/publication/{publicationId}")
     public CommonResult<Map<String, Object>> publication(@PathVariable String publicationId) {
         return CommonResult.success(publicationService.read(publicationId));
+    }
+
+    @GetMapping("/publication/{publicationId}/snapshot")
+    public CommonResult<Map<String, Object>> publicationSnapshot(@PathVariable String publicationId) {
+        return CommonResult.success(publicationService.readSnapshot(publicationId));
+    }
+
+    @PostMapping("/publication/{publicationId}/ticket") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Map<String, Object>> issuePublicationTicket(@PathVariable String publicationId,
+                                                                      @RequestParam(defaultValue = "300") int expiresInSeconds) {
+        return CommonResult.success(publicationTicketService.issue(publicationId, expiresInSeconds));
+    }
+
+    @DeleteMapping("/publication/ticket/{ticketId}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Boolean> revokePublicationTicket(@PathVariable String ticketId) {
+        publicationTicketService.revoke(ticketId); return CommonResult.success(true);
     }
 
     @PostMapping("/publication/{publicationId}/revoke") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")

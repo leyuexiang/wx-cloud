@@ -25,6 +25,14 @@ class Data09PublicationMigrationTest(unittest.TestCase):
         sql = (ROOT / "001-scene-publication.down.sql").read_text(encoding="utf-8")
         self.assertEqual("DROP TABLE IF EXISTS wx_3d_scene_publication;", sql.strip())
 
+    def test_ticket_migration_stores_only_hash_and_expiry(self):
+        sql = (ROOT / "002-publication-ticket.up.sql").read_text(encoding="utf-8")
+        self.assertIn("wx_3d_scene_publication_ticket", sql)
+        self.assertIn("token_hash", sql)
+        self.assertIn("expires_time", sql)
+        self.assertNotIn("token VARCHAR", sql)
+        self.assertIn("status VARCHAR(16)", sql)
+
 
 if __name__ == "__main__":
     unittest.main()
