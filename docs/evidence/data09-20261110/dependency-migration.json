@@ -1,0 +1,25 @@
+{
+  "database": "wx_editor_data08",
+  "backup": "/opt/wx/editor-test148/backups/data09-resource-20261110T064059373748Z.sql",
+  "backupBytes": 22743899,
+  "migrationSha256": "8753a023b8565f9ff4785ab4bd4a6240be4f78f22b80b797ee6d47be718714d4",
+  "columns": [
+    "id",
+    "publication_id",
+    "tenant_id",
+    "resource_key",
+    "resource_id",
+    "resource_revision",
+    "content_hash",
+    "manifest_sha256",
+    "operation_id",
+    "resource_scope",
+    "resource_tenant_id",
+    "snapshot_json",
+    "created_time"
+  ],
+  "columnCount": 13,
+  "referenceCountBeforeServiceDeployment": 0,
+  "status": "MIGRATED",
+  "verificationCorrection": "Post-migration column count expectation corrected from 14 to actual 13; exact column names checked; no repeated DDL."
+}

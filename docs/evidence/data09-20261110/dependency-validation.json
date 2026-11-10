@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-10",
+  "command": "mvn.cmd -B -o -Ptest148 -pl wx-module-3d -am -Dtest=ScenePublicationServiceTest,ScenePublicationTicketServiceTest,ScenePublicationPreviewControllerTest,Dim3dSceneControllerTest -Dsurefire.failIfNoSpecifiedTests=false package",
+  "buildSuccess": true,
+  "suites": [
+    {
+      "name": "ScenePublicationServiceTest",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ScenePublicationTicketServiceTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ScenePublicationPreviewControllerTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "Dim3dSceneControllerTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "negativeCasesBeforeFix": [
+    "missingResourceDependencyCannotBecomeCurrentPublication",
+    "nonEmptyStoredHashMustMatchFourPackagesBeforePublishing"
+  ],
+  "pythonCommand": "python -m unittest deploy/test148/test_data09_readonly_verifier.py deploy/test148/test_data09_publication.py",
+  "pythonTests": 7,
+  "pythonPassed": true,
+  "candidateSha256": "934b62faabcd6524d162dcd1c03136f13f7c1624e50eafc3c158aaa80efe5504"
+}

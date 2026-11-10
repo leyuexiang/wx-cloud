@@ -2,7 +2,6 @@ package cn.iocoder.wx.module.dimensions.service;
 
 import cn.iocoder.wx.framework.common.exception.ServiceException;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -17,11 +16,15 @@ import java.util.Objects;
 public class ScenePublicationService {
     @Resource private JdbcTemplate jdbc;
     @Resource private ArtResourceAccess access;
-    @Resource private ObjectMapper json;
+    @Resource private ScenePublicationDependencyService dependencies;
 
     /** 按固定修订创建发布记录，重复请求返回首次回执。 */
     @Transactional
     public Map<String, Object> publish(String sceneId, int revisionNo, String requestId) {
+        return publishFixed(sceneId, revisionNo, requestId, null);
+    }
+
+    private Map<String, Object> publishFixed(String sceneId, int revisionNo, String requestId, String sourcePublication) {
         var actor = access.actor();
         long scene = requireId(sceneId);
         if (revisionNo < 1 || requestId == null || requestId.isBlank() || requestId.length() > 110)
@@ -42,17 +45,12 @@ public class ScenePublicationService {
         if (revisions.size() != 1) throw new ServiceException(404, "场景修订不存在");
         var revision = revisions.get(0);
         String dependencySnapshot = Objects.toString(revision.get("dependencies_json"), "");
-        try {
-            if (!json.readTree(dependencySnapshot).isObject()) throw new IllegalArgumentException();
-        } catch (Exception error) {
-            throw new ServiceException(409, "发布依赖快照无效");
-        }
-        String sourceHash = Objects.toString(revision.get("content_hash"), "");
-        if (sourceHash.isBlank()) {
-            sourceHash = SceneRevisionContentHasher.sha256(((Number) revision.get("schema_version")).intValue(),
+        String sourceHash = SceneRevisionContentHasher.sha256(((Number) revision.get("schema_version")).intValue(),
                     Objects.toString(revision.get("scene_json"), ""), Objects.toString(revision.get("three_d_json"), ""),
                     Objects.toString(revision.get("two_d_json"), ""), Objects.toString(revision.get("dependencies_json"), ""));
-        }
+        String storedHash = Objects.toString(revision.get("content_hash"), ""); // 旧修订可无摘要；已有摘要必须与原文一致。
+        if (!storedHash.isBlank() && !storedHash.equals(sourceHash)) throw new ServiceException(409, "场景四包摘要不一致");
+        var pins = dependencies.resolve(dependencySnapshot, actor.tenant(), sourcePublication);
         // 同一租户同一场景只保留一个当前消费指针，历史发布行继续保留。
         jdbc.queryForList("SELECT id FROM wx_3d_scene_publication WHERE tenant_id=? AND scene_id=? AND current_flag=1 FOR UPDATE",
                 actor.tenant(), scene);
@@ -60,8 +58,9 @@ public class ScenePublicationService {
                 actor.tenant(), scene);
         String publicationId = "PUB-" + IdWorker.getId();
         jdbc.update("INSERT INTO wx_3d_scene_publication(id,publication_id,tenant_id,scene_id,revision_no,source_hash,index_version,dependency_snapshot,request_id,status,current_flag,created_by) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
-                IdWorker.getId(), publicationId, actor.tenant(), scene, revisionNo, sourceHash, 1,
+                IdWorker.getId(), publicationId, actor.tenant(), scene, revisionNo, sourceHash, 2,
                 dependencySnapshot, requestId, "PUBLISHED", 1, actor.user());
+        dependencies.save(publicationId, actor.tenant(), pins);
         audit(actor, publicationId, null, "PUBLISH", "", requestId);
         return Map.of("publicationId", publicationId, "sceneId", sceneId, "revisionNo", revisionNo, "status", "PUBLISHED");
     }
@@ -82,7 +81,7 @@ public class ScenePublicationService {
     public Map<String, Object> rollback(String publicationId, String requestId) {
         var actor = access.actor();
         var row = publication(publicationId, actor);
-        var result = publish(row.get("scene_id").toString(), ((Number) row.get("revision_no")).intValue(), requestId);
+        var result = publishFixed(row.get("scene_id").toString(), ((Number) row.get("revision_no")).intValue(), requestId, publicationId);
         audit(actor, result.get("publicationId").toString(), null, "ROLLBACK", "", requestId);
         return result;
     }

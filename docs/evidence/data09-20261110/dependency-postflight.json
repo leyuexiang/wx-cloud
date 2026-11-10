@@ -1,0 +1,15 @@
+{
+  "sceneId": "2120044932649512961",
+  "cleanupDatabaseRows": [
+    "1",
+    "REVOKED\t3",
+    "REVOKED\t1",
+    "3",
+    "PUBLISH\t3",
+    "TICKET_ISSUE\t1",
+    "REVOKE\t3",
+    "ROLLBACK\t1",
+    "TICKET_REVOKE\t1"
+  ],
+  "health": "UP"
+}

@@ -1,0 +1,87 @@
+{
+  "passed": true,
+  "database": "wx_editor_data08",
+  "gatewayPort": 12525,
+  "marker": "DATA09-DEPS-f0d851b05bf846049800aa194ef088e0",
+  "checks": [
+    {
+      "name": "存在真实当前版与历史版模型样本",
+      "passed": true
+    },
+    {
+      "name": "真实管理员登录",
+      "passed": true
+    },
+    {
+      "name": "缺省版本依赖发布成功",
+      "passed": true
+    },
+    {
+      "name": "引用固定当前已提交版本及双摘要",
+      "passed": true
+    },
+    {
+      "name": "发布重放复用编号且不重复引用",
+      "passed": true
+    },
+    {
+      "name": "新发布使用索引版本二",
+      "passed": true
+    },
+    {
+      "name": "索引二仍可凭票据读取原文四包",
+      "passed": true
+    },
+    {
+      "name": "显式历史版本发布成功",
+      "passed": true
+    },
+    {
+      "name": "历史版本不追随资源当前指针",
+      "passed": true
+    },
+    {
+      "name": "缺失资源拒绝且原发布保持不变",
+      "passed": true
+    },
+    {
+      "name": "未提交版本拒绝且原发布保持不变",
+      "passed": true
+    },
+    {
+      "name": "错误资源摘要拒绝且原发布保持不变",
+      "passed": true
+    },
+    {
+      "name": "重复资源键拒绝且原发布保持不变",
+      "passed": true
+    },
+    {
+      "name": "未接入发布解析器的类型拒绝且原发布保持不变",
+      "passed": true
+    },
+    {
+      "name": "回退新发布保留固定历史资源版本",
+      "passed": true
+    },
+    {
+      "name": "既有场景正文和资源提交快照保全",
+      "passed": true
+    }
+  ],
+  "resourceId": "2115735432249536513",
+  "currentResourceRevision": 6,
+  "historicalResourceRevision": 1,
+  "sceneId": "2120044932649512961",
+  "publicationIds": [
+    "PUB-2120044933341573122",
+    "PUB-2120044934511783938",
+    "PUB-2120044936315334658"
+  ],
+  "ticketIds": [
+    "TKT-2120044934159462401"
+  ],
+  "cleanupPassed": true,
+  "physicalClosureVerified": false,
+  "ticketFileSigningVerified": false
+}
