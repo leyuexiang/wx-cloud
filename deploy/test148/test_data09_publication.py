@@ -33,6 +33,13 @@ class Data09PublicationMigrationTest(unittest.TestCase):
         self.assertNotIn("token VARCHAR", sql)
         self.assertIn("status VARCHAR(16)", sql)
 
+    def test_ticket_migration_is_after_publication_record(self):
+        publication = (ROOT / "001-scene-publication.up.sql").read_text(encoding="utf-8")
+        ticket = (ROOT / "002-publication-ticket.up.sql").read_text(encoding="utf-8")
+        self.assertIn("wx_3d_scene_publication", publication)
+        self.assertIn("publication_id", ticket)
+        self.assertLess((ROOT / "001-scene-publication.up.sql").name, (ROOT / "002-publication-ticket.up.sql").name)
+
 
 if __name__ == "__main__":
     unittest.main()

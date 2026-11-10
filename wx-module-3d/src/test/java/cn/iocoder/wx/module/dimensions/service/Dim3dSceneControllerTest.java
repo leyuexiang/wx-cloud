@@ -24,12 +24,16 @@ class Dim3dSceneControllerTest {
         var mvc = MockMvcBuilders.standaloneSetup(controller).build();
         when(publication.publish("101", 2, "request-1")).thenReturn(Map.of("publicationId", "PUB-1", "sceneId", "101", "revisionNo", 2, "status", "PUBLISHED"));
         when(publication.current("101")).thenReturn(Map.of("publicationId", "PUB-1", "sceneId", "101", "revisionNo", 2, "status", "PUBLISHED"));
+        when(publication.readSnapshot("PUB-1")).thenReturn(Map.of("publicationId", "PUB-1", "dependencySnapshot", "{\"resources\":[]}", "indexVersion", 1));
         mvc.perform(post("/dim3d/scene/publication/publish").param("sceneId", "101").param("revisionNo", "2").param("requestId", "request-1"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.data.publicationId").value("PUB-1"));
         mvc.perform(get("/dim3d/scene/publication/current/101"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.data.revisionNo").value(2));
+        mvc.perform(get("/dim3d/scene/publication/PUB-1/snapshot"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.indexVersion").value(1));
         verify(publication).publish("101", 2, "request-1");
         verify(publication).current("101");
+        verify(publication).readSnapshot("PUB-1");
     }
 
     @Test void revokeAndRollbackRoutesKeepExplicitArguments() throws Exception {

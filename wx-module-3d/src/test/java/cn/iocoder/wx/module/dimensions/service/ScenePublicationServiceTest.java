@@ -89,4 +89,11 @@ class ScenePublicationServiceTest {
         assertThrows(ServiceException.class, () -> service.publish("101", 1, "invalid-dependencies"));
         assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_publication", Integer.class));
     }
+
+    @Test void snapshotReadReturnsPublishedDependencyWithoutFollowingDraft() {
+        var published = service.publish("101", 1, "snapshot-1");
+        jdbc.update("UPDATE wx_3d_scene_revision SET dependencies_json=? WHERE scene_id=? AND revision_no=?", "{\"resources\":[\"changed\"]}", 101L, 1);
+        var snapshot = service.readSnapshot(published.get("publicationId").toString());
+        assertEquals("{\"resources\":[]}", snapshot.get("dependencySnapshot"));
+    }
 }
