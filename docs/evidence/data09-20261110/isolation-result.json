@@ -1,0 +1,91 @@
+{
+  "passed": true,
+  "database": "wx_editor_data08",
+  "gatewayPort": 12525,
+  "marker": "DATA09-fc8bb7ba8afb4a159e902adddc708eae",
+  "checks": [
+    {
+      "name": "tenant_admin真实登录",
+      "passed": true
+    },
+    {
+      "name": "viewer真实登录",
+      "passed": true
+    },
+    {
+      "name": "super_admin真实登录",
+      "passed": true
+    },
+    {
+      "name": "未登录查询拒绝",
+      "passed": true
+    },
+    {
+      "name": "只读角色发布拒绝",
+      "passed": true
+    },
+    {
+      "name": "不存在修订发布拒绝",
+      "passed": true
+    },
+    {
+      "name": "发布重试返回同一编号",
+      "passed": true
+    },
+    {
+      "name": "当前发布指向固定修订",
+      "passed": true
+    },
+    {
+      "name": "跨租户发布查询拒绝",
+      "passed": true
+    },
+    {
+      "name": "依赖快照与固定修订一致",
+      "passed": true
+    },
+    {
+      "name": "只读角色签发票据拒绝",
+      "passed": true
+    },
+    {
+      "name": "票据摘要与有效期落库",
+      "passed": true
+    },
+    {
+      "name": "票据撤销状态落库",
+      "passed": true
+    },
+    {
+      "name": "发布撤销后当前查询拒绝",
+      "passed": true
+    },
+    {
+      "name": "发布撤销后票据签发拒绝",
+      "passed": true
+    },
+    {
+      "name": "回退生成新发布编号",
+      "passed": true
+    },
+    {
+      "name": "发布票据审计动作齐全",
+      "passed": true
+    },
+    {
+      "name": "既有场景主记录保全",
+      "passed": true
+    }
+  ],
+  "sceneId": "2120036133972799489",
+  "publicationIds": [
+    "PUB-2120036134442561537",
+    "PUB-2120036135918956545"
+  ],
+  "ticketIds": [
+    "TKT-2120036134740357122"
+  ],
+  "cleanupPassed": true,
+  "retainedHistory": true,
+  "anonymousConsumptionVerified": false
+}

@@ -11,7 +11,7 @@ class Data09ReadOnlyVerifierTest(unittest.TestCase):
         cls.source = SCRIPT.read_text(encoding="utf-8")
 
     def test_verifier_is_read_only_and_rejects_shared_database(self):
-        self.assertIn('EXPECTED_DATABASE = "wx_editor_tpl04_test"', self.source)
+        self.assertIn('EXPECTED_DATABASE = "wx_editor_data08"', self.source)
         self.assertIn('if args.database == "wx_editor":', self.source)
         for keyword in ("INSERT INTO", "UPDATE ", "DELETE FROM", "CREATE TABLE", "DROP TABLE"):
             self.assertNotIn(keyword, self.source)

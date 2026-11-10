@@ -5,8 +5,8 @@ import json
 import subprocess
 
 
-EXPECTED_DATABASE = "wx_editor_tpl04_test"
-EXPECTED_TABLES = {"wx_3d_scene_publication", "wx_3d_scene_publication_ticket"}
+EXPECTED_DATABASE = "wx_editor_data08"
+EXPECTED_TABLES = {"wx_3d_scene_publication", "wx_3d_scene_publication_ticket", "wx_3d_scene_publication_audit"}
 
 
 def main():
@@ -40,7 +40,7 @@ def main():
         raise SystemExit("缺少 DATA-09 表：" + ", ".join(missing))
     columns = query("SELECT TABLE_NAME,COLUMN_NAME FROM information_schema.COLUMNS "
                     "WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME IN "
-                    "('wx_3d_scene_publication','wx_3d_scene_publication_ticket');")
+                    "('wx_3d_scene_publication','wx_3d_scene_publication_ticket','wx_3d_scene_publication_audit');")
     report = {
         "database": args.database,
         "host": args.host,
@@ -49,6 +49,7 @@ def main():
         "columnCount": len(columns),
         "publicationCount": int(query("SELECT COUNT(*) FROM wx_3d_scene_publication;")[0]),
         "ticketCount": int(query("SELECT COUNT(*) FROM wx_3d_scene_publication_ticket;")[0]),
+        "auditCount": int(query("SELECT COUNT(*) FROM wx_3d_scene_publication_audit;")[0]),
     }
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
