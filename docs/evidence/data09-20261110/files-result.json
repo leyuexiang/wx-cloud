@@ -1,0 +1,220 @@
+{
+  "passed": true,
+  "database": "wx_editor_data08",
+  "gatewayPort": 12525,
+  "marker": "DATA09-FILES-0b77063c2b7a4febab10acf4bf50e230",
+  "checks": [
+    {
+      "name": "存在真实当前版与历史版模型样本",
+      "passed": true
+    },
+    {
+      "name": "真实管理员登录",
+      "passed": true
+    },
+    {
+      "name": "缺省版本依赖发布成功",
+      "passed": true
+    },
+    {
+      "name": "引用固定当前已提交版本及双摘要",
+      "passed": true
+    },
+    {
+      "name": "发布重放复用编号且不重复引用",
+      "passed": true
+    },
+    {
+      "name": "新发布使用索引版本二",
+      "passed": true
+    },
+    {
+      "name": "索引二仍可凭票据读取原文四包",
+      "passed": true
+    },
+    {
+      "name": "当前版匿名冻结资源列表及禁止缓存",
+      "passed": true
+    },
+    {
+      "name": "当前版资源列表固定目标版本且无内部字段",
+      "passed": true
+    },
+    {
+      "name": "当前版清单签发成功且禁止缓存",
+      "passed": true
+    },
+    {
+      "name": "当前版真实清单字节摘要及内容身份一致",
+      "passed": true
+    },
+    {
+      "name": "当前版真实签名有效期受票据约束",
+      "passed": true
+    },
+    {
+      "name": "当前版清单闭包处于真实下载预算内",
+      "passed": true
+    },
+    {
+      "name": "当前版成员字节一致:ArtPackManifest.json",
+      "passed": true
+    },
+    {
+      "name": "当前版成员字节一致:ArtResourceCatalog.json",
+      "passed": true
+    },
+    {
+      "name": "当前版成员字节一致:b-built",
+      "passed": true
+    },
+    {
+      "name": "当前版成员字节一致:content/8093b50b204e14f16a38a5cf18490a8d5bdf4cccee01b2c44f27bc0392fded44/models/car",
+      "passed": true
+    },
+    {
+      "name": "无票据资源列表拒绝",
+      "passed": true
+    },
+    {
+      "name": "非发布资源键拒绝签发",
+      "passed": true
+    },
+    {
+      "name": "越界路径拒绝签发",
+      "passed": true
+    },
+    {
+      "name": "未列入清单的文件拒绝签发",
+      "passed": true
+    },
+    {
+      "name": "覆盖租户字段拒绝签发",
+      "passed": true
+    },
+    {
+      "name": "真实票据到期后拒绝新签发",
+      "passed": true
+    },
+    {
+      "name": "原签名地址真实到期后拒绝下载",
+      "passed": true
+    },
+    {
+      "name": "票据撤销后拒绝新签发",
+      "passed": true
+    },
+    {
+      "name": "发布撤销后活动票据拒绝新签发",
+      "passed": true
+    },
+    {
+      "name": "显式历史版本发布成功",
+      "passed": true
+    },
+    {
+      "name": "历史版本不追随资源当前指针",
+      "passed": true
+    },
+    {
+      "name": "历史版匿名冻结资源列表及禁止缓存",
+      "passed": true
+    },
+    {
+      "name": "历史版资源列表固定目标版本且无内部字段",
+      "passed": true
+    },
+    {
+      "name": "历史版清单签发成功且禁止缓存",
+      "passed": true
+    },
+    {
+      "name": "历史版真实清单字节摘要及内容身份一致",
+      "passed": true
+    },
+    {
+      "name": "历史版真实签名有效期受票据约束",
+      "passed": true
+    },
+    {
+      "name": "历史版清单闭包处于真实下载预算内",
+      "passed": true
+    },
+    {
+      "name": "历史版成员字节一致:ArtPackManifest.json",
+      "passed": true
+    },
+    {
+      "name": "历史版成员字节一致:ArtResourceCatalog.json",
+      "passed": true
+    },
+    {
+      "name": "历史版成员字节一致:a-built",
+      "passed": true
+    },
+    {
+      "name": "历史版成员字节一致:models/car",
+      "passed": true
+    },
+    {
+      "name": "缺失资源拒绝且原发布保持不变",
+      "passed": true
+    },
+    {
+      "name": "未提交版本拒绝且原发布保持不变",
+      "passed": true
+    },
+    {
+      "name": "错误资源摘要拒绝且原发布保持不变",
+      "passed": true
+    },
+    {
+      "name": "重复资源键拒绝且原发布保持不变",
+      "passed": true
+    },
+    {
+      "name": "未接入发布解析器的类型拒绝且原发布保持不变",
+      "passed": true
+    },
+    {
+      "name": "回退新发布保留固定历史资源版本",
+      "passed": true
+    },
+    {
+      "name": "既有场景正文和资源提交快照保全",
+      "passed": true
+    }
+  ],
+  "resourceId": "2115735432249536513",
+  "currentResourceRevision": 6,
+  "historicalResourceRevision": 1,
+  "downloadedClosures": [
+    {
+      "revision": 6,
+      "memberCount": 4,
+      "memberBytes": 13182024,
+      "manifestBytes": 1096
+    },
+    {
+      "revision": 1,
+      "memberCount": 4,
+      "memberBytes": 13181633,
+      "manifestBytes": 950
+    }
+  ],
+  "sceneId": "2120053660731895810",
+  "publicationIds": [
+    "PUB-2120053661063245826",
+    "PUB-2120053922460659714",
+    "PUB-2120053925505724417"
+  ],
+  "ticketIds": [
+    "TKT-2120053661713362946",
+    "TKT-2120053921848291330",
+    "TKT-2120053922116726785",
+    "TKT-2120053922817175553"
+  ],
+  "cleanupPassed": true,
+  "physicalClosureVerified": true,
+  "ticketFileSigningVerified": true
+}

@@ -1,0 +1,15 @@
+{
+  "database": "wx_editor_data08",
+  "backup": "/opt/wx/editor-test148/backups/data09-files-pre-collation-20261110T071901889417Z.sql",
+  "backupBytes": 22773709,
+  "migrationSha256": "f258c60abe97bdb2c52e5496900a87972e60af9b8241ddacacec25252eaf2b8e",
+  "status": "MIGRATED",
+  "existingReferenceRows": 4,
+  "existingReferenceValuesPreserved": true,
+  "collations": [
+    "operation_id\tascii_bin",
+    "resource_scope\tutf8mb4_bin",
+    "resource_tenant_id\tutf8mb4_bin"
+  ],
+  "joinedReferenceCount": 4
+}

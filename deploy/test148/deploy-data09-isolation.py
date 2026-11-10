@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 ROOT = Path('/opt/wx/editor-test148')
 CONTAINER = 'wx-editor-dimensions-data08'
 PREVIEW = '/admin-api/dim3d/scene/publication/preview'
+PREVIEW_PATHS = (PREVIEW, PREVIEW + '/resources', PREVIEW + '/file')
 
 
 def digest(path):
@@ -57,12 +58,14 @@ def main():
     assert '/wx_editor_data08?' in text, 'unexpected database'
     # 配置文件覆盖包内配置，必须同步加入精确匿名路径，不能放开管理路由通配符。
     lines = text.splitlines(keepends=True)
-    if not any(line.strip() == '- ' + PREVIEW for line in lines):
-        indexes = [i for i, line in enumerate(lines) if line.strip() == 'ignore-urls:']
-        assert len(indexes) == 1, 'ambiguous ignore-urls section'
-        index = indexes[0]
-        indent = lines[index][:len(lines[index]) - len(lines[index].lstrip())]
-        lines.insert(index + 1, indent + '- ' + PREVIEW + '\n')
+    indexes = [i for i, line in enumerate(lines) if line.strip() == 'ignore-urls:']
+    assert len(indexes) == 1, 'ambiguous ignore-urls section'
+    index = indexes[0]
+    indent = lines[index][:len(lines[index]) - len(lines[index].lstrip())]
+    for path in PREVIEW_PATHS:
+        # 已有配置可能带注释，按实际路径判断，避免重复加入同一规则。
+        if not any(line.split('#', 1)[0].strip() == '- ' + path for line in lines):
+            lines.insert(index + 1, indent + '- ' + path + '\n')
     text = ''.join(lines)
     old_hash = digest(target)
     business_hash = digest(business)

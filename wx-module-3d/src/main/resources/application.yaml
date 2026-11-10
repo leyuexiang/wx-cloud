@@ -190,6 +190,8 @@ wx:
     enable: false
     ignore-urls:
       - /admin-api/dim3d/scene/publication/preview # 仅票据消费免租户头，身份由票据绑定关系确定
+      - /admin-api/dim3d/scene/publication/preview/resources # 精确冻结资源列表
+      - /admin-api/dim3d/scene/publication/preview/file # 精确票据文件签发
       - /admin-api/dimensions/signaling/get-address #不需要登录就可以访问
     ignore-tables:
       - wx_resource

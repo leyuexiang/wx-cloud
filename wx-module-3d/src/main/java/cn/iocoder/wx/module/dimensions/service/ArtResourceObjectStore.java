@@ -103,6 +103,18 @@ public class ArtResourceObjectStore {
             throw ServiceException.of(STORAGE_UNAVAILABLE);
         } catch (Exception ex) { throw ServiceException.of(STORAGE_UNAVAILABLE); }
     }
+    /** 签发阶段只检查成员存在性和长度，不重复流式下载已冻结的大文件。 */
+    public void verifyAvailable(String prefix, ArtResourceManifestVerifier.FileSpec file) {
+        try {
+            if (size(objectKey(prefix, file.path())) != file.size()) throw ServiceException.of(CHECKSUM_MISMATCH);
+        } catch (ServiceException error) { throw error; }
+        catch (io.minio.errors.ErrorResponseException error) {
+            if (Set.of("NoSuchKey", "NoSuchObject", "NoSuchBucket").contains(error.errorResponse().code()))
+                throw ServiceException.of(OBJECT_MISSING);
+            throw ServiceException.of(STORAGE_UNAVAILABLE);
+        } catch (Exception error) { throw ServiceException.of(STORAGE_UNAVAILABLE); }
+    }
+
     protected boolean exists(String object) {
         try {
             minio.statObject(StatObjectArgs.builder().bucket(config.getBucketName()).object(object).build());

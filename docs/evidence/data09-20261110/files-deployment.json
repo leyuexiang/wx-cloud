@@ -1,0 +1,10 @@
+{
+  "status": "DEPLOYED",
+  "database": "wx_editor_data08",
+  "container": "wx-editor-dimensions-data08",
+  "sha256": "7b561c9511c44e9db10e89fa13c928344b9ff13060b300e92b9edaeac1d3ed75",
+  "previousSha256": "934b62faabcd6524d162dcd1c03136f13f7c1624e50eafc3c158aaa80efe5504",
+  "businessSha256": "8143caa0a2d1343a055cdba6c3289c076dcf3cff13d4f3c4fb9ee32caecb2fa1",
+  "backup": "/opt/wx/editor-test148/backups/data09-preview-20261110T071449441388Z",
+  "gatewayPort": 12525
+}

@@ -1,0 +1,58 @@
+{
+  "passed": false,
+  "database": "wx_editor_data08",
+  "gatewayPort": 12525,
+  "marker": "DATA09-FILES-9bcd3c7af6a340ef95aa64475173e3a8",
+  "checks": [
+    {
+      "name": "存在真实当前版与历史版模型样本",
+      "passed": true
+    },
+    {
+      "name": "真实管理员登录",
+      "passed": true
+    },
+    {
+      "name": "缺省版本依赖发布成功",
+      "passed": true
+    },
+    {
+      "name": "引用固定当前已提交版本及双摘要",
+      "passed": true
+    },
+    {
+      "name": "发布重放复用编号且不重复引用",
+      "passed": true
+    },
+    {
+      "name": "新发布使用索引版本二",
+      "passed": true
+    },
+    {
+      "name": "索引二仍可凭票据读取原文四包",
+      "passed": true
+    },
+    {
+      "name": "当前版匿名冻结资源列表及禁止缓存",
+      "passed": false
+    },
+    {
+      "name": "既有场景正文和资源提交快照保全",
+      "passed": true
+    }
+  ],
+  "resourceId": "2115735432249536513",
+  "currentResourceRevision": 6,
+  "historicalResourceRevision": 1,
+  "failure": "当前版匿名冻结资源列表及禁止缓存",
+  "sceneId": "2120052718968041474",
+  "publicationIds": [
+    "PUB-2120052719504912386"
+  ],
+  "ticketIds": [
+    "TKT-2120052720150835202"
+  ],
+  "cleanupPassed": true,
+  "physicalClosureVerified": false,
+  "ticketFileSigningVerified": false
+}

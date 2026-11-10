@@ -159,6 +159,8 @@ wx:
     enable: true
     ignore-urls:
     - /admin-api/dim3d/scene/publication/preview # 票据绑定租户，不开放相邻管理路径
+    - /admin-api/dim3d/scene/publication/preview/resources # 只读冻结资源
+    - /admin-api/dim3d/scene/publication/preview/file # 只签发清单成员
     - /admin-api/dimensions/signaling/get-address
     ignore-tables:
     - wx_resource

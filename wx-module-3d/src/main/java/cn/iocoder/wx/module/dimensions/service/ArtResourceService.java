@@ -83,7 +83,8 @@ public class ArtResourceService {
         var signed=signer.sign(prefix,path);
         return Map.of("fileUrl",signed.get("manifestUrl"),"downloadExpiresAt",signed.get("downloadExpiresAt"));
     }
-    private List<ArtResourceManifestVerifier.FileSpec> verifiedSnapshotFiles(
+    /** 包内复用同一清单校验；匿名发布入口须先证明冻结引用及票据范围。 */
+    List<ArtResourceManifestVerifier.FileSpec> verifiedSnapshotFiles(
             JsonNode snapshot,String id,String contentHash,String prefix,String manifest) {
         // 必须从请求的修订判断格式，资源当前指针可能已被替换。旧快照沿用热更验证。
         String format=snapshot.path("content_format").asText("unity.assetbundle.v1");
@@ -91,7 +92,11 @@ public class ArtResourceService {
         switch(format) {
             case "unity.assetbundle.v1" -> {
                 var checked=verifier.verify(store.readManifest(prefix,manifest),id,digest,manifest);
-                if(!contentHash.equals(checked.contentHash()))throw ServiceException.of(CHECKSUM_MISMATCH);
+                // 历史快照缺省字段保持兼容；有明确平台/兼容标识时必须与真实清单一致。
+                if(!contentHash.equals(checked.contentHash())
+                        || snapshot.has("platform") && !"WebGL".equals(snapshot.path("platform").asText())
+                        || snapshot.has("app_compatibility") && !checked.compatibility().equals(snapshot.path("app_compatibility").asText()))
+                    throw ServiceException.of(CHECKSUM_MISMATCH);
                 return checked.files();
             }
             case "model.gltf.v1", "model.glb.v1" -> {

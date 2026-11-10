@@ -76,6 +76,17 @@ class ScenePublicationTicketServiceTest {
         jdbc.update("UPDATE wx_3d_scene_publication_ticket SET scope='WRITE' WHERE ticket_id=?", issued.get("ticketId"));
         assertEquals(401, assertThrows(ServiceException.class, () -> service.verify(issued.get("token").toString())).getCode());
         assertEquals(401, assertThrows(ServiceException.class, () -> service.consumeSnapshot(issued.get("token").toString())).getCode());
+        assertEquals(401, assertThrows(ServiceException.class, () -> service.authorizeResources(issued.get("token").toString())).getCode());
+    }
+
+    @Test void resourceGrantRequiresIndexTwoAndDiesWithTicket() {
+        var issued = service.issue("PUB-1", 300);
+        String token = issued.get("token").toString();
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.authorizeResources(token)).getCode());
+        jdbc.update("UPDATE wx_3d_scene_publication SET index_version=2");
+        assertEquals(2L, service.authorizeResources(token).tenant());
+        service.revoke(issued.get("ticketId").toString());
+        assertEquals(401, assertThrows(ServiceException.class, () -> service.authorizeResources(token)).getCode());
     }
 
     @Test void anonymousConsumptionKeepsBoundTenantAndRevisionWhenCurrentPointerMoves() {

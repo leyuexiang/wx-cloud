@@ -151,5 +151,15 @@ class ArtResourceServiceTest {
         when(store.readManifest("resources/old/frozen/","manifest.json")).thenReturn(bytes);
         return hash;
     }
+
+    @Test void nativeSnapshotCompatibilityCannotDifferFromVerifiedManifest() throws Exception {
+        String hash = committedFixture();
+        var snapshot = (com.fasterxml.jackson.databind.node.ObjectNode) json.readTree(
+                db.queryForObject("SELECT after_snapshot FROM wx_3d_resource_operation WHERE id='old'", String.class));
+        ((com.fasterxml.jackson.databind.node.ObjectNode) snapshot.get("resource")).put("app_compatibility", "wrong-loader");
+        db.update("UPDATE wx_3d_resource_operation SET after_snapshot=? WHERE id='old'", snapshot.toString());
+        assertThrows(ServiceException.class, () -> service.file("21", "1", hash, "models/car"));
+        verifyNoInteractions(signer);
+    }
     private String create(){return "{\"operationId\":\"6063365a-210b-486b-8c2d-928b10e66a39\",\"operationType\":\"CREATE\",\"resourceScope\":\"TENANT_SHARED\",\"metadata\":{\"resourceName\":\"汽车模板\",\"resourceType\":\"MODEL\",\"assetName\":\"car\"}}";}
 }

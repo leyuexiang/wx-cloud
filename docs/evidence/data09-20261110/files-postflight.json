@@ -1,0 +1,21 @@
+{
+  "sceneId": "2120053660731895810",
+  "cleanupDatabaseRows": [
+    "1",
+    "REVOKED\t3",
+    "REVOKED\t4",
+    "3",
+    "PUBLISH\t3",
+    "TICKET_ISSUE\t4",
+    "TICKET_REVOKE\t4",
+    "REVOKE\t3",
+    "ROLLBACK\t1"
+  ],
+  "health": "UP",
+  "anonymousTenantPaths": [
+    "/admin-api/dim3d/scene/publication/preview/file",
+    "/admin-api/dim3d/scene/publication/preview/resources",
+    "/admin-api/dim3d/scene/publication/preview"
+  ],
+  "containerHealth": "healthy"
+}

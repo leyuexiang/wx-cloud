@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-10",
+  "command": "mvn.cmd -B -o -Ptest148 -pl wx-module-3d -am -Dtest=ArtResourceServiceTest,ArtResourceDownloadSignerTest,ArtResourceObjectStoreTest,ScenePublicationServiceTest,ScenePublicationTicketServiceTest,ScenePublicationPreviewControllerTest,ScenePublicationFileServiceTest,Dim3dSceneControllerTest -Dsurefire.failIfNoSpecifiedTests=false package",
+  "buildSuccess": true,
+  "suites": [
+    {
+      "name": "ArtResourceServiceTest",
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ArtResourceDownloadSignerTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ArtResourceObjectStoreTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ScenePublicationServiceTest",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ScenePublicationTicketServiceTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ScenePublicationPreviewControllerTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ScenePublicationFileServiceTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "Dim3dSceneControllerTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "negativeCaseBeforeFix": "nativeSnapshotCompatibilityCannotDifferFromVerifiedManifest",
+  "buildRerunIssue": "SDK cold initialization crossed signature second boundary; recalculated TTL after initialization, added one-second margin and at most one local re-sign; final 66 tests passed.",
+  "pythonTests": 7,
+  "pythonCommand": "python -m unittest deploy/test148/test_data09_readonly_verifier.py deploy/test148/test_data09_publication.py",
+  "pythonPassed": true,
+  "candidateSha256": "7b561c9511c44e9db10e89fa13c928344b9ff13060b300e92b9edaeac1d3ed75"
+}

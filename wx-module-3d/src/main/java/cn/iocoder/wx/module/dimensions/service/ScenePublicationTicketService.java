@@ -121,6 +121,22 @@ public class ScenePublicationTicketService {
         return sha256(token);
     }
 
+    public record ResourceGrant(String publicationId, long tenant, Instant expiresAt) {}
+
+    /** 资源准入仅由票据绑定推导，不读取登录角色或调用者传入的租户。 */
+    public ResourceGrant authorizeResources(String token) {
+        var rows = jdbc.query("SELECT p.publication_id,p.tenant_id,p.index_version,t.expires_time FROM wx_3d_scene_publication_ticket t "
+                + "JOIN wx_3d_scene_publication p ON p.publication_id=t.publication_id AND p.tenant_id=t.tenant_id "
+                + "WHERE t.token_hash=? AND t.scope='READ' AND t.status='ACTIVE' AND t.expires_time>? AND p.status='PUBLISHED'",
+                (result, number) -> {
+                    if (result.getInt("index_version") != 2) throw new ServiceException(409, "发布缺少固定资源索引");
+                    // 通过 JDBC 时间读取器兼容不同驱动对 DATETIME 的对象类型选择。
+                    return new ResourceGrant(result.getString("publication_id"), result.getLong("tenant_id"), result.getTimestamp("expires_time").toInstant());
+                }, tokenHash(token), Timestamp.from(Instant.now()));
+        if (rows.size() != 1) throw new ServiceException(401, "访问票据已失效");
+        return rows.get(0);
+    }
+
     private static String randomToken() {
         byte[] bytes = new byte[32];
         RANDOM.nextBytes(bytes);

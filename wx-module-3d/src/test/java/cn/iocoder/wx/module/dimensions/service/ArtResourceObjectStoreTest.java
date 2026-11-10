@@ -49,6 +49,16 @@ class ArtResourceObjectStoreTest {
         assertArrayEquals(ORIGINAL,store.bytes.get(TARGET+"pack.bundle"));
         assertEquals(1,store.writes);
     }
+
+    @Test void availabilityCheckUsesMetadataWithoutReadingLargeObjectBytes() {
+        Store store = new Store();
+        store.verifyAvailable(SOURCE, file());
+        assertEquals(0, store.sourceReads);
+        store.bytes.put(SOURCE + file().path(), new byte[1]);
+        assertThrows(ServiceException.class, () -> store.verifyAvailable(SOURCE, file()));
+        store.bytes.remove(SOURCE + file().path());
+        assertThrows(ServiceException.class, () -> store.verifyAvailable(SOURCE, file()));
+    }
     @Test void stagingWriteAfterFreezeCannotChangeFinalObject() {
         Store store=new Store();store.freeze(SOURCE,TARGET,List.of(file()));
         store.bytes.put(SOURCE+"pack.bundle",new byte[1]);

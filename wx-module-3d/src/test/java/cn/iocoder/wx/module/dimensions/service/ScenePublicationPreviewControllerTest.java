@@ -16,6 +16,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** 请求不能用路径、正文或查询参数覆盖票据身份，匿名范围仅为专用预览路由。 */
 class ScenePublicationPreviewControllerTest {
+    @Test void resourceRoutesUseTicketHeaderAndRejectIdentityOverrides() throws Exception {
+        var files = mock(ScenePublicationFileService.class);
+        var controller = new ScenePublicationPreviewController();
+        ReflectionTestUtils.setField(controller, "files", files);
+        var mvc = MockMvcBuilders.standaloneSetup(controller)
+                .setControllerAdvice(new GlobalExceptionHandler("data09-test", mock(ApiErrorLogApi.class))).build();
+        when(files.list("header-ticket")).thenReturn(Map.of("publicationId", "PUB-1", "resources", java.util.List.of()));
+        when(files.file("header-ticket", "model", "manifest.json")).thenReturn(Map.of("fileUrl", "https://example.invalid/unit-file"));
+        mvc.perform(post("/dim3d/scene/publication/preview/resources").header("X-Scene-Ticket", "header-ticket"))
+                .andExpect(jsonPath("$.data.publicationId").value("PUB-1")).andExpect(header().string("Cache-Control", "no-store"));
+        mvc.perform(post("/dim3d/scene/publication/preview/file").header("X-Scene-Ticket", "header-ticket")
+                        .contentType("application/json").content("{\"resourceKey\":\"model\",\"path\":\"manifest.json\"}"))
+                .andExpect(jsonPath("$.code").value(200)).andExpect(header().string("Cache-Control", "no-store"));
+        mvc.perform(post("/dim3d/scene/publication/preview/file").header("X-Scene-Ticket", "header-ticket")
+                        .contentType("application/json").content("{\"resourceKey\":\"model\",\"path\":\"manifest.json\",\"tenantId\":3}"))
+                .andExpect(jsonPath("$.code").value(400)).andExpect(header().string("Cache-Control", "no-store"));
+        verify(files).list("header-ticket"); verify(files).file("header-ticket", "model", "manifest.json");
+        verifyNoMoreInteractions(files);
+    }
+
     @Test void missingTicketReturnsExplicitFailureWithoutCaching() throws Exception {
         var tickets = mock(ScenePublicationTicketService.class);
         var controller = new ScenePublicationPreviewController();
