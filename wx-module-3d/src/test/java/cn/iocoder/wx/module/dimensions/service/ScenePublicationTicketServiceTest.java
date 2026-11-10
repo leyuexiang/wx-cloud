@@ -33,6 +33,9 @@ class ScenePublicationTicketServiceTest {
                 .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
         for (String sql : publicationSchema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
         for (String sql : ticketSchema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
+        String auditSchema = Files.readString(Path.of("../deploy/test148/migrations/data09/003-publication-audit.up.sql"))
+                .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
+        for (String sql : auditSchema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
         jdbc.update("INSERT INTO wx_3d_scene_publication(id,publication_id,tenant_id,scene_id,revision_no,source_hash,index_version,dependency_snapshot,request_id,status,current_flag,created_by) VALUES(1,'PUB-1',2,101,1,?,1,?,'request-1','PUBLISHED',1,2)", "a".repeat(64), "{\"resources\":[]}");
         access = mock(ArtResourceAccess.class);
         when(access.actor()).thenReturn(new ArtResourceAccess.Actor(2, 2));
@@ -62,5 +65,13 @@ class ScenePublicationTicketServiceTest {
         assertThrows(ServiceException.class, () -> service.issue("PUB-1", 59));
         assertThrows(ServiceException.class, () -> service.issue("PUB-1", 3601));
         assertThrows(ServiceException.class, () -> service.verify("unknown-token"));
+    }
+
+    @Test void cleanupExpiredMarksTicketAndWritesAudit() {
+        var issued = service.issue("PUB-1", 300);
+        jdbc.update("UPDATE wx_3d_scene_publication_ticket SET expires_time='2000-01-01 00:00:00' WHERE ticket_id=?", issued.get("ticketId"));
+        assertEquals(1, service.cleanupExpired(10));
+        assertEquals("EXPIRED", jdbc.queryForObject("SELECT status FROM wx_3d_scene_publication_ticket WHERE ticket_id=?", String.class, issued.get("ticketId")));
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_publication_audit WHERE action='TICKET_EXPIRE'", Integer.class));
     }
 }

@@ -34,6 +34,9 @@ class ScenePublicationServiceTest {
         String schema = Files.readString(Path.of("../deploy/test148/migrations/data09/001-scene-publication.up.sql"))
                 .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
         for (String sql : schema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
+        String auditSchema = Files.readString(Path.of("../deploy/test148/migrations/data09/003-publication-audit.up.sql"))
+                .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
+        for (String sql : auditSchema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
         access = mock(ArtResourceAccess.class);
         when(access.actor()).thenReturn(new ArtResourceAccess.Actor(2, 2));
         var target = new ScenePublicationService();
@@ -63,6 +66,7 @@ class ScenePublicationServiceTest {
         assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_publication WHERE current_flag=1", Integer.class));
         assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_publication", Integer.class));
         assertEquals(2, service.current("101").get("revisionNo"));
+        assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_publication_audit WHERE action='PUBLISH'", Integer.class));
     }
 
     @Test void rejectCrossTenantAndMismatchedReplay() {

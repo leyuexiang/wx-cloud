@@ -37,6 +37,7 @@ public class ScenePublicationTicketService {
         jdbc.update("INSERT INTO wx_3d_scene_publication_ticket(id,ticket_id,publication_id,tenant_id,token_hash,scope,status,expires_time,created_by) VALUES(?,?,?,?,?,?,?,?,?)",
                 IdWorker.getId(), ticketId, publicationId, actor.tenant(), sha256(raw), "READ", "ACTIVE",
                 Timestamp.from(Instant.now().plusSeconds(expiresInSeconds)), actor.user());
+        audit(actor, publicationId, ticketId, "TICKET_ISSUE", "");
         return Map.of("ticketId", ticketId, "token", raw, "publicationId", publicationId,
                 "expiresInSeconds", expiresInSeconds, "scope", "READ");
     }
@@ -45,9 +46,29 @@ public class ScenePublicationTicketService {
     @Transactional
     public void revoke(String ticketId) {
         var actor = access.actor();
+        var rows = jdbc.queryForList("SELECT publication_id FROM wx_3d_scene_publication_ticket WHERE ticket_id=? AND tenant_id=? AND status='ACTIVE'",
+                ticketId, actor.tenant());
         int changed = jdbc.update("UPDATE wx_3d_scene_publication_ticket SET status='REVOKED',revoked_by=?,revoked_time=CURRENT_TIMESTAMP WHERE ticket_id=? AND tenant_id=? AND status='ACTIVE'",
                 actor.user(), ticketId, actor.tenant());
         if (changed != 1) throw new ServiceException(404, "活动票据不存在");
+        audit(actor, rows.get(0).get("publication_id").toString(), ticketId, "TICKET_REVOKE", "");
+    }
+
+    /** 有界标记已过期票据，保留历史行并为每行写入审计。 */
+    @Transactional
+    public int cleanupExpired(int limit) {
+        if (limit < 1 || limit > 1000) throw new ServiceException(400, "清理批次无效");
+        var actor = access.actor();
+        var rows = jdbc.queryForList("SELECT ticket_id,publication_id FROM wx_3d_scene_publication_ticket WHERE tenant_id=? AND status='ACTIVE' AND expires_time<=? ORDER BY expires_time ASC LIMIT ?",
+                actor.tenant(), Timestamp.from(Instant.now()), limit);
+        int changed = 0;
+        for (var row : rows) {
+            int updated = jdbc.update("UPDATE wx_3d_scene_publication_ticket SET status='EXPIRED',revoked_by=?,revoked_time=CURRENT_TIMESTAMP WHERE ticket_id=? AND tenant_id=? AND status='ACTIVE'",
+                    actor.user(), row.get("ticket_id"), actor.tenant());
+            changed += updated;
+            if (updated == 1) audit(actor, row.get("publication_id").toString(), row.get("ticket_id").toString(), "TICKET_EXPIRE", "");
+        }
+        return changed;
     }
 
     /** 校验票据并返回固定发布摘要。票据不接受客户端提交租户或发布编号覆盖。 */
@@ -73,5 +94,11 @@ public class ScenePublicationTicketService {
         } catch (NoSuchAlgorithmException error) {
             throw new IllegalStateException("票据摘要算法不可用", error);
         }
+    }
+
+    private void audit(ArtResourceAccess.Actor actor, String publicationId, String ticketId,
+                       String action, String reason) {
+        jdbc.update("INSERT INTO wx_3d_scene_publication_audit(id,tenant_id,publication_id,ticket_id,action,reason,operator_id) VALUES(?,?,?,?,?,?,?)",
+                IdWorker.getId(), actor.tenant(), publicationId, ticketId, action, reason, actor.user());
     }
 }

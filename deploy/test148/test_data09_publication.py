@@ -40,6 +40,14 @@ class Data09PublicationMigrationTest(unittest.TestCase):
         self.assertIn("publication_id", ticket)
         self.assertLess((ROOT / "001-scene-publication.up.sql").name, (ROOT / "002-publication-ticket.up.sql").name)
 
+    def test_audit_migration_is_append_only_and_after_ticket(self):
+        sql = (ROOT / "003-publication-audit.up.sql").read_text(encoding="utf-8")
+        self.assertIn("wx_3d_scene_publication_audit", sql)
+        self.assertIn("action VARCHAR(32)", sql)
+        self.assertIn("ticket_id VARCHAR(64)", sql)
+        self.assertNotIn("UPDATE wx_3d_scene_publication", sql)
+        self.assertLess((ROOT / "002-publication-ticket.up.sql").name, (ROOT / "003-publication-audit.up.sql").name)
+
 
 if __name__ == "__main__":
     unittest.main()

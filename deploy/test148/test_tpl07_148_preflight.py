@@ -36,6 +36,10 @@ class Tpl07Test148PreflightTest(unittest.TestCase):
         source = (ROOT / "migrations" / "data09" / "002-publication-ticket.down.sql").read_text(encoding="utf-8")
         self.assertEqual("DROP TABLE IF EXISTS wx_3d_scene_publication_ticket;", source.strip())
 
+    def test_audit_rollback_script_only_drops_audit_table(self):
+        source = (ROOT / "migrations" / "data09" / "003-publication-audit.down.sql").read_text(encoding="utf-8")
+        self.assertEqual("DROP TABLE IF EXISTS wx_3d_scene_publication_audit;", source.strip())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -62,6 +62,7 @@ public class ScenePublicationService {
         jdbc.update("INSERT INTO wx_3d_scene_publication(id,publication_id,tenant_id,scene_id,revision_no,source_hash,index_version,dependency_snapshot,request_id,status,current_flag,created_by) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
                 IdWorker.getId(), publicationId, actor.tenant(), scene, revisionNo, sourceHash, 1,
                 dependencySnapshot, requestId, "PUBLISHED", 1, actor.user());
+        audit(actor, publicationId, null, "PUBLISH", "", requestId);
         return Map.of("publicationId", publicationId, "sceneId", sceneId, "revisionNo", revisionNo, "status", "PUBLISHED");
     }
 
@@ -73,6 +74,7 @@ public class ScenePublicationService {
         if (!"PUBLISHED".equals(row.get("status"))) throw new ServiceException(409, "发布记录已撤销");
         jdbc.update("UPDATE wx_3d_scene_publication SET status='REVOKED',current_flag=0,revoked_by=?,revoked_time=CURRENT_TIMESTAMP,revoke_reason=? WHERE publication_id=? AND tenant_id=?",
                 actor.user(), reason == null ? "" : reason.trim(), publicationId, actor.tenant());
+        audit(actor, publicationId, null, "REVOKE", reason, null);
     }
 
     /** 回退创建新的发布编号，原发布记录保持不可变。 */
@@ -80,7 +82,9 @@ public class ScenePublicationService {
     public Map<String, Object> rollback(String publicationId, String requestId) {
         var actor = access.actor();
         var row = publication(publicationId, actor);
-        return publish(row.get("scene_id").toString(), ((Number) row.get("revision_no")).intValue(), requestId);
+        var result = publish(row.get("scene_id").toString(), ((Number) row.get("revision_no")).intValue(), requestId);
+        audit(actor, result.get("publicationId").toString(), null, "ROLLBACK", "", requestId);
+        return result;
     }
 
     public Map<String, Object> current(String sceneId) {
@@ -133,4 +137,11 @@ public class ScenePublicationService {
     }
 
     private static ServiceException bad(String message) { return new ServiceException(400, message); }
+
+    private void audit(ArtResourceAccess.Actor actor, String publicationId, String ticketId,
+                       String action, String reason, String requestId) {
+        jdbc.update("INSERT INTO wx_3d_scene_publication_audit(id,tenant_id,publication_id,ticket_id,action,reason,operator_id,request_id) VALUES(?,?,?,?,?,?,?,?)",
+                IdWorker.getId(), actor.tenant(), publicationId, ticketId, action,
+                reason == null ? "" : reason.trim(), actor.user(), requestId);
+    }
 }
