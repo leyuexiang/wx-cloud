@@ -1,0 +1,14 @@
+{
+  "resourceId": "2120065443035148289",
+  "sceneId": "2120065448001204225",
+  "databaseRows": [
+    "3\t0\tREADY",
+    "COMMITTED\tNULL\t3",
+    "FAILED\t2030001020\t2",
+    "1",
+    "1",
+    "REVOKED\t1"
+  ],
+  "health": "UP",
+  "retainedProtectedSample": true
+}

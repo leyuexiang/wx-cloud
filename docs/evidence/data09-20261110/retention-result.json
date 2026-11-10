@@ -1,0 +1,112 @@
+{
+  "passed": true,
+  "database": "wx_editor_data08",
+  "gatewayPort": 12525,
+  "marker": "DATA09-RETENTION-577dbecead314c29adc9165e1a7e6b85",
+  "checks": [
+    {
+      "name": "tenant_admin真实登录",
+      "passed": true
+    },
+    {
+      "name": "既有源清单可读取且摘要一致",
+      "passed": true
+    },
+    {
+      "name": "真实源包处于样本预算内",
+      "passed": true
+    },
+    {
+      "name": "真实源文件字节:ArtPackManifest.json",
+      "passed": true
+    },
+    {
+      "name": "真实源文件字节:ArtResourceCatalog.json",
+      "passed": true
+    },
+    {
+      "name": "真实源文件字节:a-built",
+      "passed": true
+    },
+    {
+      "name": "真实源文件字节:models/car",
+      "passed": true
+    },
+    {
+      "name": "受控上传:ArtPackManifest.json",
+      "passed": true
+    },
+    {
+      "name": "受控上传:ArtResourceCatalog.json",
+      "passed": true
+    },
+    {
+      "name": "受控上传:a-built",
+      "passed": true
+    },
+    {
+      "name": "受控上传:manifest.json",
+      "passed": true
+    },
+    {
+      "name": "受控上传:models/car",
+      "passed": true
+    },
+    {
+      "name": "专用真实包受控提交成功",
+      "passed": true
+    },
+    {
+      "name": "无发布引用时逻辑删除正常",
+      "passed": true
+    },
+    {
+      "name": "原资源快照可恢复为第三修订",
+      "passed": true
+    },
+    {
+      "name": "活动发布引用阻止删除",
+      "passed": true
+    },
+    {
+      "name": "活动发布拒绝后指针和失败回执正确",
+      "passed": true
+    },
+    {
+      "name": "已撤销发布历史引用阻止删除",
+      "passed": true
+    },
+    {
+      "name": "已撤销发布历史拒绝后指针和失败回执正确",
+      "passed": true
+    },
+    {
+      "name": "删除探针对象原本不存在",
+      "passed": true
+    },
+    {
+      "name": "旧通用入口拒绝删除探针",
+      "passed": true
+    },
+    {
+      "name": "既有资源指针和提交快照保全",
+      "passed": true
+    }
+  ],
+  "legacyNamespaceGuardVerified": false,
+  "legacyPermissionRejected": true,
+  "resourceId": "2120065443035148289",
+  "sceneId": "2120065448001204225",
+  "publicationIds": [
+    "PUB-2120065448433217537"
+  ],
+  "operationIds": [
+    "362997f5-29a8-4df8-9ec5-14d2bf00d5cd",
+    "41663fb0-aff9-4540-b09d-ab603979660b",
+    "dafe39be-886d-41d3-9307-8660d500e358",
+    "d04e4a0f-ee0d-4f6a-aad4-5c20b9122f98",
+    "cae22042-2685-44f4-bd02-c575820ebf2f"
+  ],
+  "sceneCleanupPassed": true,
+  "retainedProtectedSample": true
+}

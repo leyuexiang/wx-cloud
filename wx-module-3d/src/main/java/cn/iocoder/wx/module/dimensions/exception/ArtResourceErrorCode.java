@@ -22,7 +22,9 @@ public enum ArtResourceErrorCode implements ErrorInfo {
     SNAPSHOT_UNAVAILABLE(2030001016, "恢复快照不可用或不属于此资源"),
     SCOPE_CHANGE_FORBIDDEN(2030001017, "替换不能改变资源范围或租户"),
     INVALID_TENANT(2030001018, "认证租户与资源归属不一致"),
-    SCHEMA_NOT_READY(2030001019, "资源数据结构尚未就绪");
+    SCHEMA_NOT_READY(2030001019, "资源数据结构尚未就绪"),
+    RESOURCE_REFERENCED(2030001020, "资源仍被发布历史引用，不能删除"),
+    MANAGED_STORAGE_WRITE_FORBIDDEN(2030001021, "托管资源目录必须通过受控资源流程维护");
 
     private final int code;
     private final String message;

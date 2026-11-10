@@ -1,0 +1,27 @@
+{
+  "passed": false,
+  "database": "wx_editor_data08",
+  "gatewayPort": 12525,
+  "marker": "DATA09-RETENTION-5fedcc2e2798454c9e641ff7b4a5530b",
+  "checks": [
+    {
+      "name": "tenant_admin真实登录",
+      "passed": true
+    },
+    {
+      "name": "super_admin真实登录",
+      "passed": false
+    },
+    {
+      "name": "既有资源指针和提交快照保全",
+      "passed": true
+    }
+  ],
+  "failure": "super_admin真实登录",
+  "resourceId": null,
+  "sceneId": null,
+  "publicationIds": [],
+  "operationIds": [],
+  "sceneCleanupPassed": false,
+  "retainedProtectedSample": false
+}

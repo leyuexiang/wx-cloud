@@ -142,6 +142,9 @@ public class ArtResourceTransactionService {
         if(pointer.containsKey("kind")&&!pointer.get("kind").toString().equalsIgnoreCase(resource.get("resource_type").toString()))throw ServiceException.of(INVALID_CLOSURE);
         ObjectNode before=snapshot(resource);
         if(type.equals("DELETE")){
+            // 与发布共用资源行锁，并使用当前锁定读，避免旧事务快照漏看刚提交的引用。
+            if(!jdbc.queryForList("SELECT id FROM wx_3d_scene_publication_resource WHERE resource_id=? LIMIT 1 FOR UPDATE",resource.get("id")).isEmpty())
+                throw ServiceException.of(RESOURCE_REFERENCED);
             jdbc.update("UPDATE wx_3d_resource SET del_flag='1',current_revision=?,current_operation_id=?,update_by=? WHERE id=?",revision+1,operation,actor.user(),resource.get("id"));
             for(String table:DIRECTORIES)jdbc.update("UPDATE "+table+" SET del_flag='1',status='OFFLINE' WHERE resource_id=? AND tenant_id=?",resource.get("id"),resource.get("tenant_id"));
         }else{

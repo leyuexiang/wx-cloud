@@ -1,0 +1,85 @@
+{
+  "date": "2026-11-10",
+  "command": "mvn.cmd -B -o -Ptest148 -pl wx-module-3d -am -Dtest=ArtResourceTransactionTest,MinioManagedWriteBoundaryTest,ArtResourceServiceTest,ArtResourceDownloadSignerTest,ArtResourceObjectStoreTest,ScenePublicationServiceTest,ScenePublicationTicketServiceTest,ScenePublicationPreviewControllerTest,ScenePublicationFileServiceTest,Dim3dSceneControllerTest -Dsurefire.failIfNoSpecifiedTests=false package",
+  "buildSuccess": true,
+  "suites": [
+    {
+      "name": "ArtResourceTransactionTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "MinioManagedWriteBoundaryTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ArtResourceServiceTest",
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ArtResourceDownloadSignerTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ArtResourceObjectStoreTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ScenePublicationServiceTest",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ScenePublicationTicketServiceTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ScenePublicationPreviewControllerTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ScenePublicationFileServiceTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "Dim3dSceneControllerTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "negativeCasesBeforeFix": [
+    "historicalPublicationReferencePreventsResourceDelete",
+    "legacyDeleteCannotRemoveManagedObject"
+  ],
+  "pythonTests": 7,
+  "pythonCommand": "python -m unittest deploy/test148/test_data09_readonly_verifier.py deploy/test148/test_data09_publication.py",
+  "pythonPassed": true,
+  "candidateSha256": "f0bec1275aae83ef0340779ed9e7bf36339bd8d1e0b4f6d072ca2eb3f889c15a"
+}

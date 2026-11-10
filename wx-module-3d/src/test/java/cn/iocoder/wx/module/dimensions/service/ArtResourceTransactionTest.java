@@ -20,6 +20,7 @@ class ArtResourceTransactionTest {
         var data=new DriverManagerDataSource("jdbc:h2:mem:"+UUID.randomUUID()+";MODE=MySQL;DB_CLOSE_DELAY=-1","sa","");db=new JdbcTemplate(data);var manager=new DataSourceTransactionManager(data);
         db.execute("CREATE TABLE wx_3d_resource(id BIGINT PRIMARY KEY,resource_name VARCHAR(150),resource_type VARCHAR(20),asset_name VARCHAR(150),resource_relative_path VARCHAR(255),resource_scope VARCHAR(20),tenant_id VARCHAR(20),content_state VARCHAR(16),current_revision BIGINT DEFAULT 0,current_operation_id VARCHAR(36),content_hash VARCHAR(64),manifest_sha256 VARCHAR(64),storage_prefix VARCHAR(512),manifest_path VARCHAR(512),platform VARCHAR(20),content_format VARCHAR(32),app_compatibility VARCHAR(128),create_by BIGINT,update_by BIGINT,del_flag CHAR DEFAULT '0')");
         db.execute("CREATE TABLE wx_3d_resource_operation(id VARCHAR(36) PRIMARY KEY,resource_id BIGINT,operation_type VARCHAR(16),resource_scope VARCHAR(20),tenant_id VARCHAR(20),operator_id BIGINT,request_hash VARCHAR(64),expected_revision BIGINT,committed_revision BIGINT,status VARCHAR(16) DEFAULT 'UPLOADING',storage_prefix VARCHAR(512),candidate_descriptor CLOB,before_snapshot CLOB,after_snapshot CLOB,expires_at TIMESTAMP,error_code VARCHAR(64))");
+        db.execute("CREATE TABLE wx_3d_scene_publication_resource(id BIGINT PRIMARY KEY,resource_id BIGINT,resource_revision BIGINT)");
         for(String table:List.of("wx_3d_model","wx_3d_icon","wx_3d_template"))db.execute("CREATE TABLE "+table+"(id BIGINT PRIMARY KEY,resource_id BIGINT,tenant_id VARCHAR(20),del_flag CHAR DEFAULT '0',status VARCHAR(16) DEFAULT 'ONLINE')");
         access=mock(ArtResourceAccess.class);when(access.actor()).thenReturn(new ArtResourceAccess.Actor(10,2));store=mock(ArtResourceObjectStore.class);closure=mock(ArtResourceClosureVerifier.class);
         resources=new ArtResourceService();tx=new ArtResourceTransactionService();
@@ -53,4 +54,23 @@ class ArtResourceTransactionTest {
     @Test void unauthorizedOperatorCannotCommit(){when(access.actor()).thenReturn(new ArtResourceAccess.Actor(20,3));assertThrows(ServiceException.class,()->tx.commit(op(),commit));verify(store,never()).freeze(anyString(),anyString(),anyList());}
     @Test void invalidTargetPlanCannotChangeBoundPlan()throws Exception{var body=json.readTree("{\"files\":[{\"path\":\"other.bundle\",\"size\":1,\"sha256\":\""+"a".repeat(64)+"\"}]}");assertThrows(ServiceException.class,()->tx.uploadTargets(op(),body));}
     @Test void receiptDatabaseFailureRollsBackPointer(){db.execute("ALTER TABLE wx_3d_resource_operation ADD CONSTRAINT fail_success CHECK(status<>'COMMITTED')");assertThrows(ServiceException.class,()->tx.commit(op(),commit));assertEquals(0L,db.queryForObject("SELECT current_revision FROM wx_3d_resource WHERE id=?",Long.class,id()));assertNull(db.queryForObject("SELECT current_operation_id FROM wx_3d_resource WHERE id=?",String.class,id()));}
+
+    @Test void historicalPublicationReferencePreventsResourceDelete() throws Exception {
+        tx.commit(op(), commit);
+        db.update("INSERT INTO wx_3d_scene_publication_resource VALUES(1,?,1)", Long.parseLong(id()));
+        var deletion = resources.create(json.readTree("{\"operationId\":\"" + UUID.randomUUID() + "\",\"operationType\":\"DELETE\",\"resourceId\":\"" + id() + "\",\"expectedRevision\":\"1\"}"));
+        assertEquals(2030001020, assertThrows(ServiceException.class, () -> tx.commit(deletion.get("operationId").toString(), json.createObjectNode())).getCode());
+        assertEquals("0", db.queryForObject("SELECT del_flag FROM wx_3d_resource WHERE id=?", String.class, id()));
+        assertEquals(1L, db.queryForObject("SELECT current_revision FROM wx_3d_resource WHERE id=?", Long.class, id()));
+        assertEquals("FAILED", db.queryForObject("SELECT status FROM wx_3d_resource_operation WHERE id=?", String.class, deletion.get("operationId")));
+        assertEquals("2030001020", db.queryForObject("SELECT error_code FROM wx_3d_resource_operation WHERE id=?", String.class, deletion.get("operationId")));
+    }
+
+    @Test void resourceWithoutPublicationReferencesCanStillBeDeleted() throws Exception {
+        tx.commit(op(), commit);
+        var deletion = resources.create(json.readTree("{\"operationId\":\"" + UUID.randomUUID() + "\",\"operationType\":\"DELETE\",\"resourceId\":\"" + id() + "\",\"expectedRevision\":\"1\"}"));
+        assertEquals("COMMITTED", tx.commit(deletion.get("operationId").toString(), json.createObjectNode()).get("status"));
+        assertEquals("1", db.queryForObject("SELECT del_flag FROM wx_3d_resource WHERE id=?", String.class, id()));
+        assertEquals(2L, db.queryForObject("SELECT current_revision FROM wx_3d_resource WHERE id=?", Long.class, id()));
+    }
 }

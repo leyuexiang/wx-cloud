@@ -4,6 +4,8 @@ import cn.hutool.core.codec.Base64Decoder;
 import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.iocoder.wx.framework.common.exception.ConditionException;
+import cn.iocoder.wx.framework.common.exception.ServiceException;
+import cn.iocoder.wx.module.dimensions.exception.ArtResourceErrorCode;
 import cn.iocoder.wx.module.dimensions.config.CustomMinioClient;
 import cn.iocoder.wx.module.dimensions.config.MinioConfigInfo;
 import cn.iocoder.wx.module.dimensions.domain.dto.FileInfoBase;
@@ -64,6 +66,19 @@ public class MinioUtil {
 
     @Resource
     private MinioConfigInfo minioConfigInfo;
+
+    /** 旧通用存储入口不能绕过 ART 的身份、冻结和引用保留，点段判断与对象地址规范化一致。 */
+    private void guardLegacyWrite(String bucket, String key) {
+        if (!Objects.equals(bucket, minioConfigInfo.getBucketName())) return;
+        if (key == null || key.length() > 1024) throw ServiceException.of(ArtResourceErrorCode.UNSAFE_PATH);
+        Deque<String> parts = new ArrayDeque<>();
+        for (String part : key.replace('\\', '/').split("/")) {
+            if (part.isEmpty() || part.equals(".")) continue;
+            if (part.equals("..")) { if (!parts.isEmpty()) parts.removeLast(); }
+            else parts.addLast(part);
+        }
+        if ("resources".equals(parts.peekFirst())) throw ServiceException.of(ArtResourceErrorCode.MANAGED_STORAGE_WRITE_FORBIDDEN);
+    }
 
     /**
      * 验证bucketName是否存在
@@ -353,6 +368,7 @@ public class MinioUtil {
     }
 
     public ObjectWriteResponse uploadFile(String bucketName, String filePath, InputStream inputStream, String contentType) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        guardLegacyWrite(bucketName, filePath);
         // Minio存储的路径规范推荐使用正斜杠（/），而不是反斜杠（\）。
         String objectName = filePath.replace("\\","/");
         PutObjectArgs.Builder builder = PutObjectArgs.builder().bucket(bucketName).object(objectName).stream(inputStream, inputStream.available(), -1);
@@ -399,6 +415,7 @@ public class MinioUtil {
      * @param filePath 目录路径
      */
     public ObjectWriteResponse createDir(String bucketName, String filePath) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        guardLegacyWrite(bucketName, filePath);
         // Minio存储的路径规范推荐使用正斜杠（/），而不是反斜杠（\）。
         String objectName = filePath.replace("\\","/");
         return minioClient.putObject(PutObjectArgs
@@ -429,6 +446,7 @@ public class MinioUtil {
      * @param destFilePath 目标文件名称
      */
     public void copyObject(String srcBucketName, String srcFilePath, String destBucketName, String destFilePath) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        guardLegacyWrite(destBucketName, destFilePath);
         // Minio存储的路径规范推荐使用正斜杠（/），而不是反斜杠（\）。
         String srcObjectName = srcFilePath.replace("\\","/");
         String destObjectName = destFilePath.replace("\\","/");
@@ -446,6 +464,7 @@ public class MinioUtil {
      * 删除一个对象
      */
     public void deleteObject(String bucket, String filePath) throws Exception {
+        guardLegacyWrite(bucket, filePath);
         // Minio存储的路径规范推荐使用正斜杠（/），而不是反斜杠（\）。
         String objectName = filePath.replace("\\","/");
         minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(objectName).build());
@@ -459,6 +478,8 @@ public class MinioUtil {
      * @return
      */
     public void deleteObjects(String bucketName, List<String> keys) {
+        // 预检整批，避免先删除普通对象后才发现后面的托管对象不可删除。
+        keys.forEach(key -> guardLegacyWrite(bucketName, key));
         List<DeleteObject> objects = new LinkedList<>();
         keys.forEach(s -> {
             objects.add(new DeleteObject(s));
@@ -571,6 +592,7 @@ public class MinioUtil {
      * @return UploadUrlsVO
      */
     public UploadUrlsVO getUploadObjectUrl(String contentType, String filePath) {
+        guardLegacyWrite(minioConfigInfo.getBucketName(), filePath);
         try {
             log.info("<{}> 开始单文件上传<minio>", filePath);
             UploadUrlsVO urlsVO = new UploadUrlsVO();
@@ -612,6 +634,7 @@ public class MinioUtil {
      * @return UploadUrlsVO
      */
     public UploadUrlsVO initMultiPartUpload(FileUploadInfo fileUploadInfo, String object) {
+        guardLegacyWrite(minioConfigInfo.getBucketName(), object);
         Integer chunkCount = fileUploadInfo.getChunkCount();
         String contentType = fileUploadInfo.getContentType();
         String uploadId = fileUploadInfo.getUploadId();
@@ -663,6 +686,7 @@ public class MinioUtil {
      */
     @SneakyThrows
     public boolean mergeMultipartUpload(String object, String uploadId) {
+        guardLegacyWrite(minioConfigInfo.getBucketName(), object);
         log.info("通过 <{}-{}-{}> 合并<分片上传>数据", object, uploadId, minioConfigInfo.getBucketName());
         // 获取所有分片
         List<Part> partsList = getParts(object, uploadId);
