@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.HexFormat;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /** 发布读取票据服务。数据库只保存摘要，票据失效由状态、过期时间和发布状态共同决定。 */
@@ -73,13 +74,51 @@ public class ScenePublicationTicketService {
 
     /** 校验票据并返回固定发布摘要。票据不接受客户端提交租户或发布编号覆盖。 */
     public Map<String, Object> verify(String token) {
-        if (token == null || token.isBlank() || token.length() > 256) throw new ServiceException(401, "访问票据无效");
-        var rows = jdbc.queryForList("SELECT p.publication_id,p.scene_id,p.revision_no,p.source_hash FROM wx_3d_scene_publication_ticket t JOIN wx_3d_scene_publication p ON p.publication_id=t.publication_id AND p.tenant_id=t.tenant_id WHERE t.token_hash=? AND t.status='ACTIVE' AND t.expires_time>? AND p.status='PUBLISHED'",
-                sha256(token), Timestamp.from(Instant.now()));
+        var rows = jdbc.queryForList("SELECT p.publication_id,p.scene_id,p.revision_no,p.source_hash FROM wx_3d_scene_publication_ticket t JOIN wx_3d_scene_publication p ON p.publication_id=t.publication_id AND p.tenant_id=t.tenant_id WHERE t.token_hash=? AND t.scope='READ' AND t.status='ACTIVE' AND t.expires_time>? AND p.status='PUBLISHED'",
+                tokenHash(token), Timestamp.from(Instant.now()));
         if (rows.size() != 1) throw new ServiceException(401, "访问票据已失效");
         var row = rows.get(0);
         return Map.of("publicationId", row.get("publication_id"), "sceneId", row.get("scene_id").toString(),
                 "revisionNo", row.get("revision_no"), "sourceHash", row.get("source_hash"));
+    }
+
+    /** 匿名消费只使用票据绑定的租户、发布和修订；一次查询避免校验后再读取的身份切换。 */
+    public Map<String, Object> consumeSnapshot(String token) {
+        var rows = jdbc.queryForList("SELECT p.publication_id,p.scene_id,p.revision_no,p.source_hash,p.index_version,p.dependency_snapshot,"
+                        + "r.schema_version,r.scene_json,r.three_d_json,r.two_d_json,r.dependencies_json "
+                        + "FROM wx_3d_scene_publication_ticket t JOIN wx_3d_scene_publication p ON p.publication_id=t.publication_id AND p.tenant_id=t.tenant_id "
+                        + "LEFT JOIN wx_3d_scene_revision r ON r.tenant_id=p.tenant_id AND r.scene_id=p.scene_id AND r.revision_no=p.revision_no "
+                        + "WHERE t.token_hash=? AND t.scope='READ' AND t.status='ACTIVE' AND t.expires_time>? AND p.status='PUBLISHED'",
+                tokenHash(token), Timestamp.from(Instant.now()));
+        if (rows.size() != 1) throw new ServiceException(401, "访问票据已失效");
+        var row = rows.get(0);
+        if (!(row.get("schema_version") instanceof Number schema) || schema.intValue() < 1
+                || !(row.get("scene_json") instanceof String scene)
+                || !(row.get("three_d_json") instanceof String threeD)
+                || !(row.get("two_d_json") instanceof String twoD)
+                || !(row.get("dependencies_json") instanceof String dependencies))
+            throw new ServiceException(409, "发布正文缺失");
+        // 修订行仍是兼容期的四包原文，必须与发布摘要逐字节一致，不能回退最新草稿。
+        String calculated = SceneRevisionContentHasher.sha256(schema.intValue(), scene, threeD, twoD, dependencies);
+        if (!calculated.equals(row.get("source_hash")) || !dependencies.equals(row.get("dependency_snapshot")))
+            throw new ServiceException(409, "发布正文与固定摘要不一致");
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("publicationId", row.get("publication_id"));
+        result.put("sceneId", row.get("scene_id").toString());
+        result.put("revisionNo", row.get("revision_no"));
+        result.put("sourceHash", calculated);
+        result.put("indexVersion", row.get("index_version"));
+        result.put("schemaVersion", schema.intValue());
+        result.put("sceneJson", scene);
+        result.put("threeDJson", threeD);
+        result.put("twoDJson", twoD);
+        result.put("dependenciesJson", dependencies);
+        return result;
+    }
+
+    private static String tokenHash(String token) {
+        if (token == null || token.isBlank() || token.length() > 256) throw new ServiceException(401, "访问票据无效");
+        return sha256(token);
     }
 
     private static String randomToken() {

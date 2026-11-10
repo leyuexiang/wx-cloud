@@ -158,6 +158,7 @@ wx:
   tenant:
     enable: true
     ignore-urls:
+    - /admin-api/dim3d/scene/publication/preview # 票据绑定租户，不开放相邻管理路径
     - /admin-api/dimensions/signaling/get-address
     ignore-tables:
     - wx_resource

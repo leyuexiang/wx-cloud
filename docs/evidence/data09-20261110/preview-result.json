@@ -1,0 +1,89 @@
+{
+  "passed": true,
+  "database": "wx_editor_data08",
+  "gatewayPort": 12525,
+  "marker": "DATA09-PREVIEW-07f3a0c01272490584a561c4fb2ef3b8",
+  "checks": [
+    {
+      "name": "真实管理员登录",
+      "passed": true
+    },
+    {
+      "name": "匿名无票据拒绝且禁止缓存",
+      "passed": true
+    },
+    {
+      "name": "未知票据拒绝",
+      "passed": true
+    },
+    {
+      "name": "查询参数票据不授予权限",
+      "passed": true
+    },
+    {
+      "name": "无登录无租户头读取固定四包",
+      "passed": true
+    },
+    {
+      "name": "响应不泄露管理及票据信息",
+      "passed": true
+    },
+    {
+      "name": "伪造租户及发布编号不覆盖绑定",
+      "passed": true
+    },
+    {
+      "name": "相邻管理接口仍拒绝匿名",
+      "passed": true
+    },
+    {
+      "name": "读取票据不授予后台查询权限",
+      "passed": true
+    },
+    {
+      "name": "真实草稿保存至第二修订",
+      "passed": true
+    },
+    {
+      "name": "草稿改变后票据四包不变",
+      "passed": true
+    },
+    {
+      "name": "当前发布切换后旧票据仍固定首版",
+      "passed": true
+    },
+    {
+      "name": "撤销票据后消费拒绝",
+      "passed": true
+    },
+    {
+      "name": "撤销单票不影响其他有效票据",
+      "passed": true
+    },
+    {
+      "name": "真实六十秒有效期届满拒绝",
+      "passed": true
+    },
+    {
+      "name": "历史发布撤销使活动票据失效",
+      "passed": true
+    },
+    {
+      "name": "既有场景修订及共享正文保全",
+      "passed": true
+    }
+  ],
+  "expiryWaitSeconds": 61.67,
+  "sceneId": "2120039866379071489",
+  "publicationIds": [
+    "PUB-2120039866769141761",
+    "PUB-2120039867830300673"
+  ],
+  "ticketIds": [
+    "TKT-2120039866886582273",
+    "TKT-2120039867033382913",
+    "TKT-2120039867167600642"
+  ],
+  "cleanupPassed": true,
+  "dependencyClosureVerified": false
+}

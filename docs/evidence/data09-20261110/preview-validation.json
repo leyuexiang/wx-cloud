@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-10",
+  "command": "mvn.cmd -B -o -Ptest148 -pl wx-module-3d -am -Dtest=ScenePublicationTicketServiceTest,ScenePublicationServiceTest,ScenePublicationPreviewControllerTest,Dim3dSceneControllerTest -Dsurefire.failIfNoSpecifiedTests=false package",
+  "buildSuccess": true,
+  "suites": [
+    {
+      "name": "ScenePublicationTicketServiceTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ScenePublicationServiceTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ScenePublicationPreviewControllerTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "Dim3dSceneControllerTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "negativeCaseBeforeFix": {
+    "name": "nonReadScopeCannotAuthorizeConsumption",
+    "result": "FAILED: expected ServiceException but no exception was thrown"
+  },
+  "candidateSha256": "4a12ab6d522a3b0d7c829b83e8bfe38bcc3c5856887646a09303005136fbe6b9"
+}
