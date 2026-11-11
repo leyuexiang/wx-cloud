@@ -11,7 +11,6 @@ import cn.iocoder.wx.module.dimensions.entity.Dim3dTemplate;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dResourceBaseEntity;
 import cn.iocoder.wx.module.dimensions.exception.ErrorCodeConstants;
 import cn.iocoder.wx.module.dimensions.mapper.Dim3dConvertedResourceMapper;
-import cn.iocoder.wx.module.dimensions.mapper.Dim3dIconMapper;
 import cn.iocoder.wx.module.dimensions.mapper.Dim3dModelMapper;
 import cn.iocoder.wx.module.dimensions.mapper.Dim3dTemplateMapper;
 import cn.iocoder.wx.module.dimensions.service.Dim3dResourceCatalogService;
@@ -36,12 +35,13 @@ import java.util.Objects;
 public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogService {
 
     @Resource private Dim3dModelMapper modelMapper;
-    @Resource private Dim3dIconMapper iconMapper;
     @Resource private Dim3dTemplateMapper templateMapper;
     @Resource private Dim3dConvertedResourceMapper convertedResourceMapper;
     @Resource private RestTemplate restTemplate;
     @Resource private ObjectMapper objectMapper;
     @Resource private cn.iocoder.wx.module.dimensions.service.ArtResourceService artResources;
+    /** 普通图片通过独立业务服务完成目录与文件归属的共同提交。 */
+    @Resource private cn.iocoder.wx.module.dimensions.service.Dim3dImageResourceService images;
 
     // 旧转换合同仍由部署显式配置；缺失时不能向历史测试主机转发文件和认证信息。
     @Value("${dim3d.resource-convert-url:}")
@@ -58,15 +58,11 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
         return new PageResult<>(page.getRecords(), page.getTotal());
     }
 
-    @Override public Long createIcon(Dim3dIcon icon) { applyTenant(icon); iconMapper.insert(icon); return icon.getId(); }
-    @Override public void updateIcon(Long id, Dim3dIcon icon) { legacy(getIcon(id)); applyTenant(icon); icon.setId(id); require(iconMapper.updateById(icon)); }
-    @Override public Dim3dIcon getIcon(Long id) { return require(iconMapper.selectById(id)); }
+    @Override public Long createIcon(Dim3dIcon icon) { return images.create(icon); }
+    @Override public void updateIcon(Long id, Dim3dIcon icon) { legacy(getIcon(id)); images.update(id, icon); }
+    @Override public Dim3dIcon getIcon(Long id) { return images.get(id); }
     @Override public PageResult<Dim3dIcon> getIconPage(String name, String category, String secondary, String belong, String status, Integer num, Integer size) {
-        Page<Dim3dIcon> page = iconMapper.selectPage(new Page<>(pageNum(num), pageSize(size)), new LambdaQueryWrapper<Dim3dIcon>()
-                .like(StringUtils.hasText(name), Dim3dIcon::getIconName, name).eq(StringUtils.hasText(category), Dim3dIcon::getCategory, category)
-                .eq(StringUtils.hasText(secondary), Dim3dIcon::getSecondaryCategory, secondary).eq(StringUtils.hasText(belong), Dim3dIcon::getResourceBelong, belong)
-                .eq(StringUtils.hasText(status), Dim3dIcon::getStatus, status).orderByDesc(Dim3dIcon::getId));
-        return new PageResult<>(page.getRecords(), page.getTotal());
+        return images.page(name, category, secondary, belong, status, num, size);
     }
 
     @Override public Long createTemplate(Dim3dTemplate template) { applyTenant(template); templateMapper.insert(template); return template.getId(); }
@@ -81,10 +77,10 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
     }
 
     @Override public void changeModelStatus(Long id, String status) { legacy(getModel(id)); checkStatus(status); Dim3dModel e = new Dim3dModel(); e.setId(id); e.setStatus(status); require(modelMapper.updateById(e)); }
-    @Override public void changeIconStatus(Long id, String status) { legacy(getIcon(id)); checkStatus(status); Dim3dIcon e = new Dim3dIcon(); e.setId(id); e.setStatus(status); require(iconMapper.updateById(e)); }
+    @Override public void changeIconStatus(Long id, String status) { legacy(getIcon(id)); images.changeStatus(id, status); }
     @Override public void changeTemplateStatus(Long id, String status) { legacy(getTemplate(id)); checkStatus(status); Dim3dTemplate e = new Dim3dTemplate(); e.setId(id); e.setStatus(status); require(templateMapper.updateById(e)); }
     @Override public void deleteModel(Long id) { legacy(getModel(id)); require(modelMapper.deleteById(id)); }
-    @Override public void deleteIcon(Long id) { legacy(getIcon(id)); require(iconMapper.deleteById(id)); }
+    @Override public void deleteIcon(Long id) { legacy(getIcon(id)); images.delete(id); }
     @Override public void deleteTemplate(Long id) { legacy(getTemplate(id)); require(templateMapper.deleteById(id)); }
 
     /** 将单个 ZIP 原样转发给转换服务，并仅在转换成功后落库。 */

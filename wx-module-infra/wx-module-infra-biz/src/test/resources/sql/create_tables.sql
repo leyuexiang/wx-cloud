@@ -38,13 +38,15 @@ CREATE TABLE IF NOT EXISTS "wx_infra_file" (
     "path" varchar(512),
     "url" varchar(1024),
     "type" varchar(63) DEFAULT NULL,
-    "size" bigint NOT NULL,
+    "size" int NOT NULL,
     "creator" varchar(64) DEFAULT '',
     "create_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updater" varchar(64) DEFAULT '',
     "update_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deleted" bit NOT NULL DEFAULT FALSE,
-    "tenant_id" bigint not null default  '0',
+    "tenant_id" bigint DEFAULT NULL,
+    "uploader_id" bigint DEFAULT NULL,
+    "visibility_scope" varchar(20) DEFAULT NULL,
     PRIMARY KEY ("id")
 ) COMMENT '文件表';
 

@@ -23,6 +23,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import java.io.ByteArrayOutputStream;
 
 import static cn.iocoder.wx.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.wx.module.infra.framework.file.core.utils.FileTypeUtils.writeAttachment;
@@ -45,6 +46,7 @@ public class FileController {
         return success(fileService.createFile(file.getOriginalFilename(), path, IoUtil.readBytes(file.getInputStream())));
     }
 
+    /** 保留现有 PUT 预签名端点协议；不把该地址当作 GET 图片读取签名。 */
     @GetMapping("/presigned-url")
     @Operation(summary = "获取文件预签名地址", description = "模式二：前端上传文件：用于前端直接上传七牛、阿里云 OSS 等文件存储器")
     public CommonResult<FilePresignedUrlRespVO> getFilePresignedUrl(@RequestParam("path") String path) throws Exception {

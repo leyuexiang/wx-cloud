@@ -53,6 +53,43 @@
       }
     }
   },
+  "imageFileUpload": {
+    "request": {
+      "method": "POST",
+      "path": "/api/resource/oss/upload",
+      "contentType": "multipart/form-data",
+      "field": "file",
+      "fileName": "设备示意图.png"
+    },
+    "response": {
+      "code": 200,
+      "msg": "成功",
+      "data": {
+        "ossId": "1024000000000000001",
+        "url": "<short-lived-read-url>",
+        "originalName": "设备示意图.png",
+        "fileSuffix": "png"
+      }
+    }
+  },
+  "imageFileLookup": {
+    "request": {
+      "method": "GET",
+      "path": "/api/resource/oss/listByIds/1024000000000000001"
+    },
+    "response": {
+      "code": 200,
+      "msg": "成功",
+      "data": [
+        {
+          "ossId": "1024000000000000001",
+          "url": "<short-lived-read-url>",
+          "originalName": "设备示意图.png",
+          "fileSuffix": "png"
+        }
+      ]
+    }
+  },
   "errors": {
     "unauthorized": {
       "code": 401,

@@ -1,0 +1,109 @@
+{
+  "recordedAt": "2026-11-11T11:50:22.842831+08:00",
+  "endpoint": "192.168.10.148:3306",
+  "backupDirectory": "C:\\Users\\admin\\.codex\\backups\\wx-cloud\\image01-20261111T114640",
+  "migrationSourceSHA256": "a9dd3f75249b320c4f5bc708da9bec54341ecac837218e25177750984abb706d",
+  "backupBeforeSHA256": "9b56ac19782af675a90c9e056608e88d82d80ea12487a9d738283fa36eb64570",
+  "results": [
+    {
+      "database": "wx_editor",
+      "status": "verified",
+      "execution": "previous_attempt_rechecked",
+      "recordsBefore": 0,
+      "recordsAfter": 0,
+      "addedColumns": [
+        "tenant_id",
+        "uploader_id",
+        "visibility_scope"
+      ],
+      "addedIndexes": [
+        "idx_infra_file_scope_owner",
+        "idx_infra_file_config_path"
+      ]
+    },
+    {
+      "database": "wx_editor_data08",
+      "status": "verified",
+      "execution": "applied",
+      "recordsBefore": 0,
+      "recordsAfter": 0,
+      "addedColumns": [
+        "tenant_id",
+        "uploader_id",
+        "visibility_scope"
+      ],
+      "addedIndexes": [
+        "idx_infra_file_scope_owner",
+        "idx_infra_file_config_path"
+      ]
+    }
+  ],
+  "scope": "wx_infra_file ownership columns and indexes",
+  "verificationCorrection": "Empty result types normalized; expected COLUMN_KEY index marker excluded from column definition comparison",
+  "independentVerification": [
+    {
+      "database": "wx_editor",
+      "fields": [
+        {
+          "COLUMN_NAME": "tenant_id",
+          "COLUMN_TYPE": "bigint",
+          "IS_NULLABLE": "YES"
+        },
+        {
+          "COLUMN_NAME": "uploader_id",
+          "COLUMN_TYPE": "bigint",
+          "IS_NULLABLE": "YES"
+        },
+        {
+          "COLUMN_NAME": "visibility_scope",
+          "COLUMN_TYPE": "varchar(20)",
+          "IS_NULLABLE": "YES"
+        }
+      ],
+      "indexes": [
+        {
+          "INDEX_NAME": "idx_infra_file_config_path",
+          "fields": "config_id,path"
+        },
+        {
+          "INDEX_NAME": "idx_infra_file_scope_owner",
+          "fields": "visibility_scope,tenant_id,uploader_id,id"
+        }
+      ],
+      "rows": 0,
+      "lockReleased": true
+    },
+    {
+      "database": "wx_editor_data08",
+      "fields": [
+        {
+          "COLUMN_NAME": "tenant_id",
+          "COLUMN_TYPE": "bigint",
+          "IS_NULLABLE": "YES"
+        },
+        {
+          "COLUMN_NAME": "uploader_id",
+          "COLUMN_TYPE": "bigint",
+          "IS_NULLABLE": "YES"
+        },
+        {
+          "COLUMN_NAME": "visibility_scope",
+          "COLUMN_TYPE": "varchar(20)",
+          "IS_NULLABLE": "YES"
+        }
+      ],
+      "indexes": [
+        {
+          "INDEX_NAME": "idx_infra_file_config_path",
+          "fields": "config_id,path"
+        },
+        {
+          "INDEX_NAME": "idx_infra_file_scope_owner",
+          "fields": "visibility_scope,tenant_id,uploader_id,id"
+        }
+      ],
+      "rows": 0,
+      "lockReleased": true
+    }
+  ]
+}

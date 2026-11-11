@@ -22,6 +22,29 @@ public interface FileService {
     PageResult<FileDO> getFilePage(FilePageReqVO pageReqVO);
 
     /**
+     * 上传一份具有明确归属的图片；普通历史上传仍保持原始地址响应。
+     * 文件类型与有界大小校验通过后，由服务端生成唯一对象键。
+     *
+     * @param originalName 原始展示名
+     * @param content 有界图片文件内容
+     * @return 已成功登记的文件记录
+     */
+    OwnedImageUploadResult createOwnedImage(String originalName, byte[] content) throws Exception;
+
+    /**
+     * 查询当前身份可见的文件；忽略表要求所有归属谓词显式存在于本查询。
+     *
+     * @param id 文件编号
+     * @return 可见文件，不存在/不可见时返回 null
+     */
+    FileDO getOwnedFile(Long id);
+
+    /**
+     * 为已通过范围检查的文件签发限时 GET 地址。无 GET 签名能力时安全失败。
+     */
+    String getOwnedFileReadUrl(FileDO file);
+
+    /**
      * 保存文件，并返回文件的访问路径
      *
      * @param name    文件名称

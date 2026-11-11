@@ -52,4 +52,15 @@ public interface FileClient {
         throw new UnsupportedOperationException("不支持的操作");
     }
 
+    /**
+     * 生成受限的 GET 读取地址。该接口与既有 PUT 上传签名分离，缺少实现时必须失败关闭。
+     *
+     * @param path 相对对象键
+     * @param expirySeconds 签名有效期，秒
+     * @return 短时读取 URL
+     */
+    default String getPresignedDownloadUrl(String path, int expirySeconds) throws Exception {
+        throw new UnsupportedOperationException("当前文件存储不支持受限读取签名");
+    }
+
 }

@@ -1,0 +1,67 @@
+{
+  "recordedAt": "2026-11-11T14:53:12.162419+08:00",
+  "task": "IMG-02",
+  "method": "authorized_direct_database_transaction",
+  "reason": "用户确认两库配置，当前没有对应两库的管理接口会话；按现有配置类格式维护主配置",
+  "backupDirectory": "C:\\Users\\admin\\.codex\\backups\\wx-cloud\\image01-minio-20261111T144855",
+  "atomicAcrossDatabases": true,
+  "results": [
+    {
+      "database": "wx_editor",
+      "configId": "1",
+      "created": true,
+      "previousMasterIds": [],
+      "master": true,
+      "storage": 20,
+      "endpoint": "http://192.168.10.148:9000",
+      "bucket": "wx-art-test148",
+      "domain": "http://192.168.10.148:9000/wx-art-test148",
+      "credentialMatch": true,
+      "fileRecordsBefore": 0,
+      "fileRecordsAfter": 0,
+      "verified": true
+    },
+    {
+      "database": "wx_editor_data08",
+      "configId": "1",
+      "created": true,
+      "previousMasterIds": [],
+      "master": true,
+      "storage": 20,
+      "endpoint": "http://192.168.10.148:9000",
+      "bucket": "wx-art-test148",
+      "domain": "http://192.168.10.148:9000/wx-art-test148",
+      "credentialMatch": true,
+      "fileRecordsBefore": 0,
+      "fileRecordsAfter": 0,
+      "verified": true
+    }
+  ],
+  "storageVerification": {
+    "endpoint": "http://192.168.10.148:9000",
+    "bucket": "wx-art-test148",
+    "objectPrefix": "images/",
+    "digestSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+    "uploadStatus": 200,
+    "anonymousStatus": 403,
+    "signedReadStatus": 200,
+    "readBytesMatched": true,
+    "cleanupStatus": 204,
+    "testObjectRemoved": true
+  },
+  "lockReleased": true,
+  "servicesDeployed": false,
+  "browserFlowVerified": false,
+  "credentialSource": {
+    "serverFile": "/opt/wx/editor-test148/.env",
+    "variables": [
+      "WX_MINIO_ACCESS_KEY",
+      "WX_MINIO_SECRET_KEY"
+    ]
+  },
+  "secretValuesInEvidence": false,
+  "configurationClass": "cn.iocoder.wx.module.infra.framework.file.core.client.s3.S3FileClientConfig",
+  "operationScriptSHA256": "7a35be596ca330126f175cdbaed036f85e9fee43e8288ed46b80ded221d7f4e8",
+  "temporaryMigrationDependenciesRemoved": true,
+  "credentialTemporaryReferencesReleased": true
+}

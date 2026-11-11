@@ -30,7 +30,8 @@ public abstract class AbstractFileClient<Config extends FileClientConfig> implem
      */
     public final void init() {
         doInit();
-        log.debug("[init][配置({}) 初始化完成]", config);
+        // 存储配置含访问密钥，运行日志仅记录配置编号。
+        log.debug("[init][文件客户端({}) 初始化完成]", id);
     }
 
     /**
@@ -43,7 +44,7 @@ public abstract class AbstractFileClient<Config extends FileClientConfig> implem
         if (config.equals(this.config)) {
             return;
         }
-        log.info("[refresh][配置({})发生变化，重新初始化]", config);
+        log.info("[refresh][文件客户端({})配置发生变化，重新初始化]", id);
         this.config = config;
         // 初始化
         this.init();

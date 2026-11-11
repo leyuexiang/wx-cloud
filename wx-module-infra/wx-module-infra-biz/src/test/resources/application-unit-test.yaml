@@ -13,7 +13,8 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
-    ${REDACTED_SECRET}
+    # Druid 为连接池配置项，无凭据内容，保持有效的 YAML 映射。
+    druid:
       async-init: true # 单元测试，异步初始化 Druid 连接池，提升启动速度
       initial-size: 1 # 单元测试，配置为 1，提升启动速度
   sql:
