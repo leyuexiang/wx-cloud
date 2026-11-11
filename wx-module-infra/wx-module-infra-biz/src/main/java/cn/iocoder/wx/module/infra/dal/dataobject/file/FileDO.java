@@ -52,4 +52,13 @@ public class FileDO extends BaseDO {
      */
     private Integer size;
 
+    /** 新上传文件的可信租户归属；旧记录为 null，表示尚未完成历史归属核验。 */
+    private Long tenantId;
+
+    /** 新上传文件的可信上传者编号；旧记录为 null，不推断其身份。 */
+    private Long uploaderId;
+
+    /** 新上传文件的可见范围：PRIVATE_UPLOAD / TENANT / GLOBAL；旧记录为空。 */
+    private String visibilityScope;
+
 }

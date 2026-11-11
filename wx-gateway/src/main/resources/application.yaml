@@ -22,6 +22,51 @@ spring:
     gateway:
       # 路由配置项，对应 RouteDefinition 数组
       routes:
+        # 图片普通文件只映射上传和单编号读取两个精确路径；网关转发不提升认证，infra 适配必须显式校验文件归属。
+        - id: image-oss-upload-api
+          uri: grayLb://infra-server
+          predicates:
+            - Path=/api/resource/oss/upload
+          filters:
+            - RemoveRequestHeader=x-bot-user
+            - RewritePath=/api/resource/oss/upload, /admin-api/infra/file/resource/oss/upload
+        - id: admin-image-oss-upload-api
+          uri: grayLb://infra-server
+          predicates:
+            - Path=/admin-api/resource/oss/upload
+          filters:
+            - RemoveRequestHeader=x-bot-user
+            # 当前运行前端使用 admin 模式，此别名对应用户最初报告的请求路径。
+            - RewritePath=/admin-api/resource/oss/upload, /admin-api/infra/file/resource/oss/upload
+        - id: image-oss-list-by-id-api
+          uri: grayLb://infra-server
+          predicates:
+            - Path=/api/resource/oss/listByIds/{ids}
+          filters:
+            - RemoveRequestHeader=x-bot-user
+            - RewritePath=/api/resource/oss/listByIds/(?<ids>[^/]+), /admin-api/infra/file/resource/oss/listByIds/$\{ids}
+        - id: admin-image-oss-list-by-id-api
+          uri: grayLb://infra-server
+          predicates:
+            - Path=/admin-api/resource/oss/listByIds/{ids}
+          filters:
+            - RemoveRequestHeader=x-bot-user
+            - RewritePath=/admin-api/resource/oss/listByIds/(?<ids>[^/]+), /admin-api/infra/file/resource/oss/listByIds/$\{ids}
+        # 两端平台目录合同统一投影到 dimensions admin API，保留原始认证和租户头。
+        - id: operation-dim3d-api
+          uri: grayLb://dimensions-server
+          predicates:
+            - Path=/api/operation/dim3d/**
+          filters:
+            - RemoveRequestHeader=x-bot-user
+            - RewritePath=/api/operation/dim3d/(?<path>.*), /admin-api/dim3d/$\{path}
+        - id: tenant-dim3d-api
+          uri: grayLb://dimensions-server
+          predicates:
+            - Path=/api/tenant/web/dim3d/**
+          filters:
+            - RemoveRequestHeader=x-bot-user
+            - RewritePath=/api/tenant/web/dim3d/(?<path>.*), /admin-api/dim3d/$\{path}
         # 字典属于登录后的公共元数据；只映射按类型读取路径，保留系统服务的认证及租户校验。
         - id: system-dictionary-api
           uri: grayLb://system-server
@@ -50,6 +95,8 @@ spring:
           predicates: # 断言，作为路由的匹配条件，对应 RouteDefinition 数组
             - Path=/admin-api/infra/**
           filters:
+              # 直接访问适配控制器的管理路径时也清除外部伪造身份头。
+              - RemoveRequestHeader=x-bot-user
               - RewritePath=/admin-api/infra/v3/api-docs, /v3/api-docs
         - id: infra-app-api # 路由的编号
           uri: grayLb://infra-server
@@ -184,6 +231,12 @@ spring:
           filters:
             - RewritePath=/admin-api/ai/v3/api-docs, /v3/api-docs # 配置，保证转发到 /v3/api-docs
         ## dimensions-server 服务
+        - id: dimensions-admin-dim3d-api
+          uri: grayLb://dimensions-server
+          predicates:
+            - Path=/admin-api/dim3d/**
+          filters:
+            - RemoveRequestHeader=x-bot-user
         - id: dimensions-admin-api # 路由的编号
           uri: grayLb://dimensions-server
           predicates: # 断言，作为路由的匹配条件，对应 RouteDefinition 数组

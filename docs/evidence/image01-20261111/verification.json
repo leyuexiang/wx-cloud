@@ -1,0 +1,101 @@
+{
+  "date": "2026-11-11",
+  "backendTests": [
+    {
+      "class": "cn.iocoder.wx.gateway.filter.ImageResourceRouteTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "cn.iocoder.wx.module.infra.service.file.FileServiceImplTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "cn.iocoder.wx.module.infra.service.file.ImageUploadValidatorTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "cn.iocoder.wx.module.infra.controller.admin.file.OwnedImageControllerTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "cn.iocoder.wx.module.infra.framework.file.core.s3.S3FileClientPresignTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "cn.iocoder.wx.module.infra.framework.file.core.s3.S3FileClientMinioIntegrationTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "cn.iocoder.wx.module.dimensions.service.Dim3dImageResourceServiceTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "backendTestCount": 34,
+  "frontend": {
+    "root": "D:\\WorkSpace\\GitWorkSpace\\wx-vue-unity",
+    "apiTestsPassed": 8,
+    "typeCheckPassed": true,
+    "buildPassed": true,
+    "apiMode": "admin",
+    "backend": "http://192.168.10.148:12522",
+    "distribution": "D:\\WorkSpace\\GitWorkSpace\\wx-vue-unity\\dist\\web-unity"
+  },
+  "artifacts": [
+    {
+      "path": "wx-gateway/target/wx-gateway.jar",
+      "bytes": 65903076,
+      "sha256": "c1bc1f0acaa20807ae5ccaddcc6ad362140e9257ca21f12b95d87b65c83ae482"
+    },
+    {
+      "path": "wx-module-infra/wx-module-infra-biz/target/wx-module-infra-biz.jar",
+      "bytes": 172057260,
+      "sha256": "1f7b8150bd91921fc09d223906e75dd820b56df346a23f5f6c70a3442622f3e1"
+    },
+    {
+      "path": "wx-module-3d/target/wx-module-3d.jar",
+      "bytes": 194698661,
+      "sha256": "2ed0c237b75c1cf34ff39e474812731773fa0dc0207f23eb99b6b90e9e24bad8"
+    }
+  ],
+  "mysqlIsolationMigrationAndRollbackPassed": true,
+  "temporaryMysqlDatabaseRemoved": true,
+  "realMinioUploadPrivateAndSignedDownloadPassed": true,
+  "temporaryMinioObjectsRemoved": true,
+  "businessSchemaMigrationApplied": true,
+  "deployed": false,
+  "browserEndToEndAccepted": false,
+  "businessSchemaMigrationDatabases": [
+    "wx_editor",
+    "wx_editor_data08"
+  ],
+  "businessSchemaMigrationEvidence": "database-migration.json",
+  "businessMinioConfigurationApplied": true,
+  "businessMinioConfigurationDatabases": [
+    "wx_editor",
+    "wx_editor_data08"
+  ],
+  "businessMinioConfigurationEvidence": "minio-configuration.json",
+  "imageStorageBucket": "wx-art-test148",
+  "temporaryMigrationDependenciesRemoved": true
+}

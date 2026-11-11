@@ -107,6 +107,12 @@
         </dependency>
 
         <!-- 工具类相关 -->
+        <!-- 页面支持 WebP，使用纯 Java 解码器与 PNG/JPEG 共用有界 ImageIO 内容校验。 -->
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-webp</artifactId>
+            <version>3.12.0</version>
+        </dependency>
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
             <artifactId>wx-spring-boot-starter-excel</artifactId>

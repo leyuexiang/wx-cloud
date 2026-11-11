@@ -99,14 +99,55 @@ for service, (module, port) in MODULES.items():
             "filters": ["RemoveRequestHeader=x-bot-user",
                         # 保留替换组转义，避免配置绑定阶段误读成环境变量。
                         r"RewritePath=/api/system/dict/data/type/(?<dictType>[^/]+), /admin-api/system/dict/data/type/$\{dictType}"],
+        }, {
+            "id": "image-oss-upload-test148",
+            "uri": f"http://127.0.0.1:{MODULES['infra'][1]}",
+            "predicates": ["Path=/api/resource/oss/upload"],
+            "filters": ["RemoveRequestHeader=x-bot-user",
+                        "RewritePath=/api/resource/oss/upload, /admin-api/infra/file/resource/oss/upload"],
+        }, {
+            # 实际运行的 wx-vue-unity 使用 admin 模式，保留与公共 /api 相同的受控上传入口。
+            "id": "admin-image-oss-upload-test148",
+            "uri": f"http://127.0.0.1:{MODULES['infra'][1]}",
+            "predicates": ["Path=/admin-api/resource/oss/upload"],
+            "filters": ["RemoveRequestHeader=x-bot-user",
+                        "RewritePath=/admin-api/resource/oss/upload, /admin-api/infra/file/resource/oss/upload"],
+        }, {
+            "id": "admin-image-oss-list-by-id-test148",
+            "uri": f"http://127.0.0.1:{MODULES['infra'][1]}",
+            "predicates": ["Path=/admin-api/resource/oss/listByIds/{ids}"],
+            "filters": ["RemoveRequestHeader=x-bot-user",
+                        r"RewritePath=/admin-api/resource/oss/listByIds/(?<ids>[^/]+), /admin-api/infra/file/resource/oss/listByIds/$\{ids}"],
+        }, {
+            "id": "image-oss-list-by-id-test148",
+            "uri": f"http://127.0.0.1:{MODULES['infra'][1]}",
+            "predicates": ["Path=/api/resource/oss/listByIds/{ids}"],
+            "filters": ["RemoveRequestHeader=x-bot-user",
+                        r"RewritePath=/api/resource/oss/listByIds/(?<ids>[^/]+), /admin-api/infra/file/resource/oss/listByIds/$\{ids}"],
         }]
         for name in ("system", "infra", "dimensions"):
             upstream = MODULES[name][1]
+            predicates = f"Path=/admin-api/{name}/**,/app-api/{name}/**"
+            if name == "dimensions":
+                # 平台别名会统一投影到 dimensions 管理控制器；身份仍由下游令牌解析。
+                routes.extend([
+                    {"id": "operation-dim3d-test148", "uri": f"http://127.0.0.1:{upstream}",
+                     "predicates": ["Path=/api/operation/dim3d/**"],
+                     "filters": ["RemoveRequestHeader=x-bot-user",
+                                 r"RewritePath=/api/operation/dim3d/(?<path>.*), /admin-api/dim3d/$\{path}"]},
+                    {"id": "tenant-dim3d-test148", "uri": f"http://127.0.0.1:{upstream}",
+                     "predicates": ["Path=/api/tenant/web/dim3d/**"],
+                     "filters": ["RemoveRequestHeader=x-bot-user",
+                                 r"RewritePath=/api/tenant/web/dim3d/(?<path>.*), /admin-api/dim3d/$\{path}"]},
+                ])
+                predicates += ",/admin-api/dim3d/**"
+            if name == "infra":
+                # 新适配控制器类映射至 /admin-api/infra/file/resource/oss，验证运行网关能到达。
+                predicates += ",/admin-api/infra/file/resource/oss/upload,/admin-api/infra/file/resource/oss/listByIds/{ids}"
             routes.append({
                 "id": f"{name}-test148",
                 "uri": f"http://127.0.0.1:{upstream}",
-                "predicates": [f"Path=/admin-api/{name}/**,/app-api/{name}/**" +
-                               (",/admin-api/dim3d/**" if name == "dimensions" else "")],
+                "predicates": [predicates],
                 # 外部请求不能借内部机器人请求头绕过用户认证。
                 "filters": ["RemoveRequestHeader=x-bot-user"],
             })

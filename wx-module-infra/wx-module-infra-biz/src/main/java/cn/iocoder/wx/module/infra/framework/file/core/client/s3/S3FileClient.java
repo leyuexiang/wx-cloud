@@ -121,11 +121,27 @@ public class S3FileClient extends AbstractFileClient<S3FileClientConfig> {
 
     @Override
     public byte[] getContent(String path) throws Exception {
-        GetObjectResponse response = client.getObject(GetObjectArgs.builder()
+        // SDK 响应持有 HTTP 连接，读取完成和异常路径都需要关闭。
+        try (GetObjectResponse response = client.getObject(GetObjectArgs.builder()
                 .bucket(config.getBucket()) // bucket 必须传递
                 .object(path) // 相对路径作为 key
+                .build())) {
+            return IoUtil.readBytes(response);
+        }
+    }
+
+    @Override
+    public String getPresignedDownloadUrl(String path, int expirySeconds) throws Exception {
+        if (path == null || path.isBlank() || path.startsWith("/") || path.contains("..")
+                || expirySeconds < 1 || expirySeconds > 600) {
+            throw new IllegalArgumentException("读取签名对象键或有效期无效");
+        }
+        return client.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+                .method(Method.GET)
+                .bucket(config.getBucket())
+                .object(path)
+                .expiry(expirySeconds, TimeUnit.SECONDS)
                 .build());
-        return IoUtil.readBytes(response);
     }
 
     @Override

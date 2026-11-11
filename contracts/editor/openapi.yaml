@@ -47,6 +47,75 @@ paths:
                 $ref: '#/components/schemas/DictionaryResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
+  /resource/oss/upload:
+    post:
+      tags:
+      - resource
+      summary: 上传带私有归属的普通文件
+      description: >-
+        IMG-01 合同基线。接收单个受限图片文件，ossId 指向本服务的 wx_infra_file.id；
+        文件归属从可信令牌读取，不信任请求字段。路径不插入 operation 或 tenant/web 段。
+        控制器显式使用 /infra/file/resource/oss 路径并添加管理前缀 /admin-api，网关目标为 /admin-api/infra/file/resource/oss/upload。
+        当前前端 admin 模式还可使用同名 /admin-api/resource/oss/upload 别名，实际部署及页面联验按 IMG-06 记录。
+      security:
+      - bearerAuth: []
+        clientId: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              additionalProperties: false
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: WebP、SVG、PNG、JPG 或 JPEG；不超过 5 MiB
+      responses:
+        '200':
+          description: 文件上传和元数据登记成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OssFileResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '503':
+          description: 私有对象存储不可用
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /resource/oss/listByIds/{ids}:
+    get:
+      tags:
+      - resource
+      summary: 按单个文件编号读取短期地址
+      description: >-
+        首期 ids 参数严格是一个正十进制本地普通文件编号；返回数组最多一项，
+        编号不存在或不在当前身份可见范围时返回空数组。批量分隔语法不在本合同。
+        当前候选 controller 前缀为 /infra/file/resource/oss/listByIds，网关目标须随代码映射联验。
+      security:
+      - bearerAuth: []
+        clientId: []
+      parameters:
+      - $ref: '#/components/parameters/OssId'
+      responses:
+        '200':
+          description: 查询成功，data 为零项或一项
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OssFileListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
   /operation/dim3d/scene/page:
     get:
       tags:
@@ -616,6 +685,14 @@ components:
         type: string
         minLength: 1
         maxLength: 100
+    OssId:
+      name: ids
+      in: path
+      required: true
+      description: 单个 wx_infra_file.id；首期不接受批量分隔值
+      schema:
+        type: string
+        pattern: ^[1-9][0-9]{0,18}$
   responses:
     LoginSuccess:
       description: 登录成功
@@ -660,6 +737,47 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
   schemas:
+    OssFile:
+      type: object
+      required:
+      - ossId
+      - url
+      - originalName
+      - fileSuffix
+      additionalProperties: false
+      properties:
+        ossId:
+          type: string
+          pattern: ^[1-9][0-9]{0,18}$
+          description: 本地 wx_infra_file.id 的十进制字符串，不等同于 ART resourceId
+        url:
+          type: string
+          format: uri
+          description: 最多 10 分钟的临时读取地址，不持久化
+        originalName:
+          type: string
+          maxLength: 256
+          description: 去除路径片段后的原始显示名称
+        fileSuffix:
+          type: string
+          enum: [webp, svg, png, jpg, jpeg]
+    OssFileResponse:
+      allOf:
+      - $ref: '#/components/schemas/Envelope'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/OssFile'
+    OssFileListResponse:
+      allOf:
+      - $ref: '#/components/schemas/Envelope'
+      - type: object
+        properties:
+          data:
+            type: array
+            maxItems: 1
+            items:
+              $ref: '#/components/schemas/OssFile'
     Envelope:
       type: object
       required:

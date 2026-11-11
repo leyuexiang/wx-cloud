@@ -44,7 +44,8 @@ public class Dim3dResourceController {
     public CommonResult<Boolean> removeModel(@PathVariable Long id) { service.deleteModel(id); return CommonResult.success(true); }
 
     @PostMapping("/icon/add") @Operation(summary = "新增图标") @PreAuthorize("@ss.hasPermission('dim3d:icon:add')")
-    public CommonResult<Long> addIcon(@Valid @RequestBody Dim3dIcon body) { return CommonResult.success(service.createIcon(body)); }
+    // 新图片编号可能超过浏览器安全整数范围，新增回执也按字符串投影。
+    public CommonResult<String> addIcon(@Valid @RequestBody Dim3dIcon body) { return CommonResult.success(String.valueOf(service.createIcon(body))); }
     @PutMapping("/icon/edit/{id}") @Operation(summary = "编辑图标") @PreAuthorize("@ss.hasPermission('dim3d:icon:edit')")
     public CommonResult<Boolean> editIcon(@PathVariable Long id, @Valid @RequestBody Dim3dIcon body) { service.updateIcon(id, body); return CommonResult.success(true); }
     @GetMapping("/icon/info/{id}") @Operation(summary = "查询图标详情") @PreAuthorize("@ss.hasPermission('dim3d:icon:query')")

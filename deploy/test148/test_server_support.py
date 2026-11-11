@@ -104,8 +104,24 @@ class GeneratedConfigTest(unittest.TestCase):
         self.assertEqual(config["dim3d"]["resource"]["download-endpoint"], "https://192.168.10.148:9444")
         self.assertEqual(config["dim3d"]["resource"]["upload-endpoint"], "https://192.168.10.148:9445")
         self.assertIn("resource-convert-url", config["dim3d"])
-        self.assertEqual(gateway["spring"]["cloud"]["gateway"]["routes"][0]["uri"], "http://127.0.0.1:48181")
+        routes = gateway["spring"]["cloud"]["gateway"]["routes"]
+        self.assertEqual(routes[0]["uri"], "http://127.0.0.1:48181")
         self.assertEqual(config["spring"]["cloud"]["discovery"]["client"]["simple"]["instances"]["infra-server"][0]["uri"], "http://127.0.0.1:48182")
+        by_id = {route["id"]: route for route in routes}
+        self.assertEqual(by_id["image-oss-upload-test148"]["predicates"], ["Path=/api/resource/oss/upload"])
+        self.assertEqual(by_id["image-oss-upload-test148"]["uri"], "http://127.0.0.1:48182")
+        self.assertIn("/admin-api/infra/file/resource/oss/upload", by_id["image-oss-upload-test148"]["filters"][-1])
+        self.assertIn("/admin-api/infra/file/resource/oss/listByIds/", by_id["image-oss-list-by-id-test148"]["filters"][-1])
+        self.assertIn("(?<ids>[^/]+)", by_id["image-oss-list-by-id-test148"]["filters"][-1])
+        self.assertIn("/admin-api/infra/file/resource/oss/listByIds/", by_id["image-oss-list-by-id-test148"]["filters"][-1])
+        self.assertEqual(by_id["image-oss-list-by-id-test148"]["predicates"],
+                         ["Path=/api/resource/oss/listByIds/{ids}"])
+        self.assertIn("/admin-api/infra/file/resource/oss/upload", by_id["infra-test148"]["predicates"][0])
+        self.assertIn("/admin-api/dim3d/**", by_id["dimensions-test148"]["predicates"][0])
+        self.assertEqual(by_id["operation-dim3d-test148"]["uri"], "http://127.0.0.1:48192")
+        self.assertEqual(by_id["tenant-dim3d-test148"]["uri"], "http://127.0.0.1:48192")
+        self.assertIn("/admin-api/dim3d/", by_id["operation-dim3d-test148"]["filters"][-1])
+        self.assertIn("/admin-api/dim3d/", by_id["tenant-dim3d-test148"]["filters"][-1])
 
 
 if __name__ == "__main__":
