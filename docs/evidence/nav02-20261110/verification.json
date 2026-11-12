@@ -1,0 +1,19 @@
+{
+  "task": "NAV-02",
+  "date": "2026-11-10",
+  "tests": 77,
+  "tests_passed": true,
+  "browser_checks": 17,
+  "browser_passed": true,
+  "build_passed": true,
+  "diff_checks": {
+    "backend": true,
+    "frontend": true
+  },
+  "utf8_documents": 5,
+  "frontend_index_sha256": "a9f372924971d94efa8948fd573c1d924dc0d84ea8e3bbe124508dc30b7f7d49",
+  "screenshot": "Web/web-unity/docs/evidence/nav02-20261110/original-navigation.png",
+  "deployed": false,
+  "real_gateway_verified": false,
+  "passed": true
+}

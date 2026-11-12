@@ -1,0 +1,256 @@
+{
+  "scope": "通过系统菜单接口增量配置；不自动授予任何角色，parentKey在创建时替换为系统返回的id",
+  "schemaVersion": 1,
+  "groups": [
+    {
+      "key": "iot",
+      "request": {
+        "permission": "",
+        "type": 1,
+        "sort": 30,
+        "parentId": 0,
+        "path": "iotManage",
+        "icon": "Connection",
+        "component": "",
+        "componentName": "",
+        "status": 0,
+        "visible": true,
+        "keepAlive": false,
+        "alwaysShow": true,
+        "name": "物联网管理"
+      },
+      "pages": [
+        {
+          "key": "connectors",
+          "parentKey": "iot",
+          "request": {
+            "permission": "",
+            "type": 2,
+            "sort": 1,
+            "path": "connectors",
+            "icon": "Link",
+            "component": "iotManage/connectors/index",
+            "componentName": "IotConnectors",
+            "status": 0,
+            "visible": true,
+            "keepAlive": false,
+            "alwaysShow": false,
+            "name": "连接器管理"
+          },
+          "buttons": [
+            {
+              "parentKey": "connectors",
+              "request": {
+                "permission": "iot:connector:query",
+                "type": 3,
+                "sort": 1,
+                "path": "",
+                "icon": "",
+                "component": "",
+                "componentName": "",
+                "status": 0,
+                "visible": false,
+                "keepAlive": false,
+                "alwaysShow": false,
+                "name": "查询"
+              }
+            },
+            {
+              "parentKey": "connectors",
+              "request": {
+                "permission": "iot:connector:create",
+                "type": 3,
+                "sort": 2,
+                "path": "",
+                "icon": "",
+                "component": "",
+                "componentName": "",
+                "status": 0,
+                "visible": false,
+                "keepAlive": false,
+                "alwaysShow": false,
+                "name": "新增"
+              }
+            },
+            {
+              "parentKey": "connectors",
+              "request": {
+                "permission": "iot:connector:update",
+                "type": 3,
+                "sort": 3,
+                "path": "",
+                "icon": "",
+                "component": "",
+                "componentName": "",
+                "status": 0,
+                "visible": false,
+                "keepAlive": false,
+                "alwaysShow": false,
+                "name": "编辑及启停"
+              }
+            },
+            {
+              "parentKey": "connectors",
+              "request": {
+                "permission": "iot:connector:delete",
+                "type": 3,
+                "sort": 4,
+                "path": "",
+                "icon": "",
+                "component": "",
+                "componentName": "",
+                "status": 0,
+                "visible": false,
+                "keepAlive": false,
+                "alwaysShow": false,
+                "name": "删除"
+              }
+            }
+          ]
+        },
+        {
+          "key": "bindings",
+          "parentKey": "iot",
+          "request": {
+            "permission": "",
+            "type": 2,
+            "sort": 2,
+            "path": "bindings",
+            "icon": "Setting",
+            "component": "iotManage/bindings/index",
+            "componentName": "IotBindings",
+            "status": 0,
+            "visible": true,
+            "keepAlive": false,
+            "alwaysShow": false,
+            "name": "设备绑定"
+          },
+          "buttons": [
+            {
+              "parentKey": "bindings",
+              "request": {
+                "permission": "iot:device-binding:query",
+                "type": 3,
+                "sort": 1,
+                "path": "",
+                "icon": "",
+                "component": "",
+                "componentName": "",
+                "status": 0,
+                "visible": false,
+                "keepAlive": false,
+                "alwaysShow": false,
+                "name": "查询"
+              }
+            },
+            {
+              "parentKey": "bindings",
+              "request": {
+                "permission": "iot:device-binding:create",
+                "type": 3,
+                "sort": 2,
+                "path": "",
+                "icon": "",
+                "component": "",
+                "componentName": "",
+                "status": 0,
+                "visible": false,
+                "keepAlive": false,
+                "alwaysShow": false,
+                "name": "新增"
+              }
+            },
+            {
+              "parentKey": "bindings",
+              "request": {
+                "permission": "iot:device-binding:update",
+                "type": 3,
+                "sort": 3,
+                "path": "",
+                "icon": "",
+                "component": "",
+                "componentName": "",
+                "status": 0,
+                "visible": false,
+                "keepAlive": false,
+                "alwaysShow": false,
+                "name": "编辑及启停"
+              }
+            },
+            {
+              "parentKey": "bindings",
+              "request": {
+                "permission": "iot:device-binding:delete",
+                "type": 3,
+                "sort": 4,
+                "path": "",
+                "icon": "",
+                "component": "",
+                "componentName": "",
+                "status": 0,
+                "visible": false,
+                "keepAlive": false,
+                "alwaysShow": false,
+                "name": "删除"
+              }
+            }
+          ]
+        },
+        {
+          "key": "messages",
+          "parentKey": "iot",
+          "request": {
+            "permission": "",
+            "type": 2,
+            "sort": 3,
+            "path": "messages",
+            "icon": "Tickets",
+            "component": "iotManage/messages/index",
+            "componentName": "IotMessages",
+            "status": 0,
+            "visible": true,
+            "keepAlive": false,
+            "alwaysShow": false,
+            "name": "接收记录"
+          },
+          "buttons": [
+            {
+              "parentKey": "messages",
+              "request": {
+                "permission": "iot:message-inbox:query",
+                "type": 3,
+                "sort": 1,
+                "path": "",
+                "icon": "",
+                "component": "",
+                "componentName": "",
+                "status": 0,
+                "visible": false,
+                "keepAlive": false,
+                "alwaysShow": false,
+                "name": "查询"
+              }
+            },
+            {
+              "parentKey": "messages",
+              "request": {
+                "permission": "iot:message-inbox:replay",
+                "type": 3,
+                "sort": 2,
+                "path": "",
+                "icon": "",
+                "component": "",
+                "componentName": "",
+                "status": 0,
+                "visible": false,
+                "keepAlive": false,
+                "alwaysShow": false,
+                "name": "重放"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

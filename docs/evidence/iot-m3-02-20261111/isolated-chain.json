@@ -1,0 +1,54 @@
+{
+  "run": "53ee5ca8",
+  "scope": "246 回环隔离环境，使用测试发布端及独立消息代理、数据库和缓存",
+  "candidateIoTSha256": "cc5a9ecf38aa92a3d355faa93118934694301cb8b088b5b5efaa4aeaf1175c44",
+  "dimensionsSha256": "f0bec1275aae83ef0340779ed9e7bf36339bd8d1e0b4f6d072ca2eb3f889c15a",
+  "mqttCertificateSha256": "e839f4eb64e8dfa7b609d1e0878cee1903422418d4b1d37de009070d4af8f624",
+  "containers": {
+    "mysql": "e75a71eb34ef",
+    "redis": "a9ccba7c1e6b",
+    "kafka": "c65770a04dc6",
+    "mqtt": "fd676cada0b1",
+    "projection": "72388fb1bde6",
+    "iot": "1b495a88f0f2"
+  },
+  "images": {
+    "eclipse-mosquitto:2.0.22": "sha256:81a6193ae693942a3231cd3ac52875b02b7e3a19da671b2fb4b55cc874c5b279",
+    "apache/kafka:3.9.2": "sha256:05b4616e0702ef2729327705d54ad6b50ea70b271c4b730fabd2320789fb7b02",
+    "mysql:8.0": "sha256:7dcddc01f13bab2f15cde676d44d01f61fc9f99fe7785e86196dfc07d358ae2b",
+    "redis:7.2-alpine": "sha256:05a97a479bc73de66f087dc05b569010772880f778cc8671fa6b8aadee32e5c6"
+  },
+  "checks": {
+    "mqttTlsSubscription": true,
+    "persistedConnectorStatus": "CONNECTED",
+    "realInboxPublished": true,
+    "realKafkaConsumer": true,
+    "realRedisProjection": true,
+    "duplicateOneInboxEffect": true,
+    "lateMessageKeepsLatest": true,
+    "unauthenticatedQueryCode": 401,
+    "mqttConnectionReleasedAfterDisable": true,
+    "invalidProjectionEventInDeadLetterTopic": true
+  },
+  "event": {
+    "eventId": "986ab157-c6ca-33a2-b97b-eaeaee14f3ef",
+    "traceId": "iot-m3-53ee5ca8-normal",
+    "eventTime": "2026-11-11T10:30:48.858117Z",
+    "inboxStatus": "PUBLISHED",
+    "kafkaTopic": "twin.event.v1",
+    "kafkaPartition": 0,
+    "kafkaOffset": 0,
+    "tenantId": 2,
+    "deviceId": "device-53ee5ca8",
+    "pointCode": "temperature",
+    "value": 26.125,
+    "mappingRevision": "pilot-v1",
+    "observedPollElapsedMs": 3289
+  },
+  "javaRegression": { "passed": 141, "skipped": 3, "failures": 0, "errors": 0 },
+  "operatingServiceIdsPreservedAndHealthy": true,
+  "isolatedContainersAndPrivateWorkspaceRemoved": true,
+  "siteDeviceTested": false,
+  "authorizedQuerySuccessTested": false,
+  "candidatePublishedToOperatingService": false
+}

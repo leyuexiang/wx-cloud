@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-10",
+  "task": "IOT-M2-IMPL-01",
+  "utf8_documents": 9,
+  "local_links_checked": 87,
+  "java": {
+    "tests": 139,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "mysql": {
+    "database": "一次性MySQL 8.0容器/iot_m2_check",
+    "shared_database_modified": false,
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "maven_exit_code": 0,
+    "temporary_container_removed": true
+  },
+  "frontend_tests": {
+    "suites": 9,
+    "tests": 69,
+    "passed": true
+  },
+  "browser_checks": 13,
+  "browser_passed": true,
+  "frontend_typecheck_and_build": true,
+  "frontend_build_warning": "既有大分块告警",
+  "iot_package_sha256": "7e638c09f051237b196e6768c7efce234b02a255964405e30f384f3a100f04b6",
+  "iot_package_bytes": 125947400,
+  "frontend_index_sha256": "5d3b47e0cbb5e63c3b93a6b64a916a42ce6450f5dd0f27448b2093e804a8d7f7",
+  "backend_diff_check": true,
+  "frontend_diff_check": true,
+  "errors": [],
+  "shared_business_database_modified": false,
+  "iot_deployed": false,
+  "real_gateway_browser_business_loop_verified": false,
+  "real_broker_kafka_verified": false,
+  "passed": true
+}

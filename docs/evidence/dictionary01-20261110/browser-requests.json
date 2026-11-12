@@ -1,0 +1,42 @@
+[
+  {
+    "path": "/admin-api/system/dict/data/type/dim3d_icon_category",
+    "query": "",
+    "status": 200
+  },
+  {
+    "path": "/admin-api/dim3d/icon/page",
+    "query": "?pageNum=1&pageSize=10",
+    "status": 200
+  },
+  {
+    "path": "/admin-api/dim3d/icon/page",
+    "query": "?pageNum=1&pageSize=1",
+    "status": 200
+  },
+  {
+    "path": "/admin-api/dim3d/icon/page",
+    "query": "?category=DEVICE_ICON&pageNum=1&pageSize=1",
+    "status": 200
+  },
+  {
+    "path": "/admin-api/dim3d/icon/page",
+    "query": "?category=BUILDING_ICON&pageNum=1&pageSize=1",
+    "status": 200
+  },
+  {
+    "path": "/admin-api/dim3d/icon/page",
+    "query": "?category=HERB_ICON&pageNum=1&pageSize=1",
+    "status": 200
+  },
+  {
+    "path": "/admin-api/dim3d/icon/page",
+    "query": "?category=WAREHOUSE_ICON&pageNum=1&pageSize=1",
+    "status": 200
+  },
+  {
+    "path": "/admin-api/dim3d/icon/page",
+    "query": "?pageNum=1&pageSize=10&category=DEVICE_ICON",
+    "status": 200
+  }
+]

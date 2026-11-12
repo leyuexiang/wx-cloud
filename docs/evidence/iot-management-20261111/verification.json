@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-11",
+  "task": "IOT-M2-DEPLOY-01",
+  "utf8Files": 17,
+  "localLinks": 27,
+  "java": {
+    "tests": 141,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "mysql": {
+    "database": "一次性MySQL 8.0容器/iot_m2_check",
+    "shared_database_modified": false,
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "maven_exit_code": 0,
+    "temporary_container_removed": true
+  },
+  "toolTests": {
+    "menus": 18,
+    "authorization": 7,
+    "candidateConfig": 3,
+    "passed": true
+  },
+  "realInterfaceChecks": {
+    "isolation": 19,
+    "deployed": 19,
+    "passed": true
+  },
+  "realBrowserChecks": 5,
+  "browserApiMocked": false,
+  "authorizationApplied": true,
+  "databaseMigrated": true,
+  "deployedGatewayPort": 12525,
+  "iotLoopbackPort": 48096,
+  "mainGateway12522Changed": false,
+  "frontendStaticPublished": false,
+  "mqttEnabled": false,
+  "iotJarSha256": "bcfc854427d668dee2d63fb25ad50750c301caf190a4b06e9d997fcc352a2b9a",
+  "remaining": [
+    "前端静态发布及完整真实网页写入",
+    "真实Broker/Kafka与设备链路",
+    "实地回退演练、容量及用户验收"
+  ],
+  "postflight": {
+    "12522": "UP",
+    "12525": "UP",
+    "48096": "UP",
+    "mappingStorage": "longtext",
+    "jsonCheckEnforced": true,
+    "activeAcceptanceSamples": 0,
+    "temporaryGatewayRemoved": true
+  }
+}

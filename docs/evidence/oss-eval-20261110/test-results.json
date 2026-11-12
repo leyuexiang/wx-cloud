@@ -1,0 +1,93 @@
+{
+  "task": "OSS-EVAL-01",
+  "date": "2026-11-10",
+  "upstream_version": "2.3.0",
+  "source_commit": "f7baa6e933398185096a5bff5e427593247b19d7",
+  "java": "17.0.18",
+  "spring_boot": "3.3.4",
+  "minio_sdk": "8.5.7",
+  "storage": "本机 HTTP S3 协议替身，未连接真实 MinIO",
+  "recorder": "内存替身，非 MySQL",
+  "tests": 9,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "cases": [
+    {
+      "name": "reflectiveManualMultipartCanListCompleteAndAbort",
+      "seconds": "0.753",
+      "passed": true
+    },
+    {
+      "name": "automaticMultipartWorksWithMinio857",
+      "seconds": "0.269",
+      "passed": true
+    },
+    {
+      "name": "recorderFailureLeavesUncommittedPhysicalObject",
+      "seconds": "0.011",
+      "passed": true
+    },
+    {
+      "name": "presigningIsLocalWithFixedRegionAndHonoursExpiry",
+      "seconds": "0.02",
+      "passed": true
+    },
+    {
+      "name": "multipartFileAdapterLoadsOnSpring6",
+      "seconds": "0.472",
+      "passed": true
+    },
+    {
+      "name": "knownLengthStreamClosesAndRoundTripsDigest",
+      "seconds": "0.014",
+      "passed": true
+    },
+    {
+      "name": "directDeleteRemovesObjectBeforeRecorderFailure",
+      "seconds": "0.04",
+      "passed": true
+    },
+    {
+      "name": "defaultRecorderDoesNotPersistIdentity",
+      "seconds": "0.007",
+      "passed": true
+    },
+    {
+      "name": "springBoot334AndJakartaContextStarts",
+      "seconds": "0.025",
+      "passed": true
+    }
+  ],
+  "raw_duplicate_class_providers": [
+    "hutool-all-5.8.32.jar",
+    "hutool-core-5.8.28.jar"
+  ],
+  "evaluated_new_artifacts": [
+    {
+      "name": "x-file-storage-spring-2.3.0.jar",
+      "bytes": 47724,
+      "sha256": "19106878b68a3e987152280eaf6feb5521889b862ddd50f74e114d661211e4d6"
+    },
+    {
+      "name": "x-file-storage-core-2.3.0.jar",
+      "bytes": 613299,
+      "sha256": "22d62b0cb9523de3560441fe705b990e6aaf27778cd784f98f7dfedb875ad469"
+    },
+    {
+      "name": "thumbnailator-0.4.20.jar",
+      "bytes": 119166,
+      "sha256": "3f64835132076ba7d01e2780747eb2304f67f296cfb71729af3bdbdae71eab3a"
+    }
+  ],
+  "probe_sources": [
+    {
+      "path": "probe/src/test/java/evaluation/XFileStorageCompatibilityTest.java",
+      "sha256": "5066c2c8cea1d88d5032fbe7c05ee1dd378c8942e68069cabdfeec2e81637756"
+    },
+    {
+      "path": "probe/pom.xml",
+      "sha256": "79f8b6ea01c76b377fb408558e60b24bb8f4eef72a5e8d21c10f5e42d3e16b7f"
+    }
+  ]
+}

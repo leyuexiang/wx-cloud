@@ -1,0 +1,19 @@
+{
+  "prepared": true,
+  "databaseCreated": false,
+  "account": "iot246_app",
+  "accountHosts": [
+    "172.17.0.1",
+    "172.20.0.1"
+  ],
+  "tables": 3,
+  "privileges": [
+    "SELECT",
+    "INSERT",
+    "UPDATE",
+    "DELETE"
+  ],
+  "nodeExecutionAllowed": false,
+  "nodeInteractiveLoginAllowed": false,
+  "newPublicRpcOrRedisPorts": false
+}

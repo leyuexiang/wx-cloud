@@ -1,4 +1,4 @@
-# 测试服务器独立配置；密钥仅通过服务器环境变量注入。
+# 测试服务器独立配置；文档路由只读，密钥通过服务器环境变量注入。
 spring:
   application:
     name: gateway-server
@@ -27,6 +27,34 @@ spring:
             - uri: http://127.0.0.1:48192
     gateway:
       routes:
+      # 文档精确路径优先于业务路由，只读改写到服务原有文档入口。
+      - id: system-openapi-test148
+        order: -10
+        uri: http://127.0.0.1:48181
+        predicates:
+        - Method=GET
+        - Path=/admin-api/system/v3/api-docs,/admin-api/system/v3/api-docs/**
+        filters:
+        - RemoveRequestHeader=x-bot-user
+        - RewritePath=^/admin-api/system(?<docPath>/v3/api-docs(?:/.*)?)$, $\{docPath}
+      - id: infra-openapi-test148
+        order: -10
+        uri: http://127.0.0.1:48182
+        predicates:
+        - Method=GET
+        - Path=/admin-api/infra/v3/api-docs,/admin-api/infra/v3/api-docs/**
+        filters:
+        - RemoveRequestHeader=x-bot-user
+        - RewritePath=^/admin-api/infra(?<docPath>/v3/api-docs(?:/.*)?)$, $\{docPath}
+      - id: dimensions-openapi-test148
+        order: -10
+        uri: http://127.0.0.1:48192
+        predicates:
+        - Method=GET
+        - Path=/admin-api/dimensions/v3/api-docs,/admin-api/dimensions/v3/api-docs/**
+        filters:
+        - RemoveRequestHeader=x-bot-user
+        - RewritePath=^/admin-api/dimensions(?<docPath>/v3/api-docs(?:/.*)?)$, $\{docPath}
       # 前端公共字典只读路径转发到现有管理端认证链，不开放整个系统接口前缀。
       - id: system-dictionary-test148
         uri: http://127.0.0.1:48181
@@ -65,7 +93,21 @@ logging:
     root: INFO
 knife4j:
   gateway:
-    enabled: false
+    enabled: true
+    strategy: manual
+    routes:
+    - name: 系统服务
+      service-name: system-server
+      url: /admin-api/system/v3/api-docs
+      context-path: /
+    - name: 基础设施服务
+      service-name: infra-server
+      url: /admin-api/infra/v3/api-docs
+      context-path: /
+    - name: 三维服务
+      service-name: dimensions-server
+      url: /admin-api/dimensions/v3/api-docs
+      context-path: /
 wx:
   info:
     version: 1.0.0

@@ -2,6 +2,8 @@ package cn.iocoder.wx.module.iot.service;
 
 import cn.iocoder.wx.module.iot.controller.admin.devicebinding.vo.IotDeviceBindingSaveReqVO;
 import cn.iocoder.wx.module.iot.dal.dataobject.IotDeviceBindingDO;
+import cn.iocoder.wx.framework.common.pojo.PageResult;
+import cn.iocoder.wx.module.iot.controller.admin.devicebinding.vo.IotDeviceBindingPageReqVO;
 
 import java.util.List;
 
@@ -17,6 +19,9 @@ public interface IotDeviceBindingService {
     IotDeviceBindingDO getBinding(Long id);
 
     List<IotDeviceBindingDO> getBindingList(String connectorId, Boolean enabled);
+
+    /** 复用平台分页上限，只读取当前可信租户的绑定。 */
+    PageResult<IotDeviceBindingDO> getBindingPage(IotDeviceBindingPageReqVO request);
 
     /** 根据外部设备编号解析启用中的绑定。 */
     IotDeviceBindingDO getEnabledBinding(String connectorId, String externalDeviceId);

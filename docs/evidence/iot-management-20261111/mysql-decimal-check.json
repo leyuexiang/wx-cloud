@@ -1,0 +1,10 @@
+{
+  "database": "一次性MySQL 8.0容器/iot_m2_check",
+  "shared_database_modified": false,
+  "tests": 3,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "maven_exit_code": 0,
+  "temporary_container_removed": true
+}

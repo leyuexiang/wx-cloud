@@ -128,7 +128,7 @@ public class IotMqttWorker implements SmartLifecycle {
 
     private void updateStatus(IotConnectorDO connector, String status) {
         if (!status.equals(connector.getStatus())) {
-            connectors.update(null, new LambdaUpdateWrapper<IotConnectorDO>()
+            int updated = connectors.update(null, new LambdaUpdateWrapper<IotConnectorDO>()
                     .eq(IotConnectorDO::getId, connector.getId()).eq(IotConnectorDO::getEnabled, true)
                     // 有效的动态所有者受保护；崩溃遗留的过期所有者不能永久阻止冷切回单连接模式。
                     .and(owner -> owner.isNull(IotConnectorDO::getRuntimeOwner)
@@ -139,9 +139,12 @@ public class IotMqttWorker implements SmartLifecycle {
                     .eq(IotConnectorDO::getEndpoint, connector.getEndpoint())
                     // 凭据引用变更后，旧连接同样不得覆盖新配置的运行状态。
                     .eq(IotConnectorDO::getCredentialRef, connector.getCredentialRef())
-                    .eq(IotConnectorDO::getConfigJson, connector.getConfigJson())
+                    // 配置是从数据库读出的 JSON 文本。按字节比较文本，避免 MySQL 将绑定字符串当作 JSON 字符串值比较。
+                    .apply("CAST(CAST(config_json AS CHAR) AS BINARY) = CAST({0} AS BINARY)", connector.getConfigJson())
                     .set(IotConnectorDO::getStatus, status));
-            connector.setStatus(status);
+            if (updated > 0) {
+                connector.setStatus(status);
+            }
         }
     }
 

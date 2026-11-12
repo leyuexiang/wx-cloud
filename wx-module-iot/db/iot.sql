@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `wx_iot_device_binding` (
   `scene_id` varchar(128) DEFAULT NULL COMMENT '数字孪生场景编号',
   `object_id` varchar(128) DEFAULT NULL COMMENT '数字孪生对象编号',
   `mapping_revision` varchar(64) NOT NULL COMMENT '点位映射版本',
-  `point_mapping_json` json DEFAULT NULL COMMENT '点位、类型、单位映射',
+  `point_mapping_json` longtext DEFAULT NULL COMMENT '点位映射JSON原文，保留十进制精度',
   `enabled` tinyint NOT NULL DEFAULT 1 COMMENT '是否启用',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -42,7 +42,8 @@ CREATE TABLE IF NOT EXISTS `wx_iot_device_binding` (
   `updater` varchar(64) DEFAULT NULL COMMENT '更新者',
   `deleted` bit NOT NULL DEFAULT b'0' COMMENT '是否删除',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_iot_binding_external_device` (`tenant_id`, `connector_id`, `external_device_id`, `deleted`)
+  UNIQUE KEY `uk_iot_binding_external_device` (`tenant_id`, `connector_id`, `external_device_id`, `deleted`),
+  CONSTRAINT `chk_iot_binding_mapping_json` CHECK (`point_mapping_json` IS NULL OR JSON_VALID(`point_mapping_json`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='物联网外部设备绑定';
 
 CREATE TABLE IF NOT EXISTS `wx_iot_message_inbox` (

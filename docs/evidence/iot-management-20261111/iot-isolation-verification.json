@@ -1,0 +1,84 @@
+{
+  "passed": true,
+  "gatewayPort": 12536,
+  "marker": "iot-management-8715fd0c76b4",
+  "checks": [
+    {
+      "name": "真实租户管理员具备10项IoT权限",
+      "passed": true
+    },
+    {
+      "name": "未登录访问拒绝",
+      "passed": true
+    },
+    {
+      "name": "原查看者查询权限未扩大",
+      "passed": true
+    },
+    {
+      "name": "伪造跨租户请求头拒绝",
+      "passed": true
+    },
+    {
+      "name": "真实创建读取且默认停用",
+      "passed": true
+    },
+    {
+      "name": "连接器数据库分页及筛选",
+      "passed": true
+    },
+    {
+      "name": "旧版本更新冲突拒绝",
+      "passed": true
+    },
+    {
+      "name": "启用仅改变期望状态",
+      "passed": true
+    },
+    {
+      "name": "停用运行状态准确",
+      "passed": true
+    },
+    {
+      "name": "点位映射原始精度保留",
+      "passed": true
+    },
+    {
+      "name": "绑定数据库分页及筛选",
+      "passed": true
+    },
+    {
+      "name": "清空映射保存为有效JSON",
+      "passed": true
+    },
+    {
+      "name": "非法点位映射拒绝",
+      "passed": true
+    },
+    {
+      "name": "查看者写权限拒绝",
+      "passed": true
+    },
+    {
+      "name": "接收记录真实空列表",
+      "passed": true
+    },
+    {
+      "name": "不存在事件重放不伪报成功",
+      "passed": true
+    },
+    {
+      "name": "既有场景入口仍可读取",
+      "passed": true
+    },
+    {
+      "name": "本次绑定样本已软删除",
+      "passed": true
+    },
+    {
+      "name": "本次连接器样本已软删除",
+      "passed": true
+    }
+  ],
+  "scope": "真实系统身份、网关、MySQL及服务权限；不代表Broker/Kafka或真实设备验收"
+}

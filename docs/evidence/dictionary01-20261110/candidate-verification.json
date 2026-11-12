@@ -1,0 +1,94 @@
+{
+  "port": 12533,
+  "passed": true,
+  "checks": [
+    {
+      "name": "super_admin 登录",
+      "passed": true
+    },
+    {
+      "name": "super_admin 原权限读取",
+      "passed": true
+    },
+    {
+      "name": "super_admin /api 四类及字符串编号",
+      "passed": true
+    },
+    {
+      "name": "super_admin /admin-api 四类及字符串编号",
+      "passed": true
+    },
+    {
+      "name": "super_admin 未配置类型返回空数组",
+      "passed": true
+    },
+    {
+      "name": "super_admin 原资源列表",
+      "passed": true
+    },
+    {
+      "name": "tenant_admin 登录",
+      "passed": true
+    },
+    {
+      "name": "tenant_admin 原权限读取",
+      "passed": true
+    },
+    {
+      "name": "tenant_admin /api 四类及字符串编号",
+      "passed": true
+    },
+    {
+      "name": "tenant_admin /admin-api 四类及字符串编号",
+      "passed": true
+    },
+    {
+      "name": "tenant_admin 未配置类型返回空数组",
+      "passed": true
+    },
+    {
+      "name": "tenant_admin 原资源列表",
+      "passed": true
+    },
+    {
+      "name": "viewer 登录",
+      "passed": true
+    },
+    {
+      "name": "viewer 原权限读取",
+      "passed": true
+    },
+    {
+      "name": "viewer /api 四类及字符串编号",
+      "passed": true
+    },
+    {
+      "name": "viewer /admin-api 四类及字符串编号",
+      "passed": true
+    },
+    {
+      "name": "viewer 未配置类型返回空数组",
+      "passed": true
+    },
+    {
+      "name": "viewer 原资源列表",
+      "passed": true
+    },
+    {
+      "name": "拒绝篡改租户",
+      "passed": true
+    },
+    {
+      "name": "/api 拒绝匿名读取",
+      "passed": true
+    },
+    {
+      "name": "/admin-api 拒绝匿名读取",
+      "passed": true
+    },
+    {
+      "name": "拒绝伪造内部身份",
+      "passed": true
+    }
+  ]
+}

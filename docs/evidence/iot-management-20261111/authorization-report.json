@@ -1,0 +1,30 @@
+{
+  "status": "APPLIED",
+  "backup": {
+    "path": "/opt/wx/editor-test148/backups/iot-management-20261111T012649Z/wx_editor.sql",
+    "sha256": "80c173a259f832a2da28f47ed9deb681df4e8e80f85942d153fbc456f4ea05dc",
+    "size": 579828
+  },
+  "tenantId": "2",
+  "menuActions": {
+    "create": 21,
+    "reuse": 1,
+    "update": 0
+  },
+  "otherTenantsUnchanged": true,
+  "authorizationWritten": true,
+  "menuStatus": "APPLIED",
+  "manualReviewRequired": false,
+  "newPackageId": "2",
+  "preservedMenuIds": [
+    "100",
+    "101",
+    "102",
+    "103"
+  ],
+  "packageMenuCount": 24,
+  "viewerUnchanged": true,
+  "databaseReinitialized": false,
+  "collisionRecovered": true,
+  "oldPlaceholderHasNoMenus": true
+}

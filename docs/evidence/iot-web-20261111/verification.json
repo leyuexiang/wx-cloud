@@ -1,0 +1,18 @@
+{
+  "date": "2026-11-11",
+  "task": "IOT-M2-WEB-DEPLOY-01",
+  "configTests": 5,
+  "typecheck": true,
+  "productionBuild": true,
+  "staticFiles": 571,
+  "isolationBrowserChecks": 11,
+  "publishedBrowserChecks": 11,
+  "apiMocked": false,
+  "pageErrors": [],
+  "localLinks": 8,
+  "archiveSha256": "939ebfe33d166e37b435c8a98d60902d8830ae7a0943d2c71e7e3df66af81567",
+  "endpoint": "https://192.168.10.148:9447/dts/",
+  "oldThreeWebPreserved": true,
+  "privateKeyChanged": false,
+  "databaseSchemaChanged": false
+}

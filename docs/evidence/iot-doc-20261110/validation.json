@@ -1,0 +1,27 @@
+{
+  "task": "IOT-DOC-01",
+  "date": "2026-11-10",
+  "utf8_documents": 6,
+  "local_links_checked": 59,
+  "heading_anchors_checked": 17,
+  "milestone_main_statuses": {
+    "IOT-M0": "进行中",
+    "IOT-M1": "进行中",
+    "IOT-M2": "进行中",
+    "IOT-M3": "进行中",
+    "IOT-M4": "未开始",
+    "IOT-M5": "未开始"
+  },
+  "historical_20261104_counts": {
+    "tests": 157,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 3,
+    "passed": 154
+  },
+  "business_files_unchanged": true,
+  "git_diff_check_passed": true,
+  "scope": "文档和历史证据核对，未重新运行业务测试或服务器巡检；当前无明确截止日期，不自动标延期",
+  "errors": [],
+  "passed": true
+}

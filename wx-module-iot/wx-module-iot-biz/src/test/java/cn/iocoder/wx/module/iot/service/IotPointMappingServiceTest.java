@@ -32,6 +32,13 @@ class IotPointMappingServiceTest {
         assertEquals(0, new BigDecimal("1.2").compareTo((BigDecimal) result.value()));
     }
 
+    /** 配置先经精确十进制解析，再换算；不能在读取JSON时提前变为double。 */
+    @Test
+    void shouldPreserveLongDecimalScaleAndOffset() {
+        IotMappedPoint result = map("\"scale\":0.1000000000000000001,\"offset\":0.0000000000000000003");
+        assertEquals(0, new BigDecimal("1.0000000000000000013").compareTo((BigDecimal) result.value()));
+    }
+
     /** 缺省参数对应恒等变换，不能将缺省比例读成零。 */
     @Test
     void shouldDefaultToIdentityConversion() {

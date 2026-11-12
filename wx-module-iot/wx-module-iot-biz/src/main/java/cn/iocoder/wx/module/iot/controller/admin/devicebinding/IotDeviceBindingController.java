@@ -1,6 +1,8 @@
 package cn.iocoder.wx.module.iot.controller.admin.devicebinding;
 
 import cn.iocoder.wx.framework.common.pojo.CommonResult;
+import cn.iocoder.wx.framework.common.pojo.PageResult;
+import cn.iocoder.wx.module.iot.controller.admin.devicebinding.vo.IotDeviceBindingPageReqVO;
 import cn.iocoder.wx.framework.common.util.object.BeanUtils;
 import cn.iocoder.wx.module.iot.controller.admin.devicebinding.vo.IotDeviceBindingRespVO;
 import cn.iocoder.wx.module.iot.controller.admin.devicebinding.vo.IotDeviceBindingSaveReqVO;
@@ -35,6 +37,14 @@ import static cn.iocoder.wx.framework.common.pojo.CommonResult.success;
 public class IotDeviceBindingController {
 
     private final IotDeviceBindingService bindingService;
+
+    /** 正式管理端使用数据库分页；旧 list 保留给已有消费者。 */
+    @GetMapping("/page")
+    @Operation(summary = "获得物联网设备绑定分页")
+    @PreAuthorize("@ss.hasPermission('iot:device-binding:query')")
+    public CommonResult<PageResult<IotDeviceBindingRespVO>> page(@Valid IotDeviceBindingPageReqVO request) {
+        return success(BeanUtils.toBean(bindingService.getBindingPage(request), IotDeviceBindingRespVO.class));
+    }
 
     @PostMapping("/create")
     @Operation(summary = "创建物联网设备绑定")

@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-11",
+  "task": "IOT-DIST-01",
+  "scheduler": "Docker Compose per host; no Kubernetes",
+  "node246CandidateChecks": 11,
+  "node148ProxyChecks": 11,
+  "composeContainersHealthy": 2,
+  "databasePermission": true,
+  "linkRecoverySeconds": 2.61,
+  "selinuxEnforcing": true,
+  "firewallActive": true,
+  "vegetationPreserved": true,
+  "unityGateway12525Changed": false,
+  "oldIotStopped": false,
+  "mqttEnabled": false,
+  "highAvailability": false,
+  "remaining": [
+    "Unity固定构建剩余动作验收",
+    "Broker/Kafka与真实设备链路",
+    "故障转移及实际回退演练"
+  ]
+}

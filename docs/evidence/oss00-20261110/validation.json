@@ -1,0 +1,11 @@
+{
+  "task": "OSS-00",
+  "date": "2026-11-10",
+  "scope": "新增设计全文及当前差异新增行的本地链接、标题锚点、七份文档严格 UTF-8、新文档空白与冲突标记、git diff --check；不验证外部链接可用性、Java 业务或在线环境",
+  "utf8_files_checked": 7,
+  "local_links_checked": 30,
+  "heading_anchors_checked": 4,
+  "git_diff_check_passed": true,
+  "errors": [],
+  "passed": true
+}

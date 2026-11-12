@@ -1,0 +1,40 @@
+{
+  "time": "2026-11-10T08:45:39.144610+00:00",
+  "containers": [
+    {
+      "name": "/wx-editor-gateway",
+      "startedAt": "2026-11-10T08:42:25.00592978Z",
+      "status": "running"
+    },
+    {
+      "name": "/wx-editor-system",
+      "startedAt": "2026-11-10T08:00:36.95276569Z",
+      "status": "running"
+    },
+    {
+      "name": "/wx-editor-infra",
+      "startedAt": "2026-11-06T06:06:09.28593239Z",
+      "status": "running"
+    },
+    {
+      "name": "/wx-editor-dimensions",
+      "startedAt": "2026-11-08T16:43:00.532954632Z",
+      "status": "running"
+    },
+    {
+      "name": "/wx-editor-gateway-data08",
+      "startedAt": "2026-11-10T08:00:37.517614861Z",
+      "status": "running"
+    }
+  ],
+  "health": {
+    "12522": "UP",
+    "12525": "UP"
+  },
+  "jarSha256": {
+    "gateway": "5351279b47f7a2c59541c38761a63eec734671a82bd7d5f79b9bfcdee436b6ff",
+    "system": "0aae9cbad7d4e8f2c0cec44cbccecf272eef272af316bd2974b64d57aff3df2e",
+    "infra": "10f1b8d7e6a052a513ceffa06290c15c2da096aa9282f6489984231e70a83624",
+    "dimensions": "8143caa0a2d1343a055cdba6c3289c076dcf3cff13d4f3c4fb9ee32caecb2fa1"
+  }
+}

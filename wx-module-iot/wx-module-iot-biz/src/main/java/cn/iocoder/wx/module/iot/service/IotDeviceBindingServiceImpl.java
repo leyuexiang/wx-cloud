@@ -1,6 +1,9 @@
 package cn.iocoder.wx.module.iot.service;
 
 import cn.iocoder.wx.framework.common.util.object.BeanUtils;
+import cn.iocoder.wx.framework.common.pojo.PageResult;
+import cn.iocoder.wx.framework.tenant.core.context.TenantContextHolder;
+import cn.iocoder.wx.module.iot.controller.admin.devicebinding.vo.IotDeviceBindingPageReqVO;
 import cn.iocoder.wx.module.iot.controller.admin.devicebinding.vo.IotDeviceBindingSaveReqVO;
 import cn.iocoder.wx.module.iot.dal.dataobject.IotDeviceBindingDO;
 import cn.iocoder.wx.module.iot.dal.mysql.IotDeviceBindingMapper;
@@ -22,12 +25,16 @@ public class IotDeviceBindingServiceImpl implements IotDeviceBindingService {
 
     private final IotDeviceBindingMapper bindingMapper;
     private final IotConnectorService connectorService;
+    private final IotPointMappingService pointMappingService;
 
     @Override
     public Long createBinding(IotDeviceBindingSaveReqVO reqVO) {
+        // 保存前验证整份映射，不能等设备上报时才发现无法执行的转换配置。
+        pointMappingService.validateConfiguration(reqVO.getPointMappingJson());
         validateConnector(reqVO.getConnectorId());
         validateBindingUnique(null, reqVO.getConnectorId(), reqVO.getExternalDeviceId());
         IotDeviceBindingDO binding = BeanUtils.toBean(reqVO, IotDeviceBindingDO.class);
+        binding.setPointMappingJson(normalizeMapping(reqVO.getPointMappingJson()));
         binding.setEnabled(reqVO.getEnabled() == null || reqVO.getEnabled());
         bindingMapper.insert(binding);
         return binding.getId();
@@ -35,10 +42,13 @@ public class IotDeviceBindingServiceImpl implements IotDeviceBindingService {
 
     @Override
     public void updateBinding(IotDeviceBindingSaveReqVO reqVO) {
+        pointMappingService.validateConfiguration(reqVO.getPointMappingJson());
         validateBindingExists(reqVO.getId());
         validateConnector(reqVO.getConnectorId());
         validateBindingUnique(reqVO.getId(), reqVO.getConnectorId(), reqVO.getExternalDeviceId());
-        bindingMapper.updateById(BeanUtils.toBean(reqVO, IotDeviceBindingDO.class));
+        IotDeviceBindingDO binding = BeanUtils.toBean(reqVO, IotDeviceBindingDO.class);
+        binding.setPointMappingJson(normalizeMapping(reqVO.getPointMappingJson()));
+        bindingMapper.updateById(binding);
     }
 
     @Override
@@ -58,6 +68,11 @@ public class IotDeviceBindingServiceImpl implements IotDeviceBindingService {
     }
 
     @Override
+    public PageResult<IotDeviceBindingDO> getBindingPage(IotDeviceBindingPageReqVO request) {
+        return bindingMapper.selectManagementPage(TenantContextHolder.getRequiredTenantId(), request);
+    }
+
+    @Override
     public IotDeviceBindingDO getEnabledBinding(String connectorId, String externalDeviceId) {
         return bindingMapper.selectEnabledByExternalDevice(connectorId, externalDeviceId);
     }
@@ -66,6 +81,11 @@ public class IotDeviceBindingServiceImpl implements IotDeviceBindingService {
         if (connectorService.getConnector(connectorId) == null) {
             throw exception(cn.iocoder.wx.module.iot.enums.ErrorCodeConstants.CONNECTOR_NOT_EXISTS);
         }
+    }
+
+    /** JSON列不能保存空文本；空映射用空对象明确清除旧规则，保持原样透传。 */
+    private String normalizeMapping(String json) {
+        return json == null || json.isBlank() ? "{}" : json;
     }
 
     private void validateBindingExists(Long id) {

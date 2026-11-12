@@ -1,0 +1,19 @@
+{
+  "status": "DEPLOYED",
+  "database": "wx_editor_data08",
+  "backup": "/opt/wx/editor-test148/backups/iot-data08-20261111",
+  "databaseBackupSha256": "bfad62ecd3501feaf01ac99421f28f009c9b6d292e2e420903e0b60793c27223",
+  "previousGatewaySha256": "b95723555f8f372dfa83c942f0a3f73c1444fa8675a920eab98566775ef02e5d",
+  "candidateGatewaySha256": "a3c208b24cbb8902da9bf7e28efbfed7bf52586db279198718ecf94e064772d7",
+  "iotJarSha256": "bcfc854427d668dee2d63fb25ad50750c301caf190a4b06e9d997fcc352a2b9a",
+  "migrationSha256": "03ad1c698559dbac8f54aed76ae1fdd91e9d1793ec19b81577d43b8334b4cd33",
+  "mqttEnabled": false,
+  "existingServicesRestarted": false,
+  "publicGatewayChanged": true,
+  "previousCandidateSha256": "7e638c09f051237b196e6768c7efce234b02a255964405e30f384f3a100f04b6",
+  "startupFix": "补模块安全定制bean，保持默认认证和方法权限",
+  "healthProbe": "仅匿名GET /actuator/health，管理接口仍认证及方法鉴权",
+  "isolatedGatewayPort": 12536,
+  "decimalMigrationSha256": "3c74a1738984a80c669f2e588a4d78a09f8b3a38811ef651ce050c8d7c6758a9",
+  "changedGatewayPort": 12525
+}

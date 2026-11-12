@@ -1,0 +1,445 @@
+{
+  "schemaVersion": 1,
+  "manifestSha256": "cd6a3dcbd61d08e11ab2e9158befe907bb0e82af316ac259bd38b9d15464013a",
+  "snapshotSha256": "79f3dcc53fdbde4b073077bd28ab8aca80ae82b70fe23fe38aa9942f36d16126",
+  "nodes": [
+    {
+      "key": "resources",
+      "request": {
+        "name": "资源管理",
+        "permission": "",
+        "type": 1,
+        "sort": 10,
+        "parentId": "0",
+        "path": "resourceManage",
+        "icon": "",
+        "component": "",
+        "componentName": "",
+        "status": 0,
+        "visible": true,
+        "keepAlive": false,
+        "alwaysShow": true
+      },
+      "action": "create"
+    },
+    {
+      "key": "modelManage",
+      "request": {
+        "name": "模型管理",
+        "permission": "",
+        "type": 2,
+        "sort": 1,
+        "parentId": "@resources",
+        "path": "model",
+        "icon": "",
+        "component": "resourceManage/modelManage/index",
+        "componentName": "modelManage",
+        "status": 0,
+        "visible": true,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "modelManage:dim3d:model:query",
+      "request": {
+        "name": "模型query",
+        "permission": "dim3d:model:query",
+        "type": 3,
+        "sort": 100,
+        "parentId": "0",
+        "path": "",
+        "icon": "",
+        "component": "",
+        "componentName": null,
+        "status": 0,
+        "visible": true,
+        "keepAlive": true,
+        "alwaysShow": true
+      },
+      "id": "100",
+      "before": {
+        "name": "模型query",
+        "permission": "dim3d:model:query",
+        "type": 3,
+        "sort": 100,
+        "parentId": "0",
+        "path": "",
+        "icon": "",
+        "component": "",
+        "componentName": null,
+        "status": 0,
+        "visible": true,
+        "keepAlive": true,
+        "alwaysShow": true,
+        "id": "100"
+      },
+      "action": "reuse"
+    },
+    {
+      "key": "iconManage",
+      "request": {
+        "name": "图片管理",
+        "permission": "",
+        "type": 2,
+        "sort": 2,
+        "parentId": "@resources",
+        "path": "icon",
+        "icon": "",
+        "component": "resourceManage/iconManage/index",
+        "componentName": "iconManage",
+        "status": 0,
+        "visible": true,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "iconManage:dim3d:icon:query",
+      "request": {
+        "name": "查询",
+        "permission": "dim3d:icon:query",
+        "type": 3,
+        "sort": 1,
+        "parentId": "@iconManage",
+        "path": "",
+        "icon": "",
+        "component": "",
+        "componentName": "",
+        "status": 0,
+        "visible": false,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "templateManage",
+      "request": {
+        "name": "模板管理",
+        "permission": "",
+        "type": 2,
+        "sort": 3,
+        "parentId": "@resources",
+        "path": "template",
+        "icon": "",
+        "component": "resourceManage/templateManage/index",
+        "componentName": "templateManage",
+        "status": 0,
+        "visible": true,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "scenes",
+      "request": {
+        "name": "场景管理",
+        "permission": "",
+        "type": 1,
+        "sort": 20,
+        "parentId": "0",
+        "path": "sceneManage",
+        "icon": "",
+        "component": "",
+        "componentName": "",
+        "status": 0,
+        "visible": true,
+        "keepAlive": false,
+        "alwaysShow": true
+      },
+      "action": "create"
+    },
+    {
+      "key": "sceneManage",
+      "request": {
+        "name": "场景列表",
+        "permission": "",
+        "type": 2,
+        "sort": 1,
+        "parentId": "@scenes",
+        "path": "list",
+        "icon": "",
+        "component": "SceneManage/index",
+        "componentName": "sceneManage",
+        "status": 0,
+        "visible": true,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "iot",
+      "request": {
+        "name": "物联网管理",
+        "permission": "",
+        "type": 1,
+        "sort": 30,
+        "parentId": "0",
+        "path": "iotManage",
+        "icon": "Connection",
+        "component": "",
+        "componentName": "",
+        "status": 0,
+        "visible": true,
+        "keepAlive": false,
+        "alwaysShow": true
+      },
+      "action": "create"
+    },
+    {
+      "key": "connectors",
+      "request": {
+        "name": "连接器管理",
+        "permission": "",
+        "type": 2,
+        "sort": 1,
+        "parentId": "@iot",
+        "path": "connectors",
+        "icon": "Link",
+        "component": "iotManage/connectors/index",
+        "componentName": "IotConnectors",
+        "status": 0,
+        "visible": true,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "connectors:iot:connector:query",
+      "request": {
+        "name": "查询",
+        "permission": "iot:connector:query",
+        "type": 3,
+        "sort": 1,
+        "parentId": "@connectors",
+        "path": "",
+        "icon": "",
+        "component": "",
+        "componentName": "",
+        "status": 0,
+        "visible": false,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "connectors:iot:connector:create",
+      "request": {
+        "name": "新增",
+        "permission": "iot:connector:create",
+        "type": 3,
+        "sort": 2,
+        "parentId": "@connectors",
+        "path": "",
+        "icon": "",
+        "component": "",
+        "componentName": "",
+        "status": 0,
+        "visible": false,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "connectors:iot:connector:update",
+      "request": {
+        "name": "编辑及启停",
+        "permission": "iot:connector:update",
+        "type": 3,
+        "sort": 3,
+        "parentId": "@connectors",
+        "path": "",
+        "icon": "",
+        "component": "",
+        "componentName": "",
+        "status": 0,
+        "visible": false,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "connectors:iot:connector:delete",
+      "request": {
+        "name": "删除",
+        "permission": "iot:connector:delete",
+        "type": 3,
+        "sort": 4,
+        "parentId": "@connectors",
+        "path": "",
+        "icon": "",
+        "component": "",
+        "componentName": "",
+        "status": 0,
+        "visible": false,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "bindings",
+      "request": {
+        "name": "设备绑定",
+        "permission": "",
+        "type": 2,
+        "sort": 2,
+        "parentId": "@iot",
+        "path": "bindings",
+        "icon": "Setting",
+        "component": "iotManage/bindings/index",
+        "componentName": "IotBindings",
+        "status": 0,
+        "visible": true,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "bindings:iot:device-binding:query",
+      "request": {
+        "name": "查询",
+        "permission": "iot:device-binding:query",
+        "type": 3,
+        "sort": 1,
+        "parentId": "@bindings",
+        "path": "",
+        "icon": "",
+        "component": "",
+        "componentName": "",
+        "status": 0,
+        "visible": false,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "bindings:iot:device-binding:create",
+      "request": {
+        "name": "新增",
+        "permission": "iot:device-binding:create",
+        "type": 3,
+        "sort": 2,
+        "parentId": "@bindings",
+        "path": "",
+        "icon": "",
+        "component": "",
+        "componentName": "",
+        "status": 0,
+        "visible": false,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "bindings:iot:device-binding:update",
+      "request": {
+        "name": "编辑及启停",
+        "permission": "iot:device-binding:update",
+        "type": 3,
+        "sort": 3,
+        "parentId": "@bindings",
+        "path": "",
+        "icon": "",
+        "component": "",
+        "componentName": "",
+        "status": 0,
+        "visible": false,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "bindings:iot:device-binding:delete",
+      "request": {
+        "name": "删除",
+        "permission": "iot:device-binding:delete",
+        "type": 3,
+        "sort": 4,
+        "parentId": "@bindings",
+        "path": "",
+        "icon": "",
+        "component": "",
+        "componentName": "",
+        "status": 0,
+        "visible": false,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "messages",
+      "request": {
+        "name": "接收记录",
+        "permission": "",
+        "type": 2,
+        "sort": 3,
+        "parentId": "@iot",
+        "path": "messages",
+        "icon": "Tickets",
+        "component": "iotManage/messages/index",
+        "componentName": "IotMessages",
+        "status": 0,
+        "visible": true,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "messages:iot:message-inbox:query",
+      "request": {
+        "name": "查询",
+        "permission": "iot:message-inbox:query",
+        "type": 3,
+        "sort": 1,
+        "parentId": "@messages",
+        "path": "",
+        "icon": "",
+        "component": "",
+        "componentName": "",
+        "status": 0,
+        "visible": false,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    },
+    {
+      "key": "messages:iot:message-inbox:replay",
+      "request": {
+        "name": "重放",
+        "permission": "iot:message-inbox:replay",
+        "type": 3,
+        "sort": 2,
+        "parentId": "@messages",
+        "path": "",
+        "icon": "",
+        "component": "",
+        "componentName": "",
+        "status": 0,
+        "visible": false,
+        "keepAlive": false,
+        "alwaysShow": false
+      },
+      "action": "create"
+    }
+  ],
+  "grantsChanged": false,
+  "scope": "只读数据库快照预览，未通过系统接口核对；不能直接作为apply输入",
+  "source": "148/wx_editor，2026-11-11，只读"
+}

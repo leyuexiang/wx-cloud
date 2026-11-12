@@ -15,6 +15,7 @@ public class IotDeviceBindingSaveReqVO {
 
     @Schema(description = "连接器业务编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "park-mqtt")
     @NotBlank(message = "连接器编号不能为空")
+    @Size(max = 64)
     private String connectorId;
 
     @Schema(description = "外部设备编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "device-001")
@@ -23,19 +24,24 @@ public class IotDeviceBindingSaveReqVO {
     private String externalDeviceId;
 
     @Schema(description = "内部设备编号", example = "device-1001")
+    @Size(max = 128)
     private String deviceId;
 
     @Schema(description = "数字孪生场景编号", example = "scene-001")
+    @Size(max = 128)
     private String sceneId;
 
     @Schema(description = "数字孪生对象编号", example = "object-001")
+    @Size(max = 128)
     private String objectId;
 
     @Schema(description = "点位映射版本", requiredMode = Schema.RequiredMode.REQUIRED, example = "v1")
     @NotBlank(message = "点位映射版本不能为空")
+    @Size(max = 64)
     private String mappingRevision;
 
     @Schema(description = "点位映射 JSON")
+    @Size(max = 65536)
     private String pointMappingJson;
 
     @Schema(description = "是否启用", example = "true")

@@ -1,0 +1,42 @@
+{
+  "task": "OSS-PLAN-01",
+  "date": "2026-11-10",
+  "document_files": 7,
+  "local_links_checked": 55,
+  "heading_anchors_checked": 21,
+  "milestones": {
+    "OSS-01": {
+      "nodes": 16,
+      "minutes": 175
+    },
+    "OSS-02": {
+      "nodes": 32,
+      "minutes": 355
+    },
+    "OSS-03": {
+      "nodes": 20,
+      "minutes": 222
+    },
+    "OSS-04": {
+      "nodes": 16,
+      "minutes": 177
+    },
+    "OSS-05": {
+      "nodes": 20,
+      "minutes": 223
+    }
+  },
+  "nodes": 104,
+  "first_pass_minutes": 1152,
+  "node_minutes_range": [
+    10,
+    12
+  ],
+  "dependencies_ordered": true,
+  "status_ranges_covered_in_03": true,
+  "business_files_unchanged": true,
+  "git_diff_check_passed": true,
+  "scope": "静态文档与计划结构检查；不重跑历史探针、不连接真实依赖、不执行迁移部署",
+  "errors": [],
+  "passed": true
+}

@@ -36,7 +36,12 @@ public class IotMessageInboxController {
     @Operation(summary = "分页查询物联网接入事件")
     @PreAuthorize("@ss.hasPermission('iot:message-inbox:query')")
     public CommonResult<PageResult<IotMessageInboxRespVO>> page(@Valid IotMessageInboxPageReqVO pageReqVO) {
-        return success(BeanUtils.toBean(inboxService.getPage(pageReqVO), IotMessageInboxRespVO.class));
+        return success(BeanUtils.toBean(inboxService.getPage(pageReqVO), IotMessageInboxRespVO.class, row -> {
+            // 底层异常可能含服务地址、账号或原始片段，管理接口仅提供固定失败摘要。
+            if (row.getErrorMessage() != null && !row.getErrorMessage().isBlank()) {
+                row.setErrorMessage("消息投递失败，请由有权限的运维人员核查");
+            }
+        }));
     }
 
     @PostMapping("/replay")

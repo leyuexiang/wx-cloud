@@ -1,0 +1,16 @@
+{
+  "status": "DEPLOYED",
+  "backup": "/home/wx-editor-web148/backups/iot-web-20261111T025939Z",
+  "previousConfigSha256": "5a157e64750cebe200807b38a272afaf4327bbd2569e23071f700508ec065fbc",
+  "candidateConfigSha256": "3039551d005a14560013f267f57f41aac4bc110dd97e6e5a2b01e07c7067f9d4",
+  "rollbackConfigSha256": "7b742c165ec1d66664b8d0985ae35da3aec64cbca02397e8b7762a9289d9cbf0",
+  "archiveSha256": "939ebfe33d166e37b435c8a98d60902d8830ae7a0943d2c71e7e3df66af81567",
+  "certificateSha256": "9ce6087a4708dab758474efe783776835fec1becc5f3cad642804b1aec2356e3",
+  "certificateSpkiSha256Base64": "DF0Lef+49B5tLwuV+8Q3f6nm1LdZ/yoa5fxdQ4l7Tn0=",
+  "certificateInfo": "notBefore=Nov 11 02:59:39 2026 GMT\nnotAfter=Feb  9 02:59:39 2027 GMT\n",
+  "privateKeyChanged": false,
+  "databaseChanged": false,
+  "oldThreeWebIndexSha256": "c49c63d5bd66f32e6cf3755ab190aa66da26630788fef4f0abc71c3d9ae9944a",
+  "apiTarget": "127.0.0.1:12525",
+  "endpoint": "https://192.168.10.148:9447/dts/"
+}

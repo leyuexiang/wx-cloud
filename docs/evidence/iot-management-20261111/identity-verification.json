@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "roles": {
+    "tenant_admin": {
+      "loginPassed": true,
+      "roles": [
+        "tenant_admin"
+      ],
+      "components": [
+        "resourceManage/modelManage/index",
+        "resourceManage/iconManage/index",
+        "SceneManage/index",
+        "iotManage/connectors/index",
+        "iotManage/bindings/index",
+        "iotManage/messages/index"
+      ],
+      "iotPermissions": [
+        "iot:device-binding:delete",
+        "iot:connector:update",
+        "iot:device-binding:query",
+        "iot:connector:delete",
+        "iot:device-binding:update",
+        "iot:connector:query",
+        "iot:message-inbox:replay",
+        "iot:message-inbox:query",
+        "iot:device-binding:create",
+        "iot:connector:create"
+      ]
+    },
+    "viewer": {
+      "loginPassed": true,
+      "roles": [
+        "viewer"
+      ],
+      "components": [],
+      "iotPermissions": []
+    }
+  },
+  "scope": "真实12525登录、授权树及原查看者拒绝；IoT业务未部署"
+}

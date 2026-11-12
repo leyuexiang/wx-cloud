@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-10",
+  "task": "NAV-01",
+  "utf8_documents": 11,
+  "local_links_checked": 127,
+  "unit_tests": 76,
+  "unit_tests_passed": true,
+  "browser_checks": 16,
+  "browser_passed": true,
+  "two_d_regression_passed": true,
+  "two_d_component_count": 107,
+  "typecheck_passed": true,
+  "build_passed": true,
+  "diff_checks": {
+    "backend": true,
+    "frontend": true
+  },
+  "errors": [],
+  "frontend_index_sha256": "e681d48dbbd41ec3ac7bf90e7cfca8a9aa996d6eb671768f9fc3a83a9d1291f2",
+  "menu_manifest_applied": false,
+  "deployed": false,
+  "real_gateway_verified": false,
+  "passed": true
+}

@@ -1,0 +1,34 @@
+{
+  "endpoint": "https://192.168.10.246:9447/dts/",
+  "status": "PUBLISHED",
+  "containers": [
+    {
+      "name": "jtyf-editor246-iot-1",
+      "id": "34f454991f8117c4180ec4073ccf4750fc829a753cd9c144ac1e4feb544a7b8a",
+      "health": "healthy",
+      "readOnlyRoot": true,
+      "startedAt": "2026-11-11T03:55:56.36858343Z"
+    },
+    {
+      "name": "jtyf-editor246-web-1",
+      "id": "b28e0e049973e29a358b52ab22dc2568e1dde50abecb629643c9fbebfdb9d6e9",
+      "health": "healthy",
+      "readOnlyRoot": true,
+      "startedAt": "2026-11-11T04:09:59.036523418Z"
+    }
+  ],
+  "vegetationContainerIdsPreserved": true,
+  "vegetationBaseline": [
+    "vegetation-worker 022ef4c537d9",
+    "vegetation-api ce28e5f22468",
+    "jtyf-vegetation-redis 23ffcc4a9497"
+  ],
+  "native48094StillPresent": true,
+  "selinux": "Enforcing",
+  "firewallActive": true,
+  "nodeLinkActive": true,
+  "activeAcceptanceSamples": 0,
+  "databaseMigrated": false,
+  "mqttEnabled": false,
+  "dataDirectory": "/home/jtyf-editor246"
+}

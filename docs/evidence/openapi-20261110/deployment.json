@@ -1,0 +1,12 @@
+{
+  "status": "DEPLOYED",
+  "time": "20261110T083922Z",
+  "backup": "/opt/wx/editor-test148/backups/openapi-20261110T083922Z",
+  "previousConfigSha256": "76d3de921df42de03a1823679a2f3e32165a14bfc52e7c225ea873cb8c28093e",
+  "candidateConfigSha256": "0c47b68a2d561c8962433e46b71790050d8d6f479e89b749173d43a5fe982537",
+  "gatewayJarSha256": "5351279b47f7a2c59541c38761a63eec734671a82bd7d5f79b9bfcdee436b6ff",
+  "databaseChanged": false,
+  "serviceJarsChanged": false,
+  "isolationPort": 12534,
+  "activeConfigSha256": "0c47b68a2d561c8962433e46b71790050d8d6f479e89b749173d43a5fe982537"
+}

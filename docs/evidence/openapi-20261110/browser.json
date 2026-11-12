@@ -1,0 +1,20 @@
+{
+  "time": "2026-11-10T08:45:36.154Z",
+  "browser": "ego-browser 0.6.2.8",
+  "taskSpaceId": 4,
+  "url": "http://192.168.10.148:12522/doc.html",
+  "passed": true,
+  "checks": [
+    "系统服务菜单及接口统计加载",
+    "个人密码接口搜索和参数详情加载",
+    "调试地址保留相对业务路径 /admin-api/system/user/profile/update-password",
+    "基础设施服务切换和菜单加载",
+    "三维服务切换和菜单加载"
+  ],
+  "screenshots": [
+    "password-api.png",
+    "infra.png",
+    "dimensions.png"
+  ],
+  "limitation": "未提交密码修改请求，未验证携带真实登录令牌的写操作；首页 host 为服务原规范地址，调试框使用当前网关的相对路径。"
+}

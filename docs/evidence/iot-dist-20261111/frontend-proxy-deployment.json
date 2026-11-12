@@ -1,0 +1,17 @@
+{
+  "status": "APPLIED",
+  "beforeSha256": "3039551d005a14560013f267f57f41aac4bc110dd97e6e5a2b01e07c7067f9d4",
+  "candidateSha256": "63d7ac328d1ca484c61fbf0d6d7a12e725643fa1d648059789a77d8fab5e5a1a",
+  "unityBaseline": {
+    "gatewayConfigSha256": "a3c208b24cbb8902da9bf7e28efbfed7bf52586db279198718ecf94e064772d7",
+    "gatewayStartedAt": "2026-11-11T01:55:38.112900029Z",
+    "gatewayContainerId": "db2fa62dbe094cf24689ba9f65afebeac8c199135d7feb6261f36e3ff55005cb",
+    "oldIotStartedAt": "2026-11-11T01:54:33.845678999Z",
+    "threeWebIndexSha256": "c49c63d5bd66f32e6cf3755ab190aa66da26630788fef4f0abc71c3d9ae9944a",
+    "dtsArchiveSha256": "939ebfe33d166e37b435c8a98d60902d8830ae7a0943d2c71e7e3df66af81567"
+  },
+  "proxyUpstream": "127.0.0.1:48097",
+  "gateway12525Changed": false,
+  "oldIotStopped": false,
+  "unityBaselinePreserved": true
+}

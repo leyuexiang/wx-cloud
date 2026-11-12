@@ -1,0 +1,7 @@
+{
+  "restrictedRemoteExecutionDenied": true,
+  "undeclaredForwardDenied": true,
+  "recoverySeconds": 2.61,
+  "selinuxEnforcing": true,
+  "tunnelServiceActive": true
+}

@@ -1,0 +1,233 @@
+{
+  "status": "DEPLOYED",
+  "time": "2026-11-10T08:00:52.791941+00:00",
+  "featureCommit": "52117b3d4f45f57b45ef6771cb587f8b4216b129",
+  "sourceCommit": "0e1c38b3324a61e3da6510f5d6acdf282921c38c",
+  "sha256": {
+    "system": "0aae9cbad7d4e8f2c0cec44cbccecf272eef272af316bd2974b64d57aff3df2e",
+    "gateway": "5351279b47f7a2c59541c38761a63eec734671a82bd7d5f79b9bfcdee436b6ff"
+  },
+  "databaseChanged": false,
+  "categories": [
+    [
+      "设备",
+      "DEVICE_ICON",
+      "10",
+      "0"
+    ],
+    [
+      "建筑",
+      "BUILDING_ICON",
+      "20",
+      "0"
+    ],
+    [
+      "药材",
+      "HERB_ICON",
+      "30",
+      "0"
+    ],
+    [
+      "仓储",
+      "WAREHOUSE_ICON",
+      "40",
+      "0"
+    ]
+  ],
+  "backup": "/opt/wx/editor-test148/backups/dictionary01-20261110",
+  "reports": [
+    {
+      "port": 12522,
+      "passed": true,
+      "checks": [
+        {
+          "name": "super_admin 登录",
+          "passed": true
+        },
+        {
+          "name": "super_admin 原权限读取",
+          "passed": true
+        },
+        {
+          "name": "super_admin /api 四类及字符串编号",
+          "passed": true
+        },
+        {
+          "name": "super_admin /admin-api 四类及字符串编号",
+          "passed": true
+        },
+        {
+          "name": "super_admin 未配置类型返回空数组",
+          "passed": true
+        },
+        {
+          "name": "super_admin 原资源列表",
+          "passed": true
+        },
+        {
+          "name": "tenant_admin 登录",
+          "passed": true
+        },
+        {
+          "name": "tenant_admin 原权限读取",
+          "passed": true
+        },
+        {
+          "name": "tenant_admin /api 四类及字符串编号",
+          "passed": true
+        },
+        {
+          "name": "tenant_admin /admin-api 四类及字符串编号",
+          "passed": true
+        },
+        {
+          "name": "tenant_admin 未配置类型返回空数组",
+          "passed": true
+        },
+        {
+          "name": "tenant_admin 原资源列表",
+          "passed": true
+        },
+        {
+          "name": "viewer 登录",
+          "passed": true
+        },
+        {
+          "name": "viewer 原权限读取",
+          "passed": true
+        },
+        {
+          "name": "viewer /api 四类及字符串编号",
+          "passed": true
+        },
+        {
+          "name": "viewer /admin-api 四类及字符串编号",
+          "passed": true
+        },
+        {
+          "name": "viewer 未配置类型返回空数组",
+          "passed": true
+        },
+        {
+          "name": "viewer 原资源列表",
+          "passed": true
+        },
+        {
+          "name": "拒绝篡改租户",
+          "passed": true
+        },
+        {
+          "name": "/api 拒绝匿名读取",
+          "passed": true
+        },
+        {
+          "name": "/admin-api 拒绝匿名读取",
+          "passed": true
+        },
+        {
+          "name": "拒绝伪造内部身份",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "port": 12525,
+      "passed": true,
+      "checks": [
+        {
+          "name": "super_admin 登录",
+          "passed": true
+        },
+        {
+          "name": "super_admin 原权限读取",
+          "passed": true
+        },
+        {
+          "name": "super_admin /api 四类及字符串编号",
+          "passed": true
+        },
+        {
+          "name": "super_admin /admin-api 四类及字符串编号",
+          "passed": true
+        },
+        {
+          "name": "super_admin 未配置类型返回空数组",
+          "passed": true
+        },
+        {
+          "name": "super_admin 原资源列表",
+          "passed": true
+        },
+        {
+          "name": "tenant_admin 登录",
+          "passed": true
+        },
+        {
+          "name": "tenant_admin 原权限读取",
+          "passed": true
+        },
+        {
+          "name": "tenant_admin /api 四类及字符串编号",
+          "passed": true
+        },
+        {
+          "name": "tenant_admin /admin-api 四类及字符串编号",
+          "passed": true
+        },
+        {
+          "name": "tenant_admin 未配置类型返回空数组",
+          "passed": true
+        },
+        {
+          "name": "tenant_admin 原资源列表",
+          "passed": true
+        },
+        {
+          "name": "viewer 登录",
+          "passed": true
+        },
+        {
+          "name": "viewer 原权限读取",
+          "passed": true
+        },
+        {
+          "name": "viewer /api 四类及字符串编号",
+          "passed": true
+        },
+        {
+          "name": "viewer /admin-api 四类及字符串编号",
+          "passed": true
+        },
+        {
+          "name": "viewer 未配置类型返回空数组",
+          "passed": true
+        },
+        {
+          "name": "viewer 原资源列表",
+          "passed": true
+        },
+        {
+          "name": "拒绝篡改租户",
+          "passed": true
+        },
+        {
+          "name": "/api 拒绝匿名读取",
+          "passed": true
+        },
+        {
+          "name": "/admin-api 拒绝匿名读取",
+          "passed": true
+        },
+        {
+          "name": "拒绝伪造内部身份",
+          "passed": true
+        }
+      ]
+    }
+  ],
+  "webReadRoutes": [
+    "/api/system/dict/data/type/{dictType}",
+    "/admin-api/system/dict/data/type/{dictType}",
+    "/admin-api/dim3d/icon/page"
+  ]
+}

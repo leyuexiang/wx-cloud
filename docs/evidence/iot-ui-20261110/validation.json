@@ -1,0 +1,18 @@
+{
+  "tasks": [
+    "IOT-PLAN-02",
+    "IOT-UI-01"
+  ],
+  "date": "2026-11-10",
+  "utf8_documents": 10,
+  "local_links_checked": 66,
+  "heading_anchors_checked": 20,
+  "javascript_syntax_passed": true,
+  "prototype_browser_checks": 10,
+  "responsive_breakpoint_tested": false,
+  "backend_business_files_unchanged": true,
+  "prototype_sha256": "a4c7ffda4a65e4dc9229fc9160820f6f1aab611f354b2be140b7ad2ae80c167c",
+  "scope": "设计、优先级及独立原型验证；没有真实菜单/接口/设备联调，没有正式 Vue 页面或部署变更",
+  "errors": [],
+  "passed": true
+}

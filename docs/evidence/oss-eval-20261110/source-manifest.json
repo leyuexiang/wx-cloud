@@ -1,0 +1,66 @@
+{
+  "tag": "2.3.0",
+  "commit": "f7baa6e933398185096a5bff5e427593247b19d7",
+  "sources": [
+    {
+      "path": "pom.xml",
+      "sha256": "27d686cb6078394843065fc7cc064f86ea73a88df37f5197d82f36361078840a",
+      "url": "https://github.com/dromara/x-file-storage/blob/f7baa6e933398185096a5bff5e427593247b19d7/pom.xml"
+    },
+    {
+      "path": "x-file-storage-core/pom.xml",
+      "sha256": "4dae92ffb7b8a1cd31f90a36ad52283b9ff1184d97f33270638eaae722050b1a",
+      "url": "https://github.com/dromara/x-file-storage/blob/f7baa6e933398185096a5bff5e427593247b19d7/x-file-storage-core/pom.xml"
+    },
+    {
+      "path": "x-file-storage-spring/pom.xml",
+      "sha256": "9ada61c921b0d1e2d3ca1c243961a378ecc69f4d7493dfda72d0eee62fa27b47",
+      "url": "https://github.com/dromara/x-file-storage/blob/f7baa6e933398185096a5bff5e427593247b19d7/x-file-storage-spring/pom.xml"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6",
+      "url": "https://github.com/dromara/x-file-storage/blob/f7baa6e933398185096a5bff5e427593247b19d7/LICENSE"
+    },
+    {
+      "path": "x-file-storage-core/src/main/java/org/dromara/x/file/storage/core/platform/MinioFileStorage.java",
+      "sha256": "8481af4ee2af6cd59992ea956bcb613d3c74704ab8eac4250f4b11094713953b",
+      "url": "https://github.com/dromara/x-file-storage/blob/f7baa6e933398185096a5bff5e427593247b19d7/x-file-storage-core/src/main/java/org/dromara/x/file/storage/core/platform/MinioFileStorage.java"
+    },
+    {
+      "path": "x-file-storage-core/src/main/java/org/dromara/x/file/storage/core/platform/MinioFileStorageClientFactory.java",
+      "sha256": "7b14fbae23a5b1476f36af7e36c1049c1b21f53b7db566758fca16adc52620e5",
+      "url": "https://github.com/dromara/x-file-storage/blob/f7baa6e933398185096a5bff5e427593247b19d7/x-file-storage-core/src/main/java/org/dromara/x/file/storage/core/platform/MinioFileStorageClientFactory.java"
+    },
+    {
+      "path": "x-file-storage-core/src/main/java/org/dromara/x/file/storage/core/recorder/DefaultFileRecorder.java",
+      "sha256": "c43a64f5c9264275be7f9e62bdccca6a164ef0a99b75bb4a6d5ea6663fb28fa9",
+      "url": "https://github.com/dromara/x-file-storage/blob/f7baa6e933398185096a5bff5e427593247b19d7/x-file-storage-core/src/main/java/org/dromara/x/file/storage/core/recorder/DefaultFileRecorder.java"
+    },
+    {
+      "path": "x-file-storage-core/src/main/java/org/dromara/x/file/storage/core/upload/UploadActuator.java",
+      "sha256": "c78d6fa96bf8982a0f1809058937be21a1c942383f476a91c3fcf19ca9e8a8f6",
+      "url": "https://github.com/dromara/x-file-storage/blob/f7baa6e933398185096a5bff5e427593247b19d7/x-file-storage-core/src/main/java/org/dromara/x/file/storage/core/upload/UploadActuator.java"
+    },
+    {
+      "path": "x-file-storage-core/src/main/java/org/dromara/x/file/storage/core/FileStorageService.java",
+      "sha256": "ec6840508fef957b57cb5aabd1a3942df53de18520b15dee49a866c8ce197661",
+      "url": "https://github.com/dromara/x-file-storage/blob/f7baa6e933398185096a5bff5e427593247b19d7/x-file-storage-core/src/main/java/org/dromara/x/file/storage/core/FileStorageService.java"
+    },
+    {
+      "path": "x-file-storage-core/src/main/java/org/dromara/x/file/storage/core/file/InputStreamFileWrapperAdapter.java",
+      "sha256": "cbe1c9326b8f49816af20cf1386e4a28379b12475b5fab23937b6cb693b54c91",
+      "url": "https://github.com/dromara/x-file-storage/blob/f7baa6e933398185096a5bff5e427593247b19d7/x-file-storage-core/src/main/java/org/dromara/x/file/storage/core/file/InputStreamFileWrapperAdapter.java"
+    },
+    {
+      "path": "x-file-storage-spring/src/main/java/org/dromara/x/file/storage/spring/FileStorageAutoConfiguration.java",
+      "sha256": "43ee9b1463ee3982cc086815b5681d76d05238d62d9b29845b9b92296621d952",
+      "url": "https://github.com/dromara/x-file-storage/blob/f7baa6e933398185096a5bff5e427593247b19d7/x-file-storage-spring/src/main/java/org/dromara/x/file/storage/spring/FileStorageAutoConfiguration.java"
+    },
+    {
+      "path": "x-file-storage-spring/src/main/java/org/dromara/x/file/storage/spring/EnableFileStorage.java",
+      "sha256": "b3e7052ba4630d8a132b79c6233945a5f141065a762ee9d776e7c3ea61018dda",
+      "url": "https://github.com/dromara/x-file-storage/blob/f7baa6e933398185096a5bff5e427593247b19d7/x-file-storage-spring/src/main/java/org/dromara/x/file/storage/spring/EnableFileStorage.java"
+    }
+  ]
+}

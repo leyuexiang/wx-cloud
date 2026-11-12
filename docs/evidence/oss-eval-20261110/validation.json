@@ -1,0 +1,14 @@
+{
+  "task": "OSS-EVAL-01",
+  "date": "2026-11-10",
+  "strict_utf8_files": 15,
+  "local_links_checked": 47,
+  "anchors_checked": 10,
+  "json_xml_parsed": true,
+  "git_diff_check_passed": true,
+  "business_files_unchanged": true,
+  "probe_tests": 9,
+  "errors": [],
+  "passed": true,
+  "scope": "只验证本轮文档、证据及既有隔离探针结果；没有真实依赖或在线环境验收"
+}

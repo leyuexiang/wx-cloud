@@ -1,0 +1,10 @@
+{
+  "status": "APPLIED",
+  "backup": "/opt/wx/editor-test148/backups/iot-data08-20261111/binding-before-decimal.sql",
+  "backupSha256": "82289bac0be563f1ee87b5f79a3d913297e23e65803ee81fc12a4e0ac9f7b662",
+  "migrationSha256": "3c74a1738984a80c669f2e588a4d78a09f8b3a38811ef651ce050c8d7c6758a9",
+  "rowsBefore": 1,
+  "rowsSha256Before": "f20c4febfe6cd852ed0fbf0bb91e6f7f2ef1b3a2327a44c321b71dc626aec04d",
+  "rowsPreserved": true,
+  "legacyRoundedValuesRestored": false
+}

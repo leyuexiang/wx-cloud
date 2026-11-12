@@ -1,0 +1,160 @@
+{
+  "scope": "NAV-01：资源及场景菜单增量清单；IoT继续使用wx-module-iot/db/iot-management-menus.json。通过系统菜单接口创建或复用，按parentKey补parentId，不自动授予任何角色。",
+  "groups": [
+    {
+      "key": "resources",
+      "request": {
+        "permission": "",
+        "type": 1,
+        "status": 0,
+        "visible": true,
+        "keepAlive": false,
+        "alwaysShow": true,
+        "component": "",
+        "icon": "",
+        "componentName": "",
+        "name": "资源管理",
+        "path": "resourceManage",
+        "sort": 10,
+        "parentId": 0
+      },
+      "pages": [
+        {
+          "key": "modelManage",
+          "parentKey": "resources",
+          "request": {
+            "permission": "",
+            "type": 2,
+            "status": 0,
+            "visible": true,
+            "keepAlive": false,
+            "alwaysShow": false,
+            "component": "resourceManage/modelManage/index",
+            "icon": "",
+            "componentName": "modelManage",
+            "name": "模型管理",
+            "path": "model",
+            "sort": 1
+          },
+          "requiredPermission": "dim3d:model:query",
+          "buttons": [
+            {
+              "parentKey": "modelManage",
+              "request": {
+                "permission": "dim3d:model:query",
+                "type": 3,
+                "status": 0,
+                "visible": false,
+                "keepAlive": false,
+                "alwaysShow": false,
+                "component": "",
+                "icon": "",
+                "componentName": "",
+                "sort": 1,
+                "name": "查询",
+                "path": ""
+              }
+            }
+          ]
+        },
+        {
+          "key": "iconManage",
+          "parentKey": "resources",
+          "request": {
+            "permission": "",
+            "type": 2,
+            "status": 0,
+            "visible": true,
+            "keepAlive": false,
+            "alwaysShow": false,
+            "component": "resourceManage/iconManage/index",
+            "icon": "",
+            "componentName": "iconManage",
+            "name": "图片管理",
+            "path": "icon",
+            "sort": 2
+          },
+          "requiredPermission": "dim3d:icon:query",
+          "buttons": [
+            {
+              "parentKey": "iconManage",
+              "request": {
+                "permission": "dim3d:icon:query",
+                "type": 3,
+                "status": 0,
+                "visible": false,
+                "keepAlive": false,
+                "alwaysShow": false,
+                "component": "",
+                "icon": "",
+                "componentName": "",
+                "sort": 1,
+                "name": "查询",
+                "path": ""
+              }
+            }
+          ]
+        },
+        {
+          "key": "templateManage",
+          "parentKey": "resources",
+          "request": {
+            "permission": "",
+            "type": 2,
+            "status": 0,
+            "visible": true,
+            "keepAlive": false,
+            "alwaysShow": false,
+            "component": "resourceManage/templateManage/index",
+            "icon": "",
+            "componentName": "templateManage",
+            "name": "模板管理",
+            "path": "template",
+            "sort": 3
+          },
+          "accessRule": "菜单与现有运营端模板能力求交集；接口保留原有角色判断"
+        }
+      ]
+    },
+    {
+      "key": "scenes",
+      "request": {
+        "permission": "",
+        "type": 1,
+        "status": 0,
+        "visible": true,
+        "keepAlive": false,
+        "alwaysShow": true,
+        "component": "",
+        "icon": "",
+        "componentName": "",
+        "name": "场景管理",
+        "path": "sceneManage",
+        "sort": 20,
+        "parentId": 0
+      },
+      "pages": [
+        {
+          "key": "sceneManage",
+          "parentKey": "scenes",
+          "request": {
+            "permission": "",
+            "type": 2,
+            "status": 0,
+            "visible": true,
+            "keepAlive": false,
+            "alwaysShow": false,
+            "component": "SceneManage/index",
+            "icon": "",
+            "componentName": "sceneManage",
+            "name": "场景列表",
+            "path": "list",
+            "sort": 1
+          },
+          "accessRule": "菜单及有效登录；接口保留可信租户与对象范围校验"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 1
+}

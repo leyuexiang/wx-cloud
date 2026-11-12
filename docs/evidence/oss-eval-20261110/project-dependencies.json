@@ -1,0 +1,47 @@
+{
+  "module": "wx-module-infra-biz",
+  "effective_managed_dependencies": [
+    {
+      "groupId": "cn.hutool",
+      "artifactId": "hutool-all",
+      "version": "5.8.32"
+    },
+    {
+      "groupId": "org.apache.tika",
+      "artifactId": "tika-core",
+      "version": "2.9.2"
+    },
+    {
+      "groupId": "com.squareup.okhttp3",
+      "artifactId": "okhttp",
+      "version": "4.11.0"
+    },
+    {
+      "groupId": "io.minio",
+      "artifactId": "minio",
+      "version": "8.5.7"
+    },
+    {
+      "groupId": "org.apache.commons",
+      "artifactId": "commons-pool2",
+      "version": "2.12.0"
+    },
+    {
+      "groupId": "org.springframework.boot",
+      "artifactId": "spring-boot",
+      "version": "3.3.4"
+    },
+    {
+      "groupId": "com.fasterxml.jackson.core",
+      "artifactId": "jackson-databind",
+      "version": "2.17.2"
+    },
+    {
+      "groupId": "org.springframework",
+      "artifactId": "spring-core",
+      "version": "6.1.13"
+    }
+  ],
+  "root_build_plugin_spring_boot_version": "3.1.12",
+  "scope": "仅提取真实有效模型的存储相关受管版本，不等于完整运行时依赖树"
+}

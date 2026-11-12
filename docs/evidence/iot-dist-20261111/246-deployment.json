@@ -1,0 +1,16 @@
+{
+  "status": "PUBLISHED",
+  "javaImage": "sha256:ca9855d5285ce8e7ee3b4003facb22508e37c081192e1fa2a35d38e49068e7ed",
+  "webImage": "nginx@sha256:583b7f2fce1cdb8da5ad5c39ebd3c33b98b87d493190e548bdee1fa8c619c311",
+  "backendHost": "192.168.10.148",
+  "mqttEnabled": false,
+  "composeProject": "jtyf-editor246",
+  "vegetationBaseline": [
+    "vegetation-worker 022ef4c537d9",
+    "vegetation-api ce28e5f22468",
+    "jtyf-vegetation-redis 23ffcc4a9497"
+  ],
+  "sourceJavaImage": "sha256:fb388f77f8ccee590e977e538884e0539623e111ca02c3d63684662f55b2db30",
+  "runtimeContentLayersMatched": true,
+  "endpoint": "https://192.168.10.246:9447/dts/"
+}

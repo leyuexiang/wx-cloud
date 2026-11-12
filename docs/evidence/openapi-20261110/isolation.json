@@ -1,0 +1,128 @@
+{
+  "base": "http://127.0.0.1:12534",
+  "passed": true,
+  "checks": [
+    {
+      "name": "文档页面",
+      "passed": true
+    },
+    {
+      "name": "页面包含脚本",
+      "passed": true
+    },
+    {
+      "name": "页面脚本 webjars/js/chunk-vendors.d51cf6f8.js",
+      "passed": true
+    },
+    {
+      "name": "页面脚本 webjars/js/app.c31badf5.js",
+      "passed": true
+    },
+    {
+      "name": "三个已部署模块聚合",
+      "passed": true,
+      "resources": [
+        {
+          "name": "系统服务",
+          "url": "/admin-api/system/v3/api-docs",
+          "contextPath": "",
+          "id": "57O757uf5pyN5YqhL2FkbWluLWFwaS9zeXN0ZW0vdjMvYXBpLWRvY3Mv",
+          "serviceName": null
+        },
+        {
+          "name": "基础设施服务",
+          "url": "/admin-api/infra/v3/api-docs",
+          "contextPath": "",
+          "id": "5Z+656GA6K6+5pa95pyN5YqhL2FkbWluLWFwaS9pbmZyYS92My9hcGktZG9jcy8=",
+          "serviceName": null
+        },
+        {
+          "name": "三维服务",
+          "url": "/admin-api/dimensions/v3/api-docs",
+          "contextPath": "",
+          "id": "5LiJ57u05pyN5YqhL2FkbWluLWFwaS9kaW1lbnNpb25zL3YzL2FwaS1kb2NzLw==",
+          "serviceName": null
+        }
+      ]
+    },
+    {
+      "name": "system 原始规范",
+      "passed": true,
+      "pathCount": 231
+    },
+    {
+      "name": "system 调试路径保留业务前缀",
+      "passed": true,
+      "pathSample": [
+        "/admin-api/system/user/profile/update-avatar",
+        "/admin-api/system/user/update"
+      ]
+    },
+    {
+      "name": "infra 原始规范",
+      "passed": true,
+      "pathCount": 82
+    },
+    {
+      "name": "infra 调试路径保留业务前缀",
+      "passed": true,
+      "pathSample": [
+        "/admin-api/infra/file-config/update",
+        "/admin-api/infra/file-config/update-master"
+      ]
+    },
+    {
+      "name": "dimensions 原始规范",
+      "passed": true,
+      "pathCount": 216
+    },
+    {
+      "name": "dimensions 调试路径保留业务前缀",
+      "passed": true,
+      "pathSample": [
+        "/admin-api/dimensions/project-resource/{id}",
+        "/admin-api/dimensions/project-resource-version/{id}"
+      ]
+    },
+    {
+      "name": "/admin-api/system/user/profile/get 匿名拒绝",
+      "passed": true,
+      "code": 401
+    },
+    {
+      "name": "/admin-api/system/user/profile/get 伪造身份拒绝",
+      "passed": true,
+      "code": 401
+    },
+    {
+      "name": "/admin-api/infra/file-config/page 匿名拒绝",
+      "passed": true,
+      "code": 401
+    },
+    {
+      "name": "/admin-api/infra/file-config/page 伪造身份拒绝",
+      "passed": true,
+      "code": 401
+    },
+    {
+      "name": "/admin-api/dim3d/model/page 匿名拒绝",
+      "passed": true,
+      "code": 401
+    },
+    {
+      "name": "/admin-api/dim3d/model/page 伪造身份拒绝",
+      "passed": true,
+      "code": 401
+    },
+    {
+      "name": "/admin-api/system/v3/api-docs-unrelated 匿名拒绝",
+      "passed": true,
+      "code": 401
+    },
+    {
+      "name": "/admin-api/system/v3/api-docs-unrelated 伪造身份拒绝",
+      "passed": true,
+      "code": 401
+    }
+  ]
+}

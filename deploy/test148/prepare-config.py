@@ -5,6 +5,8 @@ import copy
 import os
 import yaml
 
+from openapi_support import enable_openapi
+
 
 def merge(target, incoming):
     """合并现有多文档配置，保留同一顶级键下的各项设置。"""
@@ -153,7 +155,8 @@ for service, (module, port) in MODULES.items():
             })
         config["spring"]["cloud"]["gateway"] = {"routes": routes,
                                                         "x-forwarded": {"prefix-enabled": False}}
-        config["knife4j"] = {"gateway": {"enabled": False}}
+        # 文档精确路由与现场修复共用实现，重新生成配置后仍能列出已部署服务。
+        enable_openapi(config)
     else:
         config["spring"]["datasource"] = {"dynamic": {
             "primary": "master",
