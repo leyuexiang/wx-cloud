@@ -78,10 +78,11 @@ def run(stage_path, role, output):
         if not passed:
             raise RuntimeError(name)
 
-    def request(path, body=None, method='GET', gateway=False, content_type='application/json'):
-        headers = {'Content-Type': content_type, 'ClientId': 'admin-api', 'tenant-id': str(actor['tenantId'])}
-        if actor.get('token'):
-            headers['Authorization'] = 'Bearer ' + actor['token']
+    def request(path, body=None, method='GET', gateway=False, content_type='application/json', identity=None):
+        current = actor if identity is None else identity
+        headers = {'Content-Type': content_type, 'ClientId': 'admin-api', 'tenant-id': str(current['tenantId'])}
+        if current.get('token'):
+            headers['Authorization'] = 'Bearer ' + current['token']
         data = body if isinstance(body, bytes) else json.dumps(body).encode() if body is not None else None
         req = urllib.request.Request('http://127.0.0.1:' + str(12522 if gateway else port) + path,
                                      data=data, headers=headers, method=method)
@@ -224,13 +225,25 @@ def run(stage_path, role, output):
                     tree = ET.fromstring(listing)
                     keys = [item.text for item in tree.findall('{*}Contents/{*}Key')]
                     safe = status == 200 and len(keys) <= 128 and tree.findtext('{*}IsTruncated') == 'false' and all(key.startswith(prefix) for key in keys)
-                    removed = removed and safe and all(s3.request('DELETE', '/wx-art-test148/' + key)[0] in (200, 204) for key in keys)
+                    outcomes = [s3.request('DELETE', '/wx-art-test148/' + key)[0] in (200, 204) for key in keys] if safe else [False]
+                    removed = all(outcomes) and removed
                 result['testObjectsRemoved'] = removed
         except Exception:
             result['testObjectsRemoved'] = False
         if cover_id:
             try:
                 deleted = request('/admin-api/infra/file/delete?id=' + cover_id, method='DELETE', gateway=True)
+                if deleted.get('code') == 403:
+                    # 租户业务写权限不等于后台文件删除权限，回收时复用现有平台管理员。
+                    administrator = dict(next(item for item in identities if item['role'] == 'super_admin'))
+                    login = request('/admin-api/system/auth/login', {'username': administrator['username'],
+                        'password': administrator['password'], 'captchaVerification': ''}, 'POST', gateway=True, identity=administrator)
+                    if login.get('code') == 200:
+                        administrator['token'] = login['data']['accessToken']
+                        try:
+                            deleted = request('/admin-api/infra/file/delete?id=' + cover_id, method='DELETE', gateway=True, identity=administrator)
+                        finally:
+                            request('/admin-api/system/auth/logout', {}, 'POST', gateway=True, identity=administrator)
                 result['coverFileRemoved'] = deleted.get('code') == 200
                 if cover_copied:
                     sql("DELETE FROM `" + clone + "`.wx_infra_file WHERE id=" + cover_id + " AND name='" + filename + "';")
