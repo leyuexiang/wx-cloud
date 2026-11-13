@@ -6,7 +6,7 @@ ROOT=Path("/opt/wx/editor-test148")
 def main():
     if Path.cwd().resolve()!=ROOT:raise RuntimeError("工作目录错误")
     os.umask(0o077)
-    # 跨域只放行精确来源；留空覆盖会在写配置前失败，避免误开通配来源。
+    # 默认兼容任意前端来源；签名、方法和暂存路径仍是上传准入条件。
     allowed_origins=parse_allowed_origins(os.environ.get("WX_UPLOAD_CORS_ORIGINS"))
     # 与下载入口复用服务器现有证书链，不依赖不存在的历史测试证书目录。
     cert=os.environ.get("WX_TLS_CERT_DIR", "/etc/wx/tls")
@@ -35,6 +35,9 @@ def main():
         proxy_pass http://127.0.0.1:9000;
         proxy_set_header Host $http_host;
         proxy_set_header Connection "";
+        # 对象传输不带浏览器凭据；跨域响应由此入口统一提供，避免上游重复头。
+        proxy_hide_header Access-Control-Allow-Origin;
+        proxy_hide_header Access-Control-Allow-Credentials;
         proxy_http_version 1.1;
         proxy_request_buffering off;
         proxy_read_timeout 300s;
@@ -51,6 +54,6 @@ def main():
         if (backup/target.name).exists():shutil.copy2(backup/target.name,target)
         else:target.unlink()
         raise
-    report={"endpoint":"https://192.168.10.148:9445","allowedOrigins":list(allowed_origins),"stagingOnly":True,"putOnly":True,"signedQueryLogging":False,"backup":str(backup)}
+    report={"endpoint":"https://192.168.10.148:9445","allowedOrigins":list(allowed_origins),"browserCredentials":False,"stagingOnly":True,"putOnly":True,"signedQueryLogging":False,"backup":str(backup)}
     (ROOT/"upload-setup.json").write_text(json.dumps(report,indent=2));print(json.dumps(report))
 if __name__=="__main__":main()

@@ -1,14 +1,11 @@
-"""生成对象存储暂存上传所需的精确浏览器来源白名单。"""
+"""生成签名对象传输的跨域配置，默认兼容多个前端及无来源头的调试工具。"""
 
 import re
 from urllib.parse import urlsplit
 
 
-# 兼容当前 wx-vue-unity 开发页和旧验收工具；正式域名应通过部署环境显式增加。
-DEFAULT_ALLOWED_ORIGINS = (
-    "http://127.0.0.1:8765",
-    "http://localhost:5180",
-)
+# 按当前用户要求取消前端来源登记；对象传输不使用浏览器凭据，权限由短时签名决定。
+DEFAULT_ALLOWED_ORIGINS = ("*",)
 _HOST_LABEL = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$")
 _ORIGIN = re.compile(
     r"^(?P<scheme>https?)://(?P<host>localhost|[A-Za-z0-9.-]+)(?::(?P<port>[0-9]{1,5}))?$",
@@ -17,10 +14,12 @@ _ORIGIN = re.compile(
 
 
 def parse_allowed_origins(value):
-    """解析精确来源列表，拒绝路径、凭据、异常端口和可注入 Nginx 的文本。"""
+    """接受单独通配符或显式精确列表；兼容旧部署覆盖并拒绝指令注入。"""
     candidates = list(DEFAULT_ALLOWED_ORIGINS) if value is None else value.split(",")
     if not candidates or any(not item.strip() for item in candidates):
         raise ValueError("上传跨域来源列表不能为空或包含空项")
+    if len(candidates) == 1 and candidates[0].strip() == "*":
+        return ("*",)
 
     normalized = []
     for candidate in candidates:
@@ -53,14 +52,16 @@ def parse_allowed_origins(value):
 
 
 def render_nginx_origin_map(origins, variable="wx_resource_upload_cors_origin"):
-    """生成精确来源映射；上传和下载使用独立变量，防止同时加载时发生冲突。"""
+    """上传和下载使用独立映射；通配模式不反射来源，也不允许浏览器凭据。"""
     if not re.fullmatch(r"[a-z][a-z0-9_]*", variable):
         raise ValueError("跨域映射变量名无效")
     validated = parse_allowed_origins(",".join(origins))
+    wildcard = validated == ("*",)
     lines = [
         f"map $http_origin ${variable} {{",
-        '    default "";',
+        '    default "*";' if wildcard else '    default "";',
     ]
-    lines.extend(f'    "{origin}" $http_origin;' for origin in validated)
+    if not wildcard:
+        lines.extend(f'    "{origin}" $http_origin;' for origin in validated)
     lines.extend(("}", ""))
     return "\n".join(lines)

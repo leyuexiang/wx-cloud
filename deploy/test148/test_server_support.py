@@ -125,19 +125,25 @@ class GeneratedConfigTest(unittest.TestCase):
 
 
 class ResourceUploadCorsTest(unittest.TestCase):
-    """验证 MinIO 暂存上传只向明确允许的浏览器来源开放跨域读取。"""
+    """签名文件传输默认兼容任意页面来源；显式列表仍可用于其他部署环境。"""
 
-    def test_default_origins_include_current_frontend_and_legacy_tool(self):
-        """默认兼容当前 5180 页面与旧 8765 工具，并只回显精确来源。"""
+    def test_default_origins_allow_multiple_frontends_without_port_registration(self):
+        """不按前端地址或端口维护名单，上传授权仍由对象签名负责。"""
         from resource_upload_config import parse_allowed_origins, render_nginx_origin_map
 
         origins = parse_allowed_origins(None)
-        self.assertEqual(origins, ("http://127.0.0.1:8765", "http://localhost:5180"))
+        self.assertEqual(origins, ("*",))
         config = render_nginx_origin_map(origins)
-        self.assertIn('default "";', config)
-        self.assertIn('"http://127.0.0.1:8765" $http_origin;', config)
-        self.assertIn('"http://localhost:5180" $http_origin;', config)
-        self.assertNotIn("*", config)
+        self.assertIn('default "*";', config)
+        self.assertNotIn("localhost", config)
+        self.assertNotIn("5180", config)
+
+    def test_wildcard_is_explicit_and_cannot_mix_with_origin_list(self):
+        """允许单独配置通配来源，拒绝含义矛盾或可注入的混合值。"""
+        from resource_upload_config import parse_allowed_origins
+        self.assertEqual(parse_allowed_origins(" * "), ("*",))
+        with self.assertRaises(ValueError):
+            parse_allowed_origins("*,http://localhost:5180")
 
     def test_origin_override_is_normalized_and_deduplicated(self):
         """运维覆盖按源地址规范化，重复值不会扩大或重复写入白名单。"""

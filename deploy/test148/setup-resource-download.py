@@ -4,7 +4,7 @@ import importlib.util,subprocess,json,datetime,shutil,os
 from resource_upload_config import parse_allowed_origins, render_nginx_origin_map
 ROOT=Path("/opt/wx/editor-test148")
 def render_download_config(cert, origins, key=None):
-    """生成只读代理，复用精确来源校验并保留签名主机与禁用查询日志。"""
+    """生成只读代理，允许多个前端消费签名文件并保留签名主机与禁用查询日志。"""
     return render_nginx_origin_map(origins, variable="wx_resource_download_cors_origin")+"""# ART-02：只代理新私有资源桶的签名GET，保留Host以通过S3签名校验。
 server {
     listen 192.168.10.148:9444 ssl;
@@ -15,7 +15,7 @@ server {
     access_log off;
     error_log /opt/wx/editor-test148/data/resource-download-error.log crit;
     add_header Referrer-Policy no-referrer always;
-    # 未匹配来源不返回跨域许可；签名及资源权限仍由既有服务校验。
+    # 默认通配来源，不依赖前端端口；私有桶签名及资源权限仍由既有服务校验。
     add_header Access-Control-Allow-Origin $wx_resource_download_cors_origin always;
     add_header Vary Origin always;
     add_header Access-Control-Expose-Headers "Content-Length,Content-Range,ETag" always;
@@ -30,6 +30,8 @@ server {
         proxy_hide_header Cache-Control;
         # 跨域许可由网关统一返回，避免对象存储重复响应头被浏览器拒绝。
         proxy_hide_header Access-Control-Allow-Origin;
+        proxy_hide_header Access-Control-Allow-Credentials;
+        proxy_hide_header Access-Control-Expose-Headers;
     }
     location / { return 404; }
 }
@@ -67,6 +69,6 @@ def main():
         raise
     # 到期时间从实际部署证书读取，避免沿用历史环境的固定日期。
     expiry=subprocess.check_output(["openssl","x509","-in",cert+"/server.crt","-noout","-enddate"],text=True).strip()
-    result={"endpoint":"https://192.168.10.148:9444","bucket":"wx-art-test148","bucketPolicy":"NONE_PRIVATE","getOnly":True,"signedQueryLogging":False,"backup":str(backup),"certificateExpires":expiry,"allowedOrigins":list(origins)}
+    result={"endpoint":"https://192.168.10.148:9444","bucket":"wx-art-test148","bucketPolicy":"NONE_PRIVATE","getOnly":True,"signedQueryLogging":False,"backup":str(backup),"certificateExpires":expiry,"allowedOrigins":list(origins),"browserCredentials":False}
     (ROOT/"download-setup.json").write_text(json.dumps(result,indent=2));print(json.dumps(result))
 if __name__=="__main__":main()

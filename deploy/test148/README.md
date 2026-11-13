@@ -28,9 +28,9 @@ python3 /opt/wx/checkouts/wx-cloud/deploy/test148/prepare-model-import.py --data
 
 三维配置通过 `WX_MODEL_IMPORT_ENABLED`、`WX_MODEL_IMPORT_WORKER_ENABLED`、`WX_MODEL_IMPORT_CONVERTER_URL`、`WX_MODEL_IMPORT_APP_COMPATIBILITY` 及可选的超时、产物大小变量设置。入口和工作线程默认关闭，转换地址使用已验证的完整接口地址。现有服务器配置仅补齐该配置组，保留实际数据库、端口及其他功能配置。
 
-当前浏览器来源为 `http://192.168.10.247:5180`。执行上传代理配置时，通过 `WX_UPLOAD_CORS_ORIGINS` 提供完整精确来源列表。该变量可以同时包含既有来源。`WX_TLS_CERT_DIR` 指向现场已核验的有效证书目录，浏览器需信任对应证书。2026-11-12 现场的上传代理仍使用旧来源和已到期证书，下方早期记录中的证书目录与到期日按其记录日期理解。
+2026-11-13 按用户最新要求，模型上传和下载默认使用 `Access-Control-Allow-Origin: *`，不再登记前端主机和端口；多个本地开发服务及服务器前端均可使用。上传和下载均不允许浏览器凭据，上游跨域头由代理统一处理，私有桶、签名、方法及路径限制继续执行。`WX_UPLOAD_CORS_ORIGINS`、`WX_DOWNLOAD_CORS_ORIGINS` 可显式设为 `*`；其他环境如需精确列表仍兼容原配置。当前服务器本批设置为 `*`，覆盖下方早期精确来源约定。
 
-下载代理同步使用精确来源映射，默认继承 `WX_UPLOAD_CORS_ORIGINS`，也可由 `WX_DOWNLOAD_CORS_ORIGINS` 单独覆盖。上传与下载映射变量独立，能同时加载；不匹配的来源不返回跨域许可，私有桶签名、只读下载与暂存上传路径限制继续执行。
+接口调试工具（Postman）无需来源（Origin）请求头。业务步骤携带登录令牌、`tenant-id`、`ClientId: admin-api`，按创建任务、获取原包签名、以二进制请求体 PUT 原 ZIP、提交入队、查询阶段、等待转换后确认发布的顺序执行。签名 PUT 不携带业务令牌或租户头，也不要手写多段表单边界。最终提交成功才代表新增成功，HTTP 202 仅代表已受理。
 
 续期证书与原私钥不在同一目录时，使用 `WX_TLS_KEY_FILE` 单独指定既有私钥路径；不复制或更换私钥。代理配置校验成功后才重载，失败恢复原配置。当前用户证书信任由用户确认后单独处理，不用关闭浏览器或传输层证书校验替代。
 
@@ -127,7 +127,7 @@ ART-01 已完成结构迁移、测试库精确回退/再迁移和接口合同，
 
 ## ART-03 上传与事务
 
-ART-03已部署：HTTPS9445仅允许私有桶暂存前缀PUT；9444继续只读。新增 `setup-resource-upload.py`、`deploy-resource-art03.py` 与 `verify-resource-art03.py`；操作调用、冻结与数据库事务见[实现说明](../../docs/10_专项设计/08_资源上传替换事务实现.md)。99项本地测试、67项真实事务、60项权限/32项下载/20项原接口回归通过，详见[最终记录](../../docs/evidence/backend-art03-20261029/README.md)。上传入口只回显精确的浏览器来源白名单；默认兼容 `http://127.0.0.1:8765` 与当前 `http://localhost:5180`，正式站点应在运行脚本前通过 `WX_UPLOAD_CORS_ORIGINS` 配置逗号分隔的完整来源，禁止使用通配符。此前各节“上传/commit尚未启用”为ART-02时点，当前以本节为准。
+ART-03已部署：HTTPS9445仅允许私有桶暂存前缀PUT；9444继续只读。新增 `setup-resource-upload.py`、`deploy-resource-art03.py` 与 `verify-resource-art03.py`；操作调用、冻结与数据库事务见[实现说明](../../docs/10_专项设计/08_资源上传替换事务实现.md)。99项本地测试、67项真实事务、60项权限/32项下载/20项原接口回归通过，详见[最终记录](../../docs/evidence/backend-art03-20261029/README.md)。来源名单是该历史验收时点的配置；当前按本文 2026-11-13 段落取消前端来源限制，使用签名及业务权限控制。此前各节“上传/commit尚未启用”为ART-02时点，当前以本节为准。
 
 ## ART-05 固定内容读取增量
 

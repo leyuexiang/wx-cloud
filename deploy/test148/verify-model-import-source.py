@@ -15,6 +15,7 @@ import zipfile
 
 ROOT = Path("/opt/wx/editor-test148")
 ORIGIN = "http://192.168.10.247:5180"
+FRONTEND_ORIGINS = (ORIGIN, "http://localhost:5181", "http://127.0.0.1:5173", "https://192.168.10.148:9447")
 CERTIFICATE = "/home/wx-editor-web148/releases/iot-web-20261111/server.crt"
 
 
@@ -94,15 +95,32 @@ def run(target):
         address = urllib.parse.urlsplit(upload["uploadUrl"])
         check("目标绑定地址及摘要", address.scheme == "https" and address.netloc == "192.168.10.148:9445"
               and address.path == object_path and upload["sourceSha256"] == digest and upload["sourceSize"] == str(len(payload)))
-        preflight = urllib.request.Request(urllib.parse.urlunsplit(address._replace(query="")), method="OPTIONS",
-                                          headers={"Origin": ORIGIN, "Access-Control-Request-Method": "PUT"})
-        with secure.open(preflight, timeout=15) as response:
-            check("当前网页跨域预检", response.status == 204 and response.headers.get("Access-Control-Allow-Origin") == ORIGIN)
+        unsigned = urllib.parse.urlunsplit(address._replace(query=""))
+        for origin in FRONTEND_ORIGINS:
+            preflight = urllib.request.Request(unsigned, method="OPTIONS",
+                                              headers={"Origin": origin, "Access-Control-Request-Method": "PUT"})
+            with secure.open(preflight, timeout=15) as response:
+                check("多前端来源预检:" + origin, response.status == 204
+                      and response.headers.get("Access-Control-Allow-Origin") == "*"
+                      and response.headers.get("Access-Control-Allow-Credentials") is None)
+        try:
+            with secure.open(urllib.request.Request(unsigned, data=payload, method="PUT"), timeout=15) as response:
+                unsigned_status = response.status
+        except urllib.error.HTTPError as error:
+            unsigned_status = error.code
+            error.close()
+        check("取消来源限制后无签名上传仍拒绝", unsigned_status == 403)
+        # 主候选模拟浏览器，另一候选不带来源头，验证接口调试工具的实际传输方式。
+        headers = {"Content-Type": "application/zip"}
+        if target == "main":
+            headers["Origin"] = ORIGIN
+        result["uploadHasOriginHeader"] = "Origin" in headers
         put = urllib.request.Request(upload["uploadUrl"], data=payload, method="PUT",
-                                     headers={"Content-Type": "application/zip", "Origin": ORIGIN})
+                                     headers=headers)
         with secure.open(put, timeout=30) as response:
             uploaded = True
-            check("真实签名上传与跨域响应", response.status == 200 and response.headers.get("Access-Control-Allow-Origin") == ORIGIN)
+            check("真实签名上传与跨域响应", response.status == 200 and response.headers.get("Access-Control-Allow-Origin") == "*"
+                  and response.headers.get("Access-Control-Allow-Credentials") is None)
         status, stored = s3.request("GET", object_path)
         check("私有桶回读字节摘要", status == 200 and len(stored) == len(payload) and hashlib.sha256(stored).hexdigest() == digest)
         queued = request(path + "/submit", actor, {}, "POST")
