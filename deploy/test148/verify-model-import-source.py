@@ -29,7 +29,8 @@ def source_payload(kind, failure_case=None):
     if failure_case == "missing-texture":
         buffer = io.BytesIO()
         with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
-            archive.writestr("probe.obj", "mtllib probe.mtl\no probe\nv 0 0 0\nv 1 0 0\nv 0 1 0\nusemtl missing\nf 1 2 3\n")
+            # 明确为每个顶点提供纹理坐标，确保缺失贴图属于实际使用的材质依赖。
+            archive.writestr("probe.obj", "mtllib probe.mtl\no probe\nv 0 0 0\nv 1 0 0\nv 0 1 0\nvt 0 0\nvt 1 0\nvt 0 1\nusemtl missing\nf 1/1 2/2 3/3\n")
             archive.writestr("probe.mtl", "newmtl missing\nKd 1 1 1\nmap_Kd absent.png\n")
         return buffer.getvalue(), "缺少声明贴图的 OBJ 源包"
     if kind == "fbx":
@@ -187,7 +188,7 @@ def run(target, conversion=False, source_kind="obj", output_format="glb", failur
                       state["importStatus"] == "FAILED" and state["errorCode"] == expected and state["retryable"] is False)
             else:
                 check("冻结原包及真实转换闭包校验", state["importStatus"] == "PUBLISHING" and state["errorCode"] is None)
-            check("待确认阶段未假报最终提交", state["committedRevision"] is None and state["operationStatus"] == "UPLOADING")
+            check("资源尚无提交回执", state["committedRevision"] is None and state["operationStatus"] == "UPLOADING")
         else:
             check("工作线程关闭时不假报成功", request(path, actor)["data"]["importStatus"] == "QUEUED")
         result["passed"] = True
