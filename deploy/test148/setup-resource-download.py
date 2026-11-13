@@ -3,14 +3,14 @@ from pathlib import Path
 import importlib.util,subprocess,json,datetime,shutil,os
 from resource_upload_config import parse_allowed_origins, render_nginx_origin_map
 ROOT=Path("/opt/wx/editor-test148")
-def render_download_config(cert, origins):
+def render_download_config(cert, origins, key=None):
     """生成只读代理，复用精确来源校验并保留签名主机与禁用查询日志。"""
     return render_nginx_origin_map(origins, variable="wx_resource_download_cors_origin")+"""# ART-02：只代理新私有资源桶的签名GET，保留Host以通过S3签名校验。
 server {
     listen 192.168.10.148:9444 ssl;
     server_name 192.168.10.148;
     ssl_certificate CERT/server.crt;
-    ssl_certificate_key CERT/server.key;
+    ssl_certificate_key KEY_FILE;
     ssl_protocols TLSv1.2 TLSv1.3;
     access_log off;
     error_log /opt/wx/editor-test148/data/resource-download-error.log crit;
@@ -33,7 +33,7 @@ server {
     }
     location / { return 404; }
 }
-""".replace("CERT",cert)
+""".replace("CERT",cert).replace("KEY_FILE",key if key is not None else cert+"/server.key")
 
 def main():
     os.umask(0o077)
@@ -51,8 +51,10 @@ def main():
     if status!=404 or b"NoSuchBucketPolicy" not in data:raise RuntimeError("无法确认新桶私有策略")
     # 使用服务器已有的内部 CA 证书链；允许部署时显式指定其他证书目录。
     cert=os.environ.get("WX_TLS_CERT_DIR", "/etc/wx/tls")
+    # 续期公钥与原私钥独立引用，不生成或复制现场私钥。
+    key=os.environ.get("WX_TLS_KEY_FILE", cert+"/server.key")
     config=Path("/www/server/panel/vhost/nginx/jtyf-resource-download.conf")
-    content=render_download_config(cert,origins)
+    content=render_download_config(cert,origins,key=key)
     backup=ROOT/"backups"/("download-"+datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ"));backup.mkdir(mode=0o700)
     if config.exists():shutil.copy2(config,backup/config.name)
     config.write_text(content,encoding="utf-8")

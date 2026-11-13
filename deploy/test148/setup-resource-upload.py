@@ -10,6 +10,8 @@ def main():
     allowed_origins=parse_allowed_origins(os.environ.get("WX_UPLOAD_CORS_ORIGINS"))
     # 与下载入口复用服务器现有证书链，不依赖不存在的历史测试证书目录。
     cert=os.environ.get("WX_TLS_CERT_DIR", "/etc/wx/tls")
+    # 续期证书复用原私钥时，允许两者位于不同受控目录，避免复制私钥。
+    key=os.environ.get("WX_TLS_KEY_FILE", cert+"/server.key")
     target=Path("/www/server/panel/vhost/nginx/jtyf-resource-upload.conf")
     backup=ROOT/"backups"/("upload-"+datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S%fZ"));backup.mkdir(mode=0o700)
     if target.exists():shutil.copy2(target,backup/target.name)
@@ -17,7 +19,7 @@ def main():
     listen 192.168.10.148:9445 ssl;
     server_name 192.168.10.148;
     ssl_certificate CERT/server.crt;
-    ssl_certificate_key CERT/server.key;
+    ssl_certificate_key KEY_FILE;
     ssl_protocols TLSv1.2 TLSv1.3;
     access_log off;
     error_log /opt/wx/editor-test148/data/resource-upload-error.log crit;
@@ -40,7 +42,7 @@ def main():
     }
     location / { return 404; }
 }
-""".replace("CERT",cert)
+""".replace("CERT",cert).replace("KEY_FILE",key)
     target.write_text(content,encoding="utf-8")
     try:
         subprocess.run(["/www/server/nginx/sbin/nginx","-t"],check=True,capture_output=True)

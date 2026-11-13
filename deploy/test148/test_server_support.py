@@ -200,6 +200,17 @@ class ResourceUploadCorsTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             render_nginx_origin_map(("http://localhost:5180",), variable="x; include /tmp/x;")
 
+    def test_download_can_reuse_existing_key_outside_certificate_directory(self):
+        """续期公钥和原私钥可能不在同一目录，不能假设旁边存在 server.key。"""
+        import importlib.util
+        script = Path(__file__).with_name("setup-resource-download.py")
+        spec = importlib.util.spec_from_file_location("download_key_setup", script)
+        download = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(download)
+        config = download.render_download_config("/renewed", ("http://localhost:5180",), key="/existing/private.key")
+        self.assertIn("ssl_certificate /renewed/server.crt;", config)
+        self.assertIn("ssl_certificate_key /existing/private.key;", config)
+
 
 if __name__ == "__main__":
     unittest.main()
