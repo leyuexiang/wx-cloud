@@ -77,6 +77,10 @@ def run(target):
                 "metadata": {"resourceName": "MODEL02-接收验证-" + operation[:8], "assetName": "probe"},
                 "targetFormat": "glb", "source": {"size": str(len(payload)), "sha256": digest}}
         check("匿名创建拒绝", request("/admin-api/dim3d/model-imports", body=body, method="POST").get("code") == 401)
+        invalid = {**actor, "token": "model02-invalid-" + uuid.uuid4().hex}
+        check("无效登录令牌创建拒绝", request("/admin-api/dim3d/model-imports", invalid, body, "POST").get("code") == 401)
+        wrong_tenant = {**actor, "tenantId": 1 if str(actor["tenantId"]) != "1" else 2}
+        check("有效令牌不能篡改租户", request("/admin-api/dim3d/model-imports", wrong_tenant, body, "POST").get("code") == 403)
         check("普通用户不能创建", request("/admin-api/dim3d/model-imports", viewer, body, "POST").get("code") == 2030001002)
         response = request("/admin-api/dim3d/model-imports", actor, body, "POST")
         check("管理员创建接收任务", response.get("code") == 200)
@@ -87,6 +91,8 @@ def run(target):
         replay = request("/admin-api/dim3d/model-imports", actor, body, "POST")
         check("同号重放复用资源", replay.get("code") == 200 and replay["data"]["resourceId"] == resource)
         check("其他操作者不能查询", request(path, viewer).get("code") == 2030001001)
+        check("无效登录令牌不能取得签名", request(path + "/source-target", invalid, {}, "POST").get("code") == 401)
+        check("其他操作者不能取得签名", request(path + "/source-target", viewer, {}, "POST").get("code") == 2030001001)
         changed = {**body, "source": {"size": str(len(payload) + 1), "sha256": digest}}
         check("同号不同源文件拒绝", request("/admin-api/dim3d/model-imports", actor, changed, "POST").get("code") == 2030001004)
         target_response = request(path + "/source-target", actor, {}, "POST")
@@ -142,6 +148,17 @@ def run(target):
                 result["temporaryObjectRemoved"] = s3.request("DELETE", object_path)[0] in (200, 204)
             except Exception:
                 result["temporaryObjectRemoved"] = False
+        # 使用正式注销接口结束本次登录，复验旧令牌失效；不遗留测试会话。
+        for identity in (actor, viewer):
+            if not identity.get("token"):
+                continue
+            try:
+                logout = request("/admin-api/system/auth/logout", identity, {}, "POST", gateway=True)
+                revoked = logout.get("code") == 200 and request(path, identity).get("code") == 401
+            except Exception:
+                revoked = False
+            checks.append({"name": identity["role"] + "注销后旧令牌拒绝", "passed": revoked})
+            result["passed"] = result["passed"] and revoked
         result["passed"] = result["passed"] and result.get("cancelled", False) and result.get("temporaryObjectRemoved", False)
     destination = ROOT / "releases/model02-5e0a22ac" / ("source-verification-" + target + ".json")
     destination.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
