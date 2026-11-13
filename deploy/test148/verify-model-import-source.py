@@ -20,6 +20,15 @@ ROOT = Path("/opt/wx/editor-test148")
 ORIGIN = "http://192.168.10.247:5180"
 FRONTEND_ORIGINS = (ORIGIN, "http://localhost:5181", "http://127.0.0.1:5173", "https://192.168.10.148:9447")
 CERTIFICATE = "/home/wx-editor-web148/releases/iot-web-20261111/server.crt"
+# 错误预期只对应后台既有错误码；故障由独立候选的真实工具进程或连接配置触发。
+FAILURE_EXPECTATIONS = {
+    "bad-zip": ("UNSUPPORTED_INPUT", False),
+    "bad-checksum": ("SOURCE_CHECKSUM_MISMATCH", False),
+    "missing-texture": ("UNSUPPORTED_INPUT", False),
+    "converter-busy": ("CONVERTER_BUSY", True),
+    "converter-timeout": ("CONVERTER_TIMEOUT", True),
+    "converter-unavailable": ("CONVERTER_UNAVAILABLE", True),
+}
 
 
 def source_payload(kind, failure_case=None):
@@ -183,9 +192,9 @@ def run(target, conversion=False, source_kind="obj", output_format="glb", failur
                 time.sleep(1)
             result["conversionState"] = state
             if failure_case:
-                expected = {"bad-zip": "UNSUPPORTED_INPUT", "bad-checksum": "SOURCE_CHECKSUM_MISMATCH", "missing-texture": "UNSUPPORTED_INPUT"}[failure_case]
+                expected, retryable = FAILURE_EXPECTATIONS[failure_case]
                 check("真实失败返回固定错误:" + failure_case,
-                      state["importStatus"] == "FAILED" and state["errorCode"] == expected and state["retryable"] is False)
+                      state["importStatus"] == "FAILED" and state["errorCode"] == expected and state["retryable"] is retryable)
             else:
                 check("冻结原包及真实转换闭包校验", state["importStatus"] == "PUBLISHING" and state["errorCode"] is None)
             check("资源尚无提交回执", state["committedRevision"] is None and state["operationStatus"] == "UPLOADING")
@@ -247,7 +256,7 @@ if __name__ == "__main__":
     parser.add_argument("--conversion", action="store_true", help="使用转换候选验证到等待确认阶段，不发布目录")
     parser.add_argument("--source-kind", choices=("obj", "fbx", "3ds"), default="obj")
     parser.add_argument("--format", choices=("glb", "gltf"), default="glb")
-    parser.add_argument("--failure-case", choices=("bad-zip", "bad-checksum", "missing-texture"))
+    parser.add_argument("--failure-case", choices=FAILURE_EXPECTATIONS)
     args = parser.parse_args()
     if args.failure_case and not args.conversion:
         parser.error("失败分支验证必须使用独立转换候选")
