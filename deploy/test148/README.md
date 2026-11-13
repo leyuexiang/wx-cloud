@@ -26,6 +26,8 @@ python3 /opt/wx/checkouts/wx-cloud/deploy/test148/prepare-model-import.py --data
 
 接收候选使用 `stage-model-import.py --target main|data08 --rehearsal-report /对应报告 --artifact /服务器构建包 --sha256 实际摘要`。它仅连接同来源的演练副本，使用 `49092/49093` 回环端口，保留现场认证配置，开启接口而关闭工作线程；授权数据只读挂载，原始环境快照受限保存，临时环境文件在启动后删除。当前应用账号对原数据副本仅获得增删改查权限，不创建账号，不授予结构管理权限。启动后还需核对健康、接口注册和真实身份，报告生成不代表联调通过。结束后停止本批候选并撤销该副本授权；演练副本和备份按交接需要保留。
 
+转换候选追加 `--converter-url http://127.0.0.1:32794/convert`，使用独立的 `49102/49103` 回环端口并开启工作线程。兼容标识强制留空，只验证到产物已校验、等待目录确认的阶段，不能发布目录。验收使用 `verify-model-import-source.py --target main --conversion --source-kind obj|fbx|3ds --format glb|gltf`；FBX 使用现场既有包，3DS 由现有工具从最小几何导出。取消后仅清理当前操作的后台材料，保留副本内审计记录。完整目录及运行兼容验收通过后，才准备正式功能开关。
+
 三维配置通过 `WX_MODEL_IMPORT_ENABLED`、`WX_MODEL_IMPORT_WORKER_ENABLED`、`WX_MODEL_IMPORT_CONVERTER_URL`、`WX_MODEL_IMPORT_APP_COMPATIBILITY` 及可选的超时、产物大小变量设置。入口和工作线程默认关闭，转换地址使用已验证的完整接口地址。现有服务器配置仅补齐该配置组，保留实际数据库、端口及其他功能配置。
 
 2026-11-13 按用户最新要求，模型上传和下载默认使用 `Access-Control-Allow-Origin: *`，不再登记前端主机和端口；多个本地开发服务及服务器前端均可使用。上传和下载均不允许浏览器凭据，上游跨域头由代理统一处理，私有桶、签名、方法及路径限制继续执行。`WX_UPLOAD_CORS_ORIGINS`、`WX_DOWNLOAD_CORS_ORIGINS` 可显式设为 `*`；其他环境如需精确列表仍兼容原配置。当前服务器本批设置为 `*`，覆盖下方早期精确来源约定。
