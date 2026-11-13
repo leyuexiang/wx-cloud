@@ -22,8 +22,16 @@ FRONTEND_ORIGINS = (ORIGIN, "http://localhost:5181", "http://127.0.0.1:5173", "h
 CERTIFICATE = "/home/wx-editor-web148/releases/iot-web-20261111/server.crt"
 
 
-def source_payload(kind):
+def source_payload(kind, failure_case=None):
     """使用可实际转换的输入；FBX 复用现场样本，3DS 由现有工具从最小几何导出。"""
+    if failure_case == "bad-zip":
+        return b"model03-invalid-zip", "ZIP 魔数损坏样本"
+    if failure_case == "missing-texture":
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr("probe.obj", "mtllib probe.mtl\no probe\nv 0 0 0\nv 1 0 0\nv 0 1 0\nusemtl missing\nf 1 2 3\n")
+            archive.writestr("probe.mtl", "newmtl missing\nKd 1 1 1\nmap_Kd absent.png\n")
+        return buffer.getvalue(), "缺少声明贴图的 OBJ 源包"
     if kind == "fbx":
         file = Path("/root/fbx2gltf-docker/models/12(2).zip")
         if not 4 <= file.stat().st_size <= 16 * 1024 * 1024:
@@ -49,7 +57,7 @@ process.stdout.write(fs.readFileSync(output));
     return buffer.getvalue(), "最小三角形 " + kind.upper() + " 压缩包"
 
 
-def run(target, conversion=False, source_kind="obj", output_format="glb"):
+def run(target, conversion=False, source_kind="obj", output_format="glb", failure_case=None):
     """使用现有受控测试身份；签名和令牌仅在内存，不进入结果或错误文本。"""
     port = 49092 if target == "main" else 49093
     if conversion:
@@ -93,9 +101,12 @@ def run(target, conversion=False, source_kind="obj", output_format="glb"):
     path = "/admin-api/dim3d/model-imports/" + operation
     object_path = "/wx-art-test148/resources/staging/model-imports/" + operation + "/source.zip"
     # 样本构造不伪造转换响应，也不替代用户原始模型的最终画面验收。
-    payload, sample = source_payload(source_kind)
-    digest = hashlib.sha256(payload).hexdigest()
-    result.update(sourceSize=len(payload), sourceSha256=digest, sample=sample, conversion=conversion, targetFormat=output_format)
+    payload, sample = source_payload(source_kind, failure_case)
+    actual_digest = hashlib.sha256(payload).hexdigest()
+    # 摘要错误使用真实不同的声明值，验证后台独立校验，回读仍检查实际上传字节。
+    digest = "0" * 64 if failure_case == "bad-checksum" else actual_digest
+    result.update(sourceSize=len(payload), sourceSha256=digest, actualSourceSha256=actual_digest,
+                  sample=sample, conversion=conversion, targetFormat=output_format, failureCase=failure_case)
     try:
         for identity in (actor, viewer):
             login = request("/admin-api/system/auth/login", identity,
@@ -157,7 +168,7 @@ def run(target, conversion=False, source_kind="obj", output_format="glb"):
             check("真实签名上传与跨域响应", response.status == 200 and response.headers.get("Access-Control-Allow-Origin") == "*"
                   and response.headers.get("Access-Control-Allow-Credentials") is None)
         status, stored = s3.request("GET", object_path)
-        check("私有桶回读字节摘要", status == 200 and len(stored) == len(payload) and hashlib.sha256(stored).hexdigest() == digest)
+        check("私有桶回读字节摘要", status == 200 and len(stored) == len(payload) and hashlib.sha256(stored).hexdigest() == actual_digest)
         queued = request(path + "/submit", actor, {}, "POST")
         check("持久化入队", queued.get("code") == 200 and queued["data"]["importStatus"] == "QUEUED")
         if conversion:
@@ -170,7 +181,12 @@ def run(target, conversion=False, source_kind="obj", output_format="glb"):
                     break
                 time.sleep(1)
             result["conversionState"] = state
-            check("冻结原包及真实转换闭包校验", state["importStatus"] == "PUBLISHING" and state["errorCode"] is None)
+            if failure_case:
+                expected = {"bad-zip": "UNSUPPORTED_INPUT", "bad-checksum": "SOURCE_CHECKSUM_MISMATCH", "missing-texture": "UNSUPPORTED_INPUT"}[failure_case]
+                check("真实失败返回固定错误:" + failure_case,
+                      state["importStatus"] == "FAILED" and state["errorCode"] == expected and state["retryable"] is False)
+            else:
+                check("冻结原包及真实转换闭包校验", state["importStatus"] == "PUBLISHING" and state["errorCode"] is None)
             check("待确认阶段未假报最终提交", state["committedRevision"] is None and state["operationStatus"] == "UPLOADING")
         else:
             check("工作线程关闭时不假报成功", request(path, actor)["data"]["importStatus"] == "QUEUED")
@@ -216,6 +232,8 @@ def run(target, conversion=False, source_kind="obj", output_format="glb"):
             result["passed"] = result["passed"] and revoked
         result["passed"] = result["passed"] and result.get("cancelled", False) and result.get("temporaryObjectRemoved", False)
     name = "conversion-" + source_kind + "-" + output_format if conversion else "source-verification"
+    if failure_case:
+        name += "-" + failure_case
     destination = ROOT / "releases/model02-5e0a22ac" / (name + "-" + target + ".json")
     destination.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(result, ensure_ascii=False))
@@ -228,5 +246,8 @@ if __name__ == "__main__":
     parser.add_argument("--conversion", action="store_true", help="使用转换候选验证到等待确认阶段，不发布目录")
     parser.add_argument("--source-kind", choices=("obj", "fbx", "3ds"), default="obj")
     parser.add_argument("--format", choices=("glb", "gltf"), default="glb")
+    parser.add_argument("--failure-case", choices=("bad-zip", "bad-checksum", "missing-texture"))
     args = parser.parse_args()
-    raise SystemExit(0 if run(args.target, args.conversion, args.source_kind, args.format) else 1)
+    if args.failure_case and not args.conversion:
+        parser.error("失败分支验证必须使用独立转换候选")
+    raise SystemExit(0 if run(args.target, args.conversion, args.source_kind, args.format, args.failure_case) else 1)
