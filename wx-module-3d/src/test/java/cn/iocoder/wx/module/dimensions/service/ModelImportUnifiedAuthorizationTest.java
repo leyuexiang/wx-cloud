@@ -23,6 +23,8 @@ import static org.mockito.Mockito.*;
 class ModelImportUnifiedAuthorizationTest {
     private final ApplicationContextRunner contexts = new ApplicationContextRunner()
             .withPropertyValues("dim3d.model-import.enabled=true")
+            // 模拟业务服务按单例注册，避免容器继续向模拟对象注入数据库等无关依赖。
+            .withInitializer(context -> context.getBeanFactory().registerSingleton("modelImportService", mock(ModelImportService.class)))
             .withUserConfiguration(Permissions.class, ModelImportController.class);
     private final byte[] empty = "{}".getBytes(StandardCharsets.UTF_8);
 
@@ -30,7 +32,6 @@ class ModelImportUnifiedAuthorizationTest {
     @EnableMethodSecurity
     static class Permissions {
         @Bean("ss") SecurityFrameworkService permissions() { return mock(SecurityFrameworkService.class); }
-        @Bean ModelImportService imports() { return mock(ModelImportService.class); }
         @Bean ArtResourceManifestVerifier parser() { return new ArtResourceManifestVerifier(); }
     }
 
