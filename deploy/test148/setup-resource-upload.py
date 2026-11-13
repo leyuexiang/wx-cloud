@@ -1,16 +1,19 @@
 """只开放新资源桶暂存前缀的HTTPS PUT；不能写冻结内容或代理其它桶。"""
 from pathlib import Path
 import datetime,subprocess,os,shutil,json
+from resource_upload_config import parse_allowed_origins, render_nginx_origin_map
 ROOT=Path("/opt/wx/editor-test148")
 def main():
     if Path.cwd().resolve()!=ROOT:raise RuntimeError("工作目录错误")
     os.umask(0o077)
+    # 跨域只放行精确来源；留空覆盖会在写配置前失败，避免误开通配来源。
+    allowed_origins=parse_allowed_origins(os.environ.get("WX_UPLOAD_CORS_ORIGINS"))
     # 与下载入口复用服务器现有证书链，不依赖不存在的历史测试证书目录。
     cert=os.environ.get("WX_TLS_CERT_DIR", "/etc/wx/tls")
     target=Path("/www/server/panel/vhost/nginx/jtyf-resource-upload.conf")
     backup=ROOT/"backups"/("upload-"+datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S%fZ"));backup.mkdir(mode=0o700)
     if target.exists():shutil.copy2(target,backup/target.name)
-    target.write_text("""server {
+    content=render_nginx_origin_map(allowed_origins)+"""server {
     listen 192.168.10.148:9445 ssl;
     server_name 192.168.10.148;
     ssl_certificate CERT/server.crt;
@@ -19,7 +22,7 @@ def main():
     access_log off;
     error_log /opt/wx/editor-test148/data/resource-upload-error.log crit;
     client_max_body_size 2048m;
-    add_header Access-Control-Allow-Origin "http://127.0.0.1:8765" always;
+    add_header Access-Control-Allow-Origin $wx_resource_upload_cors_origin always;
     add_header Access-Control-Allow-Methods "PUT, OPTIONS" always;
     add_header Access-Control-Allow-Headers "Content-Type" always;
     add_header Vary Origin always;
@@ -37,7 +40,8 @@ def main():
     }
     location / { return 404; }
 }
-""".replace("CERT",cert),encoding="utf-8")
+""".replace("CERT",cert)
+    target.write_text(content,encoding="utf-8")
     try:
         subprocess.run(["/www/server/nginx/sbin/nginx","-t"],check=True,capture_output=True)
         subprocess.run(["/www/server/nginx/sbin/nginx","-s","reload"],check=True,capture_output=True)
@@ -45,6 +49,6 @@ def main():
         if (backup/target.name).exists():shutil.copy2(backup/target.name,target)
         else:target.unlink()
         raise
-    report={"endpoint":"https://192.168.10.148:9445","stagingOnly":True,"putOnly":True,"signedQueryLogging":False,"backup":str(backup)}
+    report={"endpoint":"https://192.168.10.148:9445","allowedOrigins":list(allowed_origins),"stagingOnly":True,"putOnly":True,"signedQueryLogging":False,"backup":str(backup)}
     (ROOT/"upload-setup.json").write_text(json.dumps(report,indent=2));print(json.dumps(report))
 if __name__=="__main__":main()

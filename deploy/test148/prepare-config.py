@@ -195,6 +195,18 @@ for service, (module, port) in MODULES.items():
         config.setdefault("dim3d", {}).setdefault("resource", {})["platform-tenant-id"] = 1
         config["dim3d"]["resource"]["download-endpoint"] = "https://192.168.10.148:9444"
         config["dim3d"]["resource"]["upload-endpoint"] = "https://192.168.10.148:9445"
+        # 使用部署环境显式控制导入入口及工作线程，重建配置后保留同一组转换参数。
+        model_import = config["dim3d"].setdefault("model-import", {})
+        model_import_defaults = {
+            "enabled": "${WX_MODEL_IMPORT_ENABLED:false}",
+            "worker-enabled": "${WX_MODEL_IMPORT_WORKER_ENABLED:false}",
+            "converter-url": "${WX_MODEL_IMPORT_CONVERTER_URL:}",
+            "app-compatibility": "${WX_MODEL_IMPORT_APP_COMPATIBILITY:}",
+            "converter-timeout-ms": "${WX_MODEL_IMPORT_TIMEOUT_MS:960000}",
+            "converter-max-archive-bytes": "${WX_MODEL_IMPORT_MAX_ARCHIVE_BYTES:2147483648}",
+        }
+        for key, value in model_import_defaults.items():
+            model_import.setdefault(key, value)
         config["server-path"] = "/admin-api/dimensions"
         config["file-save-path"] = "/data/web/"
         config["file-save-temporary-path"] = "/data/template/"

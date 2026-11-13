@@ -1,5 +1,24 @@
 # 三维编辑器测试服务器部署
 
+## 2026-11-13 模型导入部署准备
+
+当前模型新增专项采用已提交源码构建和部署。服务器已具备版本控制工具（Git）、构建工具（Maven）及 Java 17。先拉取指定提交，再从该提交执行构建、增量演练和配置切换。实际状态维护在 [MODEL-02](../../docs/03_近期执行任务.md#model-00-模型资源新增功能完善计划2026-11-12)。
+
+目标库为 `wx_editor` 和 `wx_editor_data08`。两库已有 ART 基础结构，需要补齐 `migrations/market01` 的 001～003。在部署根目录调用源码目录中的工具，分别对每个库预检和演练。
+
+```sh
+cd /opt/wx/editor-test148
+python3 /opt/wx/checkouts/wx-cloud/deploy/test148/prepare-model-import.py --database wx_editor
+python3 /opt/wx/checkouts/wx-cloud/deploy/test148/prepare-model-import.py --database wx_editor --rehearse
+python3 /opt/wx/checkouts/wx-cloud/deploy/test148/prepare-model-import.py --database wx_editor_data08 --rehearse
+```
+
+演练工具备份相关表，在唯一命名的独立副本上顺序执行增量，并核对原有列数据摘要。备份和报告保存在部署根目录的受限 `backups` 子目录。正式切换时先停止对应三维写入实例，再使用同库的成功报告执行 `--apply --rehearsal-report /对应备份目录/report.json`。应用阶段重新备份，检查结构和原数据。发生部分结构语句成功时，按报告中的实际步骤修复。
+
+三维配置通过 `WX_MODEL_IMPORT_ENABLED`、`WX_MODEL_IMPORT_WORKER_ENABLED`、`WX_MODEL_IMPORT_CONVERTER_URL`、`WX_MODEL_IMPORT_APP_COMPATIBILITY` 及可选的超时、产物大小变量设置。入口和工作线程默认关闭，转换地址使用已验证的完整接口地址。现有服务器配置仅补齐该配置组，保留实际数据库、端口及其他功能配置。
+
+当前浏览器来源为 `http://192.168.10.247:5180`。执行上传代理配置时，通过 `WX_UPLOAD_CORS_ORIGINS` 提供完整精确来源列表。该变量可以同时包含既有来源。`WX_TLS_CERT_DIR` 指向现场已核验的有效证书目录，浏览器需信任对应证书。2026-11-12 现场的上传代理仍使用旧来源和已到期证书，下方早期记录中的证书目录与到期日按其记录日期理解。
+
 ## 2026-10-30 现场适配
 
 本轮服务器实际状态与后文历史记录不同：宿主使用 MariaDB 10.3，另有 WX 系统服务占用旧内部端口。当前方案使用独立 MySQL 8.0.44（`13306`）和 Redis 7.4.2（`16380`），内部服务统一为 `48181/48182/48192`。初始化脚本先生成完整环境并启动依赖，确认数据库就绪后再建表。切换及回退增加了网关重建失败时独立恢复旧容器的保障。
@@ -93,7 +112,7 @@ ART-01 已完成结构迁移、测试库精确回退/再迁移和接口合同，
 
 ## ART-03 上传与事务
 
-ART-03已部署：HTTPS9445仅允许私有桶暂存前缀PUT；9444继续只读。新增 `setup-resource-upload.py`、`deploy-resource-art03.py` 与 `verify-resource-art03.py`；操作调用、冻结与数据库事务见[实现说明](../../docs/10_专项设计/08_资源上传替换事务实现.md)。99项本地测试、67项真实事务、60项权限/32项下载/20项原接口回归通过，详见[最终记录](../../docs/evidence/backend-art03-20261029/README.md)。此前各节“上传/commit尚未启用”为ART-02时点，当前以本节为准。
+ART-03已部署：HTTPS9445仅允许私有桶暂存前缀PUT；9444继续只读。新增 `setup-resource-upload.py`、`deploy-resource-art03.py` 与 `verify-resource-art03.py`；操作调用、冻结与数据库事务见[实现说明](../../docs/10_专项设计/08_资源上传替换事务实现.md)。99项本地测试、67项真实事务、60项权限/32项下载/20项原接口回归通过，详见[最终记录](../../docs/evidence/backend-art03-20261029/README.md)。上传入口只回显精确的浏览器来源白名单；默认兼容 `http://127.0.0.1:8765` 与当前 `http://localhost:5180`，正式站点应在运行脚本前通过 `WX_UPLOAD_CORS_ORIGINS` 配置逗号分隔的完整来源，禁止使用通配符。此前各节“上传/commit尚未启用”为ART-02时点，当前以本节为准。
 
 ## ART-05 固定内容读取增量
 

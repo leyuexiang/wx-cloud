@@ -124,5 +124,54 @@ class GeneratedConfigTest(unittest.TestCase):
         self.assertIn("/admin-api/dim3d/", by_id["tenant-dim3d-test148"]["filters"][-1])
 
 
+class ResourceUploadCorsTest(unittest.TestCase):
+    """验证 MinIO 暂存上传只向明确允许的浏览器来源开放跨域读取。"""
+
+    def test_default_origins_include_current_frontend_and_legacy_tool(self):
+        """默认兼容当前 5180 页面与旧 8765 工具，并只回显精确来源。"""
+        from resource_upload_config import parse_allowed_origins, render_nginx_origin_map
+
+        origins = parse_allowed_origins(None)
+        self.assertEqual(origins, ("http://127.0.0.1:8765", "http://localhost:5180"))
+        config = render_nginx_origin_map(origins)
+        self.assertIn('default "";', config)
+        self.assertIn('"http://127.0.0.1:8765" $http_origin;', config)
+        self.assertIn('"http://localhost:5180" $http_origin;', config)
+        self.assertNotIn("*", config)
+
+    def test_origin_override_is_normalized_and_deduplicated(self):
+        """运维覆盖按源地址规范化，重复值不会扩大或重复写入白名单。"""
+        from resource_upload_config import parse_allowed_origins
+
+        self.assertEqual(
+            parse_allowed_origins("HTTP://LOCALHOST:80,http://localhost"),
+            ("http://localhost",),
+        )
+
+    def test_lan_frontend_override_keeps_exact_host_and_port(self):
+        """当前局域网页面通过环境覆盖加入，来源路径和其他端口不会被一并放行。"""
+        from resource_upload_config import parse_allowed_origins, render_nginx_origin_map
+
+        origins = parse_allowed_origins("http://192.168.10.247:5180")
+        self.assertEqual(origins, ("http://192.168.10.247:5180",))
+        config = render_nginx_origin_map(origins)
+        self.assertIn('"http://192.168.10.247:5180" $http_origin;', config)
+        self.assertNotIn("localhost", config)
+        self.assertNotIn("~", config)
+
+    def test_origin_override_rejects_path_and_nginx_injection(self):
+        """来源值不得夹带路径、凭据或 Nginx 指令。"""
+        from resource_upload_config import parse_allowed_origins
+
+        for invalid in (
+            "http://localhost:5180/path",
+            'http://localhost:5180"; return 200; #',
+            "http://user@localhost:5180",
+            "http://localhost:65536",
+        ):
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                parse_allowed_origins(invalid)
+
+
 if __name__ == "__main__":
     unittest.main()

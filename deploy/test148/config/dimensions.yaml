@@ -219,6 +219,14 @@ preview:
   3d:
     base-url: ${preview.base-url}/web/#/scenePreview
 dim3d:
+  # 接口、工作线程和转换依赖随同一版本部署，完成迁移及隔离验收后通过环境变量启用。
+  model-import:
+    enabled: ${WX_MODEL_IMPORT_ENABLED:false}
+    worker-enabled: ${WX_MODEL_IMPORT_WORKER_ENABLED:false}
+    converter-url: ${WX_MODEL_IMPORT_CONVERTER_URL:}
+    app-compatibility: ${WX_MODEL_IMPORT_APP_COMPATIBILITY:}
+    converter-timeout-ms: ${WX_MODEL_IMPORT_TIMEOUT_MS:960000}
+    converter-max-archive-bytes: ${WX_MODEL_IMPORT_MAX_ARCHIVE_BYTES:2147483648}
   resource-convert-url: http://192.168.10.200:30080/api/dim3d/resource/uploadConvert
   scene-content:
     # 灰度时通过环境变量填写租户编号，空值沿用全局开关覆盖所有租户。
