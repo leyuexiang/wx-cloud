@@ -8,6 +8,7 @@ import re
 import shutil
 import socket
 import subprocess
+import uuid
 from urllib.parse import urlsplit
 
 from server_support import file_sha256, mysql_command, runtime_identity
@@ -82,7 +83,7 @@ def stage(target, report_path, artifact, expected, converter_url=None, publicati
     with socket.socket() as probe:
         probe.bind(("127.0.0.1", port))
     original = json.loads(run(["docker", "inspect", container]))[0]
-    directory = ROOT / "releases" / (runtime["phase"] + "-stage-" + target + "-" + expected[:12])
+    directory = ROOT / "releases" / (runtime["phase"] + "-stage-" + target + "-" + expected[:12] + "-" + uuid.uuid4().hex[:8])
     directory.mkdir(mode=0o700)
     # 容器原环境仅保存在受限目录；报告和终端只记录非秘密的实例、库及摘要。
     (directory / "original-container.json").write_text(json.dumps(original), encoding="utf-8")
@@ -105,8 +106,12 @@ def stage(target, report_path, artifact, expected, converter_url=None, publicati
     if publication_check:
         # 早期副本只含模型及资源表。目录快照和封面事务还需要同结构的空支持表。
         # 只在已核对名称的演练副本创建结构，不复制正式文件记录或配置凭据。
-        tables = ("wx_infra_file", "wx_3d_icon", "wx_3d_template", "wx_3d_scene_publication_resource")
-        sql = "\n".join("CREATE TABLE IF NOT EXISTS `" + clone + "`.`" + table + "` LIKE `" + source + "`.`" + table + "`;" for table in tables)
+        tables = {"wx_infra_file": source, "wx_3d_icon": source, "wx_3d_template": source,
+                  "wx_3d_scene_publication_resource": "wx_editor_data08"}
+        # 删除保护结构取自已应用 DATA-09 的库，副本没有场景数据，用于回收本批样例。
+        # 主库缺少该结构的正式增量另记部署依赖，不能据副本准备认定正式迁移已完成。
+        sql = "\n".join("CREATE TABLE IF NOT EXISTS `" + clone + "`.`" + table + "` LIKE `" + schema + "`.`" + table + "`;"
+                        for table, schema in tables.items())
         subprocess.run(command, input=sql, text=True, check=True, capture_output=True)
     sql = "GRANT SELECT,INSERT,UPDATE,DELETE ON `" + clone + "`.* TO 'wx_editor_test148'@'%';"
     subprocess.run(command, input=sql, text=True, check=True, capture_output=True)
