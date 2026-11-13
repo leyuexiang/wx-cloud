@@ -10,6 +10,15 @@ spec.loader.exec_module(stage)
 
 
 class CandidateConfigurationTest(unittest.TestCase):
+    def test_publication_check_has_own_port_and_explicit_test_compatibility(self):
+        """目录事务验收使用独立候选及专用标识，运行端兼容仍由后续真实加载验收。"""
+        runtime = stage.candidate_runtime("main", "http://127.0.0.1:32804/convert", publication_check=True)
+        self.assertEqual("model04", runtime["phase"])
+        self.assertEqual(49112, runtime["port"])
+        self.assertIn("--dim3d.model-import.app-compatibility=model04-transaction-check", runtime["arguments"])
+        with self.assertRaises(ValueError):
+            stage.candidate_runtime("main", None, publication_check=True)
+
     def test_conversion_candidate_rejects_external_or_ambiguous_converter(self):
         """隔离转换只能调用本机已验证的接口，拒绝外部地址、凭据及查询参数。"""
         for endpoint in ("http://example.com/convert", "http://127.0.0.1:32794/convert?x=1",
