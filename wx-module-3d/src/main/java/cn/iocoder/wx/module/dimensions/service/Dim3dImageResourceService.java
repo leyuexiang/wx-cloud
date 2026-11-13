@@ -155,7 +155,26 @@ public class Dim3dImageResourceService {
     }
 
     private void bindFile(long id, ArtResourceAccess.Actor actor, String belong, boolean retainedReference) {
-        var rows = jdbc.queryForList("SELECT * FROM wx_infra_file WHERE id=? AND deleted=0 FOR UPDATE", id);
+        fileForBinding(id, actor, belong, retainedReference, true);
+        updateFileBinding(id, actor, belong);
+    }
+
+    /** 模型确认前仅校验文件，不提前改变私有上传的可见范围。 */
+    void validateModelCover(long id, ArtResourceAccess.Actor actor, String belong, boolean retainedReference) {
+        requireModelCover(fileForBinding(id, actor, belong, retainedReference, false));
+    }
+
+    /** 模型发布事务持有目录锁后再锁封面，文件归属随目录、修订和回执共同提交。 */
+    void bindModelCover(long id, ArtResourceAccess.Actor actor, String belong, boolean retainedReference) {
+        requireModelCover(fileForBinding(id, actor, belong, retainedReference, true));
+        updateFileBinding(id, actor, belong);
+    }
+
+    /** 图片目录和模型封面共用上传者、租户及保留引用判断，各读取只访问一条文件记录。 */
+    private Map<String, Object> fileForBinding(long id, ArtResourceAccess.Actor actor, String belong,
+                                             boolean retainedReference, boolean lock) {
+        var rows = jdbc.queryForList("SELECT tenant_id,uploader_id,visibility_scope,type,size FROM wx_infra_file WHERE id=? AND deleted=0"
+                + (lock ? " FOR UPDATE" : ""), id);
         if (rows.isEmpty()) throw invalid("图片文件不存在或尚未上传完成");
         Map<String, Object> file = rows.get(0);
         String scope = "SYSTEM".equals(belong) ? "GLOBAL" : "TENANT";
@@ -170,8 +189,21 @@ public class Dim3dImageResourceService {
         if (!(ownedUpload || ownBoundFile || retainedReference && sameScope)) throw new ServiceException(403, "无权绑定此图片文件，修改归属时请重新上传");
         if (!Objects.toString(file.get("type"), "").startsWith("image/")
                 || !(file.get("size") instanceof Number bytes) || bytes.longValue() < 1) throw invalid("文件不是有效图片");
+        return file;
+    }
+
+    /** 封面格式和大小与现有模型弹窗一致，不能仅依赖浏览器限制。 */
+    private static void requireModelCover(Map<String, Object> file) {
+        if (!Set.of("image/png", "image/jpeg", "image/webp").contains(Objects.toString(file.get("type"), ""))
+                || ((Number) file.get("size")).longValue() > 5L * 1024 * 1024) {
+            throw invalid("模型封面须为不超过5MiB的PNG、JPEG或WebP图片");
+        }
+    }
+
+    private void updateFileBinding(long id, ArtResourceAccess.Actor actor, String belong) {
+        String scope = "SYSTEM".equals(belong) ? "GLOBAL" : "TENANT";
         jdbc.update("UPDATE wx_infra_file SET visibility_scope=?,tenant_id=?,update_time=CURRENT_TIMESTAMP WHERE id=?",
-                scope, Long.parseLong(targetTenant), id);
+                scope, Long.parseLong(owner(actor, belong)), id);
     }
 
     private void requireWrite(ArtResourceAccess.Actor actor, Dim3dIcon current) {

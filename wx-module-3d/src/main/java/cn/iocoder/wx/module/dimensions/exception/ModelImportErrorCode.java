@@ -14,7 +14,8 @@ public enum ModelImportErrorCode implements ErrorInfo {
     ARTIFACT_UNAVAILABLE(2030001107,"固定产物不可用，不能重新转换覆盖",false),
     IMPORT_PERMISSION_REVOKED(2030001108,"模型导入维护权限已失效",false),
     SOURCE_STORAGE_UNAVAILABLE(2030001109,"原始模型存储暂不可用",true),
-    ARTIFACT_STORAGE_UNAVAILABLE(2030001110,"模型转换产物存储暂不可用，可稍后重试",true);
+    ARTIFACT_STORAGE_UNAVAILABLE(2030001110,"模型转换产物存储暂不可用，可稍后重试",true),
+    DIRECTORY_INVALID(2030001111,"模型分类或封面已失效，请重新确认目录信息",false);
 
     private final int code;
     private final String message;

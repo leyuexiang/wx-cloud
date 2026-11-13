@@ -26,6 +26,7 @@ public class ArtResourceTransactionService {
     @Resource private ArtResourceClosureVerifier closure;
     @Resource private ObjectMapper json;
     @Resource private PlatformTransactionManager transactions;
+    @Resource private Dim3dImageResourceService images;
     private static final String VISIBLE=" ((resource_scope='GLOBAL_SYSTEM' AND tenant_id='0') OR (resource_scope='TENANT_SHARED' AND tenant_id=?)) ";
     private static final List<String> POINTER=List.of("storage_prefix","manifest_path","manifest_sha256","content_hash","content_format","platform","app_compatibility","content_state","del_flag");
     private static final List<String> DIRECTORIES=List.of("wx_3d_model","wx_3d_icon","wx_3d_template");
@@ -156,7 +157,8 @@ public class ArtResourceTransactionService {
         return true;
     }
     /** 由模型执行器在持有资源、操作及导入任务锁的事务中调用。 */
-    boolean commitModel(Map<String,Object> resource,Map<String,Object> op,ModelImportPublication.Ready ready,JsonNode directory) {
+    boolean commitModel(Map<String,Object> resource,Map<String,Object> op,ModelImportPublication.Ready ready,
+                        JsonNode directory,ArtResourceAccess.Actor actor) {
         if(!org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive())
             throw new IllegalStateException("模型发布必须在受控事务中执行");
         String type=(String)op.get("operation_type");
@@ -176,21 +178,43 @@ public class ArtResourceTransactionService {
         }
         boolean creating="CREATE".equals(type);
         if(!(creating?"PENDING":"READY").equals(resource.get("content_state")))throw ServiceException.of(INVALID_OPERATION_STATE);
-        var linked=jdbc.queryForList("SELECT id,tenant_id FROM wx_3d_model WHERE resource_id=? AND del_flag='0' FOR UPDATE",resourceId);
+        var linked=jdbc.queryForList("SELECT * FROM wx_3d_model WHERE resource_id=? AND del_flag='0' FOR UPDATE",resourceId);
         Object owner=resource.get("tenant_id");
         if(creating?!linked.isEmpty():linked.size()!=1 || !Objects.equals(owner,linked.get(0).get("tenant_id")))
             throw ServiceException.of(INVALID_OPERATION_STATE);
         var before=snapshot(resource);
         long operator=((Number)op.get("operator_id")).longValue();
+        if (actor.user() != operator) throw ServiceException.of(INVALID_OPERATION_STATE);
+        Map<String, Object> previous = creating ? Map.of() : linked.get(0);
         String name=directory.path("modelName").asText(),category=directory.path("category").asText();
-        String description=directory.path("modelDesc").asText(null);
+        // 旧确认请求没有新增字段。替换从锁定目录保全省略项，显式空值才清空封面或描述。
+        Object description = directory.has("modelDesc") ? directory.path("modelDesc").asText() : previous.get("model_desc");
+        String paid = directory.has("isPaid") ? directory.path("isPaid").asText() : Objects.toString(previous.get("is_paid"), "FREE");
+        Object price = previous.get("price");
+        if (creating) price = 0;
+        if (directory.has("isPaid")) price = directory.path("price").asInt();
+        Object cover = previous.get("cover_image_id");
+        if (directory.has("coverImageId")) {
+            cover = null;
+            if (directory.hasNonNull("coverImageId")) cover = Long.valueOf(directory.path("coverImageId").asText());
+        }
+        String belong = "GLOBAL_SYSTEM".equals(resource.get("resource_scope")) ? "SYSTEM" : "MINE";
+        if ("MINE".equals(belong) && "PAID".equals(paid)) throw new ServiceException(400, "租户模型仅支持免费");
+        if (directory.hasNonNull("coverImageId")) {
+            long coverId = ((Number) cover).longValue();
+            boolean retained = previous.get("cover_image_id") instanceof Number id && id.longValue() == coverId;
+            images.bindModelCover(coverId, actor, belong, retained);
+        }
         if(creating) {
             // 目录的主键单独生成，受管模型通过资源主键关联，旧文件编号为空。
-            jdbc.update("INSERT INTO wx_3d_model(resource_id,model_file_id,tenant_id,model_name,category,model_desc,resource_belong,is_paid,status,data_user_id,create_by,update_by) VALUES(?,NULL,?,?,?,?,?,'FREE','ONLINE',?,?,?)",
-                    resourceId,owner,name,category,description,"GLOBAL_SYSTEM".equals(resource.get("resource_scope"))?"SYSTEM":"MINE",operator,operator,operator);
+            jdbc.update("""
+                    INSERT INTO wx_3d_model(resource_id,model_file_id,tenant_id,model_name,category,model_desc,
+                        resource_belong,is_paid,price,cover_image_id,status,data_user_id,create_by,update_by)
+                    VALUES(?,NULL,?,?,?,?,?,?,?,?,'ONLINE',?,?,?)
+                    """, resourceId,owner,name,category,description,belong,paid,price,cover,operator,operator,operator);
         } else {
-            jdbc.update("UPDATE wx_3d_model SET model_name=?,category=?,model_desc=?,update_by=? WHERE id=?",
-                    name,category,description,operator,linked.get(0).get("id"));
+            jdbc.update("UPDATE wx_3d_model SET model_name=?,category=?,model_desc=?,is_paid=?,price=?,cover_image_id=?,update_by=? WHERE id=?",
+                    name,category,description,paid,price,cover,operator,linked.get(0).get("id"));
         }
         var checked=ready.manifest();
         writePointer(resourceId,operation,operator,revision+1,Map.of("storage_prefix",ready.prefix(),

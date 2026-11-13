@@ -21,6 +21,7 @@ import static org.mockito.Mockito.*;
 class ModelImportSourceWorkerTest {
     JdbcTemplate db;@InjectMocks TestWorker worker;ArtResourceObjectStore store;ArtResourceAccess access;
     @Mock PermissionApi permissions;
+    @Mock ModelImportService importService;
     AutoCloseable mocks;
     String op=UUID.randomUUID().toString();
     static class TestWorker extends ModelImportSourceWorker {
@@ -38,6 +39,10 @@ class ModelImportSourceWorkerTest {
         db.update("INSERT INTO wx_3d_resource_operation(id,resource_id,resource_scope,tenant_id,operator_id,status,expires_at,candidate_descriptor) VALUES(?,101,'TENANT_SHARED','2',10,'UPLOADING','2026-11-04 02:00:00','{\"modelImport\":true}')",op);
         db.update("INSERT INTO wx_3d_resource_import(operation_id,resource_id,status,source_size,source_sha256,available_at,target_format) VALUES(?,101,'QUEUED',4,?,'2026-11-04 00:00:00','glb')",op,"a".repeat(64));
         db.execute("CREATE TABLE wx_3d_model(id BIGINT AUTO_INCREMENT PRIMARY KEY,resource_id BIGINT,model_file_id BIGINT,tenant_id VARCHAR(20),del_flag CHAR DEFAULT '0',status VARCHAR(16) DEFAULT 'ONLINE',model_name VARCHAR(50),category VARCHAR(32),model_desc VARCHAR(500),resource_belong VARCHAR(16),is_paid VARCHAR(16),data_user_id BIGINT,create_by BIGINT,update_by BIGINT)");
+        db.execute("ALTER TABLE wx_3d_model ADD price INT");
+        db.execute("ALTER TABLE wx_3d_model ADD cover_image_id BIGINT");
+        db.execute("CREATE TABLE wx_infra_file(id BIGINT PRIMARY KEY,tenant_id BIGINT,uploader_id BIGINT,visibility_scope VARCHAR(20),type VARCHAR(40),size INT,deleted BOOLEAN DEFAULT FALSE,update_time TIMESTAMP)");
+        db.update("INSERT INTO wx_infra_file VALUES(5,2,10,'PRIVATE_UPLOAD','image/png',50,FALSE,NULL)");
         for(String table:List.of("wx_3d_icon","wx_3d_template"))
             db.execute("CREATE TABLE "+table+"(id BIGINT PRIMARY KEY,resource_id BIGINT,tenant_id VARCHAR(20),del_flag CHAR,status VARCHAR(16))");
         store=mock(ArtResourceObjectStore.class);access=mock(ArtResourceAccess.class);
@@ -52,6 +57,107 @@ class ModelImportSourceWorkerTest {
         assertNull(db.queryForObject("SELECT model_file_id FROM wx_3d_model",Long.class));
         assertEquals("COMMITTED",db.queryForObject("SELECT status FROM wx_3d_resource_operation",String.class));
         assertFalse(worker.runNext());
+    }
+    @Test void publishesCoverAndPaidDirectoryTogetherWithReceipt() throws Exception {
+        // 覆盖真实后台发布入口，封面私有归属和收费字段必须随同一提交改变。
+        prepareCoveredSystemPublication();
+        assertTrue(worker.runNext());
+        assertEquals("COMMITTED", status());
+        assertEquals("PAID", db.queryForObject("SELECT is_paid FROM wx_3d_model", String.class));
+        assertEquals(1299, db.queryForObject("SELECT price FROM wx_3d_model", Integer.class));
+        assertEquals(5L, db.queryForObject("SELECT cover_image_id FROM wx_3d_model", Long.class));
+        assertEquals("GLOBAL", db.queryForObject("SELECT visibility_scope FROM wx_infra_file", String.class));
+        assertEquals(0L, db.queryForObject("SELECT tenant_id FROM wx_infra_file", Long.class));
+        assertEquals(1L, db.queryForObject("SELECT committed_revision FROM wx_3d_resource_operation", Long.class));
+    }
+    @Test void receiptFailureAlsoRollsBackCoverVisibilityAndPaidDirectory() throws Exception {
+        prepareCoveredSystemPublication();
+        db.execute("ALTER TABLE wx_3d_resource_operation ADD CHECK(status<>'COMMITTED')");
+        assertThrows(org.springframework.dao.DataAccessException.class, () -> worker.runNext());
+        assertEquals("PUBLISHING", status());
+        assertEquals("PRIVATE_UPLOAD", db.queryForObject("SELECT visibility_scope FROM wx_infra_file", String.class));
+        assertEquals(2L, db.queryForObject("SELECT tenant_id FROM wx_infra_file", Long.class));
+        assertEquals(0L, db.queryForObject("SELECT COUNT(*) FROM wx_3d_model", Long.class));
+        assertEquals(0L, db.queryForObject("SELECT current_revision FROM wx_3d_resource", Long.class));
+    }
+
+    @Test void removedCoverFailsWithoutPublishingModelOrReceipt() throws Exception {
+        prepareCoveredSystemPublication();
+        db.update("UPDATE wx_infra_file SET deleted=TRUE");
+        assertFalse(worker.runNext());
+        assertEquals("FAILED", status());
+        assertEquals("DIRECTORY_INVALID", db.queryForObject("SELECT error_code FROM wx_3d_resource_import", String.class));
+        assertEquals(0L, db.queryForObject("SELECT COUNT(*) FROM wx_3d_model", Long.class));
+        assertEquals(0L, db.queryForObject("SELECT current_revision FROM wx_3d_resource", Long.class));
+    }
+
+    @Test void disabledCategoryAfterConfirmationFailsBeforeWritingPublication() throws Exception {
+        preparePublication();
+        clearInvocations(store);
+        doThrow(new ServiceException(400, "分类已停用")).when(importService).validateCategory("sample");
+        assertFalse(worker.runNext());
+        assertEquals("DIRECTORY_INVALID", db.queryForObject("SELECT error_code FROM wx_3d_resource_import", String.class));
+        assertEquals(0L, db.queryForObject("SELECT current_revision FROM wx_3d_resource", Long.class));
+        verify(store, never()).write(anyString(), any(), anyLong());
+    }
+
+    @Test void backgroundDictionaryCallUsesOriginalTenantAndRestoresThreadContext() throws Exception {
+        prepareCoveredSystemPublication();
+        TenantContextHolder.setTenantId(88L);
+        TenantContextHolder.setIgnore(true);
+        doAnswer(invocation -> {
+            assertEquals(2L, TenantContextHolder.getTenantId());
+            assertFalse(TenantContextHolder.isIgnore());
+            assertFalse(org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive());
+            throw new ServiceException(400, "分类已停用");
+        }).when(importService).validateCategory("sample");
+        assertFalse(worker.runNext());
+        assertEquals(88L, TenantContextHolder.getTenantId());
+        assertTrue(TenantContextHolder.isIgnore());
+        assertEquals("DIRECTORY_INVALID", db.queryForObject("SELECT error_code FROM wx_3d_resource_import", String.class));
+    }
+
+    @Test void replacementOmittedFieldsPreserveExistingCoverPriceDescriptionAndStatus() throws Exception {
+        prepareCoveredSystemPublication();
+        db.update("UPDATE wx_3d_resource SET current_revision=1,content_state='READY'");
+        db.update("UPDATE wx_3d_resource_operation SET operation_type='REPLACE',expected_revision=1");
+        db.update("INSERT INTO wx_3d_model(id,resource_id,tenant_id,status,model_name,model_desc,is_paid,price,cover_image_id) VALUES(44,101,'0','OFFLINE','旧模型','旧描述','PAID',999,5)");
+        db.update("UPDATE wx_infra_file SET visibility_scope='GLOBAL',tenant_id=0,uploader_id=42");
+        db.update("UPDATE wx_3d_resource_import SET publish_descriptor=?", "{\"modelName\":\"替换模型\",\"category\":\"sample\"}");
+        assertTrue(worker.runNext());
+        var directory = db.queryForMap("SELECT * FROM wx_3d_model");
+        assertEquals(44L, ((Number) directory.get("id")).longValue());
+        assertEquals("OFFLINE", directory.get("status"));
+        assertEquals("旧描述", directory.get("model_desc"));
+        assertEquals("PAID", directory.get("is_paid"));
+        assertEquals(999, directory.get("price"));
+        assertEquals(5L, ((Number) directory.get("cover_image_id")).longValue());
+        assertEquals(2L, db.queryForObject("SELECT current_revision FROM wx_3d_resource", Long.class));
+    }
+
+    @Test void replacementCanExplicitlyClearCoverDescriptionAndChangeToFree() throws Exception {
+        prepareCoveredSystemPublication();
+        db.update("UPDATE wx_3d_resource SET current_revision=1,content_state='READY'");
+        db.update("UPDATE wx_3d_resource_operation SET operation_type='REPLACE',expected_revision=1");
+        db.update("INSERT INTO wx_3d_model(id,resource_id,tenant_id,status,model_name,model_desc,is_paid,price,cover_image_id) VALUES(44,101,'0','OFFLINE','旧模型','旧描述','PAID',999,5)");
+        db.update("UPDATE wx_3d_resource_import SET publish_descriptor=?",
+                "{\"modelName\":\"免费模型\",\"category\":\"sample\",\"modelDesc\":\"\",\"coverImageId\":null,\"isPaid\":\"FREE\",\"price\":0}");
+        assertTrue(worker.runNext());
+        var directory = db.queryForMap("SELECT * FROM wx_3d_model");
+        assertEquals("OFFLINE", directory.get("status"));
+        assertEquals("", directory.get("model_desc"));
+        assertEquals("FREE", directory.get("is_paid"));
+        assertEquals(0, directory.get("price"));
+        assertNull(directory.get("cover_image_id"));
+    }
+
+    private void prepareCoveredSystemPublication() throws Exception {
+        preparePublication();
+        ReflectionTestUtils.setField(worker, "platformTenant", 2L);
+        db.update("UPDATE wx_3d_resource SET resource_scope='GLOBAL_SYSTEM',tenant_id='0'");
+        db.update("UPDATE wx_3d_resource_operation SET resource_scope='GLOBAL_SYSTEM',tenant_id='0'");
+        db.update("UPDATE wx_3d_resource_import SET publish_descriptor=?",
+                "{\"modelName\":\"完整模型\",\"category\":\"sample\",\"coverImageId\":\"5\",\"isPaid\":\"PAID\",\"price\":1299}");
     }
     @Test void receiptFailureRollsBackDirectoryAndPointer() throws Exception {
         preparePublication();
@@ -99,6 +205,9 @@ class ModelImportSourceWorkerTest {
         var resourceTransactions=new ArtResourceTransactionService();
         ReflectionTestUtils.setField(resourceTransactions,"jdbc",db);
         ReflectionTestUtils.setField(resourceTransactions,"json",new com.fasterxml.jackson.databind.ObjectMapper());
+        var images = new Dim3dImageResourceService();
+        ReflectionTestUtils.setField(images, "jdbc", db);
+        ReflectionTestUtils.setField(resourceTransactions, "images", images);
         ReflectionTestUtils.setField(worker,"resourceTransactions",resourceTransactions);
     }
 

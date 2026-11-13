@@ -3,6 +3,7 @@ package cn.iocoder.wx.module.dimensions.service;
 import cn.iocoder.wx.framework.common.exception.ServiceException;
 import cn.iocoder.wx.framework.security.core.service.SecurityFrameworkService;
 import cn.iocoder.wx.module.dimensions.exception.ModelImportErrorCode;
+import cn.iocoder.wx.module.system.api.dict.DictDataApi;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.annotation.Resource;
@@ -26,7 +27,10 @@ public class ModelImportService {
     @Resource private ArtResourceUploadSigner signer;
     @Resource private ObjectMapper json;
     @Resource private SecurityFrameworkService permissions;
+    @Resource private DictDataApi dictionaries;
+    @Resource private Dim3dImageResourceService images;
     private static final Set<String> RUNNING=Set.of("QUEUED","VERIFYING_SOURCE","CONVERTING","VALIDATING","PUBLISHING");
+    private static final Set<String> DIRECTORY_FIELDS = Set.of("modelName", "category", "modelDesc", "coverImageId", "isPaid", "price");
 
     public ModelImportStatusView create(JsonNode body) {
         String type=text(body,"operationType",16);
@@ -98,33 +102,92 @@ public class ModelImportService {
         });
     }
     public ModelImportStatusView requestPublish(String id,JsonNode body) {
-        ObjectNode directory=directoryInput(body);
-        return new TransactionTemplate(transactions).execute(status->{
-            var op=lockOperation(id);requireWritePermission((String)op.get("operation_type"));var task=task(id);
-            var previous=task.get("publish_descriptor");
-            if(previous!=null && !directory.equals(publishDescriptor(previous)))
-                throw ServiceException.of(IDEMPOTENCY_CONFLICT);
-            if("COMMITTED".equals(op.get("status")) && previous!=null)return view(op,task);
-            live(op);
-            if(!"UPLOADING".equals(op.get("status")) || !"PUBLISHING".equals(task.get("status")) || cancelled(task))
-                throw ServiceException.of(INVALID_OPERATION_STATE);
-            if(previous==null) {
-                // 目录输入与任务同锁固定，重放只查询当前状态。
+        ObjectNode directory = directoryInput(body);
+        var template = new TransactionTemplate(transactions);
+        var checked = template.execute(status -> checkPublication(id, directory));
+        if (checked.confirmed()) return view(checked.operation(), checked.task());
+        // 远程字典及文件预验均在释放操作锁后进行，已确认的重放不依赖字典服务可用性。
+        validateCategory(directory.path("category").asText());
+        validateDirectory(checked.operation(), directory);
+        return template.execute(status -> {
+            var current = checkPublication(id, directory);
+            if (!current.confirmed()) {
                 jdbc.update("UPDATE wx_3d_resource_import SET publish_descriptor=?,row_version=row_version+1 WHERE operation_id=?",
-                        directory.toString(),id);
+                        directory.toString(), id);
             }
-            return view(op,task);
+            return view(current.operation(), current.task());
         });
+    }
+
+    private record PublicationCheck(Map<String, Object> operation, Map<String, Object> task, boolean confirmed) {}
+
+    /** 两次短事务执行相同阶段及权限检查，避免预验期间取消、到期或并发确认被覆盖。 */
+    private PublicationCheck checkPublication(String id, ObjectNode directory) {
+        var op = lockOperation(id);
+        requireWritePermission((String) op.get("operation_type"));
+        var task = task(id);
+        var previous = task.get("publish_descriptor");
+        if (previous != null && !directory.equals(publishDescriptor(previous))) throw ServiceException.of(IDEMPOTENCY_CONFLICT);
+        if ("COMMITTED".equals(op.get("status")) && previous != null) return new PublicationCheck(op, task, true);
+        live(op);
+        if (!"UPLOADING".equals(op.get("status")) || !"PUBLISHING".equals(task.get("status")) || cancelled(task)) {
+            throw ServiceException.of(INVALID_OPERATION_STATE);
+        }
+        return new PublicationCheck(op, task, previous != null);
+    }
+
+    /** 请求确认和后台发布共用现有启用字典校验，网络调用不持有发布行锁。 */
+    void validateCategory(String category) {
+        if (!Boolean.TRUE.equals(dictionaries.validateDictDataList("dim3d_model_category", List.of(category)).getCheckedData())) {
+            throw new ServiceException(400, "模型分类不存在或已停用");
+        }
+    }
+
+    private void validateDirectory(Map<String, Object> operation, ObjectNode directory) {
+        boolean system = "GLOBAL_SYSTEM".equals(operation.get("resource_scope"));
+        if (!system && "PAID".equals(directory.path("isPaid").asText())) throw new ServiceException(400, "租户模型仅支持免费");
+        if (directory.hasNonNull("coverImageId")) {
+            long cover = directory.path("coverImageId").asLong();
+            var previous = jdbc.queryForList("SELECT cover_image_id FROM wx_3d_model WHERE resource_id=? AND del_flag='0'",
+                    operation.get("resource_id"));
+            boolean retained = previous.size() == 1 && previous.get(0).get("cover_image_id") instanceof Number id && id.longValue() == cover;
+            images.validateModelCover(cover, access.actor(), system ? "SYSTEM" : "MINE", retained);
+        }
     }
 
     private ObjectNode directoryInput(JsonNode body) {
         if(body==null || !body.isObject())bad();
-        boolean hasDescription=body.has("modelDesc");
-        fields(body,hasDescription?Set.of("modelName","category","modelDesc"):Set.of("modelName","category"));
+        body.fieldNames().forEachRemaining(field -> { if (!DIRECTORY_FIELDS.contains(field)) bad(); });
         String name=text(body,"modelName",50).strip();
         if(name.length()<2)bad();
         var normalized=json.createObjectNode().put("modelName",name).put("category",text(body,"category",32).strip());
-        if(hasDescription)normalized.put("modelDesc",text(body,"modelDesc",500).strip());
+        if (body.has("modelDesc")) {
+            JsonNode description = body.get("modelDesc");
+            if (!description.isTextual() || description.asText().length() > 500) bad();
+            characters(description.asText(), true);
+            normalized.put("modelDesc", description.asText().strip());
+        }
+        if (body.has("coverImageId")) {
+            if (body.get("coverImageId").isNull()) normalized.putNull("coverImageId");
+            else {
+                String cover = text(body, "coverImageId", 19);
+                positiveLong(cover);
+                normalized.put("coverImageId", cover);
+            }
+        }
+        if (body.has("isPaid")) {
+            String paid = text(body, "isPaid", 4);
+            if (!Set.of("FREE", "PAID").contains(paid)) bad();
+            JsonNode price = body.get("price");
+            if ("PAID".equals(paid)) {
+                if (price == null || !price.isIntegralNumber() || !price.canConvertToInt() || price.asInt() <= 0) bad();
+                normalized.put("price", price.asInt());
+            } else {
+                if (price != null && !price.isNull() && (!price.isIntegralNumber() || !price.canConvertToInt() || price.asInt() != 0)) bad();
+                normalized.put("price", 0);
+            }
+            normalized.put("isPaid", paid);
+        } else if (body.has("price")) bad();
         return normalized;
     }
 
@@ -184,12 +247,18 @@ public class ModelImportService {
         JsonNode n=node==null?null:node.get(key);
         if(n==null || !n.isTextual() || n.asText().isBlank() || n.asText().length()>limit) bad();
         String text=n.asText();
+        characters(text, false);
+        return text;
+    }
+    /** 描述允许正常换行，所有文本仍拒绝隐藏控制字符和不完整的Unicode代理项。 */
+    private static void characters(String text, boolean multiline) {
         for(int i=0;i<text.length();i++) {
-            char c=text.charAt(i);if(c<32 || c==127) bad();
+            char c=text.charAt(i);
+            boolean allowedWhitespace = multiline && (c == '\n' || c == '\r' || c == '\t');
+            if(c<32 && !allowedWhitespace || c==127) bad();
             if(Character.isHighSurrogate(c)){if(++i>=text.length() || !Character.isLowSurrogate(text.charAt(i)))bad();}
             else if(Character.isLowSurrogate(c))bad();
         }
-        return text;
     }
     private static void bad() { throw new ServiceException(400,"模型导入请求格式无效"); }
 }

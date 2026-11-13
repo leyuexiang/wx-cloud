@@ -33,6 +33,7 @@ public class ModelImportSourceWorker implements AutoCloseable {
     @Resource private ModelImportPublication publication;
     @Resource private ArtResourceTransactionService resourceTransactions;
     @Resource private PermissionApi permissions;
+    @Resource private ModelImportService importService;
     private final ObjectMapper json=new ObjectMapper();
     private final Semaphore slots=new Semaphore(1);
     private final ScheduledThreadPoolExecutor heartbeat=new ScheduledThreadPoolExecutor(1,r->{
@@ -247,7 +248,8 @@ public class ModelImportSourceWorker implements AutoCloseable {
         throw new ModelImportArtifactValidation.Failure(ModelImportErrorCode.ARTIFACT_UNAVAILABLE);
     }
 
-    private record PublicationInput(String format,String prefix,ObjectNode artifact,ObjectNode directory,String assetName) {}
+    private record PublicationInput(String format,String prefix,ObjectNode artifact,ObjectNode directory,String assetName,
+                                    ArtResourceAccess.Actor actor) {}
 
     private boolean publishClaimed(Lease lease) {
         String phase="PUBLISHING";
@@ -261,9 +263,11 @@ public class ModelImportSourceWorker implements AutoCloseable {
                 String assetName=jdbc.queryForObject("SELECT asset_name FROM wx_3d_resource WHERE id=?",String.class,lease.resourceId());
                 String prefix=op.get("storage_prefix")+"frozen/"+lease.attemptId()+"/";
                 return new PublicationInput((String)task.get("target_format"),prefix,
-                        readObject(task.get("artifact_descriptor")),readObject(task.get("publish_descriptor")),assetName);
+                        readObject(task.get("artifact_descriptor")),readObject(task.get("publish_descriptor")),assetName,operator(op));
             });
             if(input==null)return false;
+            // 分类可能在确认后停用。调用既有字典接口时已释放资源、操作和任务锁。
+            withOperatorTenant(input.actor(), () -> importService.validateCategory(input.directory().path("category").asText()));
             var ready=publication.freeze(lease.operationId(),lease.resourceId(),input.format(),input.assetName(),
                     input.prefix(),input.artifact(),active::get);
             return tx(()->{
@@ -277,7 +281,7 @@ public class ModelImportSourceWorker implements AutoCloseable {
                         !input.directory().equals(readObject(task.get("publish_descriptor"))))return false;
                 maintain(op);
                 if(!liveLease(rows,databaseNow()))return false;
-                boolean committed=resourceTransactions.commitModel(resources.get(0),op,ready,input.directory());
+                boolean committed=resourceTransactions.commitModel(resources.get(0),op,ready,input.directory(),operator(op));
                 jdbc.update("UPDATE wx_3d_resource_import SET status=?,lease_until=NULL,error_code=NULL,row_version=row_version+1 WHERE operation_id=?",
                         committed?"COMMITTED":"CONFLICT",lease.operationId());
                 // 若目录锁等待跨过截止，回滚本事务的全部写入。
@@ -293,7 +297,9 @@ public class ModelImportSourceWorker implements AutoCloseable {
             return false;
         } catch(ServiceException rejected) {
             var error=classify(rejected);
-            recordFailure(lease,phase,error==ModelImportErrorCode.IMPORT_PERMISSION_REVOKED?error:ModelImportErrorCode.INVALID_MODEL);
+            if (rejected.getCode() == 400 || rejected.getCode() == 404) error = ModelImportErrorCode.DIRECTORY_INVALID;
+            recordFailure(lease,phase,error==ModelImportErrorCode.IMPORT_PERMISSION_REVOKED || error==ModelImportErrorCode.DIRECTORY_INVALID
+                    ?error:ModelImportErrorCode.INVALID_MODEL);
             return false;
         } finally {keepAlive.cancel(false);}
     }
@@ -397,18 +403,24 @@ public class ModelImportSourceWorker implements AutoCloseable {
         return String.valueOf(raw);
     }
     private void maintain(Map<String,Object> op) {
-        Long previous=TenantContextHolder.getTenantId();boolean previousIgnore=TenantContextHolder.isIgnore();
-        try {
-            // GLOBAL_SYSTEM的所有者0不能作为认证租户，平台真实租户由受信服务配置提供。
-            long tenant="GLOBAL_SYSTEM".equals(op.get("resource_scope"))?platformTenant:Long.parseLong(op.get("tenant_id").toString());
-            TenantContextHolder.setTenantId(tenant);
-            TenantContextHolder.setIgnore(false);
-            access.maintain(new ArtResourceAccess.Actor(((Number)op.get("operator_id")).longValue(),tenant),(String)op.get("resource_scope"),(String)op.get("tenant_id"));
+        var actor = operator(op);
+        withOperatorTenant(actor, () -> {
+            access.maintain(actor,(String)op.get("resource_scope"),(String)op.get("tenant_id"));
             // 后台没有请求线程的登录上下文，以原操作可信用户调用同一系统权限接口。
             // 每次阶段推进、续租及最终发布均复核，撤销菜单权限后不能继续使用旧接收结果。
             if(!Boolean.TRUE.equals(permissions.hasAnyPermissions(((Number)op.get("operator_id")).longValue(),
                     ModelImportService.writePermission((String)op.get("operation_type"))).getCheckedData()))
                 throw new ServiceException(403,"无权执行模型操作");
+        });
+    }
+
+    /** 系统内部接口沿用原操作租户，远程返回或抛错后均恢复后台线程原上下文。 */
+    private void withOperatorTenant(ArtResourceAccess.Actor actor, Runnable action) {
+        Long previous=TenantContextHolder.getTenantId();boolean previousIgnore=TenantContextHolder.isIgnore();
+        try {
+            TenantContextHolder.setTenantId(actor.tenant());
+            TenantContextHolder.setIgnore(false);
+            action.run();
         } finally {
             TenantContextHolder.clear();
             if(previous!=null)TenantContextHolder.setTenantId(previous);
@@ -416,6 +428,12 @@ public class ModelImportSourceWorker implements AutoCloseable {
         }
     }
     @org.springframework.beans.factory.annotation.Value("${dim3d.resource.platform-tenant-id:0}") private long platformTenant;
+    /** 后台封面绑定复用原操作身份，平台登录租户从受信配置取得，不能使用资源所有者零。 */
+    private ArtResourceAccess.Actor operator(Map<String, Object> operation) {
+        long tenant = "GLOBAL_SYSTEM".equals(operation.get("resource_scope"))
+                ? platformTenant : Long.parseLong(operation.get("tenant_id").toString());
+        return new ArtResourceAccess.Actor(((Number) operation.get("operator_id")).longValue(), tenant);
+    }
     private static ModelImportErrorCode classify(RuntimeException error) {
         if(error instanceof ServiceException service) {
             int code=service.getCode();

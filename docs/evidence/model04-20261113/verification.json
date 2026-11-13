@@ -1,0 +1,101 @@
+{
+  "date": "2026-11-13",
+  "task": "MODEL-04",
+  "scope": "本地实现及检查，服务器候选待验证",
+  "backend": {
+    "classes": [
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceDownloadSignerTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceTransactionTest",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.Dim3dImageResourceServiceTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ModelImportArtifactVerifierTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ModelImportControllerTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ModelImportConversionClientTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ModelImportServiceTest",
+        "tests": 23,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ModelImportSourceWorkerTest",
+        "tests": 38,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ModelImportStatusViewTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ModelImportUnifiedAuthorizationTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "cn.iocoder.wx.module.dimensions.service.ModelResourceManifestVerifierTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "tests": 115,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "frontend": {
+    "testFiles": 2,
+    "tests": 10,
+    "passed": true,
+    "typeCheckPassed": true
+  },
+  "regressionsReproduced": [
+    "新增封面和价格字段确认被400拒绝",
+    "后台付费发布实际保存为免费"
+  ],
+  "formalDeploymentCompleted": false
+}
