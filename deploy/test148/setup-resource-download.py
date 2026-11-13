@@ -1,23 +1,11 @@
 """建立新桶专用HTTPS读入口，不改旧样本代理；配置先检查再重载。"""
 from pathlib import Path
 import importlib.util,subprocess,json,datetime,shutil,os
+from resource_upload_config import parse_allowed_origins, render_nginx_origin_map
 ROOT=Path("/opt/wx/editor-test148")
-def main():
-    os.umask(0o077)
-    if Path.cwd().resolve()!=ROOT:raise RuntimeError("工作目录错误")
-    spec=importlib.util.spec_from_file_location("s3",ROOT/"art-s3-test-support.py");s3=importlib.util.module_from_spec(spec);spec.loader.exec_module(s3)
-    status,_=s3.request("HEAD","/wx-art-test148")
-    if status==404:
-        status,_=s3.request("PUT","/wx-art-test148")
-        if status!=200:raise RuntimeError("新桶创建失败")
-    elif status!=200:raise RuntimeError("新桶检查失败")
-    status,data=s3.request("GET","/wx-art-test148",query="policy=")
-    if status==200:raise RuntimeError("发现既有桶策略，先审查，不自动覆盖或扩大权限")
-    if status!=404 or b"NoSuchBucketPolicy" not in data:raise RuntimeError("无法确认新桶私有策略")
-    # 使用服务器已有的内部 CA 证书链；允许部署时显式指定其他证书目录。
-    cert=os.environ.get("WX_TLS_CERT_DIR", "/etc/wx/tls")
-    config=Path("/www/server/panel/vhost/nginx/jtyf-resource-download.conf")
-    content="""# ART-02：只代理新私有资源桶的签名GET，保留Host以通过S3签名校验。
+def render_download_config(cert, origins):
+    """生成只读代理，复用精确来源校验并保留签名主机与禁用查询日志。"""
+    return render_nginx_origin_map(origins, variable="wx_resource_download_cors_origin")+"""# ART-02：只代理新私有资源桶的签名GET，保留Host以通过S3签名校验。
 server {
     listen 192.168.10.148:9444 ssl;
     server_name 192.168.10.148;
@@ -27,8 +15,8 @@ server {
     access_log off;
     error_log /opt/wx/editor-test148/data/resource-download-error.log crit;
     add_header Referrer-Policy no-referrer always;
-    # 当前测试页的明确来源；业务宿主域名接入时单独配置白名单。
-    add_header Access-Control-Allow-Origin "http://127.0.0.1:8765" always;
+    # 未匹配来源不返回跨域许可；签名及资源权限仍由既有服务校验。
+    add_header Access-Control-Allow-Origin $wx_resource_download_cors_origin always;
     add_header Vary Origin always;
     add_header Access-Control-Expose-Headers "Content-Length,Content-Range,ETag" always;
     add_header Cache-Control "private, no-store" always;
@@ -46,6 +34,25 @@ server {
     location / { return 404; }
 }
 """.replace("CERT",cert)
+
+def main():
+    os.umask(0o077)
+    if Path.cwd().resolve()!=ROOT:raise RuntimeError("工作目录错误")
+    # 下载可单独覆盖来源，未设置时继承上传白名单；先校验再写配置。
+    origins=parse_allowed_origins(os.environ.get("WX_DOWNLOAD_CORS_ORIGINS", os.environ.get("WX_UPLOAD_CORS_ORIGINS")))
+    spec=importlib.util.spec_from_file_location("s3",ROOT/"art-s3-test-support.py");s3=importlib.util.module_from_spec(spec);spec.loader.exec_module(s3)
+    status,_=s3.request("HEAD","/wx-art-test148")
+    if status==404:
+        status,_=s3.request("PUT","/wx-art-test148")
+        if status!=200:raise RuntimeError("新桶创建失败")
+    elif status!=200:raise RuntimeError("新桶检查失败")
+    status,data=s3.request("GET","/wx-art-test148",query="policy=")
+    if status==200:raise RuntimeError("发现既有桶策略，先审查，不自动覆盖或扩大权限")
+    if status!=404 or b"NoSuchBucketPolicy" not in data:raise RuntimeError("无法确认新桶私有策略")
+    # 使用服务器已有的内部 CA 证书链；允许部署时显式指定其他证书目录。
+    cert=os.environ.get("WX_TLS_CERT_DIR", "/etc/wx/tls")
+    config=Path("/www/server/panel/vhost/nginx/jtyf-resource-download.conf")
+    content=render_download_config(cert,origins)
     backup=ROOT/"backups"/("download-"+datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ"));backup.mkdir(mode=0o700)
     if config.exists():shutil.copy2(config,backup/config.name)
     config.write_text(content,encoding="utf-8")
@@ -58,6 +65,6 @@ server {
         raise
     # 到期时间从实际部署证书读取，避免沿用历史环境的固定日期。
     expiry=subprocess.check_output(["openssl","x509","-in",cert+"/server.crt","-noout","-enddate"],text=True).strip()
-    result={"endpoint":"https://192.168.10.148:9444","bucket":"wx-art-test148","bucketPolicy":"NONE_PRIVATE","getOnly":True,"signedQueryLogging":False,"backup":str(backup),"certificateExpires":expiry}
+    result={"endpoint":"https://192.168.10.148:9444","bucket":"wx-art-test148","bucketPolicy":"NONE_PRIVATE","getOnly":True,"signedQueryLogging":False,"backup":str(backup),"certificateExpires":expiry,"allowedOrigins":list(origins)}
     (ROOT/"download-setup.json").write_text(json.dumps(result,indent=2));print(json.dumps(result))
 if __name__=="__main__":main()

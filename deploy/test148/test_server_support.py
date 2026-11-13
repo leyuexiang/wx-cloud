@@ -172,6 +172,34 @@ class ResourceUploadCorsTest(unittest.TestCase):
             with self.subTest(invalid=invalid), self.assertRaises(ValueError):
                 parse_allowed_origins(invalid)
 
+    def test_download_and_upload_maps_can_coexist_for_lan_frontend(self):
+        """同一代理同时加载上传和下载配置，映射变量独立且精确放行当前页面。"""
+        import importlib.util
+        from resource_upload_config import parse_allowed_origins, render_nginx_origin_map
+
+        script = Path(__file__).with_name("setup-resource-download.py")
+        spec = importlib.util.spec_from_file_location("download_setup", script)
+        download = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(download)
+        origins = parse_allowed_origins("http://192.168.10.247:5180")
+        upload = render_nginx_origin_map(origins)
+        config = download.render_download_config("/trusted/cert", origins)
+        self.assertIn("map $http_origin $wx_resource_download_cors_origin", config)
+        self.assertNotIn("$wx_resource_upload_cors_origin", config)
+        self.assertIn("$wx_resource_upload_cors_origin", upload)
+        self.assertIn('"http://192.168.10.247:5180" $http_origin;', config)
+        self.assertIn('default "";', config)
+        self.assertIn("ssl_certificate /trusted/cert/server.crt;", config)
+        self.assertIn("limit_except GET { deny all; }", config)
+        self.assertIn("location / { return 404; }", config)
+        self.assertNotIn("*", config)
+
+    def test_cors_variable_cannot_inject_nginx_directives(self):
+        """配置变量名只允许受控标识符，不能夹带代理指令。"""
+        from resource_upload_config import render_nginx_origin_map
+        with self.assertRaises(ValueError):
+            render_nginx_origin_map(("http://localhost:5180",), variable="x; include /tmp/x;")
+
 
 if __name__ == "__main__":
     unittest.main()

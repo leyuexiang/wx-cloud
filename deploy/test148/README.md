@@ -4,6 +4,15 @@
 
 当前模型新增专项采用已提交源码构建和部署。服务器已具备版本控制工具（Git）、构建工具（Maven）及 Java 17。先拉取指定提交，再从该提交执行构建、增量演练和配置切换。实际状态维护在 [MODEL-02](../../docs/03_近期执行任务.md#model-00-模型资源新增功能完善计划2026-11-12)。
 
+服务器构建须显式指定 Linux 绝对依赖仓库路径，避免全局设置残留 Windows 盘符；冒号会被 Linux 当作编译路径分隔符，导致已经下载的依赖仍报类缺失。仅对本次命令覆盖，不修改其他项目的全局设置：
+
+```sh
+cd /opt/wx/checkouts/wx-cloud
+mvn -B -ntp -Ptest148 -Dmaven.repo.local=/opt/wx/cache/maven -pl wx-module-3d -am -Dmaven.test.skip=true package
+```
+
+该命令只构建部署包，专项测试另行执行和记录。首次使用新仓库可以复用已核实完整的旧依赖缓存，不能把错误路径原样加入编译参数。
+
 目标库为 `wx_editor` 和 `wx_editor_data08`。两库已有 ART 基础结构，需要补齐 `migrations/market01` 的 001～003。在部署根目录调用源码目录中的工具，分别对每个库预检和演练。
 
 ```sh
@@ -15,9 +24,13 @@ python3 /opt/wx/checkouts/wx-cloud/deploy/test148/prepare-model-import.py --data
 
 演练工具备份相关表，在唯一命名的独立副本上顺序执行增量，并核对原有列数据摘要。备份和报告保存在部署根目录的受限 `backups` 子目录。正式切换时先停止对应三维写入实例，再使用同库的成功报告执行 `--apply --rehearsal-report /对应备份目录/report.json`。应用阶段重新备份，检查结构和原数据。发生部分结构语句成功时，按报告中的实际步骤修复。
 
+接收候选使用 `stage-model-import.py --target main|data08 --rehearsal-report /对应报告 --artifact /服务器构建包 --sha256 实际摘要`。它仅连接同来源的演练副本，使用 `49092/49093` 回环端口，保留现场认证配置，开启接口而关闭工作线程；授权数据只读挂载，原始环境快照受限保存，临时环境文件在启动后删除。当前应用账号对原数据副本仅获得增删改查权限，不创建账号，不授予结构管理权限。启动后还需核对健康、接口注册和真实身份，报告生成不代表联调通过。结束后停止本批候选并撤销该副本授权；演练副本和备份按交接需要保留。
+
 三维配置通过 `WX_MODEL_IMPORT_ENABLED`、`WX_MODEL_IMPORT_WORKER_ENABLED`、`WX_MODEL_IMPORT_CONVERTER_URL`、`WX_MODEL_IMPORT_APP_COMPATIBILITY` 及可选的超时、产物大小变量设置。入口和工作线程默认关闭，转换地址使用已验证的完整接口地址。现有服务器配置仅补齐该配置组，保留实际数据库、端口及其他功能配置。
 
 当前浏览器来源为 `http://192.168.10.247:5180`。执行上传代理配置时，通过 `WX_UPLOAD_CORS_ORIGINS` 提供完整精确来源列表。该变量可以同时包含既有来源。`WX_TLS_CERT_DIR` 指向现场已核验的有效证书目录，浏览器需信任对应证书。2026-11-12 现场的上传代理仍使用旧来源和已到期证书，下方早期记录中的证书目录与到期日按其记录日期理解。
+
+下载代理同步使用精确来源映射，默认继承 `WX_UPLOAD_CORS_ORIGINS`，也可由 `WX_DOWNLOAD_CORS_ORIGINS` 单独覆盖。上传与下载映射变量独立，能同时加载；不匹配的来源不返回跨域许可，私有桶签名、只读下载与暂存上传路径限制继续执行。
 
 ## 2026-10-30 现场适配
 

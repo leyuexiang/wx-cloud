@@ -1,0 +1,31 @@
+{
+  "backupBytes": 69924,
+  "backupDirectory": "/opt/wx/editor-test148/backups/model02-wx_editor_data08-20261113T021308-4a798d2e",
+  "backupSha256": "2c96688a06cbb1009f9f3340cb5f5805501b0e81f652dd5fc741fab0fc1d9ee3",
+  "lastAppliedMigration": "003-publication.up.sql",
+  "migrationSha256": {
+    "001-import.up.sql": "537360297efe7a709f9c25d6c4a534f048764d3d5f768cd09cc566b18e0960a7",
+    "002-queue-utc.up.sql": "c47e23d73c27e250f821b92408b83a865b79137350c13b53c56d0dd3109f9824",
+    "003-publication.up.sql": "32224ae457e088ebd31726957a71acbe351b203f81a62c73fd6b467a43b97abd"
+  },
+  "originalRowsUnchanged": true,
+  "rehearsalDatabase": "wx_model02_rehearsal_data08_4a798d2e",
+  "rows": {
+    "wx_3d_model": {
+      "rows": 15,
+      "sha256": "5e3a238639fdc2c6aa39bf02765efc27af8608b8b6f6657d6fd6010f94405c88"
+    },
+    "wx_3d_resource": {
+      "rows": 6,
+      "sha256": "9c3528fce38431d391bef4d283fbd7dea5f76a801d166fe5c9cf3fce8fd6c475"
+    },
+    "wx_3d_resource_operation": {
+      "rows": 20,
+      "sha256": "52d0f7fc786d8ccc5a469fc7cd8a744244b74f885bece2eea97ba5e61132c52b"
+    }
+  },
+  "sourceDatabase": "wx_editor_data08",
+  "sourceSchemaSha256": "2a64b111d8f559873e695a8a0204447f5c5018cd495f3403dbefa7d2d4536a66",
+  "sourceSchemaUnchanged": true,
+  "status": "REHEARSED"
+}

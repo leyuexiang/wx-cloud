@@ -52,11 +52,13 @@ def parse_allowed_origins(value):
     return tuple(normalized)
 
 
-def render_nginx_origin_map(origins):
-    """生成 Nginx 精确来源映射；不匹配时返回空值，不开放通配来源。"""
+def render_nginx_origin_map(origins, variable="wx_resource_upload_cors_origin"):
+    """生成精确来源映射；上传和下载使用独立变量，防止同时加载时发生冲突。"""
+    if not re.fullmatch(r"[a-z][a-z0-9_]*", variable):
+        raise ValueError("跨域映射变量名无效")
     validated = parse_allowed_origins(",".join(origins))
     lines = [
-        "map $http_origin $wx_resource_upload_cors_origin {",
+        f"map $http_origin ${variable} {{",
         '    default "";',
     ]
     lines.extend(f'    "{origin}" $http_origin;' for origin in validated)
