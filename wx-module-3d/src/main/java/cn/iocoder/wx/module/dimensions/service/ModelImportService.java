@@ -1,6 +1,7 @@
 package cn.iocoder.wx.module.dimensions.service;
 
 import cn.iocoder.wx.framework.common.exception.ServiceException;
+import cn.iocoder.wx.framework.security.core.service.SecurityFrameworkService;
 import cn.iocoder.wx.module.dimensions.exception.ModelImportErrorCode;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -24,12 +25,15 @@ public class ModelImportService {
     @Resource private ArtResourceService resources;
     @Resource private ArtResourceUploadSigner signer;
     @Resource private ObjectMapper json;
+    @Resource private SecurityFrameworkService permissions;
     private static final Set<String> RUNNING=Set.of("QUEUED","VERIFYING_SOURCE","CONVERTING","VALIDATING","PUBLISHING");
 
     public ModelImportStatusView create(JsonNode body) {
         String type=text(body,"operationType",16);
         boolean creating="CREATE".equals(type);
         if(!creating && !"REPLACE".equals(type)) bad();
+        // 使用与场景列表相同的权限服务及缓存，避免编辑权限被共用入口误当作新增权限。
+        requireWritePermission(type);
         fields(body,creating?Set.of("operationId","operationType","resourceScope","metadata","targetFormat","source"):
                 Set.of("operationId","operationType","resourceId","expectedRevision","targetFormat","source"));
         operationId(text(body,"operationId",36));
@@ -70,7 +74,8 @@ public class ModelImportService {
     }
     public Map<String,Object> sourceTarget(String id) {
         return new TransactionTemplate(transactions).execute(status->{
-            var op=lockOperation(id);var task=task(id);live(op);
+            var op=lockOperation(id);requireWritePermission((String)op.get("operation_type"));
+            var task=task(id);live(op);
             if(!"UPLOADING".equals(op.get("status")) || !"RECEIVING".equals(task.get("status"))) throw ServiceException.of(INVALID_OPERATION_STATE);
             // 原ZIP与最终闭包的filePlan分离；只签发后端确定的固定键。
             return Map.of("uploadUrl",signer.sign("resources/staging/model-imports/"+id+"/","source.zip"),
@@ -79,7 +84,7 @@ public class ModelImportService {
     }
     public ModelImportStatusView submit(String id) {
         return new TransactionTemplate(transactions).execute(status->{
-            var op=lockOperation(id);var task=task(id);
+            var op=lockOperation(id);requireWritePermission((String)op.get("operation_type"));var task=task(id);
             if("COMMITTED".equals(op.get("status"))) return view(op,task);
             live(op);
             if(!"UPLOADING".equals(op.get("status"))) throw ServiceException.of(INVALID_OPERATION_STATE);
@@ -95,7 +100,7 @@ public class ModelImportService {
     public ModelImportStatusView requestPublish(String id,JsonNode body) {
         ObjectNode directory=directoryInput(body);
         return new TransactionTemplate(transactions).execute(status->{
-            var op=lockOperation(id);var task=task(id);
+            var op=lockOperation(id);requireWritePermission((String)op.get("operation_type"));var task=task(id);
             var previous=task.get("publish_descriptor");
             if(previous!=null && !directory.equals(publishDescriptor(previous)))
                 throw ServiceException.of(IDEMPOTENCY_CONFLICT);
@@ -121,6 +126,16 @@ public class ModelImportService {
         var normalized=json.createObjectNode().put("modelName",name).put("category",text(body,"category",32).strip());
         if(hasDescription)normalized.put("modelDesc",text(body,"modelDesc",500).strip());
         return normalized;
+    }
+
+    /** 请求线程只消费框架已认证身份；权限码映射与后台复核共用，不重复解释令牌。 */
+    static String writePermission(String type) {
+        if("CREATE".equals(type))return "dim3d:model:add";
+        if("REPLACE".equals(type))return "dim3d:model:edit";
+        throw ServiceException.of(INVALID_OPERATION_STATE);
+    }
+    private void requireWritePermission(String type) {
+        if(!permissions.hasPermission(writePermission(type)))throw new ServiceException(403,"无权执行模型操作");
     }
 
     private JsonNode publishDescriptor(Object stored) {

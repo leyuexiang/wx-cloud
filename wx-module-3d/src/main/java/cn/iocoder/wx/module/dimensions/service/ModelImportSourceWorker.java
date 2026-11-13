@@ -3,6 +3,7 @@ package cn.iocoder.wx.module.dimensions.service;
 import cn.iocoder.wx.framework.common.exception.ServiceException;
 import cn.iocoder.wx.framework.tenant.core.context.TenantContextHolder;
 import cn.iocoder.wx.module.dimensions.exception.*;
+import cn.iocoder.wx.module.system.api.permission.PermissionApi;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.annotation.*;
@@ -31,6 +32,7 @@ public class ModelImportSourceWorker implements AutoCloseable {
     @Resource private ModelImportArtifactValidation artifactValidation;
     @Resource private ModelImportPublication publication;
     @Resource private ArtResourceTransactionService resourceTransactions;
+    @Resource private PermissionApi permissions;
     private final ObjectMapper json=new ObjectMapper();
     private final Semaphore slots=new Semaphore(1);
     private final ScheduledThreadPoolExecutor heartbeat=new ScheduledThreadPoolExecutor(1,r->{
@@ -402,6 +404,11 @@ public class ModelImportSourceWorker implements AutoCloseable {
             TenantContextHolder.setTenantId(tenant);
             TenantContextHolder.setIgnore(false);
             access.maintain(new ArtResourceAccess.Actor(((Number)op.get("operator_id")).longValue(),tenant),(String)op.get("resource_scope"),(String)op.get("tenant_id"));
+            // 后台没有请求线程的登录上下文，以原操作可信用户调用同一系统权限接口。
+            // 每次阶段推进、续租及最终发布均复核，撤销菜单权限后不能继续使用旧接收结果。
+            if(!Boolean.TRUE.equals(permissions.hasAnyPermissions(((Number)op.get("operator_id")).longValue(),
+                    ModelImportService.writePermission((String)op.get("operation_type"))).getCheckedData()))
+                throw new ServiceException(403,"无权执行模型操作");
         } finally {
             TenantContextHolder.clear();
             if(previous!=null)TenantContextHolder.setTenantId(previous);
