@@ -1,7 +1,7 @@
 {
   "date": "2026-11-13",
   "task": "MODEL-04",
-  "scope": "本地实现及检查，服务器候选待验证",
+  "scope": "本地实现检查通过，服务器候选已构建，真实目录发布待验收，计划按图片式流程修订",
   "backend": {
     "classes": [
       {
@@ -91,11 +91,31 @@
     "testFiles": 2,
     "tests": 10,
     "passed": true,
-    "typeCheckPassed": true
+    "typeCheckPassed": true,
+    "integratedSourceCommit": "2dcd6b9"
   },
   "regressionsReproduced": [
     "新增封面和价格字段确认被400拒绝",
     "后台付费发布实际保存为免费"
   ],
-  "formalDeploymentCompleted": false
+  "formalDeploymentCompleted": false,
+  "serverBuild": {
+    "sourceCommit": "ce5892f6",
+    "size": 194702083,
+    "durationSeconds": 10.92,
+    "passed": true
+  },
+  "publicationVerification": {
+    "target": "main",
+    "roles": [
+      "super_admin",
+      "tenant_admin"
+    ],
+    "passed": false,
+    "lastPassedStage": "原包上传转换完成",
+    "unverified": "非法分类响应码断言未通过，最终目录保存未验收",
+    "testObjectsRemoved": true,
+    "coverFileRemoved": true,
+    "sessionsLoggedOut": true
+  }
 }
