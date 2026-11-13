@@ -29,7 +29,10 @@ public class IotStateController {
     @Operation(summary = "查询当前租户设备点位最新状态，未接收或已过期时返回空值")
     public CommonResult<IotStateRespVO> get(
             @RequestParam("deviceId") @NotBlank @Size(max = 256) String deviceId,
-            @RequestParam("pointCode") @NotBlank @Size(max = 256) String pointCode) {
-        return CommonResult.success(IotStateRespVO.from(queryService.get(deviceId, pointCode)));
+            @RequestParam("pointCode") @NotBlank @Size(max = 256) String pointCode,
+            @RequestParam(value = "sceneId", required = false) @Size(max = 19) String sceneId,
+            @RequestParam(value = "objectId", required = false) @Size(max = 256) String objectId) {
+        // 运行态携带场景和实例，兼容原有租户级状态查询。
+        return CommonResult.success(IotStateRespVO.from(queryService.get(deviceId, pointCode, sceneId, objectId)));
     }
 }

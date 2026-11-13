@@ -99,6 +99,14 @@ public class TokenAuthenticationFilter implements GlobalFilter, Ordered {
                     user.getExpiresTime() == null || LocalDateTimeUtils.beforeNow(user.getExpiresTime())) {
                 return chain.filter(safeExchange);
             }
+            // 浏览器提交的租户编号只是查验提示，不能覆盖令牌绑定的租户。
+            if (SecurityFrameworkUtils.isDimensionsWebSocket(safeExchange)) {
+                Long requestedTenant = WebFrameworkUtils.getTenantId(safeExchange);
+                if (requestedTenant != null && !Objects.equals(requestedTenant, user.getTenantId())) {
+                    safeExchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+                    return safeExchange.getResponse().setComplete();
+                }
+            }
 
             // 2.1 有用户，则设置登录用户
             SecurityFrameworkUtils.setLoginUser(safeExchange, user);

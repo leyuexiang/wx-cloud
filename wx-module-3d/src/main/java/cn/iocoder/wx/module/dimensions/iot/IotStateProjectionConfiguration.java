@@ -1,6 +1,5 @@
 package cn.iocoder.wx.module.dimensions.iot;
 
-import cn.iocoder.wx.framework.security.core.service.SecurityFrameworkService;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.TopicPartition;
@@ -11,6 +10,7 @@ import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -20,6 +20,10 @@ import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
+import cn.iocoder.wx.framework.security.core.service.SecurityFrameworkService;
+import cn.iocoder.wx.framework.websocket.core.sender.WebSocketMessageSender;
+import cn.iocoder.wx.module.dimensions.service.Dim3dSceneService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.util.backoff.FixedBackOff;
 
 import java.time.Clock;
@@ -43,14 +47,28 @@ public class IotStateProjectionConfiguration {
     }
 
     @Bean
-    public IotStateProjectionService iotStateProjectionService(IotStateStore store,
-            IotTelemetryEventCodec codec, IotStateProjectionProperties properties) {
-        return new IotStateProjectionService(store, codec, properties, Clock.systemUTC());
+    public IotStateSubscriptionRegistry iotStateSubscriptionRegistry(ObjectProvider<WebSocketMessageSender> senderProvider,
+            SecurityFrameworkService security, StringRedisTemplate redis, IotSceneBindingScope scope) {
+        return new IotStateSubscriptionRegistry(senderProvider.getIfAvailable(), security, redis, scope);
     }
 
     @Bean
-    public IotStateQueryService iotStateQueryService(IotStateStore store, SecurityFrameworkService security) {
-        return new IotStateQueryService(store, security);
+    IotSceneBindingScope iotSceneBindingScope(Dim3dSceneService scenes, ObjectMapper json) {
+        return new IotSceneBindingScope(scenes, json);
+    }
+
+    @Bean
+    public IotStateProjectionService iotStateProjectionService(IotStateStore store,
+            IotTelemetryEventCodec codec, IotStateProjectionProperties properties,
+            ObjectProvider<IotStateSubscriptionRegistry> subscriptionRegistryProvider) {
+        IotStateProjectionService service = new IotStateProjectionService(store, codec, properties, Clock.systemUTC());
+        service.setSubscriptionRegistry(subscriptionRegistryProvider.getIfAvailable());
+        return service;
+    }
+
+    @Bean
+    public IotStateQueryService iotStateQueryService(IotStateStore store, SecurityFrameworkService security, IotSceneBindingScope scope) {
+        return new IotStateQueryService(store, security, scope);
     }
 
     @Bean(destroyMethod = "close")

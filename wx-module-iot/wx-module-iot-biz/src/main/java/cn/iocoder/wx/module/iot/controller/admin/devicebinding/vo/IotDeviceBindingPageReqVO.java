@@ -15,5 +15,10 @@ public class IotDeviceBindingPageReqVO extends PageParam {
     private String connectorId;
     @Size(max = 128)
     private String externalDeviceId;
+    /** 模型数据源仅查询当前场景实例的已绑定设备。 */
+    @Size(max = 128)
+    private String sceneId;
+    @Size(max = 128)
+    private String objectId;
     private Boolean enabled;
 }

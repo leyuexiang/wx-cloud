@@ -3,6 +3,8 @@ package cn.iocoder.wx.module.dimensions.iot;
 import cn.iocoder.wx.framework.security.core.service.SecurityFrameworkService;
 import cn.iocoder.wx.module.dimensions.consumer.IotStateEventConsumer;
 import cn.iocoder.wx.module.dimensions.controller.admin.IotStateController;
+import cn.iocoder.wx.module.dimensions.service.Dim3dSceneService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cn.iocoder.wx.framework.websocket.core.sender.kafka.KafkaWebSocketMessageDeserializer;
 import cn.iocoder.wx.framework.websocket.core.sender.kafka.KafkaWebSocketMessageSerializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -28,6 +30,12 @@ class IotStateConfigurationTest {
             .withUserConfiguration(IotStateProjectionConfiguration.class, IotStateEventConsumer.class, IotStateController.class)
             .withBean(StringRedisTemplate.class, () -> mock(StringRedisTemplate.class))
             .withBean(SecurityFrameworkService.class, () -> mock(SecurityFrameworkService.class))
+            .withBean(Dim3dSceneService.class, () -> mock(Dim3dSceneService.class))
+            .withBean(ObjectMapper.class, ObjectMapper::new)
+            .withBean(org.springframework.jdbc.core.JdbcTemplate.class, () -> mock(org.springframework.jdbc.core.JdbcTemplate.class))
+            .withBean(cn.iocoder.wx.module.dimensions.service.ArtResourceAccess.class, () -> mock(cn.iocoder.wx.module.dimensions.service.ArtResourceAccess.class))
+            .withBean(cn.iocoder.wx.module.system.api.dict.DictDataApi.class, () -> mock(cn.iocoder.wx.module.system.api.dict.DictDataApi.class))
+            .withBean(cn.iocoder.wx.module.system.api.permission.PermissionApi.class, () -> mock(cn.iocoder.wx.module.system.api.permission.PermissionApi.class))
             .withPropertyValues("spring.kafka.listener.auto-startup=false",
                     "spring.kafka.producer.value-serializer=" + KafkaWebSocketMessageSerializer.class.getName(),
                     "spring.kafka.consumer.value-deserializer=" + KafkaWebSocketMessageDeserializer.class.getName());

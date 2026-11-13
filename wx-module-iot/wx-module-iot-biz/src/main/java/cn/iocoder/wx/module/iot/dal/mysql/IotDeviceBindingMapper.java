@@ -19,6 +19,8 @@ public interface IotDeviceBindingMapper extends BaseMapperX<IotDeviceBindingDO> 
                 .eq(IotDeviceBindingDO::getTenantId, tenantId)
                 .likeIfPresent(IotDeviceBindingDO::getConnectorId, request.getConnectorId())
                 .likeIfPresent(IotDeviceBindingDO::getExternalDeviceId, request.getExternalDeviceId())
+                .eqIfPresent(IotDeviceBindingDO::getSceneId, request.getSceneId())
+                .eqIfPresent(IotDeviceBindingDO::getObjectId, request.getObjectId())
                 .eqIfPresent(IotDeviceBindingDO::getEnabled, request.getEnabled())
                 .orderByDesc(IotDeviceBindingDO::getId));
     }
