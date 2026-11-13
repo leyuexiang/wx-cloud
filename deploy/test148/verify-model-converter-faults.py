@@ -27,7 +27,8 @@ def command(arguments):
 
 def healthy(port):
     """启动等待有明确上限，仅访问本机候选的已有健康入口。"""
-    path = '/actuator/health' if port == 49102 else '/health'
+    # 转换器必须等工具探测结束；仅存活时暂停子进程，可能误停启动探测而没有占用转换名额。
+    path = '/actuator/health' if port == 49102 else '/ready'
     for _ in range(45):
         try:
             with OPENER.open('http://127.0.0.1:' + str(port) + path, timeout=2) as response:
@@ -78,6 +79,7 @@ def verify(case, directory):
 
 def busy(converter, directory):
     """只暂停独立转换器中的实际子工具，保留HTTP服务及真实并发门限；最终必定恢复。"""
+    healthy(32804)
     marker = '/tmp/model03-held-' + uuid.uuid4().hex + '.json'
     watcher = r"""
 const fs=require('fs');
@@ -91,7 +93,7 @@ const timer=setInterval(()=>{
       const cmd=fs.readFileSync('/proc/'+pid+'/cmdline','utf8').split('\0');
       // 只匹配服务器直接启动的已知工具，不暂停HTTP服务器、监控器或未知进程。
       if(!/^PPid:\s+1$/m.test(status)||!cmd.some(x=>/(?:^|\/)(?:obj2gltf(?:\.js)?|fbx2gltf|FBX2glTF|assimp)$/.test(x)))continue;
-      fs.writeFileSync(marker,JSON.stringify({pid:Number(pid)}));
+      fs.writeFileSync(marker,JSON.stringify({pid:Number(pid),command:cmd}));
       process.kill(Number(pid),'SIGSTOP');clearInterval(timer);return;
     }catch(e){}
   }
@@ -128,6 +130,17 @@ const timer=setInterval(()=>{
                 time.sleep(0.1)
             else:
                 raise RuntimeError('未观察到实际转换工具')
+            paused = json.loads(command(['docker', 'exec', converter, 'cat', marker]))
+            (directory / 'busy-tool.json').write_text(json.dumps(paused), encoding='utf-8')
+            # 先直接确认真实转换器已返回繁忙，避免把暂停到无关工具误当故障已建立。
+            try:
+                occupy()
+            except urllib.error.HTTPError as error:
+                if error.code != 429:
+                    raise RuntimeError('转换占位未触发真实繁忙') from None
+                error.close()
+            else:
+                raise RuntimeError('转换占位未触发真实繁忙')
             result = verify('converter-busy', directory)
         finally:
             # 由容器内记录的唯一进程恢复，不向其他容器或共享转换服务发送信号。
