@@ -1,11 +1,16 @@
 package cn.iocoder.wx.module.dimensions.service;
 
 import cn.iocoder.wx.framework.common.exception.ServiceException;
+import cn.iocoder.wx.framework.common.pojo.CommonResult;
 import cn.iocoder.wx.framework.tenant.core.context.TenantContextHolder;
+import cn.iocoder.wx.module.system.api.permission.PermissionApi;
 import org.junit.jupiter.api.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.*;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import java.time.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -14,13 +19,17 @@ import static org.mockito.Mockito.*;
 
 /** 真实数据库锁和事务覆盖丢租约/迟到结果；存储边界模拟耗时及改写。 */
 class ModelImportSourceWorkerTest {
-    JdbcTemplate db;TestWorker worker;ArtResourceObjectStore store;ArtResourceAccess access;
+    JdbcTemplate db;@InjectMocks TestWorker worker;ArtResourceObjectStore store;ArtResourceAccess access;
+    @Mock PermissionApi permissions;
+    AutoCloseable mocks;
     String op=UUID.randomUUID().toString();
     static class TestWorker extends ModelImportSourceWorker {
         LocalDateTime now=LocalDateTime.of(2026,11,4,1,0);
         @Override protected LocalDateTime databaseNow(){return now;}
     }
     @BeforeEach void setup() {
+        mocks=MockitoAnnotations.openMocks(this);
+        when(permissions.hasAnyPermissions(anyLong(),any(String[].class))).thenReturn(CommonResult.success(true));
         var data=new DriverManagerDataSource("jdbc:h2:mem:"+UUID.randomUUID()+";MODE=MySQL;DB_CLOSE_DELAY=-1","sa","");db=new JdbcTemplate(data);
         db.execute("CREATE TABLE wx_3d_resource(id BIGINT PRIMARY KEY,resource_scope VARCHAR(20),tenant_id VARCHAR(20),upload_source VARCHAR(20),del_flag CHAR,current_revision BIGINT,resource_type VARCHAR(16) DEFAULT 'MODEL',asset_name VARCHAR(150) DEFAULT 'sample',content_state VARCHAR(16) DEFAULT 'PENDING',current_operation_id VARCHAR(36),storage_prefix VARCHAR(512),manifest_path VARCHAR(512),manifest_sha256 VARCHAR(64),content_hash VARCHAR(64),content_format VARCHAR(32),platform VARCHAR(20),app_compatibility VARCHAR(128),update_by BIGINT)");
         db.execute("CREATE TABLE wx_3d_resource_operation(id VARCHAR(36) PRIMARY KEY,resource_id BIGINT,resource_scope VARCHAR(20),tenant_id VARCHAR(20),operator_id BIGINT,status VARCHAR(16),expires_at TIMESTAMP,candidate_descriptor CLOB,operation_type VARCHAR(16) DEFAULT 'CREATE',expected_revision BIGINT DEFAULT 0,storage_prefix VARCHAR(512) DEFAULT 'resources/test/operations/',committed_revision BIGINT,before_snapshot CLOB,after_snapshot CLOB,error_code VARCHAR(64))");
@@ -31,7 +40,7 @@ class ModelImportSourceWorkerTest {
         db.execute("CREATE TABLE wx_3d_model(id BIGINT AUTO_INCREMENT PRIMARY KEY,resource_id BIGINT,model_file_id BIGINT,tenant_id VARCHAR(20),del_flag CHAR DEFAULT '0',status VARCHAR(16) DEFAULT 'ONLINE',model_name VARCHAR(50),category VARCHAR(32),model_desc VARCHAR(500),resource_belong VARCHAR(16),is_paid VARCHAR(16),data_user_id BIGINT,create_by BIGINT,update_by BIGINT)");
         for(String table:List.of("wx_3d_icon","wx_3d_template"))
             db.execute("CREATE TABLE "+table+"(id BIGINT PRIMARY KEY,resource_id BIGINT,tenant_id VARCHAR(20),del_flag CHAR,status VARCHAR(16))");
-        worker=new TestWorker();store=mock(ArtResourceObjectStore.class);access=mock(ArtResourceAccess.class);
+        store=mock(ArtResourceObjectStore.class);access=mock(ArtResourceAccess.class);
         ReflectionTestUtils.setField(worker,"jdbc",db);ReflectionTestUtils.setField(worker,"transactions",new DataSourceTransactionManager(data));
         ReflectionTestUtils.setField(worker,"store",store);ReflectionTestUtils.setField(worker,"access",access);
     }
@@ -93,7 +102,26 @@ class ModelImportSourceWorkerTest {
         ReflectionTestUtils.setField(worker,"resourceTransactions",resourceTransactions);
     }
 
-    @AfterEach void cleanup(){worker.close();TenantContextHolder.clear();}
+    @AfterEach void cleanup() throws Exception {
+        worker.close();TenantContextHolder.clear();
+        if(db!=null)db.execute("SHUTDOWN");
+        if(mocks!=null)mocks.close();
+    }
+    @Test void queueCannotBypassTheUnifiedModelPermission() {
+        when(permissions.hasAnyPermissions(anyLong(),any(String[].class))).thenReturn(CommonResult.success(false));
+        assertTrue(worker.prepareNext().isEmpty());
+        assertEquals("FAILED",status());
+        assertEquals("IMPORT_PERMISSION_REVOKED",db.queryForObject("SELECT error_code FROM wx_3d_resource_import",String.class));
+        verifyNoInteractions(store);
+    }
+    @Test void publicationRechecksUnifiedPermissionWithoutThreadLogin() throws Exception {
+        preparePublication();
+        when(permissions.hasAnyPermissions(anyLong(),any(String[].class))).thenReturn(CommonResult.success(false));
+        assertFalse(worker.runNext());
+        assertEquals("FAILED",status());
+        assertEquals(0L,db.queryForObject("SELECT current_revision FROM wx_3d_resource",Long.class));
+        assertEquals(0L,db.queryForObject("SELECT COUNT(*) FROM wx_3d_model",Long.class));
+    }
     // 转换边界与真实任务事务组合，验证固定描述前后的恢复和权限门禁。
     @org.junit.jupiter.api.io.TempDir java.nio.file.Path temporary;
 

@@ -1,28 +1,36 @@
 package cn.iocoder.wx.module.dimensions.service;
 
 import cn.iocoder.wx.framework.common.exception.ServiceException;
+import cn.iocoder.wx.framework.security.core.service.SecurityFrameworkService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.*;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /** 使用真实事务及既有ART服务检查身份、幂等、入队和旧入口隔离。 */
 class ModelImportServiceTest {
-    JdbcTemplate db;ModelImportService service;ArtResourceService art;ArtResourceAccess access;
+    JdbcTemplate db;@InjectMocks ModelImportService service;ArtResourceService art;ArtResourceAccess access;
+    @Mock SecurityFrameworkService permissions;
+    AutoCloseable mocks;
     ArtResourceUploadSigner signer;ObjectMapper json=new ObjectMapper();ObjectNode request;
     @BeforeEach void setup() throws Exception {
+        mocks=MockitoAnnotations.openMocks(this);
+        when(permissions.hasPermission(anyString())).thenReturn(true);
         var data=new DriverManagerDataSource("jdbc:h2:mem:"+UUID.randomUUID()+";MODE=MySQL;DB_CLOSE_DELAY=-1","sa","");
         db=new JdbcTemplate(data);var tx=new DataSourceTransactionManager(data);
         db.execute("CREATE TABLE wx_3d_resource(id BIGINT PRIMARY KEY,resource_name VARCHAR(150),resource_type VARCHAR(20),asset_name VARCHAR(150),resource_relative_path VARCHAR(255),resource_scope VARCHAR(20),tenant_id VARCHAR(20),content_state VARCHAR(16),current_revision BIGINT DEFAULT 0,current_operation_id VARCHAR(36),content_hash VARCHAR(64),upload_source VARCHAR(20),create_by BIGINT,del_flag CHAR DEFAULT '0')");
         db.execute("CREATE TABLE wx_3d_resource_operation(id VARCHAR(36) PRIMARY KEY,resource_id BIGINT,operation_type VARCHAR(16),resource_scope VARCHAR(20),tenant_id VARCHAR(20),operator_id BIGINT,request_hash VARCHAR(64),expected_revision BIGINT,committed_revision BIGINT,status VARCHAR(16) DEFAULT 'UPLOADING',storage_prefix VARCHAR(512),candidate_descriptor CLOB,expires_at TIMESTAMP,error_code VARCHAR(64))");
         db.execute("CREATE TABLE wx_3d_resource_import(operation_id VARCHAR(36) PRIMARY KEY,resource_id BIGINT,target_format VARCHAR(4),source_size BIGINT,source_sha256 VARCHAR(64),status VARCHAR(24) DEFAULT 'RECEIVING',attempt_id VARCHAR(36),error_code VARCHAR(64),row_version BIGINT DEFAULT 0,publish_descriptor CLOB,cancel_requested BOOLEAN DEFAULT FALSE)");
         access=mock(ArtResourceAccess.class);when(access.actor()).thenReturn(new ArtResourceAccess.Actor(10,2));
-        art=new ArtResourceService();service=new ModelImportService();signer=mock(ArtResourceUploadSigner.class);
+        art=new ArtResourceService();signer=mock(ArtResourceUploadSigner.class);
         for(Object target:List.of(art,service)) {
             ReflectionTestUtils.setField(target,"jdbc",db);ReflectionTestUtils.setField(target,"transactions",tx);
             ReflectionTestUtils.setField(target,"access",access);ReflectionTestUtils.setField(target,"json",json);
@@ -31,6 +39,25 @@ class ModelImportServiceTest {
         request=(ObjectNode)json.readTree("{\"operationId\":\""+UUID.randomUUID()+"\",\"operationType\":\"CREATE\",\"resourceScope\":\"TENANT_SHARED\",\"metadata\":{\"resourceName\":\"模型\",\"assetName\":\"model\"},\"targetFormat\":\"glb\",\"source\":{\"size\":\"100\",\"sha256\":\""+"a".repeat(64)+"\"}}");
     }
     String op(){return request.get("operationId").asText();}
+    @AfterEach void cleanup() throws Exception {
+        // 独立内存库和模拟对象只属于当前用例，结束时释放，不积累数据库实例。
+        if(db!=null)db.execute("SHUTDOWN");
+        if(mocks!=null)mocks.close();
+    }
+    @Test void editPermissionCannotCreateAnAddOperation() {
+        when(permissions.hasPermission("dim3d:model:add")).thenReturn(false);
+        when(permissions.hasPermission("dim3d:model:edit")).thenReturn(true);
+        assertEquals(403,assertThrows(ServiceException.class,()->service.create(request)).getCode());
+        assertEquals(0L,db.queryForObject("SELECT COUNT(*) FROM wx_3d_resource",Long.class));
+    }
+    @Test void revokedAddPermissionCannotSignOrQueueAnExistingOperation() {
+        service.create(request);
+        when(permissions.hasPermission("dim3d:model:add")).thenReturn(false);
+        assertEquals(403,assertThrows(ServiceException.class,()->service.sourceTarget(op())).getCode());
+        assertEquals(403,assertThrows(ServiceException.class,()->service.submit(op())).getCode());
+        assertEquals("RECEIVING",db.queryForObject("SELECT status FROM wx_3d_resource_import",String.class));
+        verifyNoInteractions(signer);
+    }
     @Test void publishConfirmationIsAuthorizedAndFixedOnce() {
         service.create(request);
         var directory=json.createObjectNode().put("modelName","样本模型").put("category","sample");
