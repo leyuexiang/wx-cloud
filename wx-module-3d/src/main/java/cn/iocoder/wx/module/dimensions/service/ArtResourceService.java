@@ -189,7 +189,9 @@ public class ArtResourceService {
     }
     public Map<String,Object> cancel(String operation) {
         operation(operation);
-        int changed=jdbc.update("UPDATE wx_3d_resource_operation SET status='CANCELLED' WHERE id=? AND status='UPLOADING' AND expires_at>UTC_TIMESTAMP(3)",operation);
+        // 与操作创建和到期判定共用UTC时钟，参数绑定兼容现有数据库和隔离事务检查。
+        int changed=jdbc.update("UPDATE wx_3d_resource_operation SET status='CANCELLED' WHERE id=? AND status='UPLOADING' AND expires_at>?",
+                operation,Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
         if(changed==0 && !"CANCELLED".equals(operation(operation).get("status"))) throw ServiceException.of(INVALID_OPERATION_STATE);
         return operation(operation);
     }

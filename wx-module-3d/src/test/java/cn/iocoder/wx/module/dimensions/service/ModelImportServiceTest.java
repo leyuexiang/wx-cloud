@@ -26,6 +26,7 @@ class ModelImportServiceTest {
     ArtResourceUploadSigner signer;ObjectMapper json=new ObjectMapper();ObjectNode request;
     @BeforeEach void setup() throws Exception {
         mocks=MockitoAnnotations.openMocks(this);
+        ReflectionTestUtils.setField(service, "enabled", true);
         when(permissions.hasPermission(anyString())).thenReturn(true);
         when(dictionaries.validateDictDataList(eq("dim3d_model_category"), anyCollection())).thenReturn(CommonResult.success(true));
         var data=new DriverManagerDataSource("jdbc:h2:mem:"+UUID.randomUUID()+";MODE=MySQL;DB_CLOSE_DELAY=-1","sa","");
@@ -54,6 +55,81 @@ class ModelImportServiceTest {
         if(db!=null)db.execute("SHUTDOWN");
         if(mocks!=null)mocks.close();
     }
+    @Test void multipartUploadCalculatesDigestAndQueuesUsingExistingIdentity() throws Exception {
+        // 真实内存事务与存储边界配合，验证单次业务上传即可取得后续保存标识。
+        var store = mock(ArtResourceObjectStore.class);
+        ReflectionTestUtils.setField(service, "objects", store);
+        var file = new org.springframework.mock.web.MockMultipartFile("file", "样本.zip", "application/zip", new byte[]{80,75,3,4});
+        doAnswer(invocation -> {
+            assertFalse(org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive());
+            assertArrayEquals(new byte[]{80,75,3,4}, ((java.io.InputStream) invocation.getArgument(1)).readAllBytes());
+            return null;
+        }).when(store).write(anyString(), any(java.io.InputStream.class), eq(4L));
+        var state = service.upload(file, "MINE");
+        assertEquals("QUEUED", state.importStatus());
+        assertEquals("TENANT_SHARED", db.queryForObject("SELECT resource_scope FROM wx_3d_resource_operation", String.class));
+        assertEquals(java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(new byte[]{80,75,3,4})),
+                db.queryForObject("SELECT source_sha256 FROM wx_3d_resource_import", String.class));
+        verify(store).write(eq("resources/staging/model-imports/" + state.operationId() + "/source.zip"), any(java.io.InputStream.class), eq(4L));
+        assertEquals(10L, db.queryForObject("SELECT create_by FROM wx_3d_resource", Long.class));
+        assertEquals(10L, db.queryForObject("SELECT operator_id FROM wx_3d_resource_operation", Long.class));
+        verifyNoInteractions(signer);
+    }
+
+    @Test void multipartUploadFixesSystemScopeAndAuthenticatedUploader() {
+        ReflectionTestUtils.setField(service, "objects", mock(ArtResourceObjectStore.class));
+        var file = new org.springframework.mock.web.MockMultipartFile("file", "模型.zip", "application/zip", new byte[]{80,75,3,4});
+        var state = service.upload(file, "SYSTEM");
+        assertEquals("QUEUED", state.importStatus());
+        assertEquals("GLOBAL_SYSTEM", db.queryForObject("SELECT resource_scope FROM wx_3d_resource_operation", String.class));
+        assertEquals("0", db.queryForObject("SELECT tenant_id FROM wx_3d_resource", String.class));
+        assertEquals(10L, db.queryForObject("SELECT create_by FROM wx_3d_resource", Long.class));
+        assertEquals(10L, db.queryForObject("SELECT operator_id FROM wx_3d_resource_operation", Long.class));
+    }
+
+    @Test void simpleSaveBindsOriginalResourceAndPreservesUnifiedDictionaryError() {
+        service.create(request);
+        db.update("UPDATE wx_3d_resource_import SET status='PUBLISHING'");
+        String resourceId = db.queryForObject("SELECT resource_id FROM wx_3d_resource_import", String.class);
+        var body = json.createObjectNode().put("operationId", op()).put("resourceId", resourceId)
+                .put("modelName", "新增模型").put("category", "sample");
+        // 统一字典错误直接透传，修正分类后原操作仍可正常保存。
+        when(dictionaries.validateDictDataList(anyString(), anyCollection())).thenReturn(CommonResult.error(1002007001, "字典数据不存在"));
+        assertEquals(1002007001, assertThrows(ServiceException.class, () -> service.saveUploadedModel(body)).getCode());
+        assertNull(db.queryForObject("SELECT publish_descriptor FROM wx_3d_resource_import", String.class));
+        when(dictionaries.validateDictDataList(anyString(), anyCollection())).thenReturn(CommonResult.success(true));
+        assertEquals("PUBLISHING", service.saveUploadedModel(body).importStatus());
+        assertEquals("PUBLISHING", service.saveUploadedModel(body).importStatus());
+        assertThrows(ServiceException.class, () -> service.saveUploadedModel(body.deepCopy().put("resourceId", "1")));
+        assertEquals(1L, db.queryForObject("SELECT row_version FROM wx_3d_resource_import", Long.class));
+    }
+
+    @Test void multipartUploadRejectsInvalidInputAndRevokedPermissionBeforeStorage() {
+        var file = new org.springframework.mock.web.MockMultipartFile("file", "样本.txt", "text/plain", new byte[]{1});
+        assertEquals(400, assertThrows(ServiceException.class, () -> service.upload(file, "MINE")).getCode());
+        when(permissions.hasPermission("dim3d:model:add")).thenReturn(false);
+        assertEquals(403, assertThrows(ServiceException.class, () -> service.upload(file, "MINE")).getCode());
+        assertEquals(0L, db.queryForObject("SELECT COUNT(*) FROM wx_3d_resource", Long.class));
+    }
+
+    @Test void simpleUploadDoesNotCreatePendingWorkWhenImportFeatureIsDisabled() {
+        ReflectionTestUtils.setField(service, "enabled", false);
+        var file = new org.springframework.mock.web.MockMultipartFile("file", "样本.zip", "application/zip", new byte[]{80,75,3,4});
+        assertEquals(503, assertThrows(ServiceException.class, () -> service.upload(file, "MINE")).getCode());
+        assertEquals(0L, db.queryForObject("SELECT COUNT(*) FROM wx_3d_resource", Long.class));
+    }
+
+    @Test void failedMultipartStorageCancelsTheUnqueuedOperationAndDiscardsItsExactSource() throws Exception {
+        var store = mock(ArtResourceObjectStore.class);
+        ReflectionTestUtils.setField(service, "objects", store);
+        doThrow(new java.io.IOException("存储写入失败")).when(store).write(anyString(), any(java.io.InputStream.class), anyLong());
+        var file = new org.springframework.mock.web.MockMultipartFile("file", "模型.zip", "application/zip", new byte[]{80,75,3,4});
+        assertEquals(503, assertThrows(ServiceException.class, () -> service.upload(file, "MINE")).getCode());
+        assertEquals("CANCELLED", db.queryForObject("SELECT status FROM wx_3d_resource_operation", String.class));
+        assertEquals("RECEIVING", db.queryForObject("SELECT status FROM wx_3d_resource_import", String.class));
+        verify(store).discardModelSource(db.queryForObject("SELECT id FROM wx_3d_resource_operation", String.class));
+    }
+
     @Test void editPermissionCannotCreateAnAddOperation() {
         when(permissions.hasPermission("dim3d:model:add")).thenReturn(false);
         when(permissions.hasPermission("dim3d:model:edit")).thenReturn(true);

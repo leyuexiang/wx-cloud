@@ -47,7 +47,7 @@ def png_fixture():
             + chunk(b'IDAT', zlib.compress(b'\0\x80\x80\x80\xff')) + chunk(b'IEND', b''))
 
 
-def run(stage_path, role, output):
+def run(stage_path, role, output, simple_upload=False):
     stage = json.loads(stage_path.read_text(encoding='utf-8'))
     clone = stage['database']
     target = 'main' if stage['sourceDatabase'] == 'wx_editor' else 'data08'
@@ -65,7 +65,7 @@ def run(stage_path, role, output):
     actor = dict(next(item for item in identities if item['role'] == role))
     checks = []
     result = {'target': target, 'role': role, 'passed': False, 'checks': checks,
-              'runtimeCompatibilityVerified': False, 'artifactSha256': stage['artifactSha256']}
+              'runtimeCompatibilityVerified': False, 'artifactSha256': stage['artifactSha256'], 'simpleUpload': simple_upload}
     operations = []
     resource_id = None
     cover_id = None
@@ -106,7 +106,7 @@ def run(stage_path, role, output):
 
     def directory():
         value = sql("SELECT JSON_OBJECT('id',id,'resourceId',resource_id,'price',price,'isPaid',is_paid,"
-                    "'coverImageId',cover_image_id,'modelDesc',model_desc) FROM `" + clone
+                    "'coverImageId',cover_image_id,'modelDesc',model_desc,'resourceBelong',resource_belong,'uploader',data_user_id,'creator',create_by) FROM `" + clone
                     + "`.wx_3d_model WHERE resource_id=" + resource_id + " AND del_flag='0';")
         return json.loads(value)
 
@@ -143,7 +143,7 @@ def run(stage_path, role, output):
         source = load_module('model04_source', Path(__file__).with_name('verify-model-import-source.py'))
         payload, _ = source.source_payload('obj')
         original_directory_id = None
-        for replacing in (False, True):
+        for replacing in ((False,) if simple_upload else (False, True)):
             operation = str(uuid.uuid4())
             body = {'operationId': operation, 'operationType': 'REPLACE' if replacing else 'CREATE',
                     'targetFormat': 'glb', 'source': {'size': str(len(payload)), 'sha256': hashlib.sha256(payload).hexdigest()}}
@@ -152,7 +152,19 @@ def run(stage_path, role, output):
             else:
                 body.update(resourceScope='GLOBAL_SYSTEM' if role == 'super_admin' else 'TENANT_SHARED',
                             metadata={'resourceName': 'MODEL04-' + operation[:8], 'assetName': 'probe'})
-            created = request('/admin-api/dim3d/model-imports', body, 'POST')
+            if simple_upload:
+                # 使用与当前新增弹窗相同的业务后端上传，原包摘要和存储编排不由客户端提供。
+                source_boundary = 'model05' + uuid.uuid4().hex
+                source_body = ('--' + source_boundary + '\r\nContent-Disposition: form-data; name="resourceBelong"\r\n\r\n'
+                               + ('SYSTEM' if role == 'super_admin' else 'MINE') + '\r\n--' + source_boundary
+                               + '\r\nContent-Disposition: form-data; name="file"; filename="model.zip"\r\nContent-Type: application/zip\r\n\r\n').encode()
+                source_body += payload + ('\r\n--' + source_boundary + '--\r\n').encode()
+                created = request('/admin-api/dim3d/resource/uploadConvert', source_body, 'POST',
+                                  content_type='multipart/form-data; boundary=' + source_boundary)
+                if created.get('code') == 200:
+                    operation = created['data']['operationId']
+            else:
+                created = request('/admin-api/dim3d/model-imports', body, 'POST')
             check('创建原操作' if not replacing else '创建同编号替换', created.get('code') == 200)
             operations.append(operation)
             if not replacing:
@@ -162,23 +174,27 @@ def run(stage_path, role, output):
             else:
                 check('替换保持稳定资源编号', created['data']['resourceId'] == resource_id)
             path = '/admin-api/dim3d/model-imports/' + operation
-            target_response = request(path + '/source-target', {}, 'POST')
-            check('取得真实原包上传目标', target_response.get('code') == 200)
-            with secure.open(urllib.request.Request(target_response['data']['uploadUrl'], data=payload, method='PUT'), timeout=30) as response:
-                check('签名上传原始模型', response.status == 200)
-            check('持久化受理转换', request(path + '/submit', {}, 'POST').get('code') == 200)
+            if not simple_upload:
+                target_response = request(path + '/source-target', {}, 'POST')
+                check('取得真实原包上传目标', target_response.get('code') == 200)
+                with secure.open(urllib.request.Request(target_response['data']['uploadUrl'], data=payload, method='PUT'), timeout=30) as response:
+                    check('签名上传原始模型', response.status == 200)
+                check('持久化受理转换', request(path + '/submit', {}, 'POST').get('code') == 200)
             wait(operation, 'PUBLISHING')
             fields = {'modelName': 'MODEL04-替换' if replacing else 'MODEL04-完整目录', 'category': category,
                       'modelDesc': '' if replacing else 'MODEL04-原始说明', 'coverImageId': None if replacing else cover_id,
                       'isPaid': 'PAID' if role == 'super_admin' and not replacing else 'FREE',
                       'price': 1299 if role == 'super_admin' and not replacing else 0}
+            save_path = '/admin-api/dim3d/model/add' if simple_upload else path + '/publish'
+            save_fields = {**fields, 'operationId': operation, 'resourceId': resource_id} if simple_upload else fields
             if not replacing:
-                invalid = {**fields, 'category': 'MODEL04_INVALID_CATEGORY'}
-                check('非法分类不能固定目录', request(path + '/publish', invalid, 'POST').get('code') == 400)
-            check('完整目录受理', request(path + '/publish', fields, 'POST').get('code') == 200)
+                invalid = {**save_fields, 'category': 'MODEL04_INVALID_CATEGORY'}
+                # 沿用统一字典接口的不存在或停用错误，不能把业务错误误判为校验失效。
+                check('非法分类不能固定目录', request(save_path, invalid, 'POST').get('code') in (400, 1002007001, 1002007002))
+            check('完整目录受理', request(save_path, save_fields, 'POST').get('code') == 200)
             state = wait(operation, 'COMMITTED')
             check('取得实际修订回执', state['committedRevision'] == ('2' if replacing else '1'))
-            check('相同目录确认可重放', request(path + '/publish', fields, 'POST')['data']['committedRevision'] == state['committedRevision'])
+            check('相同目录确认可重放', request(save_path, save_fields, 'POST')['data']['committedRevision'] == state['committedRevision'])
             row = directory()
             check('封面及整数分价格共同保存', str(row['coverImageId']) == str(fields['coverImageId'])
                   and row['isPaid'] == fields['isPaid'] and row['price'] == fields['price'] and row['modelDesc'] == fields['modelDesc'])
@@ -186,9 +202,13 @@ def run(stage_path, role, output):
                 check('替换保持原目录编号', row['id'] == original_directory_id)
             else:
                 original_directory_id = row['id']
-            detail = request('/admin-api/dim3d/model/info/' + str(row['id']))
-            check('既有详情接口回读完整字段', detail.get('code') == 200 and detail['data']['isPaid'] == fields['isPaid']
-                  and detail['data']['price'] == fields['price'])
+            if not simple_upload:
+                detail = request('/admin-api/dim3d/model/info/' + str(row['id']))
+                check('既有详情接口回读完整字段', detail.get('code') == 200 and detail['data']['isPaid'] == fields['isPaid']
+                      and detail['data']['price'] == fields['price'])
+            if simple_upload:
+                check('保存继承上传归属和可信账号', row['resourceBelong'] == ('SYSTEM' if role == 'super_admin' else 'MINE')
+                      and str(row['uploader']) == actor_id and str(row['creator']) == actor_id)
             scope = sql("SELECT visibility_scope FROM `" + clone + "`.wx_infra_file WHERE id=" + cover_id + ';')
             check('封面归属随目录事务提交', scope == ('GLOBAL' if role == 'super_admin' else 'TENANT'))
         result['passed'] = True
@@ -266,7 +286,8 @@ if __name__ == '__main__':
     parser.add_argument('--stage-report', type=Path, required=True)
     parser.add_argument('--role', choices=('super_admin', 'tenant_admin'), required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--simple-upload', action='store_true', help='验证图片式业务上传和保存入口')
     args = parser.parse_args()
     if Path.cwd().resolve() != ROOT or ROOT / 'releases' not in args.output.resolve().parents:
         parser.error('仅允许本批受控工作目录及发布证据目录')
-    raise SystemExit(0 if run(args.stage_report, args.role, args.output) else 1)
+    raise SystemExit(0 if run(args.stage_report, args.role, args.output, args.simple_upload) else 1)

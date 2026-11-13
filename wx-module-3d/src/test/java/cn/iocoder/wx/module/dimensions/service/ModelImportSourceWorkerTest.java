@@ -54,6 +54,10 @@ class ModelImportSourceWorkerTest {
         assertTrue(worker.runNext());assertEquals("COMMITTED",status());
         assertEquals(1L,db.queryForObject("SELECT current_revision FROM wx_3d_resource",Long.class));
         assertEquals(101L,db.queryForObject("SELECT resource_id FROM wx_3d_model",Long.class));
+        // 新增目录继承原上传操作的账号和归属，客户端不能在保存时改写可信所有者。
+        assertEquals(10L, db.queryForObject("SELECT data_user_id FROM wx_3d_model", Long.class));
+        assertEquals(10L, db.queryForObject("SELECT create_by FROM wx_3d_model", Long.class));
+        assertEquals("MINE", db.queryForObject("SELECT resource_belong FROM wx_3d_model", String.class));
         assertNull(db.queryForObject("SELECT model_file_id FROM wx_3d_model",Long.class));
         assertEquals("COMMITTED",db.queryForObject("SELECT status FROM wx_3d_resource_operation",String.class));
         assertFalse(worker.runNext());

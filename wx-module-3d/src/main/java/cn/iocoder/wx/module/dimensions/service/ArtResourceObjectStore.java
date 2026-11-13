@@ -135,6 +135,17 @@ public class ArtResourceObjectStore {
         minio.putObject(PutObjectArgs.builder().bucket(config.getBucketName()).object(key)
                 .stream(input, size, -1).contentType("application/octet-stream").build());
     }
+    /** 失败上传只删除后台分配操作的固定暂存原包，调用方不能传入对象路径或冻结前缀。 */
+    public void discardModelSource(String operation) {
+        if (operation == null || !operation.matches("[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}")) {
+            throw ServiceException.of(UNSAFE_PATH);
+        }
+        try {
+            minio.removeObject(RemoveObjectArgs.builder().bucket(config.getBucketName())
+                    .object("resources/staging/model-imports/" + operation + "/source.zip").build());
+        } catch (Exception error) { throw ServiceException.of(STORAGE_UNAVAILABLE); }
+    }
+
     public static String objectKey(String prefix, String path) {
         if (prefix == null || !prefix.startsWith("resources/") || !prefix.endsWith("/"))
             throw ServiceException.of(UNSAFE_PATH);

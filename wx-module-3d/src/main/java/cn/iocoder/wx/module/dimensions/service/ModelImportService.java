@@ -7,6 +7,8 @@ import cn.iocoder.wx.module.system.api.dict.DictDataApi;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -19,6 +21,7 @@ import static cn.iocoder.wx.module.dimensions.exception.ArtResourceErrorCode.*;
 
 /** 导入接收侧：只负责可信创建、独立原文件目标及持久化入队，不伪造转换成功。 */
 @Service
+@lombok.extern.slf4j.Slf4j
 public class ModelImportService {
     @Resource private JdbcTemplate jdbc;
     @Resource private PlatformTransactionManager transactions;
@@ -29,8 +32,84 @@ public class ModelImportService {
     @Resource private SecurityFrameworkService permissions;
     @Resource private DictDataApi dictionaries;
     @Resource private Dim3dImageResourceService images;
+    @Resource private ArtResourceObjectStore objects;
+    @Value("${dim3d.model-import.enabled:false}") private boolean enabled;
     private static final Set<String> RUNNING=Set.of("QUEUED","VERIFYING_SOURCE","CONVERTING","VALIDATING","PUBLISHING");
     private static final Set<String> DIRECTORY_FIELDS = Set.of("modelName", "category", "modelDesc", "coverImageId", "isPaid", "price");
+
+    /**
+     * 图片式新增入口。原包按固定缓冲计算摘要，再流式写入既有暂存键。
+     * 文件处理均在数据库事务之外，转换继续由现有持久化队列承接。
+     */
+    public ModelImportStatusView upload(MultipartFile file, String belong) {
+        requireEnabled();
+        requireWritePermission("CREATE");
+        if (!Set.of("SYSTEM", "MINE").contains(belong == null ? "" : belong)
+                || file == null || file.isEmpty() || file.getSize() > 524288000
+                || file.getOriginalFilename() == null || !file.getOriginalFilename().toLowerCase(Locale.ROOT).endsWith(".zip")) {
+            throw new ServiceException(400, "请选择1字节至500MB的ZIP模型压缩包");
+        }
+        String hash;
+        try (var input = file.getInputStream()) {
+            var digest = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] buffer = new byte[64 * 1024];
+            long count = 0;
+            int read;
+            while ((read = input.read(buffer)) != -1) {
+                count += read;
+                if (count > file.getSize()) throw new ServiceException(400, "模型文件长度不一致");
+                digest.update(buffer, 0, read);
+            }
+            if (count != file.getSize()) throw new ServiceException(400, "模型文件长度不一致");
+            hash = HexFormat.of().formatHex(digest.digest());
+        } catch (ServiceException error) { throw error; }
+        catch (Exception error) { throw new ServiceException(400, "模型文件读取失败，请重新选择"); }
+        var body = json.createObjectNode().put("operationId", UUID.randomUUID().toString()).put("operationType", "CREATE")
+                .put("resourceScope", "SYSTEM".equals(belong) ? "GLOBAL_SYSTEM" : "TENANT_SHARED").put("targetFormat", "glb");
+        // 名称在保存时填写，上传阶段使用固定合法元数据，文件名不能参与路径或可信身份。
+        body.putObject("metadata").put("resourceName", "待保存模型").put("assetName", "model");
+        body.putObject("source").put("size", Long.toString(file.getSize())).put("sha256", hash);
+        var created = create(body);
+        try (var input = file.getInputStream()) {
+            objects.write("resources/staging/model-imports/" + created.operationId() + "/source.zip", input, file.getSize());
+        } catch (Exception error) {
+            discardUpload(created.operationId());
+            throw new ServiceException(503, "模型文件存储失败，请重新上传");
+        }
+        try { return submit(created.operationId()); }
+        catch (RuntimeException error) {
+            discardUpload(created.operationId());
+            throw error;
+        }
+    }
+
+    /** 上传尚未回执时只清理本次后台分配的原包，独立执行取消与回收，保留可审计操作。 */
+    private void discardUpload(String operation) {
+        try { resources.cancel(operation); }
+        catch (RuntimeException error) { log.warn("模型上传失败后的操作取消待处理，操作编号 {}", operation); }
+        try { objects.discardModelSource(operation); }
+        catch (RuntimeException error) { log.warn("模型上传失败后的原包回收待处理，操作编号 {}", operation); }
+    }
+
+    /** 新增保存沿用原受控发布事务，同时拒绝跨资源改绑和替换操作借用新增入口。 */
+    public ModelImportStatusView saveUploadedModel(JsonNode body) {
+        requireEnabled();
+        String id = text(body, "operationId", 36);
+        String resourceId = text(body, "resourceId", 19);
+        positiveLong(resourceId);
+        var operation = new TransactionTemplate(transactions).execute(status -> lockOperation(id));
+        if (!"CREATE".equals(operation.get("operation_type")) || !resourceId.equals(operation.get("resource_id").toString())) {
+            throw ServiceException.of(IDEMPOTENCY_CONFLICT);
+        }
+        var directory = ((ObjectNode) body).deepCopy();
+        directory.remove(List.of("operationId", "resourceId"));
+        return requestPublish(id, directory);
+    }
+
+    /** 简化入口共用既有开关，未部署工作线程时及时返回可理解的服务状态。 */
+    private void requireEnabled() {
+        if (!enabled) throw new ServiceException(503, "模型上传服务尚未启用，请联系管理员");
+    }
 
     public ModelImportStatusView create(JsonNode body) {
         String type=text(body,"operationType",16);

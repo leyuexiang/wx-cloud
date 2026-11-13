@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-13",
+  "task": "MODEL-05",
+  "scope": [
+    "上传转换适配",
+    "上传归属与可信账号记录",
+    "目录保存及幂等",
+    "新增弹窗自动等待与刷新"
+  ],
+  "backend": {
+    "tests": 150,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "frontend": {
+    "tests": 13,
+    "typeCheck": "passed",
+    "commit": "d3b3be9"
+  },
+  "deployment": "candidate_pending",
+  "listFiltering": "后续独立任务"
+}
