@@ -110,7 +110,7 @@ def run(target, conversion=False, source_kind="obj", output_format="glb"):
         check("无效登录令牌创建拒绝", request("/admin-api/dim3d/model-imports", invalid, body, "POST").get("code") == 401)
         wrong_tenant = {**actor, "tenantId": 1 if str(actor["tenantId"]) != "1" else 2}
         check("有效令牌不能篡改租户", request("/admin-api/dim3d/model-imports", wrong_tenant, body, "POST").get("code") == 403)
-        check("普通用户不能创建", request("/admin-api/dim3d/model-imports", viewer, body, "POST").get("code") == 2030001002)
+        check("普通用户由统一方法权限拒绝创建", request("/admin-api/dim3d/model-imports", viewer, body, "POST").get("code") == 403)
         response = request("/admin-api/dim3d/model-imports", actor, body, "POST")
         check("管理员创建接收任务", response.get("code") == 200)
         created = True
@@ -121,7 +121,7 @@ def run(target, conversion=False, source_kind="obj", output_format="glb"):
         check("同号重放复用资源", replay.get("code") == 200 and replay["data"]["resourceId"] == resource)
         check("其他操作者不能查询", request(path, viewer).get("code") == 2030001001)
         check("无效登录令牌不能取得签名", request(path + "/source-target", invalid, {}, "POST").get("code") == 401)
-        check("其他操作者不能取得签名", request(path + "/source-target", viewer, {}, "POST").get("code") == 2030001001)
+        check("无写权限用户由统一方法权限拒绝签名", request(path + "/source-target", viewer, {}, "POST").get("code") == 403)
         changed = {**body, "source": {"size": str(len(payload) + 1), "sha256": digest}}
         check("同号不同源文件拒绝", request("/admin-api/dim3d/model-imports", actor, changed, "POST").get("code") == 2030001004)
         target_response = request(path + "/source-target", actor, {}, "POST")
