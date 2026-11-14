@@ -109,7 +109,10 @@
 - [物联网里程碑索引](plan/01_后端里程碑与进度台账.md)
 - [动态多连接设计](design/05_IoT动态多连接接入方案.md)
 - [三维状态投影](design/04_IoT三维状态投影设计说明.md)
+- [IoT 定向 WebSocket 推送交付设计](design/06_IoT定向WebSocket推送交付设计.md)
 - [设备到三维实例联动设计](design/04_IoT三维状态投影设计说明.md#iot-model-binding)
 - [IoT 六层验收与里程碑](plan/02_IoT服务进度与后续计划.md#iot-acceptance-plan)
 - [物联网管理接口](guides/04_IoT连接器管理接口.md)
+- [IOT-M3-03 候选链路验收证据](evidence/iot-m3-03-20261113/README.md)
+- [MQTT 入门与 Kafka 对比](guides/08_MQTT入门与Kafka对比.md)：首次接触 MQTT 时读，讲清概念、本项目取值、部署与联调步骤及与 Kafka 的分工
 - [物联网历史验证记录](records/07_20261023_M2连接测试验证记录.md)

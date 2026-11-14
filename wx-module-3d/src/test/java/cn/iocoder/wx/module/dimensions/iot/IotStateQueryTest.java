@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 class IotStateQueryTest {
     private final IotStateStore store = mock(IotStateStore.class);
     private final SecurityFrameworkService security = mock(SecurityFrameworkService.class);
-    private final IotStateQueryService service = new IotStateQueryService(store, security);
+    private final IotStateQueryService service = new IotStateQueryService(store, security, mock(IotSceneBindingScope.class));
 
     @AfterEach
     void clearContext() {

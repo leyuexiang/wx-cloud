@@ -5,6 +5,8 @@ import org.springframework.cloud.client.loadbalancer.reactive.ReactorLoadBalance
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
+import cn.iocoder.wx.gateway.util.SecurityFrameworkUtils;
+import cn.iocoder.wx.gateway.util.WebFrameworkUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -45,5 +47,21 @@ class TokenAuthenticationFilterTest {
             assertNull(next.getRequest().getHeaders().getFirst("x-bot-user"));
             return Mono.empty();
         }).block();
+    }
+
+    @Test
+    void shouldReadWebSocketTokenFromQueryParameter() {
+        var exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/dimensions/ws?token=ws-token")
+                .header("Upgrade", "websocket").build());
+        assertEquals("ws-token", SecurityFrameworkUtils.obtainAuthorization(exchange));
+        assertNull(SecurityFrameworkUtils.obtainAuthorization(MockServerWebExchange.from(
+                MockServerHttpRequest.get("/admin-api/dimensions/test?token=ws-token").build())));
+    }
+
+    @Test
+    void shouldReadWebSocketTenantFromQueryParameter() {
+        var exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/dimensions/ws?tenant-id=2")
+                .header("Upgrade", "websocket").build());
+        assertEquals(2L, WebFrameworkUtils.getTenantId(exchange));
     }
 }

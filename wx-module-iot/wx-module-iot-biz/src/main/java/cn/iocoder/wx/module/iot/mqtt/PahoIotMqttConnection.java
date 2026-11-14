@@ -6,6 +6,8 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -13,6 +15,7 @@ import java.util.function.BiConsumer;
 
 /** MQTT 3.1.1 持久会话；数据库持久接收成功之后才显式发送 QoS 1 确认。 */
 public class PahoIotMqttConnection implements IotMqttConnection {
+    private static final Logger log = LoggerFactory.getLogger(PahoIotMqttConnection.class);
     private final MqttAsyncClient client;
     private final IotMqttSettings settings;
     private final IotMqttSettings.Credentials credentials;
@@ -46,6 +49,13 @@ public class PahoIotMqttConnection implements IotMqttConnection {
                     client.messageArrivedComplete(message.getId(), message.getQos());
                 } catch (Exception ex) {
                     active.set(false);
+                    // 仅记录主题和异常类型，不输出报文、凭据或底层连接地址。
+                    String reason = ex instanceof IllegalArgumentException ? ex.getMessage() : null;
+                    if (reason != null && reason.length() > 96) {
+                        reason = reason.substring(0, 96);
+                    }
+                    log.warn("MQTT 报文处理失败，topic={}, failureType={}, failureReason={}",
+                            topic, ex.getClass().getSimpleName(), reason);
                     throw ex;
                 }
             }

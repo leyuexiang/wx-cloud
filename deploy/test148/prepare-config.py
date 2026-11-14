@@ -133,6 +133,10 @@ for service, (module, port) in MODULES.items():
             if name == "dimensions":
                 # 平台别名会统一投影到 dimensions 管理控制器；身份仍由下游令牌解析。
                 routes.extend([
+                    # WebSocket 路由需要显式覆盖精确端点和子路径，保证认证令牌能到达三维服务。
+                    {"id": "dimensions-websocket-test148", "uri": f"ws://127.0.0.1:{upstream}",
+                     "predicates": ["Path=/dimensions/ws,/dimensions/ws/**"],
+                     "filters": ["RemoveRequestHeader=x-bot-user"]},
                     {"id": "operation-dim3d-test148", "uri": f"http://127.0.0.1:{upstream}",
                      "predicates": ["Path=/api/operation/dim3d/**"],
                      "filters": ["RemoveRequestHeader=x-bot-user",

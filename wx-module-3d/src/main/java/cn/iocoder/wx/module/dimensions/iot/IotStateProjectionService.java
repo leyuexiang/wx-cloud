@@ -14,6 +14,7 @@ public class IotStateProjectionService {
     private final IotTelemetryEventCodec codec;
     private final IotStateProjectionProperties properties;
     private final Clock clock;
+    private IotStateSubscriptionRegistry subscriptionRegistry;
 
     public IotStateProjectionService(IotStateStore store, IotTelemetryEventCodec codec,
                                      IotStateProjectionProperties properties, Clock clock) {
@@ -21,6 +22,10 @@ public class IotStateProjectionService {
         this.codec = codec;
         this.properties = properties;
         this.clock = clock;
+    }
+
+    public void setSubscriptionRegistry(IotStateSubscriptionRegistry subscriptionRegistry) {
+        this.subscriptionRegistry = subscriptionRegistry;
     }
 
     public boolean project(String payload) {
@@ -40,7 +45,11 @@ public class IotStateProjectionService {
             return false;
         }
         long remainingTtl = Duration.between(cutoff, event.getEventTime()).toMillis();
-        return remainingTtl > 0 && store.putLatest(event, remainingTtl);
+        boolean updated = remainingTtl > 0 && store.putLatest(event, remainingTtl);
+        if (updated && subscriptionRegistry != null) {
+            subscriptionRegistry.publish(event, RedisIotStateStore.version(event));
+        }
+        return updated;
     }
 
     private boolean validId(String value) {
