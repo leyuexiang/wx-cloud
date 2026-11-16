@@ -11,13 +11,107 @@
     "tests": 150,
     "failures": 0,
     "errors": 0,
-    "skipped": 0
+    "skipped": 0,
+    "commit": "6f35f08ef69b7c8bf09b392669cea8dc225fb3c0"
   },
   "frontend": {
     "tests": 13,
     "typeCheck": "passed",
     "commit": "d3b3be9"
   },
-  "deployment": "candidate_pending",
-  "listFiltering": "后续独立任务"
+  "deployment": {
+    "candidatePorts": [
+      49112,
+      49113
+    ],
+    "formalUpdated": false,
+    "browserAcceptance": "pending",
+    "runtimeCompatibilityVerified": false
+  },
+  "listFiltering": "后续独立任务",
+  "serverBuild": {
+    "artifactBytes": 194705067,
+    "artifactSha256": "4e37684b64cfad83b82d28d14f1d7d08b0ad26bc4fee0c3f07960464612f1a39",
+    "releaseDirectory": "/opt/wx/editor-test148/releases/model05-6f35f08e",
+    "passed": true
+  },
+  "isolatedValidation": [
+    {
+      "sourceDatabase": "wx_editor",
+      "resourceBelong": "SYSTEM",
+      "report": "new-main-super_admin.json",
+      "checks": 17,
+      "passed": true,
+      "testObjectsAndCoverRemoved": true,
+      "sessionLoggedOut": true
+    },
+    {
+      "sourceDatabase": "wx_editor",
+      "resourceBelong": "MINE",
+      "report": "retry-main-tenant_admin.json",
+      "checks": 17,
+      "passed": true,
+      "testObjectsAndCoverRemoved": true,
+      "sessionLoggedOut": true
+    },
+    {
+      "sourceDatabase": "wx_editor_data08",
+      "resourceBelong": "SYSTEM",
+      "report": "new-data08-super_admin.json",
+      "checks": 17,
+      "passed": true,
+      "testObjectsAndCoverRemoved": true,
+      "sessionLoggedOut": true
+    },
+    {
+      "sourceDatabase": "wx_editor_data08",
+      "resourceBelong": "MINE",
+      "report": "retry-data08-tenant_admin.json",
+      "checks": 17,
+      "passed": true,
+      "testObjectsAndCoverRemoved": true,
+      "sessionLoggedOut": true
+    }
+  ],
+  "initialFailures": {
+    "count": 2,
+    "errorCode": "CONVERTER_UNAVAILABLE",
+    "resourceBelong": "MINE",
+    "reuploadPassed": true,
+    "rootCauseConfirmed": false
+  },
+  "model08Current": {
+    "date": "2026-11-16",
+    "sourceCommit": "f6bba185",
+    "tests": 192,
+    "passedTests": 189,
+    "skippedTests": 3,
+    "failedTests": 0,
+    "candidateCombinations": 6,
+    "candidateChecksPerCombination": 19,
+    "candidateCleanupPassed": true,
+    "formalData08Combinations": 3,
+    "formalData08ChecksPerCombination": 7,
+    "formalData08CleanupPassed": true,
+    "formalPorts": [
+      12522,
+      12525
+    ],
+    "formalServicesHealthy": true,
+    "artifactBytes": 194733720,
+    "artifactSha256": "ae11e40b6f658f656c572a0607368127b751af8a7f7d55b73dd7a0729efff99b7",
+    "backup": "/opt/wx/editor-test148/backups/model08-20261116T032610Z",
+    "schemaChanged": false,
+    "browserPersonalOperation": "dc1d0613-7808-4fc4-af88-3426f4d6f44d",
+    "browserPersonalResource": "2122170421086318594",
+    "browserPersonalCommittedRevision": "1",
+    "browserListVerified": true,
+    "retainedBrowserDirectories": [
+      "22",
+      "23"
+    ],
+    "uploaderCreatorOperatorMatched": true,
+    "abandonedOperationCancellation": "unverified_after_browser_disconnect",
+    "networkDiagnosticCleanup": "unverified_after_browser_disconnect"
+  }
 }
