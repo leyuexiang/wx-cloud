@@ -1,0 +1,11 @@
+{
+  "existingServiceHealth": {
+    "12522": "UP",
+    "12525": "UP",
+    "48093": "UP",
+    "48096": "UP"
+  },
+  "temporaryContainersRemoved": true,
+  "persistentBrokerRunning": true,
+  "automaticRestart": "unless-stopped"
+}

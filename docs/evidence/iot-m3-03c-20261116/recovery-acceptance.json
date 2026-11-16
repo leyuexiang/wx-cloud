@@ -1,0 +1,17 @@
+{
+  "fixedModel": {
+    "resourceId": "2117612791529533441",
+    "revision": "2",
+    "fileCount": 4,
+    "fileBytes": 15056120,
+    "manifestSha256": "10a22a5a9a9b8c5dc6af751a0d5f384b814b6bb14e4a352e9805c1d2e50b6bec"
+  },
+  "unauthorizedAndUnboundRejected": true,
+  "outageInboxPreservedAndReplayed": "3c9bdc7b-786f-3bd6-b4c4-428df3b197db",
+  "publishedScopeUnaffectedByDraft": "98c6585f-5e2e-35bd-a651-c631735cb916",
+  "brokerRestartWithActiveSubscriptions": true,
+  "revokedTicketConnectionSilent": "5d657653-e43d-397b-8e7a-83d7922db8ed",
+  "revokedPublicationConnectionSilent": true,
+  "passed": true,
+  "cleanupErrors": []
+}

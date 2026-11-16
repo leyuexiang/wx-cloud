@@ -7,6 +7,7 @@ import cn.iocoder.wx.module.iot.api.TwinTelemetryEvent;
 import cn.iocoder.wx.module.iot.dal.dataobject.IotMessageInboxDO;
 import cn.iocoder.wx.module.iot.dal.mysql.IotMessageInboxMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,6 +51,40 @@ class IotMessageInboxServiceTest {
                 && event.getEventTime().equals(Instant.parse("2026-10-17T12:00:00Z"))));
         verify(mapper).updateStatus(eq("event-1"), anyString(), eq("PUBLISHED"), isNull());
         assertEquals(7L, TenantContextHolder.getTenantId());
+    }
+
+    /** 实际部署按毫秒写时间，旧快照重放仍必须保留事件时间，而不是解析为秒。 */
+    @Test
+    void shouldReplayLegacyMillisecondSnapshot() throws Exception {
+        ObjectMapper webJson = json.copy().disable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
+        IotMessageInboxServiceImpl deployed = new IotMessageInboxServiceImpl(mapper, webJson, publisher);
+        IotMessageInboxDO inbox = prepareReplay("FAILED");
+        TwinTelemetryEvent original = event();
+        original.setEventTime(Instant.parse("2026-10-17T12:00:00.123Z"));
+        inbox.setPayloadJson(webJson.writeValueAsString(original));
+        when(publisher.publish(any())).thenReturn(CompletableFuture.completedFuture(null));
+        deployed.replay("event-1");
+        verify(publisher).publish(argThat(replayed -> replayed.getEventTime().equals(original.getEventTime())));
+    }
+
+    /** 新快照以标准字符串保留纳秒，不随网页的毫秒配置丢精度或改变全局序列化行为。 */
+    @Test
+    void shouldPersistIsoSnapshotAndPreserveNanoseconds() throws Exception {
+        ObjectMapper webJson = json.copy().disable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
+        IotMessageInboxServiceImpl deployed = new IotMessageInboxServiceImpl(mapper, webJson, publisher);
+        TwinTelemetryEvent original = event();
+        original.setEventTime(Instant.parse("2026-10-17T12:00:00.123456789Z"));
+        deployed.tryClaim(original);
+        org.mockito.ArgumentCaptor<IotMessageInboxDO> saved = org.mockito.ArgumentCaptor.forClass(IotMessageInboxDO.class);
+        verify(mapper).insertNew(saved.capture());
+        String snapshot = saved.getValue().getPayloadJson();
+        assertEquals(original.getEventTime().toString(), webJson.readTree(snapshot).get("eventTime").textValue());
+        assertTrue(webJson.readTree(webJson.writeValueAsString(original)).get("eventTime").isIntegralNumber());
+        IotMessageInboxDO inbox = prepareReplay("FAILED");
+        inbox.setPayloadJson(snapshot);
+        when(publisher.publish(any())).thenReturn(CompletableFuture.completedFuture(null));
+        deployed.replay("event-1");
+        verify(publisher).publish(argThat(replayed -> replayed.getEventTime().equals(original.getEventTime())));
     }
 
     /** 异步发送失败应写入失败状态，不能提前报告发布成功。 */

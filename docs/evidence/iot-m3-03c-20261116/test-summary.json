@@ -1,0 +1,16 @@
+[
+  {
+    "module": "wx-module-3d",
+    "tests": 64,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 3
+  },
+  {
+    "module": "wx-module-iot/wx-module-iot-biz",
+    "tests": 146,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 3
+  }
+]

@@ -7,8 +7,11 @@ import cn.iocoder.wx.module.iot.dal.dataobject.IotMessageInboxDO;
 import cn.iocoder.wx.module.iot.dal.mysql.IotMessageInboxMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import cn.iocoder.wx.framework.tenant.core.util.TenantUtils;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -19,7 +22,6 @@ import java.util.UUID;
 
 /** 使用数据库唯一约束实现跨实例事件去重。 */
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class IotMessageInboxServiceImpl implements IotMessageInboxService {
 
@@ -32,8 +34,22 @@ public class IotMessageInboxServiceImpl implements IotMessageInboxService {
     private static final int MAX_ARCHIVE_BATCH_SIZE = 1000;
 
     private final IotMessageInboxMapper inboxMapper;
-    private final ObjectMapper objectMapper;
+    private final ObjectReader eventReader;
+    private final ObjectWriter eventWriter;
     private final IotEventPublisher eventPublisher;
+
+    /** 快照使用独立读写器，避免网页毫秒配置影响恢复或丢失新事件的纳秒精度。 */
+    public IotMessageInboxServiceImpl(IotMessageInboxMapper inboxMapper, ObjectMapper objectMapper,
+                                      IotEventPublisher eventPublisher) {
+        this.inboxMapper = inboxMapper;
+        this.eventPublisher = eventPublisher;
+        eventWriter = objectMapper.writerFor(TwinTelemetryEvent.class)
+                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        // 兼容现场旧整数毫秒快照；旧小数秒及新的 ISO 字符串仍由标准时间解析器处理。
+        eventReader = objectMapper.readerFor(TwinTelemetryEvent.class)
+                .without(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+    }
 
     @Override
     public String tryClaim(TwinTelemetryEvent event) {
@@ -51,7 +67,7 @@ public class IotMessageInboxServiceImpl implements IotMessageInboxService {
         inbox.setExternalDeviceId(event.getExternalDeviceId());
         inbox.setPointCode(event.getPointCode());
         try {
-            inbox.setPayloadJson(objectMapper.writeValueAsString(event));
+            inbox.setPayloadJson(eventWriter.writeValueAsString(event));
         } catch (JsonProcessingException ex) {
             throw cn.iocoder.wx.framework.common.exception.util.ServiceExceptionUtil.exception(
                     cn.iocoder.wx.module.iot.enums.ErrorCodeConstants.INBOX_PAYLOAD_INVALID);
@@ -91,7 +107,7 @@ public class IotMessageInboxServiceImpl implements IotMessageInboxService {
         }
         TwinTelemetryEvent event;
         try {
-            event = objectMapper.readValue(inbox.getPayloadJson(), TwinTelemetryEvent.class);
+            event = eventReader.readValue(inbox.getPayloadJson());
         } catch (JsonProcessingException ex) {
             throw cn.iocoder.wx.framework.common.exception.util.ServiceExceptionUtil.exception(
                     cn.iocoder.wx.module.iot.enums.ErrorCodeConstants.INBOX_PAYLOAD_INVALID);
