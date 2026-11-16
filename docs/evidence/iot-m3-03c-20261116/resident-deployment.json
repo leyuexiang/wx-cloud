@@ -1,0 +1,56 @@
+{
+  "dimensions": {
+    "service": "dimensions148",
+    "status": "CONNECTED",
+    "sha256": "958345f7a69db09271fe77545253b7cb14dec6f7045ad2fbd6895bbe93eb1363",
+    "health": "UP",
+    "backupContainer": "wx-editor-dimensions-data08-before-kafka-1116",
+    "restartPolicy": "unless-stopped",
+    "containerId": "35dbbca2bbcff79427d229d3ed7978cec7eb53fde67cc19e9b32a637241b4e61"
+  },
+  "ingest": {
+    "service": "ingest148",
+    "status": "CONNECTED",
+    "sha256": "b88a0c1a5f10f93be87dd159b93a6d71b7abac202f5f0ca382ada4be96a21c27",
+    "health": "UP",
+    "backupContainer": "wx-editor-iot-data08-before-kafka-1116",
+    "restartPolicy": "unless-stopped",
+    "containerId": "8a3e09a27407ce1b94374952ee28aa7a2fe467ef09409bf85f2b931e6388fbed"
+  },
+  "management": {
+    "service": "management246",
+    "status": "CONNECTED",
+    "sha256": "b88a0c1a5f10f93be87dd159b93a6d71b7abac202f5f0ca382ada4be96a21c27",
+    "health": "UP",
+    "backupContainer": "jtyf-editor246-iot-1-before-kafka-1116",
+    "restartPolicy": "unless-stopped",
+    "containerId": "f6117c83d77c9a358c0156cdfae06071b9ed99d2fd67c66a3f3ae5b3e8bc7f76"
+  },
+  "gateway": {
+    "status": "APPLIED",
+    "siteSha256": "2bc0d117f8bb19e6cf20e342d6d8e98536e3698c8fc07bcc0bd2a0421be28eb4",
+    "gatewaySha256": "681590bb4a9d9554d168117d48eb31d11fa3d569974cdcd4b28001b09d4fd11f"
+  },
+  "web": {
+    "status": "ACTIVE",
+    "sha256": "4a5a51390b68fe7e0be0c9020360bb90c8f7b17e29c4f81644d426eda4aa334b",
+    "webCommit": "99d7bba",
+    "playerCommit": "793d3356",
+    "archiveSha256": "189570c2b288e14120e1ccbb54150a39cd5cadccfd293e383c8f5f9aa0317f2f"
+  },
+  "residentPublication": {
+    "fixedModel": {
+      "resourceId": "2117612791529533441",
+      "revision": "2",
+      "fileCount": 4,
+      "fileBytes": 15056120,
+      "manifestSha256": "10a22a5a9a9b8c5dc6af751a0d5f384b814b6bb14e4a352e9805c1d2e50b6bec"
+    },
+    "unauthorizedAndUnboundRejected": true,
+    "publishedScopeUnaffectedByDraft": "fa1bb99a-8cbf-3c0b-bde4-998357b7fe3d",
+    "revokedTicketConnectionSilent": "07b7d8c9-881c-36ba-bf54-3620850e7f56",
+    "revokedPublicationConnectionSilent": true,
+    "passed": true,
+    "cleanupErrors": []
+  }
+}

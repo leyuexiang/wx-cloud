@@ -1,0 +1,45 @@
+{
+  "renders": 1,
+  "runtimeEditCommits": 0,
+  "fixedFileRequests": 5,
+  "snapshotRequests": 1,
+  "subscriptionAcks": 1,
+  "updates": [
+    {
+      "eventId": "5e9ddf79-2790-31b4-9f8d-7f9a49dbb8e8",
+      "sceneId": "2122262737977405441",
+      "objectId": "resource-car-1",
+      "value": false
+    },
+    {
+      "eventId": "e1204bba-b70b-3fc9-a0db-0ee12e42ca41",
+      "sceneId": "2122262737977405441",
+      "objectId": "resource-car-1",
+      "value": true
+    }
+  ],
+  "publicationId": "PUB-2122262739529297922",
+  "assetId": "2117612791529533441",
+  "pageReloaded": false,
+  "freshLoginOnPublication": true,
+  "publicationAddressPreserved": true,
+  "screenshotDiffs": {
+    "visibleToHidden": {
+      "changedPixels": 312767,
+      "bounds": [
+        501,
+        193,
+        1834,
+        1317
+      ]
+    },
+    "visibleToRestored": {
+      "changedPixels": 0,
+      "bounds": null
+    }
+  },
+  "webCommit": "99d7bba",
+  "playerCommit": "793d3356",
+  "tlsCertificateValidation": true,
+  "fixtureCleaned": true
+}

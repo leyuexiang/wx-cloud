@@ -41,6 +41,7 @@ python3 deploy/test148/provision-iot-kafka.py resume
 | --- | --- |
 | `wx-kafka-ingest` | 写及描述 `twin.event.v1`；集群幂等写权限 |
 | `wx-kafka-dimensions` | 读及描述遥测；写及描述 `twin.event.v1.dimensions.dlt`；读写及描述 `dimensions-iot-websocket.v1`；读取组 `dimensions-iot-state-v1` 和前缀 `dimensions-iot-websocket-`；集群幂等写权限 |
+| `wx-kafka-management246` | 供 246 管理服务处理失败重放。写及描述 `twin.event.v1`，具备集群幂等写权限，使用独立于设备接入的证书 |
 | `wx-kafka-admin` | 仅节点内初始化和检查使用，不挂载进业务应用 |
 
 应用仅挂载自身的证书包和签发机构公钥，禁止挂载整个节点证书目录。Kafka 端口不向公网开放；246 接入应扩展已有受限通道的确切端口权限，并为对应进程配置受控证书，不能放开任意转发。
@@ -67,11 +68,20 @@ wx.websocket.sender-type=kafka
 wx.websocket.sender-kafka.topic=dimensions-iot-websocket.v1
 wx.websocket.sender-kafka.consumer-group=dimensions-iot-websocket
 wx.websocket.sender-kafka.auto-startup=true
+spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer
+spring.kafka.producer.value-serializer=cn.iocoder.wx.framework.websocket.core.sender.kafka.KafkaWebSocketMessageSerializer
+spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
+spring.kafka.consumer.value-deserializer=cn.iocoder.wx.framework.websocket.core.sender.kafka.KafkaWebSocketMessageDeserializer
+spring.kafka.consumer.auto-offset-reset=latest
 ```
 
 ## 切换与回退
 
 先保存应用容器配置、原包和外部配置的受限备份，在隔离端口验证相同身份、数据库、租户认证、遥测及发布订阅，再逐个切换常驻应用。148/246 仍沿用既有分机职责，网页和网关单独备份及切换。Kafka 正常不代表这些入口已经交付。
+
+在各应用节点用 `connect-resident-iot.py prepare <服务> --artifact <绝对路径> --sha256 <包摘要>` 生成受限预检记录，再执行 `apply <服务>`。148 服务参数为 `dimensions148`、`ingest148`，246 服务参数为 `management246`。工具检查容器身份、源配置摘要、传输层认证以及三维消息编解码。应用就绪后还要用认证订阅验证确认帧和实时状态，健康端点无法证明投递正确。
+
+使用 `rollback <服务>` 恢复本批保留的原容器，工具先比对两代容器编号。246 回退时同步恢复该节点受限发布目录中的 `compose.before.private.json`，用于后续编排操作。Kafka 复用 246 的受限 SSH 通道，新增 `127.0.0.1:19092 → 148 回环 19092`。通道回退须先停用 246 的 Kafka 生产者，再恢复 246 的 `link.before` 和 148 对应节点公钥的原端口许可，随后重启 `jtyf-editor148-link.service`。
 
 应用切换失败时停止新消费者和接入进程，恢复原包、配置及容器，不删除 Kafka 卷或修改业务接收记录。故障期间已接收消息按既有失败重放流程恢复；不能把 `CLAIMED` 当作已发布，不能未经确认批量重放。停用本批依赖时执行 `docker stop wx-iot-kafka148`，保留证书与数据；常驻应用接入后先停止其写入和消费。
 
