@@ -1,0 +1,30 @@
+{
+  "renders": 1,
+  "runtimeEditCommits": 0,
+  "fixedFileRequests": 5,
+  "snapshotRequests": 1,
+  "subscriptionAcks": 1,
+  "updates": [
+    {
+      "eventId": "d6106acb-b1ed-3abe-ad00-efc53a73ab1a",
+      "sceneId": "2122269441737682946",
+      "objectId": "lab-switch-model",
+      "value": false
+    },
+    {
+      "eventId": "a336b946-af70-3fb8-ac58-d8d8476ed658",
+      "sceneId": "2122269441737682946",
+      "objectId": "lab-switch-model",
+      "value": true
+    }
+  ],
+  "publicationId": "PUB-2122272471983910914",
+  "assetId": "2117612791529533441",
+  "pageReloaded": false,
+  "pixelDifferences": {
+    "hidden": 305701,
+    "restored": 0
+  },
+  "editorMode": "existing",
+  "editorSavedRevision": 3
+}
