@@ -26,11 +26,14 @@ public class ArtResourceAccess {
         return new Actor(user.getId(), user.getTenantId());
     }
     public void maintain(Actor actor, String scope, String owner) {
-        boolean allowed = "GLOBAL_SYSTEM".equals(scope) && "0".equals(owner)
-            && platformTenant > 0 && actor.tenant() == platformTenant
+        // 平台管理员可在当前登录租户维护个人测试资源，复用既有角色校验且不授予跨租户能力。
+        boolean platformAdministrator = platformTenant > 0 && actor.tenant() == platformTenant
             && Boolean.TRUE.equals(permissions.hasAnyRoles(actor.user(), "super_admin").getCheckedData());
+        boolean allowed = "GLOBAL_SYSTEM".equals(scope) && "0".equals(owner)
+            && platformAdministrator;
         if (!allowed && "TENANT_SHARED".equals(scope) && Long.toString(actor.tenant()).equals(owner))
-            allowed = Boolean.TRUE.equals(permissions.hasAnyRoles(actor.user(), "tenant_admin").getCheckedData());
+            allowed = platformAdministrator
+                || Boolean.TRUE.equals(permissions.hasAnyRoles(actor.user(), "tenant_admin").getCheckedData());
         if (!allowed) throw ServiceException.of(ADMIN_REQUIRED);
     }
 }

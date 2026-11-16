@@ -23,16 +23,27 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Locale;
 import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 
 /** 新资源目录实现，查询只返回分页所需记录，避免加载大字段。 */
 @Service
 public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogService {
+
+    /** 公共目录跨租户可读；个人目录同时匹配可信租户和上传账号，历史空账号回退创建人。 */
+    private static final String MODEL_VISIBLE = "del_flag='0' AND ((resource_belong='SYSTEM' AND tenant_id='0')"
+            + " OR (resource_belong='MINE' AND tenant_id=? AND COALESCE(data_user_id,create_by)=?))";
+    private static final BeanPropertyRowMapper<Dim3dModel> MODEL_ROW = new BeanPropertyRowMapper<>(Dim3dModel.class);
+    @Resource private JdbcTemplate jdbc;
+    @Resource private cn.iocoder.wx.module.dimensions.service.ArtResourceAccess access;
 
     @Resource private Dim3dModelMapper modelMapper;
     @Resource private Dim3dTemplateMapper templateMapper;
@@ -49,13 +60,33 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
 
     @Override public Long createModel(Dim3dModel model) { legacy(model); applyTenant(model); modelMapper.insert(model); return model.getId(); }
     @Override public void updateModel(Long id, Dim3dModel model) { legacy(getModel(id)); legacy(model); applyTenant(model); model.setId(id); require(modelMapper.updateById(model)); }
-    @Override public Dim3dModel getModel(Long id) { return require(modelMapper.selectById(id)); }
+    /** 详情复用列表可见范围，避免公共卡片可见但打开详情失败或个人编号被越权读取。 */
+    @Override public Dim3dModel getModel(Long id) {
+        var actor = access.actor();
+        List<Dim3dModel> rows = jdbc.query("SELECT * FROM wx_3d_model WHERE id=? AND " + MODEL_VISIBLE,
+                MODEL_ROW, id, Long.toString(actor.tenant()), actor.user());
+        if (rows.isEmpty()) throw ServiceException.of(ErrorCodeConstants.DATA_NOT_EXIST);
+        return rows.get(0);
+    }
+
+    /** 显式绑定公共及个人范围，计数和分页共用条件，避免通用租户拦截隐藏公共模型。 */
     @Override public PageResult<Dim3dModel> getModelPage(String name, String belong, String status, String paid, String category, Integer num, Integer size) {
-        Page<Dim3dModel> page = modelMapper.selectPage(new Page<>(pageNum(num), pageSize(size)), new LambdaQueryWrapper<Dim3dModel>()
-                .like(StringUtils.hasText(name), Dim3dModel::getModelName, name).eq(StringUtils.hasText(belong), Dim3dModel::getResourceBelong, belong)
-                .eq(StringUtils.hasText(status), Dim3dModel::getStatus, status).eq(StringUtils.hasText(paid), Dim3dModel::getIsPaid, paid)
-                .eq(StringUtils.hasText(category), Dim3dModel::getCategory, category).orderByDesc(Dim3dModel::getId));
-        return new PageResult<>(page.getRecords(), page.getTotal());
+        var actor = access.actor();
+        StringBuilder where = new StringBuilder(" FROM wx_3d_model WHERE ").append(MODEL_VISIBLE);
+        List<Object> args = new ArrayList<>();
+        args.add(Long.toString(actor.tenant()));
+        args.add(actor.user());
+        if (StringUtils.hasText(name)) { where.append(" AND model_name LIKE ?"); args.add("%" + name + "%"); }
+        if (StringUtils.hasText(belong)) { where.append(" AND resource_belong=?"); args.add(belong); }
+        if (StringUtils.hasText(status)) { where.append(" AND status=?"); args.add(status); }
+        if (StringUtils.hasText(paid)) { where.append(" AND is_paid=?"); args.add(paid); }
+        if (StringUtils.hasText(category)) { where.append(" AND category=?"); args.add(category); }
+        Long total = jdbc.queryForObject("SELECT COUNT(*)" + where, Long.class, args.toArray());
+        args.add(pageSize(size));
+        args.add(((long) pageNum(num) - 1) * pageSize(size));
+        List<Dim3dModel> rows = jdbc.query("SELECT *" + where + " ORDER BY id DESC LIMIT ? OFFSET ?",
+                MODEL_ROW, args.toArray());
+        return new PageResult<>(rows, total == null ? 0 : total);
     }
 
     @Override public Long createIcon(Dim3dIcon icon) { return images.create(icon); }
