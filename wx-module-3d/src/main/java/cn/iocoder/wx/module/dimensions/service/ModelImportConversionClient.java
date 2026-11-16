@@ -59,7 +59,9 @@ class ModelImportConversionClient {
             @Override public boolean isOneShot(){return true;}
             @Override public void writeTo(BufferedSink sink) throws IOException {body.writeTo(sink);}
         };
-        var request=new Request.Builder().url(url).header("Accept","application/zip").post(oneShot).build();
+        // 文件流只发送一次。每次转换独立连接，避免服务端空闲断连后复用旧连接导致后续上传失败。
+        var request=new Request.Builder().url(url).header("Accept","application/zip")
+                .header("Connection","close").post(oneShot).build();
         try(Response response=http.newCall(request).execute()) {
             int status=response.code();
             if(status==429)throw new Failure(CONVERTER_BUSY);

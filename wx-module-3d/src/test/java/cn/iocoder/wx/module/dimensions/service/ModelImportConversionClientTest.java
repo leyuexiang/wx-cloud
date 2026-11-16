@@ -27,10 +27,11 @@ class ModelImportConversionClientTest {
     @AfterEach void stop(){server.stop(0);}
 
     @Test void streamsMultipartAndSpoolsOnlyZipWithDigest() throws Exception {
-        byte[] zip=zip();var received=new AtomicReference<String>();var auth=new AtomicReference<String>();
+        byte[] zip=zip();var received=new AtomicReference<String>();var auth=new AtomicReference<String>();var connection=new AtomicReference<String>();
         server.createContext("/convert",exchange->{
             received.set(new String(exchange.getRequestBody().readAllBytes(),StandardCharsets.ISO_8859_1));
             auth.set(exchange.getRequestHeaders().getFirst("Authorization"));
+            connection.set(exchange.getRequestHeaders().getFirst("Connection"));
             exchange.getResponseHeaders().set("Content-Type","application/zip");
             exchange.sendResponseHeaders(200,zip.length);
             try(var out=exchange.getResponseBody()){out.write(zip);}
@@ -42,6 +43,8 @@ class ModelImportConversionClientTest {
             assertEquals(HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(zip)),result.sha256());
         }
         assertFalse(Files.exists(file));assertNull(auth.get());
+        // 一次性文件流使用独立连接，防止转换器空闲关闭旧连接后影响下一次上传。
+        assertEquals("close", connection.get());
         assertTrue(received.get().contains("name=\"file\"; filename=\"source.zip\""));
         assertTrue(received.get().contains("name=\"format\"") && received.get().contains("\r\n\r\nglb\r\n"));
         assertTrue(received.get().contains(new String(zip,StandardCharsets.ISO_8859_1)));
