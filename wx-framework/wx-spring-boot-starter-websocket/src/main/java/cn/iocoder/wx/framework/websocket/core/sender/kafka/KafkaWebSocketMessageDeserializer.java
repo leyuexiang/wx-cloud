@@ -1,18 +1,12 @@
 package cn.iocoder.wx.framework.websocket.core.sender.kafka;
 
 import org.apache.kafka.common.serialization.Deserializer;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 
 public class KafkaWebSocketMessageDeserializer implements Deserializer<KafkaWebSocketMessage> {
-    private final ObjectMapper objectMapper;
-
-    public KafkaWebSocketMessageDeserializer() {
-        this.objectMapper = new ObjectMapper();
-        // 配置Jackson忽略未识别的字段
-        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
+    // 两端共用 Kafka 传输配置，确保会话编号和消息内容完整往返。
+    private final ObjectMapper objectMapper = KafkaWebSocketMessageSerializer.createTransportMapper();
 
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {

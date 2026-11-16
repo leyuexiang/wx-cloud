@@ -26,6 +26,10 @@ public class DimensionsServerWebsocketConsumer extends AbstractTaskMessageConsum
             // 在 Group 上，使用 UUID 生成其后缀。这样，启动的 Consumer 的 Group 不同，以达到广播消费的目的
             groupId = "${wx.websocket.sender-kafka.consumer-group}" + "-" + "#{T(java.util.UUID).randomUUID()}")
     public void consumeBuildingMessage(KafkaWebSocketMessage message) {
+        // 定向状态和通知由框架按目标投递，旧任务广播必须跳过这些消息。
+        if (message.hasDeliveryTarget() || message.getMessageContent() == null) {
+            return;
+        }
         JSONObject convertMessage = JSONUtil.parseObj(message);
         convertMessage.set("businessModule", "dimensions-server-websocket");
 
