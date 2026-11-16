@@ -20,9 +20,12 @@ import org.springframework.web.socket.WebSocketSession;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.function.Supplier;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -62,12 +65,19 @@ public class IotStateSubscriptionRegistry {
         if (requestId == null || requestId.isBlank()) {
             return new IotStateSubscriptionAck(requestId, List.of(), List.of(new IotStateSubscriptionAck.Rejected(null, "INVALID_REQUEST", "订阅请求编号不能为空")));
         }
-        var savedScene = withIdentity(user, () -> {
+        boolean published = request.getPublicationId() != null || request.getPublicationTicket() != null;
+        if (published && request.getSceneId() != null) {
+            throw new AccessDeniedException("发布订阅的场景由票据确定");
+        }
+        var scene = withIdentity(user, () -> {
             if (!security.hasPermission(SUBSCRIBE_PERMISSION)) {
                 throw new AccessDeniedException("没有物联网状态订阅权限");
             }
-            return scope.read(request.getSceneId());
+            return published ? scope.readPublished(request.getPublicationId(), request.getPublicationTicket(), user.getTenantId())
+                    : new IotSceneBindingScope.ScopedScene(request.getSceneId(), null, scope.read(request.getSceneId()));
         });
+        // 仅记录不可兑换的票据编号，后续节点无需持有原始票据也能复核撤销状态。
+        Long loginExpiresAt = published ? user.getExpiresTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() : null;
         List<IotStateSubscriptionMessage.Binding> bindings = request.getBindings() == null
                 ? List.of() : request.getBindings();
         if (bindings.isEmpty() || bindings.size() > 100) {
@@ -81,14 +91,14 @@ public class IotStateSubscriptionRegistry {
                 rejected.add(new IotStateSubscriptionAck.Rejected(binding == null ? null : binding.getSubscriptionId(), "INVALID_BINDING", reason));
                 continue;
             }
-            if (!IotSceneBindingScope.hasBinding(savedScene, binding.getObjectId(), binding.getDeviceId(), binding.getPointCode())) {
+            if (!IotSceneBindingScope.hasBinding(scene.savedScene(), binding.getObjectId(), binding.getDeviceId(), binding.getPointCode())) {
                 removeBinding(session.getId(), binding.getSubscriptionId());
                 rejected.add(new IotStateSubscriptionAck.Rejected(binding.getSubscriptionId(), "FORBIDDEN", "场景实例没有配置此物联网点位"));
                 continue;
             }
             RegisteredBinding registered = new RegisteredBinding(
-                    binding.getSubscriptionId(), session.getId(), user.getTenantId(), request.getSceneId(),
-                    binding.getObjectId(), binding.getDeviceId(), binding.getPointCode());
+                    binding.getSubscriptionId(), session.getId(), user.getTenantId(), scene.sceneId(),
+                    binding.getObjectId(), binding.getDeviceId(), binding.getPointCode(), scene.ticketId(), loginExpiresAt);
             String serialized = JsonUtils.toJsonString(registered);
             Object previousRaw = redis.opsForHash().get(sessionKey(session.getId()), registered.subscriptionId);
             if (previousRaw != null) {
@@ -145,18 +155,49 @@ public class IotStateSubscriptionRegistry {
     }
 
     public void publish(TwinTelemetryEvent event, String stateVersion) {
-        if (event == null || event.getTenantId() == null) return;
+        if (sender == null || event == null || event.getTenantId() == null) return;
+        long now = System.currentTimeMillis();
         String key = indexKey(event.getTenantId(), event.getDeviceId(), event.getPointCode());
-        java.util.Set<String> members = redis.opsForZSet().rangeByScore(key, System.currentTimeMillis() + 1, Double.POSITIVE_INFINITY);
-        for (String raw : members == null ? List.<String>of() : members) {
+        Set<String> members = redis.opsForZSet().rangeByScore(key, now + 1, Double.POSITIVE_INFINITY);
+        if (members == null || members.isEmpty()) return;
+        List<PublishedDelivery> publishedMembers = null;
+        Set<String> ticketIds = null;
+        for (String raw : members) {
             RegisteredBinding binding = parse(raw);
             if (binding == null || !IotSceneBindingScope.matchesEvent(event, binding.sceneId, binding.objectId)) continue;
-            // 共享点位集合可能被其他会话续期，发送前核对自己的会话记录。
-            if (!raw.equals(redis.opsForHash().get(sessionKey(binding.sessionId), binding.subscriptionId))) continue;
-            if (sender == null) return;
-            sender.sendObject(binding.sessionId, "iot-state-update",
-                    IotStateUpdateMessage.from(binding.subscriptionId, binding.sceneId, binding.objectId, event, stateVersion));
+            if (binding.publicationTicketId == null) {
+                sendCurrent(raw, binding, event, stateVersion);
+            } else if (binding.loginExpiresAt != null && binding.loginExpiresAt > now) {
+                if (publishedMembers == null) {
+                    publishedMembers = new ArrayList<>();
+                    ticketIds = new HashSet<>();
+                }
+                publishedMembers.add(new PublishedDelivery(raw, binding));
+                ticketIds.add(binding.publicationTicketId);
+            }
         }
+        if (publishedMembers == null) return;
+        Set<String> activeTickets;
+        try {
+            activeTickets = scope.activeLiveTickets(event.getTenantId(), ticketIds);
+        } catch (RuntimeException error) {
+            // 发布状态无法核验时停止发布投递，草稿投递和已写入的最新状态不受影响。
+            log.warn("物联网发布订阅票据状态检查失败，tenant={}", event.getTenantId(), error);
+            return;
+        }
+        for (PublishedDelivery delivery : publishedMembers) {
+            RegisteredBinding binding = delivery.binding;
+            if (activeTickets.contains(binding.publicationTicketId) && binding.loginExpiresAt > System.currentTimeMillis()) {
+                sendCurrent(delivery.raw, binding, event, stateVersion);
+            }
+        }
+    }
+
+    private void sendCurrent(String raw, RegisteredBinding binding, TwinTelemetryEvent event, String stateVersion) {
+        // 共享点位集合可能被其他会话续期，发送前核对自己的会话记录。
+        if (!raw.equals(redis.opsForHash().get(sessionKey(binding.sessionId), binding.subscriptionId))) return;
+        sender.sendObject(binding.sessionId, "iot-state-update",
+                IotStateUpdateMessage.from(binding.subscriptionId, binding.sceneId, binding.objectId, event, stateVersion));
     }
 
     private LoginUser requireUser(WebSocketSession session) {
@@ -212,5 +253,9 @@ public class IotStateSubscriptionRegistry {
     }
 
     private record RegisteredBinding(String subscriptionId, String sessionId, Long tenantId,
-                                     String sceneId, String objectId, String deviceId, String pointCode) {}
+                                     String sceneId, String objectId, String deviceId, String pointCode,
+                                     String publicationTicketId, Long loginExpiresAt) {}
+
+    /** 保留原始索引值供会话核对，批量校验后无需再次解析。 */
+    private record PublishedDelivery(String raw, RegisteredBinding binding) {}
 }

@@ -4,6 +4,7 @@ import cn.iocoder.wx.framework.security.core.service.SecurityFrameworkService;
 import cn.iocoder.wx.module.dimensions.consumer.IotStateEventConsumer;
 import cn.iocoder.wx.module.dimensions.controller.admin.IotStateController;
 import cn.iocoder.wx.module.dimensions.service.Dim3dSceneService;
+import cn.iocoder.wx.module.dimensions.service.ScenePublicationTicketService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cn.iocoder.wx.framework.websocket.core.sender.kafka.KafkaWebSocketMessageDeserializer;
 import cn.iocoder.wx.framework.websocket.core.sender.kafka.KafkaWebSocketMessageSerializer;
@@ -31,6 +32,7 @@ class IotStateConfigurationTest {
             .withBean(StringRedisTemplate.class, () -> mock(StringRedisTemplate.class))
             .withBean(SecurityFrameworkService.class, () -> mock(SecurityFrameworkService.class))
             .withBean(Dim3dSceneService.class, () -> mock(Dim3dSceneService.class))
+            .withBean(ScenePublicationTicketService.class, () -> mock(ScenePublicationTicketService.class))
             .withBean(ObjectMapper.class, ObjectMapper::new)
             .withBean(org.springframework.jdbc.core.JdbcTemplate.class, () -> mock(org.springframework.jdbc.core.JdbcTemplate.class))
             .withBean(cn.iocoder.wx.module.dimensions.service.ArtResourceAccess.class, () -> mock(cn.iocoder.wx.module.dimensions.service.ArtResourceAccess.class))

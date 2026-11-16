@@ -23,6 +23,7 @@ import org.springframework.kafka.listener.DefaultErrorHandler;
 import cn.iocoder.wx.framework.security.core.service.SecurityFrameworkService;
 import cn.iocoder.wx.framework.websocket.core.sender.WebSocketMessageSender;
 import cn.iocoder.wx.module.dimensions.service.Dim3dSceneService;
+import cn.iocoder.wx.module.dimensions.service.ScenePublicationTicketService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.util.backoff.FixedBackOff;
 
@@ -53,8 +54,8 @@ public class IotStateProjectionConfiguration {
     }
 
     @Bean
-    IotSceneBindingScope iotSceneBindingScope(Dim3dSceneService scenes, ObjectMapper json) {
-        return new IotSceneBindingScope(scenes, json);
+    IotSceneBindingScope iotSceneBindingScope(Dim3dSceneService scenes, ScenePublicationTicketService tickets, ObjectMapper json) {
+        return new IotSceneBindingScope(scenes, tickets, json);
     }
 
     @Bean

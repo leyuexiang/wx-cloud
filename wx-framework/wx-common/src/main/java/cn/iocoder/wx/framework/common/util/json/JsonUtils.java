@@ -99,6 +99,12 @@ public class JsonUtils {
         }
     }
 
+    /** 凭据承载消息使用此入口，解析失败由调用方记录非敏感诊断。 */
+    public static <T> T parseObjectWithoutLogging(String text, Type type) throws IOException {
+        if (StrUtil.isEmpty(text)) return null;
+        return objectMapper.readValue(text, objectMapper.getTypeFactory().constructType(type));
+    }
+
     /**
      * 将字符串解析成指定类型的对象
      * 使用 {@link #parseObject(String, Class)} 时，在@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS) 的场景下，

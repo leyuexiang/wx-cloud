@@ -10,6 +10,7 @@ import org.springframework.security.access.AccessDeniedException;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.LongFunction;
 
 /** 从认证身份确定租户并校验权限，适用于三维服务当前关闭全局租户拦截的环境。 */
 public class IotStateQueryService {
@@ -30,6 +31,28 @@ public class IotStateQueryService {
 
     /** 场景运行态补偿查询复用订阅的范围校验，管理查询沿用原权限。 */
     public TwinTelemetryEvent get(String deviceId, String pointCode, String sceneId, String objectId) {
+        return withQueryPermission(tenant -> {
+            if (sceneId == null && objectId == null) return store.get(tenant, deviceId, pointCode);
+            return getScoped(tenant, sceneId, objectId, deviceId, pointCode, scope.read(sceneId));
+        });
+    }
+
+    /** 发布页首屏及重连补偿都以票据固定的修订为准。 */
+    public TwinTelemetryEvent getPublished(String publicationId, String ticket, String objectId, String deviceId, String pointCode) {
+        return withQueryPermission(tenant -> {
+            var published = scope.readPublished(publicationId, ticket, tenant);
+            return getScoped(tenant, published.sceneId(), objectId, deviceId, pointCode, published.savedScene());
+        });
+    }
+
+    private TwinTelemetryEvent getScoped(long tenant, String sceneId, String objectId, String deviceId, String pointCode,
+                                         IotSceneBindingScope.SavedScene saved) {
+        if (!IotSceneBindingScope.hasBinding(saved, objectId, deviceId, pointCode)) throw IotSceneBindingScope.denied();
+        var event = store.get(tenant, deviceId, pointCode);
+        return event != null && IotSceneBindingScope.matchesEvent(event, sceneId, objectId) ? event : null;
+    }
+
+    private TwinTelemetryEvent withQueryPermission(LongFunction<TwinTelemetryEvent> action) {
         LoginUser user = SecurityFrameworkUtils.getLoginUser();
         if (user == null || user.getId() == null || !Objects.equals(user.getUserType(), UserTypeEnum.ADMIN.getValue())
                 || user.getTenantId() == null || user.getTenantId() < 0) {
@@ -39,12 +62,7 @@ public class IotStateQueryService {
         var result = new AtomicReference<TwinTelemetryEvent>();
         TenantUtils.execute(user.getTenantId(), () -> {
             if (!security.hasPermission(QUERY_PERMISSION)) throw new AccessDeniedException("没有物联网状态查询权限");
-            boolean scoped = sceneId != null || objectId != null;
-            if (scoped && !IotSceneBindingScope.hasBinding(scope.read(sceneId), objectId, deviceId, pointCode)) {
-                throw IotSceneBindingScope.denied();
-            }
-            var event = store.get(user.getTenantId(), deviceId, pointCode);
-            result.set(!scoped || event == null || IotSceneBindingScope.matchesEvent(event, sceneId, objectId) ? event : null);
+            result.set(action.apply(user.getTenantId()));
         });
         return result.get();
     }

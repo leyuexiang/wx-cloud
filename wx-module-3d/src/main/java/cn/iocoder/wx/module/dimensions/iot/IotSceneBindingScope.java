@@ -2,6 +2,7 @@ package cn.iocoder.wx.module.dimensions.iot;
 
 import cn.iocoder.wx.framework.common.exception.ServiceException;
 import cn.iocoder.wx.module.dimensions.service.Dim3dSceneService;
+import cn.iocoder.wx.module.dimensions.service.ScenePublicationTicketService;
 import cn.iocoder.wx.module.iot.api.TwinTelemetryEvent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,31 +10,56 @@ import org.springframework.security.access.AccessDeniedException;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
-/** 以当前已保存修订和认证租户确定实例可使用的设备点位。 */
+/** 以认证租户及对应的草稿或发布修订确定实例可使用的设备点位。 */
 final class IotSceneBindingScope {
     private final Dim3dSceneService scenes;
+    private final ScenePublicationTicketService tickets;
     private final ObjectMapper json;
 
-    IotSceneBindingScope(Dim3dSceneService scenes, ObjectMapper json) {
+    IotSceneBindingScope(Dim3dSceneService scenes, ScenePublicationTicketService tickets, ObjectMapper json) {
         this.scenes = scenes;
+        this.tickets = tickets;
         this.json = json;
     }
 
     record SavedScene(JsonNode threeD, JsonNode dependencies) { }
+    record ScopedScene(String sceneId, String ticketId, SavedScene savedScene) { }
 
     SavedScene read(String sceneId) {
         if (sceneId == null || !sceneId.matches("[1-9][0-9]{0,18}")) throw denied();
         try {
             var scene = scenes.info(sceneId);
             var revision = (Map<?, ?>) scene.get("currentRevision");
-            return new SavedScene(json.readTree((String) revision.get("threeDJson")),
-                    json.readTree((String) revision.get("dependenciesJson")));
+            return readRevision(revision);
         } catch (ServiceException error) {
             if (error.getCode() == 400 || error.getCode() == 401 || error.getCode() == 403 || error.getCode() == 404) {
                 throw denied();
             }
             throw error;
+        }
+    }
+
+    /** 发布范围只使用票据固定正文，避免访问失效后回退到同场景的可变草稿。 */
+    ScopedScene readPublished(String publicationId, String token, long tenant) {
+        try {
+            var opened = tickets.consumeLiveSnapshot(token, publicationId, tenant);
+            return new ScopedScene((String) opened.snapshot().get("sceneId"), opened.ticketId(), readRevision(opened.snapshot()));
+        } catch (ServiceException error) {
+            if (error.getCode() == 401) throw new AccessDeniedException("发布票据无效或已失效");
+            throw error;
+        }
+    }
+
+    Set<String> activeLiveTickets(long tenant, Set<String> ticketIds) {
+        return tickets.activeLiveTickets(tenant, ticketIds);
+    }
+
+    private SavedScene readRevision(Map<?, ?> revision) {
+        try {
+            return new SavedScene(json.readTree((String) revision.get("threeDJson")),
+                    json.readTree((String) revision.get("dependenciesJson")));
         } catch (com.fasterxml.jackson.core.JsonProcessingException error) {
             throw new IllegalStateException("无法解析场景修订", error);
         }

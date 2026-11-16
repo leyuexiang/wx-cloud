@@ -1,6 +1,7 @@
 package cn.iocoder.wx.module.dimensions.iot;
 
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -9,6 +10,10 @@ import java.util.List;
 public class IotStateSubscriptionMessage {
     private String requestId;
     private String sceneId;
+    // 发布模式由票据固定场景，票据原文不能进入对象日志。
+    private String publicationId;
+    @ToString.Exclude
+    private String publicationTicket;
     private List<Binding> bindings;
 
     @Data

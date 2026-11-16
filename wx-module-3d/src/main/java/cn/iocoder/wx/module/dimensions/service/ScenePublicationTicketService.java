@@ -4,6 +4,7 @@ import cn.iocoder.wx.framework.common.exception.ServiceException;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import jakarta.annotation.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,10 +14,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 /** 发布读取票据服务。数据库只保存摘要，票据失效由状态、过期时间和发布状态共同决定。 */
 @Service
@@ -84,12 +88,29 @@ public class ScenePublicationTicketService {
 
     /** 匿名消费只使用票据绑定的租户、发布和修订；一次查询避免校验后再读取的身份切换。 */
     public Map<String, Object> consumeSnapshot(String token) {
-        var rows = jdbc.queryForList("SELECT p.publication_id,p.scene_id,p.revision_no,p.source_hash,p.index_version,p.dependency_snapshot,"
+        return loadSnapshot(token, null, null).snapshot();
+    }
+
+    public record LiveSnapshot(String ticketId, Map<String, Object> snapshot) {}
+
+    /** 实时读取同时绑定认证租户和指定发布，匿名读取入口仍只使用票据。 */
+    public LiveSnapshot consumeLiveSnapshot(String token, String publicationId, long tenant) {
+        if (publicationId == null || !publicationId.matches("PUB-[1-9][0-9]{0,18}")) {
+            throw new ServiceException(401, "访问票据无效");
+        }
+        return loadSnapshot(token, publicationId, tenant);
+    }
+
+    private LiveSnapshot loadSnapshot(String token, String publicationId, Long tenant) {
+        String sql = "SELECT t.ticket_id,p.publication_id,p.scene_id,p.revision_no,p.source_hash,p.index_version,p.dependency_snapshot,"
                         + "r.schema_version,r.scene_json,r.three_d_json,r.two_d_json,r.dependencies_json "
                         + "FROM wx_3d_scene_publication_ticket t JOIN wx_3d_scene_publication p ON p.publication_id=t.publication_id AND p.tenant_id=t.tenant_id "
                         + "LEFT JOIN wx_3d_scene_revision r ON r.tenant_id=p.tenant_id AND r.scene_id=p.scene_id AND r.revision_no=p.revision_no "
-                        + "WHERE t.token_hash=? AND t.scope='READ' AND t.status='ACTIVE' AND t.expires_time>? AND p.status='PUBLISHED'",
-                tokenHash(token), Timestamp.from(Instant.now()));
+                        + "WHERE t.token_hash=? AND t.scope='READ' AND t.status='ACTIVE' AND t.expires_time>? AND p.status='PUBLISHED'";
+        String hash = tokenHash(token);
+        Timestamp now = Timestamp.from(Instant.now());
+        var rows = tenant == null ? jdbc.queryForList(sql, hash, now)
+                : jdbc.queryForList(sql + " AND p.tenant_id=? AND p.publication_id=?", hash, now, tenant, publicationId);
         if (rows.size() != 1) throw new ServiceException(401, "访问票据已失效");
         var row = rows.get(0);
         if (!(row.get("schema_version") instanceof Number schema) || schema.intValue() < 1
@@ -113,7 +134,25 @@ public class ScenePublicationTicketService {
         result.put("threeDJson", threeD);
         result.put("twoDJson", twoD);
         result.put("dependenciesJson", dependencies);
-        return result;
+        return new LiveSnapshot(row.get("ticket_id").toString(), result);
+    }
+
+    /** 分批复核当前测点的发布订阅，避免逐会话查询，也不从 Redis 读取票据原文。 */
+    public Set<String> activeLiveTickets(long tenant, Set<String> ticketIds) {
+        if (ticketIds.isEmpty()) return Set.of();
+        var batches = new ArrayList<>(ticketIds);
+        var active = new HashSet<String>();
+        var query = new NamedParameterJdbcTemplate(jdbc);
+        Timestamp now = Timestamp.from(Instant.now());
+        for (int start = 0; start < batches.size(); start += 100) {
+            active.addAll(query.queryForList("SELECT t.ticket_id FROM wx_3d_scene_publication_ticket t "
+                            + "JOIN wx_3d_scene_publication p ON p.publication_id=t.publication_id AND p.tenant_id=t.tenant_id "
+                            + "WHERE t.tenant_id=:tenant AND t.ticket_id IN (:tickets) AND t.scope='READ' "
+                            + "AND t.status='ACTIVE' AND t.expires_time>:now AND p.status='PUBLISHED'",
+                    Map.of("tenant", tenant, "tickets", batches.subList(start, Math.min(start + 100, batches.size())),
+                            "now", now), String.class));
+        }
+        return active;
     }
 
     private static String tokenHash(String token) {

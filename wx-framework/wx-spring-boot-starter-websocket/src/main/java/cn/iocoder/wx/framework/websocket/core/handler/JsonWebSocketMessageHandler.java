@@ -53,30 +53,30 @@ public class JsonWebSocketMessageHandler extends TextWebSocketHandler {
             return;
         }
 
-        // 2.1 解析消息
+        // 发布订阅帧可能携带读取票据，诊断日志仅记录会话和错误类型。
         try {
-            JsonWebSocketMessage jsonMessage = JsonUtils.parseObject(message.getPayload(), JsonWebSocketMessage.class);
+            JsonWebSocketMessage jsonMessage = JsonUtils.parseObjectWithoutLogging(message.getPayload(), JsonWebSocketMessage.class);
             if (jsonMessage == null) {
-                log.error("[handleTextMessage][session({}) message({}) 解析为空]", session.getId(), message.getPayload());
+                log.error("[handleTextMessage][session({}) 解析为空]", session.getId());
                 return;
             }
             if (StrUtil.isEmpty(jsonMessage.getType())) {
-                log.error("[handleTextMessage][session({}) message({}) 类型为空]", session.getId(), message.getPayload());
+                log.error("[handleTextMessage][session({}) 类型为空]", session.getId());
                 return;
             }
             // 2.2 获得对应的 WebSocketMessageListener
             WebSocketMessageListener<Object> messageListener = listeners.get(jsonMessage.getType());
             if (messageListener == null) {
-                log.error("[handleTextMessage][session({}) message({}) 监听器为空]", session.getId(), message.getPayload());
+                log.error("[handleTextMessage][session({}) 监听器为空]", session.getId());
                 return;
             }
             // 2.3 处理消息
             Type type = TypeUtil.getTypeArgument(messageListener.getClass(), 0);
-            Object messageObj = JsonUtils.parseObject(jsonMessage.getContent(), type);
+            Object messageObj = JsonUtils.parseObjectWithoutLogging(jsonMessage.getContent(), type);
             Long tenantId = WebSocketFrameworkUtils.getTenantId(session);
             TenantUtils.execute(tenantId, () -> messageListener.onMessage(session, messageObj));
         } catch (Throwable ex) {
-            log.error("[handleTextMessage][session({}) message({}) 处理异常]", session.getId(), message.getPayload());
+            log.error("[handleTextMessage][session({}) 处理异常({})]", session.getId(), ex.getClass().getSimpleName());
         }
     }
 

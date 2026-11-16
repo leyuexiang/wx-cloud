@@ -131,6 +131,29 @@ class ScenePublicationTicketServiceTest {
         assertEquals(409, assertThrows(ServiceException.class, () -> service.consumeSnapshot(token)).getCode());
     }
 
+    @Test void liveGrantUsesFixedSnapshotAndStopsAfterTicketOrPublicationRevocation() {
+        var issue = service.issue("PUB-1", 300);
+        String token = issue.get("token").toString();
+        var current = service.issue("PUB-1", 300);
+        String ticketId = issue.get("ticketId").toString();
+        String currentId = current.get("ticketId").toString();
+        // 草稿推进后仍读取票据固定的修订，且票据不能被其他租户或发布复用。
+        jdbc.update("INSERT INTO wx_3d_scene_revision VALUES(2,101,2,1,'new-draft','{}','{}','{}')");
+        var snapshot = service.consumeLiveSnapshot(token, "PUB-1", 2);
+        assertEquals(ticketId, snapshot.ticketId());
+        assertEquals(1, snapshot.snapshot().get("revisionNo"));
+        assertEquals(401, assertThrows(ServiceException.class, () -> service.consumeLiveSnapshot(token, "PUB-1", 3)).getCode());
+        assertEquals(401, assertThrows(ServiceException.class, () -> service.consumeLiveSnapshot(token, "PUB-2", 2)).getCode());
+        assertEquals(java.util.Set.of(ticketId, currentId), service.activeLiveTickets(2, java.util.Set.of(ticketId, currentId)));
+        assertTrue(service.activeLiveTickets(3, java.util.Set.of(ticketId)).isEmpty());
+        service.revoke(ticketId);
+        assertEquals(java.util.Set.of(currentId), service.activeLiveTickets(2, java.util.Set.of(ticketId, currentId)));
+        jdbc.update("UPDATE wx_3d_scene_publication SET status='REVOKED'");
+        assertTrue(service.activeLiveTickets(2, java.util.Set.of(currentId)).isEmpty());
+        assertEquals(401, assertThrows(ServiceException.class,
+                () -> service.consumeLiveSnapshot(current.get("token").toString(), "PUB-1", 2)).getCode());
+    }
+
     @Test void cleanupExpiredMarksTicketAndWritesAudit() {
         var issued = service.issue("PUB-1", 300);
         jdbc.update("UPDATE wx_3d_scene_publication_ticket SET expires_time='2000-01-01 00:00:00' WHERE ticket_id=?", issued.get("ticketId"));
