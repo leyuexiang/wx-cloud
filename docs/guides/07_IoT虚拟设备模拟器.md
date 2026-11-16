@@ -11,7 +11,7 @@
 | 开关 | `lab-switch` | `lab/iot/tenant-2/switch` | `virtual-switch` | `lab-switch-01 / visible` |
 | 温度 | `lab-temperature` | `lab/iot/tenant-2/temperature` | `virtual-temperature` | `lab-temperature-01 / temperature` |
 
-在有 148 受控 SSH 权限的 Windows 测试工作站，打开 PowerShell 7，在仓库根目录执行下列命令。转发命令所在终端保持运行。
+在有 148 受控 SSH 权限的 Windows 测试工作站，打开 Windows PowerShell 5.1 或 PowerShell 7，在仓库根目录执行下列命令。转发命令所在终端保持运行。`mqttx-lab.ps1` 使用带字节顺序标记（BOM）的 UTF-8，使 Windows PowerShell 5.1 能正确读取中文。
 
 ```powershell
 ./tools/iot/mqttx-lab.ps1 -Action tunnel

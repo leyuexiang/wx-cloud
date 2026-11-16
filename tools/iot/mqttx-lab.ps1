@@ -1,4 +1,4 @@
-param(
+﻿param(
     [Parameter(Mandatory)]
     [ValidateSet('tunnel', 'ca', 'password', 'payload')]
     [string] $Action,
