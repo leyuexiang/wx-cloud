@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.iocoder.wx.framework.common.util.json.JsonUtils;
 import cn.iocoder.wx.framework.websocket.core.message.JsonWebSocketMessage;
 import cn.iocoder.wx.framework.websocket.core.session.WebSocketSessionManager;
+import cn.iocoder.wx.framework.websocket.core.util.WebSocketFrameworkUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.TextMessage;
@@ -99,6 +100,8 @@ public abstract class AbstractWebSocketMessageSender implements WebSocketMessage
                 log.error("[doSend][session 为空, message({})]", message);
                 return;
             }
+            // 专用端点在握手时固定类型范围，旧任务广播不能混入新协议会话。
+            if (!WebSocketFrameworkUtils.isMessageTypeAllowed(session, messageType)) return;
             if (!session.isOpen()) {
                 log.error("[doSend][session({}) 已关闭, message({})]", session.getId(), message);
                 return;
@@ -127,6 +130,8 @@ public abstract class AbstractWebSocketMessageSender implements WebSocketMessage
                 log.error("[doSend][session 为空, message({})]", message);
                 return;
             }
+            // 原文分支无法证明消息类型，专用协议会话默认拒绝。
+            if (!WebSocketFrameworkUtils.isMessageTypeAllowed(session, null)) return;
             if (!session.isOpen()) {
                 log.error("[doSend][session({}) 已关闭, message({})]", session.getId(), message);
                 return;
