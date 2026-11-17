@@ -1,0 +1,107 @@
+{
+  "createdViaUI": true,
+  "initialPublication": {
+    "url": "https://192.168.10.148:9447/dts/scenePreview?publicationId=PUB-2122573264062574593",
+    "publicationId": "PUB-2122573264062574593",
+    "text": "发布场景\n\n场景：PUB-UI-01 发布入口验收\n\n已保存版本：1\n\n访问方式：受控访问\n\n发布成功\n\n发布编号：PUB-2122573264062574593\n\n固定版本链接\n复制链接\n\n链接不包含访问凭证。需要分享时，请分别发送链接和凭证。\n\n凭证有效期（秒）\n生成访问凭证\n关闭",
+    "paths": [
+      "/dts-api/admin-api/dim3d/scene/publication/capabilities",
+      "/dts-api/admin-api/dim3d/scene/publication/publish-current"
+    ]
+  },
+  "phase": "published",
+  "credential": {
+    "issuedViaUI": true,
+    "readBeforeRevoke": 200,
+    "readAfterRevoke": 401,
+    "noStore": true,
+    "clearedAfterRevoke": true,
+    "rawCredentialRecorded": false
+  },
+  "revokePublication": {
+    "viaUI": true,
+    "unpublishedAfterRevoke": true,
+    "otherPublicationPreserved": true
+  },
+  "afterRevocationPublication": "PUB-2122574312311418882",
+  "repeatedPublish": {
+    "samePublicationReused": true,
+    "publicationId": "PUB-2122574312311418882"
+  },
+  "temporarySceneRemoved": true,
+  "editor": {
+    "sharedDialog": true,
+    "revisionNo": 5,
+    "reusedPublication": "PUB-2122542758537261058"
+  },
+  "autoPreview": {
+    "before": {
+      "timeOrigin": 1794896371849.745,
+      "temperatureText": "温度\n29.500\n°C",
+      "ticketRequests": 1,
+      "snapshotRequests": 2,
+      "playerLoads": 1,
+      "manualTicketInputShown": false,
+      "now": 1794896458857
+    },
+    "after": {
+      "timeOrigin": 1794896371849.745,
+      "temperatureText": "温度\n29.500\n°C",
+      "ticketRequests": 1,
+      "snapshotRequests": 2,
+      "playerLoads": 1,
+      "manualTicketInputShown": false,
+      "now": 1794896462349
+    },
+    "temperatureValues": [
+      26.125,
+      29.5
+    ],
+    "manualTicketEntry": false,
+    "extraSnapshotQueries": 0,
+    "source": "场景卡片封面正常打开"
+  },
+  "autoRenewal": {
+    "before": {
+      "timeOrigin": 1794896371849.745,
+      "temperatureText": "温度\n29.500\n°C",
+      "ticketRequests": 2,
+      "snapshotRequests": 2,
+      "playerLoads": 1,
+      "manualTicketInputShown": false,
+      "now": 1794896765433
+    },
+    "after": {
+      "timeOrigin": 1794896371849.745,
+      "temperatureText": "温度\n29.500\n°C",
+      "ticketRequests": 2,
+      "snapshotRequests": 2,
+      "playerLoads": 1,
+      "manualTicketInputShown": false,
+      "now": 1794896768966
+    },
+    "temperatureValues": [
+      28.125,
+      29.5
+    ],
+    "sameDocument": true,
+    "extraSnapshotQueries": 0,
+    "extraPlayerLoads": 0,
+    "clockOrNetworkMocked": false
+  },
+  "theme": {
+    "manage": {
+      "class": "el-dialog manage-dialog",
+      "text": "rgb(105, 117, 111)",
+      "background": "rgba(0, 0, 0, 0)",
+      "backgroundImage": "linear-gradient(rgba(255, 255, 255, 0.98) 0%, rgba(246, 248, 249, 0.98) 100%)",
+      "opacity": "1"
+    },
+    "editor": {
+      "class": "el-dialog scene-edit-dialog",
+      "text": "rgb(248, 250, 252)",
+      "background": "rgba(18, 27, 42, 0.96)",
+      "backgroundImage": "none"
+    }
+  }
+}

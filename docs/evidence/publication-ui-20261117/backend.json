@@ -1,0 +1,23 @@
+{
+  "anonymousManagementDenied": true,
+  "forgedTenantDenied": true,
+  "temporarySceneRemoved": true,
+  "originalSceneCount": 3,
+  "iotPublicationPreserved": {
+    "publicationId": "PUB-2122542758537261058",
+    "sceneId": "2122269441737682946",
+    "revisionNo": 5,
+    "status": "PUBLISHED",
+    "sourceHash": "9c2eca6f74024a4440a200f3e611b3c3001d4bf1b527cdc9326dc136e3305252"
+  },
+  "temporaryPublicationsRevoked": [
+    {
+      "publicationId": "PUB-2122573264062574593",
+      "status": "REVOKED"
+    },
+    {
+      "publicationId": "PUB-2122574312311418882",
+      "status": "REVOKED"
+    }
+  ]
+}

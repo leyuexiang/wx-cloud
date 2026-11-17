@@ -1,0 +1,87 @@
+{
+  "web": {
+    "tests": 81,
+    "failed": 0,
+    "files": 12,
+    "typeCheck": "PASS",
+    "productionBuild": "PASS",
+    "finalThemeBuild": "PASS",
+    "sourceCommit": "9057261201819ecc1a8150d5e6ee0c5a9fe379bf",
+    "command": "pnpm test src/integrations/scene/__tests__/fixedPublicationManagement.test.ts src/auth/__tests__ src/integrations/scene/__tests__/fixedScenePublication.test.ts src/views/sceneEdit/__tests__",
+    "themeValidation": "主题增量只复用样式；再次 pnpm build 并真实页面检查，不重复整个回归"
+  },
+  "server": {
+    "tests": 69,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "productionBuild": "PASS (test148)",
+    "sourceCommit": "81a8659d7ad7f8dc58f9a7697b658488877d0351",
+    "command": "mvn -q -o -Ptest148 -pl wx-module-3d -am -Dtest=ScenePublication*Test,Dim3dScene*Test,IotStateQueryTest,IotWidgetBindingScopeTest -Dsurefire.failIfNoSpecifiedTests=false package",
+    "suites": [
+      {
+        "name": "IotStateQueryTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "IotWidgetBindingScopeTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "Dim3dSceneControllerTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "Dim3dSceneServiceTest",
+        "tests": 22,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "ScenePublicationFileServiceTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "ScenePublicationPreviewControllerTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "ScenePublicationServiceTest",
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "ScenePublicationTicketServiceTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "unity": {
+    "playerCommit": "793d3356",
+    "codeChanged": false,
+    "runtime": "真实网页播放器加载与实时数值；本地官方插件状态无连接编辑器"
+  },
+  "buildStorage": "D:\\UnityProject\\jtyf-dts-webgpu\\artifacts\\Builds\\latest\\iot-m3-03a-20261114",
+  "databaseMigration": false
+}
