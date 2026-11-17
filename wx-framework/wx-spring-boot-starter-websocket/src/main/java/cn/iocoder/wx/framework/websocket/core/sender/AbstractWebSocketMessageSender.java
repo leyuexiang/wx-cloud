@@ -47,7 +47,7 @@ public abstract class AbstractWebSocketMessageSender implements WebSocketMessage
         // 1. 获得 Session 列表
         List<WebSocketSession> sessions = sessionManager.getSessionAll();
         if (CollUtil.isEmpty(sessions)) {
-            log.info("[send][messageType({}) messageContent({}) 未匹配到会话]", messageType, messageContent);
+            log.debug("WebSocket 原文发送未匹配本机会话，messageType={}", messageType);
             return;
         }
         // 2. 执行发送
@@ -77,8 +77,8 @@ public abstract class AbstractWebSocketMessageSender implements WebSocketMessage
             sessions = (List<WebSocketSession>) sessionManager.getSessionList(userType);
         }
         if (CollUtil.isEmpty(sessions)) {
-            log.info("[send][sessionId({}) userType({}) userId({}) messageType({}) messageContent({}) 未匹配到会话]",
-                    sessionId, userType, userId, messageType, messageContent);
+            // 多节点独立扇出组都会消费同一消息，非目标节点未命中属于正常路由，不逐帧写信息正文。
+            log.debug("WebSocket 发送未匹配本机会话，messageType={}", messageType);
         }
         // 2. 执行发送
         doSend(sessions, messageType, messageContent);
