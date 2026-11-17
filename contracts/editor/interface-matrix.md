@@ -58,14 +58,14 @@ BASE-01 涉及模型、图片、场景、访问模式、行业模板和展厅模
 
 | 编号 | 方法及路径 | 来源及消费者 | 当前后端基础 | 明确差异/处理 | 分类/责任 |
 | --- | --- | --- | --- | --- | --- |
-| CAT-01 | GET `P/dim3d/model/page`、`/model/info/{id}` | F05；模型管理、编辑资源面板 | B04 同名后缀 `/admin-api/dim3d` | 后端 `data.list,total` 对照前端 `rows/records,total`；字段/编号/归属投影；不能原样代理 | 适配/三维 |
-| CAT-02 | POST `/model/add`；PUT `/model/edit/{id}`、`/model/{status}/{id}`；DELETE `/model/remove/{id}`，均加 `P/dim3d` | F05；模型管理/弹窗 | B04 有新增、编辑、状态及删除 | 保留 `dim3d:model:*` 权限；前端 SYSTEM/MINE 与可信资源范围不能直接等同；新增当前返回 Long 而消费者定义 E/空数据，按样例冻结 | 适配/三维 |
+| CAT-01 | GET `P/dim3d/model/page`、`/model/info/{id}` | F05；模型管理、编辑资源面板 | B04 同名后缀 `/admin-api/dim3d` | MODEL-09 使用根级 `code/msg/rows/total`、白名单排序、字符串 `modelFileId` 及精确 `priceYuan`；详情返回真实相对路径及受管签名入口，部署验证另记 | 适配/三维 |
+| CAT-02 | POST `/model/add`；PUT `/model/edit/{id}`；DELETE `/model/remove/{id}`，均加 `P/dim3d` | F05；模型管理/弹窗 | MODEL-09 五类接口表单收口 | 新增、编辑要求完整文档表单，受管模型支持元数据编辑及文件替换，删除复用资源事务及引用保护，成功 `data=null`；原异步保存调用需迁移；上下线独立接口沿用既有实现 | 适配/三维 |
 | CAT-03 | GET `/icon/page`、`/icon/info/{id}`；POST `/icon/add`；PUT `/icon/edit/{id}`、`/icon/{status}/{id}`；DELETE `/icon/remove/{id}`，均加 `P/dim3d` | F06；图片管理、图像选择及部件素材 | B04 已有对应后缀 | 同样需分页、字段、状态和 `dim3d:icon:*` 权限适配；普通文件稳定身份不能假定等于包资源编号 | 适配/三维 |
 | CAT-04 | GET `/template/page`、`/template/info/{id}`；PUT `/template/edit/{id}`、`/template/{status}/{id}`；DELETE `/template/remove/{id}`，均加 `P/dim3d` | F07；模板管理和编辑器资源面板 | B04 已有对应后缀，另有 `/template/add` | 前端当前文件无独立新增模板导出，不因后端有接口就列为首批直接调用；模板新增见 TMP-01 | 适配/三维 |
 | FILE-01 | POST `/api/resource/oss/upload` → `/admin-api/infra/file/resource/oss/upload` | F08；图片、模型封面、模板封面 | B05 `/admin-api/infra/file/upload` 返回地址字符串；本地新增独立候选控制器/Service，有归属 schema 迁移未现场验证 | 只接受单字段 `file`；返回 `ossId,url,originalName,fileSuffix`，`ossId` 为 `wx_infra_file.id` 且按字符串传输；不得把可选兼容字段 `fileName,ext1,service` 猜成必需身份 | 适配/基础设施；合同见 [IMG-01](image-upload-contract.md) |
 | FILE-02 | GET `/api/resource/oss/listByIds/{ids}` → `/admin-api/infra/file/resource/oss/listByIds/{ids}` | F08；`sceneAssetUrlResolver.ts` 和图片部件 | 本地已有显式范围 Mapper 与签名候选；数据库字段/签名 Host 及真实读取未验 | 首期只接受一个正十进制本地文件编号；legacy 不可见，当前仅 private uploader 可读；每次按编号签发 S3 GET 短时地址；批量语法不在首期 | 新增读取适配/基础设施 |
 | RES-01 | POST `/api/dim3d/resource/uploadConvert` | F09；模型新增弹窗 | B04 有 `/admin-api/dim3d/resource/uploadConvert`；B07 代理转换 | 前端 file ZIP → `id,resourceName,resourceType,assetName,resourceRelativePath`；代理仍依赖参考服务，不能声称本地转换齐备 | 适配+外部/三维 |
-| RES-02 | GET `/api/dim3d/resource/info/{id}` | F09；模型管理、资源面板、场景资源解析 | 有 `Dim3dConvertedResource` 和映射器；未发现满足该精确详情合同的控制器 | 读取 modelFileId 对应元信息并鉴权；不能用 ART 的 `/resources/{id}/current` 返回另一种结构 | 新增读取适配/三维 |
+| RES-02 | GET `/admin-api/dim3d/resource/info/{id}` | F09；模型管理、资源面板、场景资源解析 | MODEL-09 已补充控制器及目录授权读取 | 按字符串 `modelFileId` 返回真实元信息及路径，私有模型补充签名地址；实际路径及存储联调另记 | 读取适配/三维 |
 | RES-03 | 静态 `{VITE_DIM3D_AMM_SERVER_URL}/amm/{resourceRelativePath}` | F09 `buildDim3dResourceUrl`，活跃资源解析 | 当前新私有桶及 ART 签名读取不是旧 `/amm/` 静态合同 | 审计资源格式/产物和访问授权；不能公开整个私有桶，也不把 GLB 路径当 Unity 包 | 外部/存储与三维 |
 
 B04 三类目录的删除/状态服务存在不等于已满足运营/租户双端权限与新场景引用规则。以上需要适配的项目，没有一项被认定为“改服务地址即可直接复用的前端接口”。

@@ -181,7 +181,36 @@ public class ModelImportService {
         });
     }
     public ModelImportStatusView requestPublish(String id,JsonNode body) {
+        return requestPublish(id, body, null);
+    }
+
+    /** 编辑目录复用新文件的原上传操作，目标关联由服务端授权后写入内部描述。 */
+    public ModelImportStatusView requestPublishForDirectory(String id, JsonNode body, Long directoryId) {
+        if (directoryId == null || directoryId <= 0) bad();
+        return requestPublish(id, body, directoryId);
+    }
+
+    private ModelImportStatusView requestPublish(String id, JsonNode body, Long directoryId) {
+        // 目录表单适配复用原导入开关，关闭导入后不能通过目录保存继续发布待处理上传。
+        requireEnabled();
         ObjectNode directory = directoryInput(body);
+        if (directoryId != null) {
+            requireWritePermission("REPLACE");
+            var actor = access.actor();
+            var targets = jdbc.queryForList("SELECT * FROM wx_3d_model WHERE id=? AND del_flag='0'", directoryId);
+            if (targets.size() != 1 || !Dim3dModelWriteService.visible(targets.get(0), actor)) {
+                throw ServiceException.of(NOT_VISIBLE);
+            }
+            var target = targets.get(0);
+            boolean system = "SYSTEM".equals(target.get("resource_belong"));
+            access.maintain(actor, system ? "GLOBAL_SYSTEM" : "TENANT_SHARED", target.get("tenant_id").toString());
+            // 固定确认时的文件和归属，最终提交在目录行锁内复核，避免覆盖并发替换。
+            directory.putObject("catalogTarget").put("id", directoryId.toString())
+                    .put("resourceId", Objects.toString(target.get("resource_id"), ""))
+                    .put("modelFileId", Objects.toString(target.get("model_file_id"), ""))
+                    .put("tenantId", target.get("tenant_id").toString())
+                    .put("resourceBelong", target.get("resource_belong").toString());
+        }
         var template = new TransactionTemplate(transactions);
         var checked = template.execute(status -> checkPublication(id, directory));
         if (checked.confirmed()) return view(checked.operation(), checked.task());
@@ -224,12 +253,16 @@ public class ModelImportService {
 
     private void validateDirectory(Map<String, Object> operation, ObjectNode directory) {
         boolean system = "GLOBAL_SYSTEM".equals(operation.get("resource_scope"));
-        if (!system && "PAID".equals(directory.path("isPaid").asText())) throw new ServiceException(400, "租户模型仅支持免费");
-        if (directory.hasNonNull("coverImageId")) {
-            long cover = directory.path("coverImageId").asLong();
-            var previous = jdbc.queryForList("SELECT cover_image_id FROM wx_3d_model WHERE resource_id=? AND del_flag='0'",
-                    operation.get("resource_id"));
-            boolean retained = previous.size() == 1 && previous.get(0).get("cover_image_id") instanceof Number id && id.longValue() == cover;
+        boolean redirect = directory.has("catalogTarget");
+        if (directory.hasNonNull("coverImageId") || redirect && !directory.has("coverImageId")) {
+            var previous = jdbc.queryForList("SELECT cover_image_id,resource_belong FROM wx_3d_model WHERE "
+                            + (redirect ? "id=?" : "resource_id=?") + " AND del_flag='0'",
+                    redirect ? directory.path("catalogTarget").path("id").asText() : operation.get("resource_id"));
+            Object oldCover = previous.size() == 1 ? previous.get(0).get("cover_image_id") : null;
+            if (!directory.hasNonNull("coverImageId") && !(oldCover instanceof Number)) return;
+            long cover = directory.hasNonNull("coverImageId") ? directory.path("coverImageId").asLong() : ((Number) oldCover).longValue();
+            boolean retained = oldCover instanceof Number id && id.longValue() == cover
+                    && (!redirect || Objects.equals(previous.get(0).get("resource_belong"), system ? "SYSTEM" : "MINE"));
             images.validateModelCover(cover, access.actor(), system ? "SYSTEM" : "MINE", retained);
         }
     }

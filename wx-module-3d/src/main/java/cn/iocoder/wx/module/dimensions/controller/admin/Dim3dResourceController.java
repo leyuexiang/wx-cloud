@@ -4,6 +4,8 @@ import cn.iocoder.wx.framework.common.pojo.CommonResult;
 import cn.iocoder.wx.framework.common.pojo.PageResult;
 import cn.iocoder.wx.framework.common.util.validation.ValidationUtils;
 import cn.iocoder.wx.module.dimensions.service.ModelImportService;
+import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dModelPageResponse;
+import cn.iocoder.wx.framework.common.exception.ServiceException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
@@ -13,6 +15,8 @@ import cn.iocoder.wx.module.dimensions.entity.Dim3dTemplate;
 import cn.iocoder.wx.module.dimensions.service.Dim3dResourceCatalogService;
 import cn.iocoder.wx.module.dimensions.service.Dim3dSceneService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -37,28 +41,71 @@ public class Dim3dResourceController {
     @Resource private ObjectMapper json;
     @Resource private Validator validator;
 
-    @PostMapping("/model/add") @Operation(summary = "新增模型") @PreAuthorize("@ss.hasPermission('dim3d:model:add')")
+    @PostMapping("/model/add")
+    @Operation(summary = "新增模型", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            required = true, content = @Content(schema = @Schema(implementation = Dim3dModel.class))))
+    @PreAuthorize("@ss.hasPermission('dim3d:model:add')")
     public CommonResult<?> addModel(@RequestBody JsonNode body) {
-        if (body == null || !body.isObject()) throw new cn.iocoder.wx.framework.common.exception.ServiceException(400, "模型新增请求格式无效");
-        // 受管上传必须经过原发布操作，金额保留原始JSON类型，避免小数被实体整数截断。
-        if (body.has("operationId") || body.has("resourceId")) {
+        // 已部署网页仍按原操作保存并轮询回执。仅该明确旧形态复用原服务，完整文档表单仍返回空数据。
+        if (body != null && body.isObject() && body.has("operationId") && body.has("resourceId") && !body.has("modelFileId")) {
             return CommonResult.success(modelImports.saveUploadedModel(body));
         }
-        // 历史文件编号调用继续沿用实体校验及原目录写入，复用注入的校验器。
-        Dim3dModel legacy = json.convertValue(body, Dim3dModel.class);
-        ValidationUtils.validate(validator, legacy);
-        return CommonResult.success(service.createModel(legacy));
+        // 目录新增统一接收文档表单，内部资源发布完成后才返回空成功响应。
+        service.createModel(modelInput(body));
+        return CommonResult.success(null);
     }
-    @PutMapping("/model/edit/{id}") @Operation(summary = "编辑模型") @PreAuthorize("@ss.hasPermission('dim3d:model:edit')")
-    public CommonResult<Boolean> editModel(@PathVariable Long id, @Valid @RequestBody Dim3dModel body) { service.updateModel(id, body); return CommonResult.success(true); }
+    @PutMapping("/model/edit/{id}")
+    // 原始节点用于严格金额校验，接口文档继续展示原模型字段及必填约束。
+    @Operation(summary = "编辑模型", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            required = true, content = @Content(schema = @Schema(implementation = Dim3dModel.class))))
+    @PreAuthorize("@ss.hasPermission('dim3d:model:edit')")
+    public CommonResult<Void> editModel(@PathVariable Long id, @RequestBody JsonNode body) {
+        // 新增与编辑共用原始金额检查和实体校验，确保编辑也不会截断小数金额。
+        service.updateModel(id, modelInput(body));
+        return CommonResult.success(null);
+    }
     @GetMapping("/model/info/{id}") @Operation(summary = "查询模型详情") @PreAuthorize("@ss.hasPermission('dim3d:model:query')")
     public CommonResult<Dim3dModel> modelInfo(@PathVariable Long id) { return CommonResult.success(service.getModel(id)); }
     @GetMapping("/model/page") @Operation(summary = "分页查询模型") @PreAuthorize("@ss.hasPermission('dim3d:model:query')")
-    public CommonResult<PageResult<Dim3dModel>> modelPage(String modelName, String resourceBelong, String status, String isPaid, String category, Integer pageNum, Integer pageSize) { return CommonResult.success(service.getModelPage(modelName, resourceBelong, status, isPaid, category, pageNum, pageSize)); }
+    public Dim3dModelPageResponse modelPage(String modelName, String resourceBelong, String status, String isPaid,
+                                            String category, Integer pageNum, Integer pageSize,
+                                            String orderByColumn, String isAsc) {
+        // 模型分页直接返回契约根级字段，避免重复序列化同一记录集合。
+        return new Dim3dModelPageResponse(service.getModelPage(modelName, resourceBelong, status, isPaid,
+                category, pageNum, pageSize, orderByColumn, isAsc));
+    }
     @PutMapping("/model/{status}/{id}") @Operation(summary = "模型上线或下线") @PreAuthorize("@ss.hasPermission('dim3d:model:edit')")
     public CommonResult<Boolean> modelStatus(@PathVariable String status, @PathVariable Long id) { service.changeModelStatus(id, status); return CommonResult.success(true); }
     @DeleteMapping("/model/remove/{id}") @Operation(summary = "删除模型") @PreAuthorize("@ss.hasPermission('dim3d:model:delete')")
-    public CommonResult<Boolean> removeModel(@PathVariable Long id) { service.deleteModel(id); return CommonResult.success(true); }
+    public CommonResult<Void> removeModel(@PathVariable Long id) { service.deleteModel(id); return CommonResult.success(null); }
+
+    /** 文件详情复用目录可见范围，补齐文档约定的模型文件编号查询入口。 */
+    @GetMapping("/resource/info/{id}")
+    @Operation(summary = "查询模型文件资源详情")
+    @PreAuthorize("@ss.hasPermission('dim3d:model:query')")
+    public CommonResult<?> modelResourceInfo(@PathVariable Long id) {
+        return CommonResult.success(service.getModelResource(id));
+    }
+
+    /**
+     * 模型表单先检查整数分再转换，避免默认数字强制转换造成金额截断或溢出。
+     * 资源归属、文件关联和受控发布由统一模型业务服务判断，客户端审计字段不参与决策。
+     */
+    private Dim3dModel modelInput(JsonNode body) {
+        if (body == null || !body.isObject()) throw new ServiceException(400, "模型请求格式无效");
+        JsonNode price = body.get("price");
+        if (price != null && !price.isNull() && (!price.isIntegralNumber() || !price.canConvertToInt() || price.asInt() < 0)) {
+            throw new ServiceException(400, "模型价格必须是有效的整数分");
+        }
+        Dim3dModel model;
+        try {
+            model = json.convertValue(body, Dim3dModel.class);
+        } catch (IllegalArgumentException invalid) {
+            throw new ServiceException(400, "模型字段格式无效");
+        }
+        ValidationUtils.validate(validator, model);
+        return model;
+    }
 
     @PostMapping("/icon/add") @Operation(summary = "新增图标") @PreAuthorize("@ss.hasPermission('dim3d:icon:add')")
     // 新图片编号可能超过浏览器安全整数范围，新增回执也按字符串投影。

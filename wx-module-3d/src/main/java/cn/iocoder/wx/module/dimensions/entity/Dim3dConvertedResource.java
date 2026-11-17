@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import jakarta.validation.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -18,6 +20,8 @@ import java.time.LocalDateTime;
 @TableName("wx_3d_resource")
 public class Dim3dConvertedResource {
     @TableId(type = IdType.INPUT)
+    // 转换回执与模型表单的文件编号都使用字符串，避免浏览器大整数精度丢失。
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
     @NotBlank private String resourceName;
     @NotBlank private String resourceType;

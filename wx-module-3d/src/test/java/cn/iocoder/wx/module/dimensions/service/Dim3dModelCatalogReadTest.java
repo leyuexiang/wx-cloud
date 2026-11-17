@@ -84,4 +84,15 @@ class Dim3dModelCatalogReadTest {
         assertThrows(ServiceException.class, () -> service.getModel(5L));
         assertThrows(ServiceException.class, () -> service.getModel(7L));
     }
+
+    /** 排序只使用固定字段映射，分页还需追加主键保证相同值的顺序稳定。 */
+    @Test
+    void acceptsContractSortAndRejectsSqlFragments() {
+        var result = service.getModelPage(null, null, null, null, null, 1, 20, "id", "asc");
+        assertEquals(List.of(1L, 2L, 6L), result.getList().stream().map(Dim3dModel::getId).toList());
+        assertThrows(ServiceException.class, () -> service.getModelPage(null, null, null, null, null,
+                1, 20, "id; DROP TABLE wx_3d_model", "asc"));
+        assertThrows(ServiceException.class, () -> service.getModelPage(null, null, null, null, null,
+                1, 20, "id", "other"));
+    }
 }

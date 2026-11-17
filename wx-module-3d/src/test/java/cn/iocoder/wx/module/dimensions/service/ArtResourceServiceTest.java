@@ -112,12 +112,56 @@ class ArtResourceServiceTest {
         verifyNoInteractions(signer);
     }
 
+    /** 目录详情必须签发清单中的模型入口，不能把清单地址当模型地址返回。 */
+    @Test void modelPreviewSignsVerifiedEntryOnce() throws Exception {
+        String hash = committedModelFixture("model.glb.v1", "test-loader", "model.glb.v1");
+        db.update("UPDATE wx_3d_resource SET content_hash=? WHERE id=21", hash);
+        when(signer.sign("resources/old/frozen/", "models/car.glb")).thenReturn(Map.of(
+                "manifestUrl", "https://example.invalid/models/car.glb", "downloadExpiresAt", "2030-01-01T00:00:00Z"));
+        var preview = service.modelPreview("21");
+        assertEquals("https://example.invalid/models/car.glb", preview.get("modelFileUrl"));
+        assertEquals("2030-01-01T00:00:00Z", preview.get("downloadExpiresAt"));
+        verify(signer).sign("resources/old/frozen/", "models/car.glb");
+        verify(store).readManifest("resources/old/frozen/", "manifest.json");
+    }
+
+    @Test void modelPreviewRejectsInvisibleAndUncommittedResourcesBeforeStorageAccess() {
+        for (String id : List.of("21", "31", "41", "51")) {
+            assertThrows(ServiceException.class, () -> service.modelPreview(id));
+        }
+        verifyNoInteractions(store, signer);
+    }
+
+    @Test void modelPreviewRejectsMismatchedFormatAndCompatibilityWithoutSigning() throws Exception {
+        for (var fields : List.of(List.of("model.glb.v1", "test-loader"),
+                List.of("model.gltf.v1", "different-loader"))) {
+            String hash = committedModelFixture(fields.get(0), fields.get(1));
+            db.update("UPDATE wx_3d_resource SET content_hash=? WHERE id=21", hash);
+            assertThrows(ServiceException.class, () -> service.modelPreview("21"));
+        }
+        verifyNoInteractions(signer);
+    }
+
+    @Test void modelPreviewRejectsCorruptManifestWithoutSigning() throws Exception {
+        String hash = committedModelFixture("model.gltf.v1", "test-loader");
+        db.update("UPDATE wx_3d_resource SET content_hash=? WHERE id=21", hash);
+        when(store.readManifest("resources/old/frozen/", "manifest.json")).thenReturn(new byte[]{1});
+        assertThrows(ServiceException.class, () -> service.modelPreview("21"));
+        verifyNoInteractions(signer);
+    }
+
     private String committedModelFixture(String snapshotFormat,String compatibility) throws Exception {
+        return committedModelFixture(snapshotFormat, compatibility, "model.gltf.v1");
+    }
+
+    /** 两种模型入口复用同一真实清单夹具，可独立构造快照格式不一致的拒绝用例。 */
+    private String committedModelFixture(String snapshotFormat,String compatibility,String actualFormat) throws Exception {
+        String modelPath = "model.glb.v1".equals(actualFormat) ? "models/car.glb" : "models/car.gltf";
         var root=json.createObjectNode().put("schemaVersion","wx.model-resource.v1").put("resourceId","21")
-                .put("contentFormat","model.gltf.v1").put("platform","WebGL").put("appCompatibility","test-loader");
-        root.putObject("entry").put("kind","MODEL").put("assetName","car").put("modelPath","models/car.gltf");
+                .put("contentFormat",actualFormat).put("platform","WebGL").put("appCompatibility","test-loader");
+        root.putObject("entry").put("kind","MODEL").put("assetName","car").put("modelPath",modelPath);
         var files=root.putArray("files");
-        for(String path:List.of("models/car.gltf","models/texture.png"))
+        for(String path:List.of(modelPath,"models/texture.png"))
             files.addObject().put("path",path).put("size","1").put("sha256","a".repeat(64));
         String hash=verifier.canonicalHash(root);
         root.put("contentHash",hash);

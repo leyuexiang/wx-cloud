@@ -62,8 +62,49 @@ public class ArtResourceService {
         long pinnedRevision=revision(revision);
         if(pinnedRevision==0 || !ArtResourceManifestVerifier.digest(contentHash)) bad();
         ArtResourceManifestVerifier.requirePath(path);
+        JsonNode snapshot = committedSnapshot(id, revision, contentHash, row);
+        String prefix=snapshot.path("storage_prefix").asText(), manifest=snapshot.path("manifest_path").asText();
+        var files=verifiedSnapshotFiles(snapshot,id,contentHash,prefix,manifest);
+        if(!path.equals(manifest) && files.stream().noneMatch(file->file.path().equals(path)))
+            throw ServiceException.of(NOT_VISIBLE);
+        var signed=signer.sign(prefix,path);
+        return Map.of("fileUrl",signed.get("manifestUrl"),"downloadExpiresAt",signed.get("downloadExpiresAt"));
+    }
+
+    /**
+     * 目录详情复用当前资源可见性和不可变提交快照，只签发真实模型入口。
+     * 一次读取并校验清单后直接签名，避免先取清单地址再走成员接口导致重复存储读取。
+     */
+    public Map<String, String> modelPreview(String id) {
+        var row = visible(id, access.actor(), false);
+        if (!"READY".equals(row.get("content_state")) || !"MODEL".equals(row.get("resource_type"))) {
+            throw ServiceException.of(NOT_VISIBLE);
+        }
+        String revision = Objects.toString(row.get("current_revision"), "");
+        String hash = Objects.toString(row.get("content_hash"), "");
+        if (revision(revision) == 0 || !ArtResourceManifestVerifier.digest(hash)) {
+            throw ServiceException.of(SNAPSHOT_UNAVAILABLE);
+        }
+        JsonNode snapshot = committedSnapshot(id, revision, hash, row);
+        String prefix = snapshot.path("storage_prefix").asText();
+        String manifest = snapshot.path("manifest_path").asText();
+        var checked = modelVerifier.verify(store.readManifest(prefix, manifest), id,
+                snapshot.path("manifest_sha256").asText(), manifest);
+        // 入口、格式、运行平台和兼容标识均以已提交快照为准，任何不一致都不产生下载授权。
+        if (!hash.equals(checked.contentHash()) || !checked.contentFormat().equals(snapshot.path("content_format").asText())
+                || !"WebGL".equals(snapshot.path("platform").asText())
+                || !checked.compatibility().equals(snapshot.path("app_compatibility").asText())) {
+            throw ServiceException.of(CHECKSUM_MISMATCH);
+        }
+        var signed = signer.sign(prefix, checked.modelPath());
+        return Map.of("modelFileUrl", signed.get("manifestUrl"), "downloadExpiresAt", signed.get("downloadExpiresAt"),
+                "resourceRelativePath", prefix + (prefix.endsWith("/") ? "" : "/") + checked.modelPath());
+    }
+
+    /** 文件读取与目录预览共用同一提交快照检查，不能对未提交版本或失配摘要签发地址。 */
+    private JsonNode committedSnapshot(String id, String revision, String contentHash, Map<String, Object> row) {
         var snapshots=jdbc.queryForList("SELECT after_snapshot FROM wx_3d_resource_operation WHERE resource_id=? AND committed_revision=? AND status='COMMITTED' AND resource_scope=? AND tenant_id=?",
-                id(id),pinnedRevision,row.get("resource_scope"),row.get("tenant_id"));
+                id(id),revision(revision),row.get("resource_scope"),row.get("tenant_id"));
         if(snapshots.size()!=1 || snapshots.get(0).get("after_snapshot")==null) throw ServiceException.of(SNAPSHOT_UNAVAILABLE);
         Object saved=snapshots.get(0).get("after_snapshot");
         JsonNode snapshot;
@@ -76,12 +117,7 @@ public class ArtResourceService {
         if(!id.equals(snapshot.path("id").asText()) || !revision.equals(snapshot.path("current_revision").asText()) ||
             !contentHash.equals(snapshot.path("content_hash").asText()) || !"READY".equals(snapshot.path("content_state").asText()) ||
             !"0".equals(snapshot.path("del_flag").asText())) throw ServiceException.of(SNAPSHOT_UNAVAILABLE);
-        String prefix=snapshot.path("storage_prefix").asText(), manifest=snapshot.path("manifest_path").asText();
-        var files=verifiedSnapshotFiles(snapshot,id,contentHash,prefix,manifest);
-        if(!path.equals(manifest) && files.stream().noneMatch(file->file.path().equals(path)))
-            throw ServiceException.of(NOT_VISIBLE);
-        var signed=signer.sign(prefix,path);
-        return Map.of("fileUrl",signed.get("manifestUrl"),"downloadExpiresAt",signed.get("downloadExpiresAt"));
+        return snapshot;
     }
     /** 包内复用同一清单校验；匿名发布入口须先证明冻结引用及票据范围。 */
     List<ArtResourceManifestVerifier.FileSpec> verifiedSnapshotFiles(

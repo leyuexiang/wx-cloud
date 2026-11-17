@@ -1,0 +1,22 @@
+[
+  {
+    "database": "wx_editor",
+    "modelSchemaVerified": true,
+    "schemaSha256": "00293debf929fa24a4acd2c3b9c77e1393a6f35e18463df340d8d200f2364cf3"
+  },
+  {
+    "database": "wx_editor_data08",
+    "modelSchemaVerified": true,
+    "schemaSha256": "00293debf929fa24a4acd2c3b9c77e1393a6f35e18463df340d8d200f2364cf3"
+  },
+  {
+    "database": "wx_model09_main_20261117",
+    "modelSchemaVerified": true,
+    "schemaSha256": "00293debf929fa24a4acd2c3b9c77e1393a6f35e18463df340d8d200f2364cf3"
+  },
+  {
+    "database": "wx_model09_data08_20261117",
+    "modelSchemaVerified": true,
+    "schemaSha256": "00293debf929fa24a4acd2c3b9c77e1393a6f35e18463df340d8d200f2364cf3"
+  }
+]

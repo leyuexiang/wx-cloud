@@ -186,6 +186,26 @@ public class ArtResourceTransactionService {
         long operator=((Number)op.get("operator_id")).longValue();
         if (actor.user() != operator) throw ServiceException.of(INVALID_OPERATION_STATE);
         Map<String, Object> previous = creating ? Map.of() : linked.get(0);
+        boolean redirect = directory.has("catalogTarget");
+        if (redirect) {
+            if (!creating) throw ServiceException.of(INVALID_OPERATION_STATE);
+            var target = directory.path("catalogTarget");
+            var targets = jdbc.queryForList("SELECT * FROM wx_3d_model WHERE id=? AND del_flag='0' FOR UPDATE",
+                    target.path("id").asText());
+            if (targets.size() != 1 || !Dim3dModelWriteService.visible(targets.get(0), actor)) {
+                throw ServiceException.of(NOT_VISIBLE);
+            }
+            previous = targets.get(0);
+            String oldScope = "SYSTEM".equals(previous.get("resource_belong")) ? "GLOBAL_SYSTEM" : "TENANT_SHARED";
+            access.maintain(actor, oldScope, previous.get("tenant_id").toString());
+            // 确认后的另一次目录换文件或归属变更使本次提交冲突，旧目录和候选资源一并回滚。
+            if (!Objects.toString(previous.get("resource_id"), "").equals(target.path("resourceId").asText())
+                    || !Objects.toString(previous.get("model_file_id"), "").equals(target.path("modelFileId").asText())
+                    || !Objects.toString(previous.get("tenant_id"), "").equals(target.path("tenantId").asText())
+                    || !Objects.toString(previous.get("resource_belong"), "").equals(target.path("resourceBelong").asText())) {
+                throw ServiceException.of(REVISION_CONFLICT);
+            }
+        }
         String name=directory.path("modelName").asText(),category=directory.path("category").asText();
         // 旧确认请求没有新增字段。替换从锁定目录保全省略项，显式空值才清空封面或描述。
         Object description = directory.has("modelDesc") ? directory.path("modelDesc").asText() : previous.get("model_desc");
@@ -199,19 +219,26 @@ public class ArtResourceTransactionService {
             if (directory.hasNonNull("coverImageId")) cover = Long.valueOf(directory.path("coverImageId").asText());
         }
         String belong = "GLOBAL_SYSTEM".equals(resource.get("resource_scope")) ? "SYSTEM" : "MINE";
-        if ("MINE".equals(belong) && "PAID".equals(paid)) throw new ServiceException(400, "租户模型仅支持免费");
-        if (directory.hasNonNull("coverImageId")) {
+        if (cover != null && (directory.hasNonNull("coverImageId") || redirect)) {
+            // 改绑目标保留的封面也复核目标归属，归属变更不能沿用无权公开的旧私有封面。
             long coverId = ((Number) cover).longValue();
             boolean retained = previous.get("cover_image_id") instanceof Number id && id.longValue() == coverId;
             images.bindModelCover(coverId, actor, belong, retained);
         }
-        if(creating) {
+        if(creating && !redirect) {
             // 目录的主键单独生成，受管模型通过资源主键关联，旧文件编号为空。
             jdbc.update("""
                     INSERT INTO wx_3d_model(resource_id,model_file_id,tenant_id,model_name,category,model_desc,
                         resource_belong,is_paid,price,cover_image_id,status,data_user_id,create_by,update_by)
                     VALUES(?,NULL,?,?,?,?,?,?,?,?,'ONLINE',?,?,?)
                     """, resourceId,owner,name,category,description,belong,paid,price,cover,operator,operator,operator);
+        } else if (redirect) {
+            jdbc.update("""
+                    UPDATE wx_3d_model SET resource_id=?,model_file_id=NULL,tenant_id=?,resource_belong=?,data_user_id=?,
+                        model_name=?,category=?,model_desc=?,is_paid=?,price=?,cover_image_id=?,update_by=?,
+                        update_time=CURRENT_TIMESTAMP WHERE id=?
+                    """, resourceId, owner, belong, operator, name, category, description, paid, price, cover, operator,
+                    previous.get("id"));
         } else {
             jdbc.update("UPDATE wx_3d_model SET model_name=?,category=?,model_desc=?,is_paid=?,price=?,cover_image_id=?,update_by=? WHERE id=?",
                     name,category,description,paid,price,cover,operator,linked.get(0).get("id"));

@@ -33,17 +33,25 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /** 新资源目录实现，查询只返回分页所需记录，避免加载大字段。 */
 @Service
 public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogService {
 
-    /** 公共目录跨租户可读；个人目录同时匹配可信租户和上传账号，历史空账号回退创建人。 */
+    /** 复用既有目录范围修复：公共租户系统模型共享，个人模型同时匹配租户及账号。 */
     private static final String MODEL_VISIBLE = "del_flag='0' AND ((resource_belong='SYSTEM' AND tenant_id='0')"
             + " OR (resource_belong='MINE' AND tenant_id=? AND COALESCE(data_user_id,create_by)=?))";
     private static final BeanPropertyRowMapper<Dim3dModel> MODEL_ROW = new BeanPropertyRowMapper<>(Dim3dModel.class);
+    /** 请求值只映射为固定数据库列，不能把外部排序文本直接拼入查询。 */
+    private static final Map<String, String> MODEL_SORT_COLUMNS = Map.of(
+            "id", "id", "modelName", "model_name", "category", "category", "resourceBelong", "resource_belong",
+            "status", "status", "isPaid", "is_paid", "price", "price", "priceYuan", "price",
+            "createTime", "create_time", "updateTime", "update_time");
     @Resource private JdbcTemplate jdbc;
     @Resource private cn.iocoder.wx.module.dimensions.service.ArtResourceAccess access;
+    /** 模型写入集中处理归属、文件关系、发布和删除，复用既有基础事务。 */
+    @Resource private cn.iocoder.wx.module.dimensions.service.Dim3dModelWriteService models;
 
     @Resource private Dim3dModelMapper modelMapper;
     @Resource private Dim3dTemplateMapper templateMapper;
@@ -58,10 +66,61 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
     @Value("${dim3d.resource-convert-url:}")
     private String convertUrl;
 
-    @Override public Long createModel(Dim3dModel model) { legacy(model); applyTenant(model); modelMapper.insert(model); return model.getId(); }
-    @Override public void updateModel(Long id, Dim3dModel model) { legacy(getModel(id)); legacy(model); applyTenant(model); model.setId(id); require(modelMapper.updateById(model)); }
-    /** 详情复用列表可见范围，避免公共卡片可见但打开详情失败或个人编号被越权读取。 */
+    @Override public Long createModel(Dim3dModel model) { return models.create(model); }
+    @Override public void updateModel(Long id, Dim3dModel model) { models.update(id, model); }
+    /** 目录授权后按需生成预览，避免列表逐条读取对象存储，也不让写入依赖预览服务可用性。 */
     @Override public Dim3dModel getModel(Long id) {
+        return modelDetails(findModel(id));
+    }
+
+    /** 在完成目录授权的对象上补充文件投影，内部数据库关联不受响应字段影响。 */
+    private Dim3dModel modelDetails(Dim3dModel model) {
+        if (model.getResourceId() != null) {
+            var preview = artResources.modelPreview(model.getResourceId().toString());
+            model.setModelFileUrl(preview.get("modelFileUrl"));
+            model.setDownloadExpiresAt(preview.get("downloadExpiresAt"));
+            model.setResourceRelativePath(preview.get("resourceRelativePath"));
+            model.setModelFileId(model.getResourceId());
+        } else if (model.getModelFileId() != null) {
+            // 历史文件编号只关联同归属租户的模型转换记录，不能用兄弟资源或任意文件地址补全。
+            var paths = jdbc.queryForList("SELECT resource_relative_path FROM wx_3d_resource"
+                    + " WHERE id=? AND tenant_id=? AND resource_type='MODEL' AND del_flag='0' AND resource_scope IS NULL",
+                    String.class, model.getModelFileId(), model.getTenantId());
+            if (paths.size() != 1 || !StringUtils.hasText(paths.get(0))) {
+                throw new ServiceException(400, "模型关联资源缺少有效预览路径");
+            }
+            model.setResourceRelativePath(paths.get(0));
+        }
+        return model;
+    }
+
+    /** 同一文件可出现在多个历史目录，授权命中任一当前可见目录后仅读取一份元信息。 */
+    @Override public Map<String, Object> getModelResource(Long id) {
+        var actor = access.actor();
+        var rows = jdbc.query("SELECT * FROM wx_3d_model WHERE (model_file_id=? OR resource_id=?) AND "
+                        + MODEL_VISIBLE + " ORDER BY id LIMIT 1", MODEL_ROW,
+                id, id, Long.toString(actor.tenant()), actor.user());
+        if (rows.isEmpty()) throw ServiceException.of(ErrorCodeConstants.DATA_NOT_EXIST);
+        var model = modelDetails(rows.get(0));
+        var resources = jdbc.queryForList("SELECT resource_name,resource_type,asset_name FROM wx_3d_resource"
+                + " WHERE id=? AND del_flag='0'", id);
+        if (resources.size() != 1 || !"MODEL".equals(resources.get(0).get("resource_type"))) {
+            throw ServiceException.of(ErrorCodeConstants.DATA_NOT_EXIST);
+        }
+        var resource = resources.get(0);
+        Map<String, Object> result = new java.util.LinkedHashMap<>();
+        result.put("id", id.toString());
+        result.put("resourceName", resource.get("resource_name"));
+        result.put("resourceType", resource.get("resource_type"));
+        result.put("assetName", resource.get("asset_name"));
+        result.put("resourceRelativePath", model.getResourceRelativePath());
+        result.put("modelFileUrl", model.getModelFileUrl());
+        result.put("downloadExpiresAt", model.getDownloadExpiresAt());
+        return result;
+    }
+
+    /** 详情及写入预检共用可见范围，历史空上传账号回退创建人，未知所有者保持不可见。 */
+    private Dim3dModel findModel(Long id) {
         var actor = access.actor();
         List<Dim3dModel> rows = jdbc.query("SELECT * FROM wx_3d_model WHERE id=? AND " + MODEL_VISIBLE,
                 MODEL_ROW, id, Long.toString(actor.tenant()), actor.user());
@@ -69,8 +128,14 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
         return rows.get(0);
     }
 
-    /** 显式绑定公共及个人范围，计数和分页共用条件，避免通用租户拦截隐藏公共模型。 */
     @Override public PageResult<Dim3dModel> getModelPage(String name, String belong, String status, String paid, String category, Integer num, Integer size) {
+        return getModelPage(name, belong, status, paid, category, num, size, null, null);
+    }
+
+    /** 计数和分页复用相同范围，单页只执行两次数据库查询，不循环签发模型地址。 */
+    @Override public PageResult<Dim3dModel> getModelPage(String name, String belong, String status, String paid, String category,
+                                                      Integer num, Integer size, String orderByColumn, String isAsc) {
+        String order = modelOrder(orderByColumn, isAsc);
         var actor = access.actor();
         StringBuilder where = new StringBuilder(" FROM wx_3d_model WHERE ").append(MODEL_VISIBLE);
         List<Object> args = new ArrayList<>();
@@ -84,9 +149,21 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
         Long total = jdbc.queryForObject("SELECT COUNT(*)" + where, Long.class, args.toArray());
         args.add(pageSize(size));
         args.add(((long) pageNum(num) - 1) * pageSize(size));
-        List<Dim3dModel> rows = jdbc.query("SELECT *" + where + " ORDER BY id DESC LIMIT ? OFFSET ?",
-                MODEL_ROW, args.toArray());
+        List<Dim3dModel> rows = jdbc.query("SELECT *" + where + order + " LIMIT ? OFFSET ?", MODEL_ROW, args.toArray());
+        // 对外文件编号映射只作用于查询结果，受管记录的历史文件列继续保持空值。
+        rows.forEach(model -> { if (model.getResourceId() != null) model.setModelFileId(model.getResourceId()); });
         return new PageResult<>(rows, total == null ? 0 : total);
+    }
+
+    /** 默认按编号倒序；其他列追加编号作为同值排序键，避免跨页顺序不稳定。 */
+    private static String modelOrder(String requestedColumn, String requestedDirection) {
+        String column = StringUtils.hasText(requestedColumn) ? MODEL_SORT_COLUMNS.get(requestedColumn) : "id";
+        String direction = StringUtils.hasText(requestedDirection) ? requestedDirection.toLowerCase(Locale.ROOT) : "desc";
+        if (column == null || !List.of("asc", "desc").contains(direction)) {
+            throw new ServiceException(400, "模型排序字段或方向无效");
+        }
+        String order = " ORDER BY " + column + " " + direction;
+        return "id".equals(column) ? order : order + ", id DESC";
     }
 
     @Override public Long createIcon(Dim3dIcon icon) { return images.create(icon); }
@@ -107,10 +184,10 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
         return new PageResult<>(page.getRecords(), page.getTotal());
     }
 
-    @Override public void changeModelStatus(Long id, String status) { legacy(getModel(id)); checkStatus(status); Dim3dModel e = new Dim3dModel(); e.setId(id); e.setStatus(status); require(modelMapper.updateById(e)); }
+    @Override public void changeModelStatus(Long id, String status) { legacy(findModel(id)); checkStatus(status); Dim3dModel e = new Dim3dModel(); e.setId(id); e.setStatus(status); require(modelMapper.updateById(e)); }
     @Override public void changeIconStatus(Long id, String status) { legacy(getIcon(id)); images.changeStatus(id, status); }
     @Override public void changeTemplateStatus(Long id, String status) { legacy(getTemplate(id)); checkStatus(status); Dim3dTemplate e = new Dim3dTemplate(); e.setId(id); e.setStatus(status); require(templateMapper.updateById(e)); }
-    @Override public void deleteModel(Long id) { legacy(getModel(id)); require(modelMapper.deleteById(id)); }
+    @Override public void deleteModel(Long id) { models.delete(id); }
     @Override public void deleteIcon(Long id) { legacy(getIcon(id)); images.delete(id); }
     @Override public void deleteTemplate(Long id) { legacy(getTemplate(id)); require(templateMapper.deleteById(id)); }
 
@@ -142,7 +219,12 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
             // 全局/受管资源即使被租户拦截隐藏，也不能由旧转换回执按同号覆盖。
             artResources.guardLegacyResource(resource.getId());
             // 转换服务返回的归属不能覆盖当前认证上下文，避免跨租户写入或误归到历史默认租户。
-            resource.setTenantId(String.valueOf(TenantContextHolder.getRequiredTenantId()));
+            var actor = access.actor();
+            resource.setTenantId(Long.toString(actor.tenant()));
+            // 旧转换服务同样不能指定可信上传账号，目录保存据此检查文件归属。
+            resource.setDataUserId(actor.user());
+            resource.setCreateBy(actor.user());
+            resource.setUpdateBy(actor.user());
             if (convertedResourceMapper.selectById(resource.getId()) == null) convertedResourceMapper.insert(resource);
             else convertedResourceMapper.updateById(resource);
             return resource;
