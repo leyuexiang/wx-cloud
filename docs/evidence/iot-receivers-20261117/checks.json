@@ -1,0 +1,23 @@
+{
+  "tests": {
+    "tests": 23,
+    "passed": 23,
+    "skipped": 0,
+    "exitCode": 0
+  },
+  "workstationProtocolComplete": true,
+  "receiverProcesses": 5,
+  "actualBrowserPlayers": 0,
+  "businessApplicationDeployed": false,
+  "schemaMigration": false,
+  "expectedAuditMessages": 128020,
+  "expectedCapacityTickets": 252,
+  "sourceFiles": {
+    "measure-capacity.py": "38c92cdb7d0c18f4039b1129f2dc7d6398d4812b5a5b1276645d2d44602cad68",
+    "capacity_receivers.py": "e5dc599610072dc7c2e2d498f782906b25fb3a8c834ac84b42cd5f45b1828ba9",
+    "test_measure_capacity.py": "17c0cbd2a558a6e11cd9898477e3c49a8c951a23c25e7f0ff0877186bc745fc0"
+  },
+  "historicalHighLatencyRootCauseProven": false,
+  "temporaryCredentialsAndResourcesRemoved": true,
+  "local18885TunnelStoppedAfterProcessCheck": true
+}

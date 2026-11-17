@@ -1,0 +1,10 @@
+{
+  "temporaryIngestAndBrokerRemoved": true,
+  "certificateCopiesRemoved": true,
+  "credentialsFileRemoved": true,
+  "temporaryLoadDirectoryRemoved": true,
+  "helperScriptsRemoved": true,
+  "temporaryBrokerPortClosed": true,
+  "residentAndRollbackPreserved": true,
+  "publicIdentityAuditRetained": "/home/wx-iot-receivers-identities-20261117"
+}

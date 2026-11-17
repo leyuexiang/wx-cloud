@@ -60,7 +60,12 @@ def numeric_sequence(value):
 
 class SentClock:
     """固定容量单调时钟，零表示尚未发送，不能冒充有效延迟起点。"""
-    def __init__(self, total):
+    def __init__(self, total, shared=None):
+        if shared is not None:
+            self.values, self.counter = shared
+            if len(self.values) != total + 1:
+                raise ValueError('共享时钟容量不匹配')
+            return
         context = multiprocessing.get_context('spawn')
         self.values = context.RawArray('q', total + 1)
         self.counter = context.RawValue('i', 0)
@@ -91,10 +96,18 @@ class SentClock:
 
 class DeliveryMetrics:
     """位图精确核对完整性；固定直方图保守向上取整，不保存逐帧对象。"""
-    def __init__(self, total):
-        self.seen = bytearray(total + 1)
-        self.histogram = array('I', [0]) * 60002
-        self.received = self.duplicates = self.maximum = 0
+    def __init__(self, total, shared=None):
+        if shared is not None and (len(shared.seen) != total + 1 or len(shared.histogram) != 60002):
+            raise ValueError('共享统计缓冲容量不匹配')
+        self.seen = shared.seen if shared is not None else bytearray(total + 1)
+        self.histogram = shared.histogram if shared is not None else array('I', [0]) * 60002
+        self.stats = shared.stats if shared is not None else [0] * 4
+
+    # 普通线程和进程共享缓冲使用同一校验与统计算法，避免对照模式改变验收语义。
+    received = property(lambda self: self.stats[0], lambda self, value: self.stats.__setitem__(0, value))
+    duplicates = property(lambda self: self.stats[1], lambda self, value: self.stats.__setitem__(1, value))
+    maximum = property(lambda self: self.stats[2], lambda self, value: self.stats.__setitem__(2, value))
+    renewal_acks = property(lambda self: self.stats[3], lambda self, value: self.stats.__setitem__(3, value))
 
     def record(self, sequence, latency_ms):
         sequence = numeric_sequence(sequence)
@@ -111,7 +124,7 @@ class DeliveryMetrics:
         return True
 
     def storage_bytes(self):
-        return len(self.seen) + len(self.histogram) * self.histogram.itemsize
+        return len(self.seen) + len(self.histogram) * 4 + len(self.stats) * 4
 
     def percentiles(self):
         return histogram_percentiles(self.histogram, self.received, self.maximum)
@@ -280,11 +293,12 @@ def cleanup(api, config, path):
 
 
 class Viewer:
-    def __init__(self, api, config, state, rows, number, sent, stop, ticket=None):
+    def __init__(self, api, config, state, rows, number, sent, stop, ticket=None, metrics=None, errors=None):
         self.number, self.sent, self.stop = number, sent, stop
         self.user_id = api.user_id
         self.rows, self.scene_id, self.tenant_id = rows, state['sceneId'], config['tenantId']
-        self.metrics, self.errors = DeliveryMetrics(len(sent.values) - 1), []
+        self.metrics = metrics if metrics is not None else DeliveryMetrics(len(sent.values) - 1)
+        self.errors = errors if errors is not None else []
         self.renewal_acks = 0
         self.last_renew = time.monotonic()
         self.frames = [{'requestId': f'capacity-{number}-{i}', **subscription_scope(state, ticket), 'bindings': [
@@ -316,6 +330,14 @@ class Viewer:
     def send(self, frame):
         with self.send_lock:
             self.socket.send(json.dumps({'type': 'iot-state-subscribe', 'content': json.dumps(frame)}))
+
+    @property
+    def renewal_acks(self):
+        return self.metrics.renewal_acks
+
+    @renewal_acks.setter
+    def renewal_acks(self, value):
+        self.metrics.renewal_acks = value
 
     def receive(self):
         while True:
@@ -432,19 +454,22 @@ def publish_messages(config, mqtt_password, state, rows, cycles, sent, publisher
         output.close()
 
 
-def measure(api, config, secrets, state, count, clients, cycles, scope='draft'):
+def measure(api, config, secrets, state, count, clients, cycles, scope='draft', receiver_processes=0):
     rows = state['devices'][:count]
     if len(rows) != count:
         raise ValueError('设备清单不足')
     viewers, sent, tickets, viewer_apis = [], SentClock(count * cycles), [], []
     stop = threading.Event()
+    receiver_group = None
     begun = time.monotonic()
     report = {'logicalDevices': count, 'intervalSeconds': 5, 'clients': clients,
         'bindingsPerClient': count, 'mqttConnections': 1, 'distinctAccounts': 1, 'cycles': cycles,
         'expectedMessages': count * cycles, 'expectedDeliveries': count * cycles * clients,
         'targetMessagesPerSecond': count / 5, 'clockSource': '同一负载发生器的单调时钟',
         'renderingMeasured': False, 'subscriptionScope': scope, 'passed': False,
-        'latencyResolutionMs': 1, 'latencyRounding': 'ceil', 'minuteSamples': []}
+        'latencyResolutionMs': 1, 'latencyRounding': 'ceil', 'minuteSamples': [],
+        'receiverProcesses': receiver_processes,
+        'receiverIsolation': 'spawn-process-shared-metrics' if receiver_processes else 'threads-in-parent'}
     try:
         open_viewer_apis(config, secrets, clients, viewer_apis)
         report['distinctAccounts'] = len(viewer_apis) if viewer_apis else 1
@@ -457,18 +482,29 @@ def measure(api, config, secrets, state, count, clients, cycles, scope='draft'):
                     expiresInSeconds=1200), 'POST'))
         report['distinctTickets'] = len(tickets)
         # 限制建连并发，避免把同时握手突发和稳态消息容量混在一起。
-        with ThreadPoolExecutor(max_workers=5) as pool:
-            futures = [pool.submit(Viewer, viewer_apis[i] if viewer_apis else api, config, state, rows, i, sent, stop,
-                tickets[i] if tickets else None) for i in range(clients)]
-            setup_errors = []
-            for future in as_completed(futures):
-                try:
-                    viewers.append(future.result())
-                except Exception as error:
-                    setup_errors.append(type(error).__name__)
-            if setup_errors:
-                report['setupErrors'] = setup_errors
-                raise RuntimeError('部分订阅连接未建立')
+        if receiver_processes:
+            # 延迟加载新增模块，保留已有从其他目录动态加载本工具管理 API 的调用方。
+            from capacity_receivers import ProcessReceiverGroup
+            receiver_group = ProcessReceiverGroup(multiprocessing.get_context('spawn'), clients,
+                receiver_processes, count * cycles, DeliveryMetrics)
+            assignments = [{'number': i, 'userId': (viewer_apis[i] if viewer_apis else api).user_id,
+                'token': (viewer_apis[i] if viewer_apis else api).token,
+                'ticket': tickets[i] if tickets else None} for i in range(clients)]
+            viewers = receiver_group.start(config, {key: state[key] for key in ('sceneId', 'publicationId') if key in state},
+                rows, assignments, sent)
+        else:
+            with ThreadPoolExecutor(max_workers=5) as pool:
+                futures = [pool.submit(Viewer, viewer_apis[i] if viewer_apis else api, config, state, rows, i, sent, stop,
+                    tickets[i] if tickets else None) for i in range(clients)]
+                setup_errors = []
+                for future in as_completed(futures):
+                    try:
+                        viewers.append(future.result())
+                    except Exception as error:
+                        setup_errors.append(type(error).__name__)
+                if setup_errors:
+                    report['setupErrors'] = setup_errors
+                    raise RuntimeError('部分订阅连接未建立')
         report['setupSeconds'] = round(time.monotonic() - begun, 3)
         print(json.dumps({'stage': 'subscribed', **{k: report[k] for k in ('logicalDevices', 'clients', 'setupSeconds')}}), flush=True)
         # 发送进程与五十个接收线程隔离；仍使用同一操作系统单调时钟和固定数组。
@@ -477,15 +513,23 @@ def measure(api, config, secrets, state, count, clients, cycles, scope='draft'):
         incoming, outgoing = context.Pipe(duplex=False)
         publisher = context.Process(target=publish_messages,
             args=(config, secrets['mqttPassword'], state, rows, cycles, sent, publisher_stop, outgoing))
-        publisher.start()
-        outgoing.close()
-        parent_cpu_start = time.process_time()
-        next_cycle, next_minute = count, count * 12
-        monitor_abort = None
+        publisher_started = False
         try:
+            # 从计时确认前即持有管道清理责任，启动失败也不能泄漏控制句柄。
+            if receiver_group:
+                receiver_group.begin_measurement()
+            publisher.start()
+            publisher_started = True
+            outgoing.close()
+            parent_cpu_start = time.process_time()
+            next_cycle, next_minute = count, count * 12
+            monitor_abort = None
             while not incoming.poll(.1):
                 attempted = len(sent)
-                if any(viewer.errors for viewer in viewers):
+                if receiver_group and not receiver_group.check_health():
+                    monitor_abort = 'receiver-process-error'
+                    publisher_stop.set()
+                elif any(viewer.errors for viewer in viewers):
                     monitor_abort = 'viewer-error'
                     publisher_stop.set()
                 elif attempted > count * 2 and min(v.metrics.received for v in viewers) < attempted - count * 2:
@@ -521,16 +565,35 @@ def measure(api, config, secrets, state, count, clients, cycles, scope='draft'):
             report['publisherIsolation'] = 'spawn-process-shared-clock'
         finally:
             publisher_stop.set()
-            publisher.join(timeout=12)
-            if publisher.is_alive():
-                publisher.terminate()
-                publisher.join(timeout=3)
+            if publisher_started:
+                publisher.join(timeout=12)
+                if publisher.is_alive():
+                    publisher.terminate()
+                    publisher.join(timeout=3)
+            else:
+                outgoing.close()
             incoming.close()
         drain_start = time.monotonic()
         while time.monotonic() - drain_start < 20 and any(v.metrics.received < len(sent) for v in viewers) and not any(v.errors for v in viewers):
+            if receiver_group and not receiver_group.check_health():
+                break
             time.sleep(.2)
+        drain_seconds = time.monotonic() - drain_start
+        if receiver_group:
+            # 先冻结所属接收线程再读取分位数与计数，清理失败不能变成容量通过。
+            receiver_cpu = receiver_group.stop()
+            report['receiverCpuSeconds'] = round(receiver_cpu, 3)
+            report['receiverProcessCpuSeconds'] = [round(receiver_group.final[index]['cpuSeconds'], 3)
+                if index in receiver_group.final else None for index in range(len(receiver_group.processes))]
+            report['receiverErrors'] = receiver_group.errors()
+            report['receiverShutdownSeconds'] = round(time.monotonic() - drain_start - drain_seconds, 3)
+        # 两种接收模式均计入排空阶段的 CPU；接收进程的准备阶段不计入发送窗口。
+        parent_cpu = time.process_time() - parent_cpu_start
+        report['parentCpuSeconds'] = round(parent_cpu, 3)
+        report['loadGeneratorCpuSeconds'] = round(parent_cpu + result['publisherCpuSeconds'] + report.get('receiverCpuSeconds', 0), 3)
+        report['cpuMeasurementWindow'] = 'publish-start-through-receiver-drain-and-stop'
         report.update(messagesAcknowledged=acknowledged, mqttMaxInFlight=20, uniqueDeliveries=sum(v.metrics.received for v in viewers),
-            duplicateDeliveries=sum(v.metrics.duplicates for v in viewers), drainSeconds=round(time.monotonic() - drain_start, 3),
+            duplicateDeliveries=sum(v.metrics.duplicates for v in viewers), drainSeconds=round(drain_seconds, 3),
             clientErrors=[{'client': v.number, 'errors': v.errors} for v in viewers if v.errors])
         report['clientResults'] = [{'client': v.number, 'userId': v.user_id, 'received': v.metrics.received,
             'missing': count * cycles - v.metrics.received, 'renewalAcks': v.renewal_acks,
@@ -541,15 +604,21 @@ def measure(api, config, secrets, state, count, clients, cycles, scope='draft'):
         report['deliveryComplete'] = not report['abortReason'] and not report['clientErrors'] and len(sent) == count * cycles and all(v.metrics.received == len(sent) and not v.metrics.duplicates for v in viewers)
         # 以一个上报周期作为本轮工程观察门槛，正式延迟指标仍需业务单独签收。
         report['latencyGateMs'] = 5000
-        report['passed'] = report['deliveryComplete'] and report['latencyMs']['p95'] is not None and report['latencyMs']['p95'] <= report['latencyGateMs']
+        report['passed'] = report['deliveryComplete'] and not report.get('receiverErrors') and report['latencyMs']['p95'] is not None and report['latencyMs']['p95'] <= report['latencyGateMs']
     except Exception as error:
         # 失败也保留已建立连接和已发送数量，原始异常不包含在公开报告中。
         report.update(failureType=type(error).__name__, messagesAttempted=len(sent),
             uniqueDeliveries=sum(v.metrics.received for v in viewers))
     finally:
         stop.set()
-        for viewer in viewers:
-            viewer.close()
+        if receiver_group:
+            receiver_group.stop()
+            report['receiverErrors'] = receiver_group.errors()
+            if report['receiverErrors']:
+                report['passed'] = False
+        else:
+            for viewer in viewers:
+                viewer.close()
         revoked, revoke_failures = 0, 0
         for ticket in tickets:
             try:
@@ -585,9 +654,13 @@ def main():
     parser.add_argument('--clients', type=int, default=50)
     parser.add_argument('--cycles', type=int, default=12)
     parser.add_argument('--scope', choices=['draft', 'publication'], default='draft')
+    parser.add_argument('--receiver-processes', type=int, default=0,
+                        help='0 保留原线程模式；1～5 开启有界接收分进程')
     args = parser.parse_args()
     if not 1 <= args.devices <= 1000 or not 1 <= args.clients <= 50 or not 1 <= args.cycles <= 120:
         parser.error('本工具限于 1000 逻辑设备、50 条连接及 120 轮，禁止无界压力')
+    if args.receiver_processes < 0 or args.receiver_processes > min(5, args.clients):
+        parser.error('接收进程必须为零到五个，且不能超过客户端数')
     config = json.loads(args.config.read_text(encoding='utf-8'))
     secrets = json.load(sys.stdin)
     api = Api(config, secrets)
@@ -598,7 +671,7 @@ def main():
             result = cleanup(api, config, args.state)
         else:
             result = measure(api, config, secrets, json.loads(args.state.read_text(encoding='utf-8')),
-                args.devices, args.clients, args.cycles, args.scope)
+                args.devices, args.clients, args.cycles, args.scope, args.receiver_processes)
         remember(args.report, result)
         print(json.dumps({k: v for k, v in result.items() if k != 'clientResults'}, ensure_ascii=False), flush=True)
         if args.action == 'run' and not result.get('passed'):

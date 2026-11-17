@@ -1,0 +1,13 @@
+{
+  "tenantId": 1276675,
+  "tag": "capacity-ce79a2f9a98e",
+  "inboxCounts": {
+    "PUBLISHED": 128020
+  },
+  "inboxTotal": 128020,
+  "ticketCounts": {
+    "REVOKED": 252
+  },
+  "expectedAccepted": 128020,
+  "expectedTickets": 252
+}

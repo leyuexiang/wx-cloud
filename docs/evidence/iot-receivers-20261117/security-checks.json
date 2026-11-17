@@ -1,0 +1,8 @@
+{
+  "crossTenantTicket": "FORBIDDEN",
+  "forgedTenantHandshakeStatus": 403,
+  "missingPermissionHandshakeStatus": 403,
+  "anonymousHandshakeStatus": 401,
+  "testTicketsRevoked": 1,
+  "sessionsLoggedOut": 3
+}

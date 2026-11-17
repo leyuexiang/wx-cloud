@@ -1,0 +1,11 @@
+{
+  "sourceFiles": {
+    "measure-capacity.py": "f508120711e30494c95ef4593d079b44126a710a03aad8147ff77b1178cd99df",
+    "capacity_receivers.py": "e5dc599610072dc7c2e2d498f782906b25fb3a8c834ac84b42cd5f45b1828ba9",
+    "probe-mqtt.py": "694107c89ea726e7a8e9979b97e5559dc8c527888aace148a739e8c3452315c5",
+    "test_measure_capacity.py": "3c6ffd6b24cecc3e39c765bda1705a6338a0236999b91f3398a6797ae8fdc18c"
+  },
+  "tenMinuteRun": "processes-10min.json",
+  "shortComparisonDifference": "短轮没有新增逐接收进程 CPU 列表及新增准备失败单元测试；业务接收/校验逻辑相同",
+  "businessApplicationsChanged": false
+}

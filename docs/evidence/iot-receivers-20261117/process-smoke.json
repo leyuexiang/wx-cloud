@@ -1,0 +1,79 @@
+{
+  "logicalDevices": 10,
+  "intervalSeconds": 5,
+  "clients": 2,
+  "bindingsPerClient": 10,
+  "mqttConnections": 1,
+  "distinctAccounts": 2,
+  "cycles": 2,
+  "expectedMessages": 20,
+  "expectedDeliveries": 40,
+  "targetMessagesPerSecond": 2.0,
+  "clockSource": "同一负载发生器的单调时钟",
+  "renderingMeasured": false,
+  "subscriptionScope": "publication",
+  "passed": true,
+  "latencyResolutionMs": 1,
+  "latencyRounding": "ceil",
+  "minuteSamples": [],
+  "receiverProcesses": 2,
+  "receiverIsolation": "spawn-process-shared-metrics",
+  "distinctTickets": 2,
+  "setupSeconds": 0.615,
+  "publishSeconds": 9.502,
+  "maximumAckBatchSeconds": 0.001,
+  "publisherCpuSeconds": 0.0,
+  "abortReason": null,
+  "messagesAcknowledged": 20,
+  "loadGeneratorCpuSeconds": 0.0,
+  "publisherIsolation": "spawn-process-shared-clock",
+  "receiverCpuSeconds": 0,
+  "receiverErrors": [],
+  "receiverShutdownSeconds": 0.037,
+  "parentCpuSeconds": 0.0,
+  "cpuMeasurementWindow": "publish-start-through-receiver-drain-and-stop",
+  "mqttMaxInFlight": 20,
+  "uniqueDeliveries": 40,
+  "duplicateDeliveries": 0,
+  "drainSeconds": 0.201,
+  "clientErrors": [],
+  "clientResults": [
+    {
+      "client": 0,
+      "userId": "1276779",
+      "received": 20,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 23,
+        "p95": 612,
+        "p99": 1111
+      }
+    },
+    {
+      "client": 1,
+      "userId": "1276780",
+      "received": 20,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 23,
+        "p95": 612,
+        "p99": 1111
+      }
+    }
+  ],
+  "latencyMs": {
+    "p50": 23,
+    "p95": 612,
+    "p99": 1111
+  },
+  "metricStorageBytes": 480262,
+  "deliveryComplete": true,
+  "latencyGateMs": 5000,
+  "ticketsRevoked": 2,
+  "ticketRevokeFailures": 0,
+  "viewerSessionsLoggedOut": 2,
+  "viewerLogoutFailures": 0,
+  "totalSeconds": 10.911
+}
