@@ -1,0 +1,92 @@
+{
+  "task": "IOT-M3-04",
+  "publicationId": "PUB-2122272471983910914",
+  "sceneId": "2122269441737682946",
+  "objectId": "lab-switch-model",
+  "source": "已部署的 Unity 网页播放器与真实 MQTT 模拟器",
+  "updates": [
+    {
+      "eventId": "eca7de03-575a-30a7-9e51-5ecd6d3a1e18",
+      "sceneId": "2122269441737682946",
+      "objectId": "lab-switch-model",
+      "value": false
+    },
+    {
+      "eventId": "3207f1a2-9b58-381e-b9db-a170a8ad53f1",
+      "sceneId": "2122269441737682946",
+      "objectId": "lab-switch-model",
+      "value": true
+    }
+  ],
+  "sceneLoads": 1,
+  "runtimeEditCommits": 0,
+  "pageReloaded": false,
+  "pixelComparison": {
+    "hiddenChangedPixels": 305701,
+    "restoredChangedPixels": 0
+  },
+  "mqttxDirectPublish": {
+    "before": {
+      "eventId": "ca06ec16-1a52-3053-acc2-94a0e1c956e0",
+      "schemaVersion": "1.0",
+      "eventTime": "2026-11-16T10:55:27.997Z",
+      "tenantId": 2,
+      "deviceId": "lab-switch-01",
+      "pointCode": "visible",
+      "value": false,
+      "valueType": "BOOLEAN",
+      "unit": null,
+      "quality": "GOOD",
+      "sceneId": "2122269441737682946",
+      "objectId": "lab-switch-model",
+      "mappingRevision": "lab-v1",
+      "replay": false,
+      "traceId": "cb9fdd32695847e683aeb9bf69acf9f2"
+    },
+    "after": {
+      "eventId": "833aed13-4ace-3977-ad3a-9008bc0bb89d",
+      "schemaVersion": "1.0",
+      "eventTime": "2026-11-16T10:58:43.435Z",
+      "tenantId": 2,
+      "deviceId": "lab-switch-01",
+      "pointCode": "visible",
+      "value": true,
+      "valueType": "BOOLEAN",
+      "unit": null,
+      "quality": "GOOD",
+      "sceneId": "2122269441737682946",
+      "objectId": "lab-switch-model",
+      "mappingRevision": "lab-v1",
+      "replay": false,
+      "traceId": "814d2d36ea3d4abfa52bac8171d48d0e"
+    },
+    "inbox": [
+      {
+        "id": 58,
+        "eventId": "833aed13-4ace-3977-ad3a-9008bc0bb89d",
+        "connectorId": "iot-resident-20261113",
+        "externalDeviceId": "virtual-switch",
+        "pointCode": "visible",
+        "status": "PUBLISHED",
+        "retryCount": 0,
+        "receivedAt": 1794826740000,
+        "errorMessage": null,
+        "createTime": 1794826740000,
+        "updateTime": 1794826740000
+      },
+      {
+        "id": 57,
+        "eventId": "ca06ec16-1a52-3053-acc2-94a0e1c956e0",
+        "connectorId": "iot-resident-20261113",
+        "externalDeviceId": "virtual-switch",
+        "pointCode": "visible",
+        "status": "PUBLISHED",
+        "retryCount": 0,
+        "receivedAt": 1794826546000,
+        "errorMessage": null,
+        "createTime": 1794826546000,
+        "updateTime": 1794826546000
+      }
+    ]
+  }
+}
