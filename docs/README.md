@@ -57,6 +57,8 @@
 
 ## 3. 合同、证据和样例
 
+模型五类接口的远端合并、双库发布、签名回读与清理见 [MODEL-09 发布验收](evidence/model09-20261117/README.md)。
+
 | 资料 | 位置和使用方式 |
 | --- | --- |
 | 既有 ART 可校验合同 | [contracts/art01](../contracts/art01/README.md)，包括接口、结构和样例 |

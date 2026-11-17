@@ -1,6 +1,5 @@
 """使用真实登录、转换器及私有对象存储验证模型五类接口，结果仅保留断言和清理状态。"""
 import argparse
-import hashlib
 import importlib.util
 import json
 from pathlib import Path
