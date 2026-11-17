@@ -1,6 +1,8 @@
 package cn.iocoder.wx.module.dimensions.controller.admin;
 
 import cn.iocoder.wx.framework.common.pojo.CommonResult;
+import cn.iocoder.wx.framework.apilog.core.annotation.ApiAccessLog;
+import jakarta.servlet.http.HttpServletResponse;
 import cn.iocoder.wx.framework.common.pojo.PageResult;
 import cn.iocoder.wx.module.dimensions.service.Dim3dSceneService;
 import cn.iocoder.wx.module.dimensions.service.ScenePublicationService;
@@ -60,6 +62,17 @@ public class Dim3dSceneController {
         return CommonResult.success(publicationService.publish(sceneId, revisionNo, requestId));
     }
 
+    /** 管理界面只展示本服务已实现的发布能力，角色与写操作保持一致。 */
+    @GetMapping("/publication/capabilities") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Map<String, Object>> publicationCapabilities() {
+        return CommonResult.success(publicationService.capabilities());
+    }
+
+    @PostMapping("/publication/publish-current") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Map<String, Object>> publishCurrent(@RequestParam String sceneId, @RequestParam int revisionNo, @RequestParam String requestId) {
+        return CommonResult.success(publicationService.publishCurrent(sceneId, revisionNo, requestId));
+    }
+
     @GetMapping("/publication/current/{sceneId}")
     public CommonResult<Map<String, Object>> currentPublication(@PathVariable String sceneId) {
         return CommonResult.success(publicationService.current(sceneId));
@@ -76,8 +89,12 @@ public class Dim3dSceneController {
     }
 
     @PostMapping("/publication/{publicationId}/ticket") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    @ApiAccessLog(requestEnable = false, responseEnable = false)
     public CommonResult<Map<String, Object>> issuePublicationTicket(@PathVariable String publicationId,
-                                                                      @RequestParam(defaultValue = "300") int expiresInSeconds) {
+                                                                      @RequestParam(defaultValue = "300") int expiresInSeconds,
+                                                                      HttpServletResponse response) {
+        // 明文票据只交付当前页面内存，禁止共享缓存和访问日志记录响应。
+        response.setHeader("Cache-Control", "no-store");
         return CommonResult.success(publicationTicketService.issue(publicationId, expiresInSeconds));
     }
 

@@ -29,7 +29,7 @@ class ScenePublicationServiceTest {
     @BeforeEach void setup() throws Exception {
         var data = new DriverManagerDataSource("jdbc:h2:mem:" + UUID.randomUUID() + ";MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "");
         jdbc = new JdbcTemplate(data);
-        jdbc.execute("CREATE TABLE wx_3d_scene(id BIGINT PRIMARY KEY,tenant_id BIGINT NOT NULL,deleted BOOLEAN DEFAULT FALSE)");
+        jdbc.execute("CREATE TABLE wx_3d_scene(id BIGINT PRIMARY KEY,tenant_id BIGINT NOT NULL,deleted BOOLEAN DEFAULT FALSE,current_revision INT DEFAULT 1)");
         jdbc.execute("CREATE TABLE wx_3d_scene_revision(id BIGINT PRIMARY KEY,tenant_id BIGINT NOT NULL,scene_id BIGINT NOT NULL,revision_no INT NOT NULL,schema_version INT NOT NULL,scene_json LONGTEXT NOT NULL,three_d_json LONGTEXT NOT NULL,two_d_json LONGTEXT NOT NULL,dependencies_json LONGTEXT NOT NULL,content_hash CHAR(64))");
         String schema = Files.readString(Path.of("../deploy/test148/migrations/data09/001-scene-publication.up.sql"))
                 .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
@@ -62,6 +62,40 @@ class ScenePublicationServiceTest {
         jdbc.update("INSERT INTO wx_3d_scene_revision(id,tenant_id,scene_id,revision_no,schema_version,scene_json,three_d_json,two_d_json,dependencies_json,content_hash) VALUES(?,?,?,?,?,?,?,?,?,?)",
                 id, 2L, sceneId, revisionNo, 1, "{}", "{}", "{}", "{\"resources\":[]}",
                 SceneRevisionContentHasher.sha256(1, "{}", "{}", "{}", "{\"resources\":[]}"));
+    }
+
+    @Test void currentPublishChecksConfirmedRevisionAndDoesNotChangeHistoricalPublishing() {
+        insertRevision(2, 101, 2);
+        jdbc.update("UPDATE wx_3d_scene SET current_revision=2 WHERE id=101");
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.publishCurrent("101", 1, "old-confirmation")).getCode());
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_publication", Integer.class));
+        assertEquals(1, service.publish("101", 1, "explicit-history").get("revisionNo"));
+    }
+
+    @Test void currentPublishReusesRevisionAndRetainsReplayAfterPointerChanges() {
+        var first = service.publishCurrent("101", 1, "first");
+        assertEquals(false, first.get("alreadyPublished"));
+        var reused = service.publishCurrent("101", 1, "reuse");
+        assertEquals(first.get("publicationId"), reused.get("publicationId"));
+        assertEquals(true, reused.get("alreadyPublished"));
+        insertRevision(2, 101, 2);
+        jdbc.update("UPDATE wx_3d_scene SET current_revision=2 WHERE id=101");
+        var next = service.publishCurrent("101", 2, "second");
+        assertNotEquals(first.get("publicationId"), next.get("publicationId"));
+        assertEquals(first.get("publicationId"), service.publishCurrent("101", 1, "reuse").get("publicationId"));
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.publishCurrent("101", 2, "reuse")).getCode());
+        assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_publication", Integer.class));
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_publication_audit WHERE action='PUBLISH_REUSE'", Integer.class));
+    }
+
+    @Test void currentPublishRejectsCrossTenantAndRevokedReplay() {
+        var first = service.publishCurrent("101", 1, "first");
+        service.revoke(first.get("publicationId").toString(), "test");
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.publishCurrent("101", 1, "first")).getCode());
+        var next = service.publishCurrent("101", 1, "after-revocation");
+        assertNotEquals(first.get("publicationId"), next.get("publicationId"));
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(3, 3));
+        assertEquals(404, assertThrows(ServiceException.class, () -> service.publishCurrent("101", 1, "foreign")).getCode());
     }
 
     @Test void publishIsIdempotentAndKeepsOnlyOneCurrentPointer() {

@@ -53,6 +53,9 @@ class Dim3dSceneServiceTest {
                 .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
         for (String sql : shareSchema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
         jdbc.execute("CREATE TABLE wx_3d_template(id BIGINT PRIMARY KEY,template_name VARCHAR(50) NOT NULL,template_desc VARCHAR(500),template_type VARCHAR(16) NOT NULL,category VARCHAR(32) NOT NULL,resource_belong VARCHAR(16) NOT NULL,cover_image_id BIGINT,template_file_id BIGINT NOT NULL,status VARCHAR(16) NOT NULL,tenant_id VARCHAR(20) NOT NULL,del_flag CHAR(1) NOT NULL,update_time TIMESTAMP)");
+        String publicationSchema = Files.readString(Path.of("../deploy/test148/migrations/data09/001-scene-publication.up.sql"))
+                .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
+        for (String sql : publicationSchema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
         var target = new Dim3dSceneService(); access = mock(ArtResourceAccess.class);
         when(access.actor()).thenReturn(new ArtResourceAccess.Actor(2, 2));
         dictionaries = mock(DictDataApi.class);
@@ -73,6 +76,23 @@ class Dim3dSceneServiceTest {
                 .put("baseRevisionNo", ((Number) revision.get("revisionNo")).intValue()).put("schemaVersion", 1);
         for (String key : java.util.List.of("sceneJson", "threeDJson", "twoDJson", "dependenciesJson")) body.put(key, (String) revision.get(key));
         return body;
+    }
+
+    @Test void pageAndDetailDerivePublicationStatusFromTheSameTenantPointer() {
+        String published = create();
+        create();
+        jdbc.update("INSERT INTO wx_3d_scene_publication(id,publication_id,tenant_id,scene_id,revision_no,source_hash,index_version,dependency_snapshot,request_id,status,current_flag,created_by) VALUES(10,'PUB-10',2,?,1,?,2,'{}','publish-list','PUBLISHED',1,2)",
+                Long.parseLong(published), "a".repeat(64));
+        assertEquals(1, service.info(published).get("publishStatus"));
+        assertEquals("PUB-10", service.info(published).get("publishedPublicationId"));
+        assertEquals(1L, service.page(null,null,null,null,1,null,1,10).get("total"));
+        assertEquals(1L, service.page(null,null,null,null,0,null,1,10).get("total"));
+        jdbc.update("UPDATE wx_3d_scene_publication SET status='REVOKED',current_flag=0 WHERE id=10");
+        assertEquals(0, service.info(published).get("publishStatus"));
+        assertNull(service.info(published).get("publishedPublicationId"));
+        assertEquals(0L, service.page(null,null,null,null,1,null,1,10).get("total"));
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(3,3));
+        assertEquals(0L, service.page(null,null,null,null,null,null,1,10).get("total"));
     }
 
     @Test void invalidNodeTreesCannotCreateRevision() throws Exception {
