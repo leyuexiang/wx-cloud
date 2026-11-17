@@ -1,0 +1,648 @@
+{
+  "logicalDevices": 1000,
+  "intervalSeconds": 5,
+  "clients": 50,
+  "bindingsPerClient": 1000,
+  "mqttConnections": 1,
+  "distinctAccounts": 1,
+  "cycles": 2,
+  "expectedMessages": 2000,
+  "expectedDeliveries": 100000,
+  "targetMessagesPerSecond": 200.0,
+  "clockSource": "同一负载发生器的单调时钟",
+  "renderingMeasured": false,
+  "subscriptionScope": "publication",
+  "passed": true,
+  "latencyResolutionMs": 1,
+  "latencyRounding": "ceil",
+  "minuteSamples": [],
+  "distinctTickets": 50,
+  "setupSeconds": 8.457,
+  "publishSeconds": 10.05,
+  "maximumAckBatchSeconds": 0.093,
+  "publisherCpuSeconds": 0.0,
+  "abortReason": null,
+  "messagesAcknowledged": 2000,
+  "loadGeneratorCpuSeconds": 0.062,
+  "publisherIsolation": "spawn-process-shared-clock",
+  "mqttMaxInFlight": 20,
+  "uniqueDeliveries": 100000,
+  "duplicateDeliveries": 0,
+  "drainSeconds": 0.2,
+  "clientErrors": [],
+  "clientResults": [
+    {
+      "client": 0,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 106,
+        "p99": 130
+      }
+    },
+    {
+      "client": 1,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 64,
+        "p95": 104,
+        "p99": 127
+      }
+    },
+    {
+      "client": 2,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 104,
+        "p99": 130
+      }
+    },
+    {
+      "client": 3,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 105,
+        "p99": 127
+      }
+    },
+    {
+      "client": 4,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 104,
+        "p99": 125
+      }
+    },
+    {
+      "client": 5,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 106,
+        "p99": 127
+      }
+    },
+    {
+      "client": 6,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 64,
+        "p95": 104,
+        "p99": 129
+      }
+    },
+    {
+      "client": 7,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 105,
+        "p99": 129
+      }
+    },
+    {
+      "client": 8,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 105,
+        "p99": 130
+      }
+    },
+    {
+      "client": 9,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 106,
+        "p99": 130
+      }
+    },
+    {
+      "client": 10,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 103,
+        "p99": 125
+      }
+    },
+    {
+      "client": 11,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 106,
+        "p99": 135
+      }
+    },
+    {
+      "client": 12,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 64,
+        "p95": 104,
+        "p99": 132
+      }
+    },
+    {
+      "client": 13,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 64,
+        "p95": 104,
+        "p99": 132
+      }
+    },
+    {
+      "client": 14,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 105,
+        "p99": 130
+      }
+    },
+    {
+      "client": 15,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 106,
+        "p99": 131
+      }
+    },
+    {
+      "client": 16,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 107,
+        "p99": 130
+      }
+    },
+    {
+      "client": 17,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 106,
+        "p99": 132
+      }
+    },
+    {
+      "client": 18,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 106,
+        "p99": 129
+      }
+    },
+    {
+      "client": 19,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 107,
+        "p99": 131
+      }
+    },
+    {
+      "client": 20,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 107,
+        "p99": 130
+      }
+    },
+    {
+      "client": 21,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 104,
+        "p99": 126
+      }
+    },
+    {
+      "client": 22,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 105,
+        "p99": 128
+      }
+    },
+    {
+      "client": 23,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 106,
+        "p99": 133
+      }
+    },
+    {
+      "client": 24,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 107,
+        "p99": 133
+      }
+    },
+    {
+      "client": 25,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 106,
+        "p99": 132
+      }
+    },
+    {
+      "client": 26,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 106,
+        "p99": 129
+      }
+    },
+    {
+      "client": 27,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 106,
+        "p99": 130
+      }
+    },
+    {
+      "client": 28,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 106,
+        "p99": 131
+      }
+    },
+    {
+      "client": 29,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 106,
+        "p99": 132
+      }
+    },
+    {
+      "client": 30,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 107,
+        "p99": 133
+      }
+    },
+    {
+      "client": 31,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 108,
+        "p99": 136
+      }
+    },
+    {
+      "client": 32,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 106,
+        "p99": 129
+      }
+    },
+    {
+      "client": 33,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 67,
+        "p95": 107,
+        "p99": 130
+      }
+    },
+    {
+      "client": 34,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 105,
+        "p99": 131
+      }
+    },
+    {
+      "client": 35,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 106,
+        "p99": 133
+      }
+    },
+    {
+      "client": 36,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 108,
+        "p99": 130
+      }
+    },
+    {
+      "client": 37,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 108,
+        "p99": 133
+      }
+    },
+    {
+      "client": 38,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 106,
+        "p99": 129
+      }
+    },
+    {
+      "client": 39,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 108,
+        "p99": 131
+      }
+    },
+    {
+      "client": 40,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 104,
+        "p99": 130
+      }
+    },
+    {
+      "client": 41,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 106,
+        "p99": 132
+      }
+    },
+    {
+      "client": 42,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 107,
+        "p99": 132
+      }
+    },
+    {
+      "client": 43,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 105,
+        "p99": 128
+      }
+    },
+    {
+      "client": 44,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 105,
+        "p99": 130
+      }
+    },
+    {
+      "client": 45,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 107,
+        "p99": 132
+      }
+    },
+    {
+      "client": 46,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 106,
+        "p99": 134
+      }
+    },
+    {
+      "client": 47,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 107,
+        "p99": 139
+      }
+    },
+    {
+      "client": 48,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 66,
+        "p95": 104,
+        "p99": 127
+      }
+    },
+    {
+      "client": 49,
+      "userId": "2",
+      "received": 2000,
+      "missing": 0,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 105,
+        "p99": 130
+      }
+    }
+  ],
+  "latencyMs": {
+    "p50": 66,
+    "p95": 106,
+    "p99": 131
+  },
+  "metricStorageBytes": 12116462,
+  "deliveryComplete": true,
+  "latencyGateMs": 5000,
+  "ticketsRevoked": 50,
+  "ticketRevokeFailures": 0,
+  "viewerSessionsLoggedOut": 0,
+  "viewerLogoutFailures": 0,
+  "totalSeconds": 24.093
+}

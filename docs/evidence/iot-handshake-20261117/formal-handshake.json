@@ -1,0 +1,10 @@
+{
+  "anonymous": 401,
+  "invalidToken": 401,
+  "noPermission": 403,
+  "wrongTenant": 403,
+  "authorizedPing": true,
+  "unknownMessageDoesNotBreakIot": true,
+  "legacyAnonymousCompatibility": true,
+  "draftProxyAuthorized": true
+}

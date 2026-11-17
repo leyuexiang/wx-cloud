@@ -1,0 +1,1 @@
+{"gatewayPaths": ["predicates: ['Path=/dimensions/ws']"], "requests": {"48093": {"httpStatus": 401}, "12525": {"httpStatus": 200, "code": 404}}}

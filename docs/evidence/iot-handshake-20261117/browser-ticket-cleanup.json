@@ -1,0 +1,12 @@
+{
+  "closedDocumentAndUnusedTicketIds": [
+    "TKT-2122645315049811970",
+    "TKT-2122648824516243457",
+    "TKT-2122649028346834946",
+    "TKT-2122649220320129026",
+    "TKT-2122650429122736130"
+  ],
+  "revoked": 5,
+  "finalResultPageTicketsPreserved": true,
+  "secretsStored": false
+}

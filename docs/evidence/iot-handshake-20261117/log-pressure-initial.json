@@ -1,0 +1,9 @@
+{
+  "windowSeconds": 120,
+  "capturePhase": "legacy-first 已停止之后的实际诊断",
+  "containers": [
+    {"name":"wx-editor-dimensions-data08","bytes":173220270,"missingSessionLogCount":214200,"oldConnectionLogCount":0},
+    {"name":"wx-iot-handshake-check-1117","bytes":176866,"missingSessionLogCount":0,"oldConnectionLogCount":50}
+  ],
+  "payloadRecorded": false
+}

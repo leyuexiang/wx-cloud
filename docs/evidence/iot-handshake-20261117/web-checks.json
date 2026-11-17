@@ -1,0 +1,30 @@
+{
+  "web-tests": {
+    "exitCode": 0,
+    "command": [
+      "pnpm.cmd",
+      "exec",
+      "vitest",
+      "run",
+      "src/servers/manual/iot/__tests__/websocket.test.ts",
+      "src/integrations/scene/__tests__/iotWidgetRealtime.test.ts",
+      "src/integrations/scene/__tests__/fixedPublicationManagement.test.ts"
+    ]
+  },
+  "web-types": {
+    "exitCode": 0,
+    "command": [
+      "pnpm.cmd",
+      "type-check"
+    ]
+  },
+  "web-build": {
+    "exitCode": 0,
+    "command": [
+      "pnpm.cmd",
+      "exec",
+      "vite",
+      "build"
+    ]
+  }
+}

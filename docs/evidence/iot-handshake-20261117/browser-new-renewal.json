@@ -1,0 +1,81 @@
+{
+  "renewed": {
+    "paths": [
+      "/dimensions/ws/iot-state",
+      "/dimensions/ws/iot-state",
+      "/dimensions/ws/iot-state"
+    ],
+    "acks": 32,
+    "updates": [
+      {
+        "value": 28.625,
+        "eventId": "0f652138-bc46-3959-8ab8-d68c704566f8",
+        "objectId": "115772655977013248"
+      },
+      {
+        "value": 29.5,
+        "eventId": "cb3f93a2-33f0-3ef3-b860-89f9a3bc7675",
+        "objectId": "115772655977013248"
+      },
+      {
+        "value": 29.625,
+        "eventId": "e34cf304-e416-30e4-9f99-c89ebc1d884d",
+        "objectId": "115772655977013248"
+      }
+    ],
+    "errors": 0,
+    "scenes": 1,
+    "commits": 0,
+    "holdReconnect": false,
+    "timeOrigin": 1794913984100.925,
+    "at": 1794914410670,
+    "text": "温度\n29.625\n°C",
+    "counts": {
+      "ticketRequests": 2,
+      "playerLoads": 1,
+      "snapshotRequests": 6
+    }
+  },
+  "restored": {
+    "paths": [
+      "/dimensions/ws/iot-state",
+      "/dimensions/ws/iot-state",
+      "/dimensions/ws/iot-state"
+    ],
+    "acks": 32,
+    "updates": [
+      {
+        "value": 28.625,
+        "eventId": "0f652138-bc46-3959-8ab8-d68c704566f8",
+        "objectId": "115772655977013248"
+      },
+      {
+        "value": 29.5,
+        "eventId": "cb3f93a2-33f0-3ef3-b860-89f9a3bc7675",
+        "objectId": "115772655977013248"
+      },
+      {
+        "value": 29.625,
+        "eventId": "e34cf304-e416-30e4-9f99-c89ebc1d884d",
+        "objectId": "115772655977013248"
+      },
+      {
+        "value": 29.5,
+        "eventId": "9a5a6ddb-7c25-3af4-a39f-52f34ab0c035",
+        "objectId": "115772655977013248"
+      }
+    ],
+    "errors": 0,
+    "scenes": 1,
+    "commits": 0,
+    "holdReconnect": false,
+    "timeOrigin": 1794913984100.925,
+    "at": 1794914412717,
+    "text": "温度\n29.500\n°C",
+    "counts": {
+      "ticketRequests": 2,
+      "playerLoads": 1,
+      "snapshotRequests": 6
+    }
+  }
+}
