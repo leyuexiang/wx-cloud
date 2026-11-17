@@ -39,6 +39,14 @@ class Dim3dModelControllerContractTest {
         ReflectionTestUtils.setField(controller, "service", catalog);
         ReflectionTestUtils.setField(controller, "json", json);
         ReflectionTestUtils.setField(controller, "validator", validator);
+        var responses = new Dim3dModelResponseAssembler();
+        var users = mock(cn.iocoder.wx.module.system.api.user.AdminUserApi.class);
+        var administrator = new cn.iocoder.wx.module.system.api.user.dto.AdminUserRespDTO();
+        administrator.setId(1L);
+        administrator.setNickname("超级管理员");
+        when(users.getUserMap(anyCollection())).thenReturn(java.util.Map.of(1L, administrator));
+        ReflectionTestUtils.setField(responses, "users", users);
+        ReflectionTestUtils.setField(controller, "modelResponses", responses);
         mvc = MockMvcBuilders.standaloneSetup(controller).setValidator(validator).build();
     }
 
@@ -57,7 +65,9 @@ class Dim3dModelControllerContractTest {
                         .param("pageSize", "10").param("orderByColumn", "price").param("isAsc", "asc"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.rows[0].id").value("9007199254740993"))
-                .andExpect(jsonPath("$.rows[0].priceYuan").value(123.45))
+                .andExpect(jsonPath("$.rows[0].priceYuan").value("123.45"))
+                .andExpect(jsonPath("$.rows[0].resourceId").doesNotExist())
+                .andExpect(jsonPath("$.rows[0].tenantId").doesNotExist())
                 .andExpect(jsonPath("$.total").value(1))
                 .andExpect(jsonPath("$.data").doesNotExist());
         verify(catalog).getModelPage(null, "MINE", null, null, null, 1, 10, "price", "asc");
@@ -74,10 +84,12 @@ class Dim3dModelControllerContractTest {
     @Test
     void detailEditAndRemoveUseContractMethodsAndPathIds() throws Exception {
         var model = new Dim3dModel();
+        model.setModelFileId(101L);
         model.setModelFileUrl("https://example.invalid/model.glb");
         when(catalog.getModel(7L)).thenReturn(model);
         mvc.perform(get("/dim3d/model/info/7")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.modelFileUrl").value("https://example.invalid/model.glb"));
+                .andExpect(jsonPath("$.data.modelFileId").value("101"))
+                .andExpect(jsonPath("$.data.modelFileUrl").doesNotExist());
         mvc.perform(put("/dim3d/model/edit/7").contentType("application/json").content(BODY))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(200)).andExpect(jsonPath("$.data").isEmpty());
         mvc.perform(delete("/dim3d/model/remove/7")).andExpect(status().isOk())
@@ -132,5 +144,50 @@ class Dim3dModelControllerContractTest {
                 .andExpect(jsonPath("$.data.resourceType").value("MODEL"))
                 .andExpect(jsonPath("$.data.resourceRelativePath").value("models/tree.glb"));
         verify(catalog).getModelResource(101L);
+    }
+
+    /** 上下线沿用路径状态和目录编号，按文档返回空数据，避免布尔值响应差异。 */
+    @Test
+    void modelStatusUsesContractRouteAndEmptySuccess() throws Exception {
+        mvc.perform(put("/dim3d/model/OFFLINE/7")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200)).andExpect(jsonPath("$.data").isEmpty());
+        mvc.perform(put("/dim3d/model/ONLINE/7")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isEmpty());
+        verify(catalog).changeModelStatus(7L, "OFFLINE");
+        verify(catalog).changeModelStatus(7L, "ONLINE");
+    }
+
+    /** 对外响应严格匹配参考字段，持久化实体内部的关联、租户和预览字段不能随之输出。 */
+    @Test
+    void detailUsesOnlyReferenceFieldsAndStringFormats() throws Exception {
+        var model = new Dim3dModel();
+        model.setId(26L);
+        model.setModelName("测试模型");
+        model.setResourceId(9007199254740993L);
+        model.setTenantId("1");
+        model.setDataUserId(1L);
+        model.setIsPaid("PAID");
+        model.setPrice(100);
+        model.setCreateBy(1L);
+        model.setUpdateBy(1L);
+        model.setCreateTime(java.time.LocalDateTime.of(2026, 11, 5, 19, 49, 49));
+        model.setUpdateTime(java.time.LocalDateTime.of(2026, 11, 5, 19, 50, 13));
+        model.setModelFileUrl("https://example.invalid/model.glb");
+        when(catalog.getModel(26L)).thenReturn(model);
+        var result = mvc.perform(get("/dim3d/model/info/26")).andExpect(status().isOk()).andReturn();
+        var data = json.readTree(result.getResponse().getContentAsString(java.nio.charset.StandardCharsets.UTF_8)).path("data");
+        var fields = new java.util.HashSet<String>();
+        data.fieldNames().forEachRemaining(fields::add);
+        assertEquals(java.util.Set.of("id", "modelName", "modelDesc", "category", "resourceBelong", "isPaid",
+                "priceYuan", "coverImageId", "modelFileId", "status", "createBy", "createByName", "createTime",
+                "updateBy", "updateByName", "updateTime"), fields);
+        assertEquals("9007199254740993", data.path("modelFileId").asText());
+        assertTrue(data.path("priceYuan").isTextual());
+        assertEquals("1.00", data.path("priceYuan").asText());
+        assertTrue(data.path("createBy").isTextual());
+        assertEquals("2026-11-05 19:49:49", data.path("createTime").asText());
+        assertEquals("2026-11-05 19:50:13", data.path("updateTime").asText());
+        assertEquals("超级管理员", data.path("createByName").asText());
+        assertEquals("超级管理员", data.path("updateByName").asText());
     }
 }

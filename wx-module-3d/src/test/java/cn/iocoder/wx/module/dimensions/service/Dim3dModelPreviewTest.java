@@ -51,24 +51,26 @@ class Dim3dModelPreviewTest {
     void release() { jdbc.execute("SHUTDOWN"); }
 
     @Test
-    void detailIncludesActualLegacyResourcePath() {
+    void metadataDetailDoesNotReadOrSignPreviewFiles() {
+        jdbc.execute("DROP TABLE wx_3d_resource");
         Dim3dModel result = service.getModel(1L);
-        assertEquals("models/tree.glb", result.getResourceRelativePath());
+        assertNull(result.getResourceRelativePath());
+        assertEquals(101L, result.getModelFileId());
         assertEquals(new BigDecimal("123.45"), result.getPriceYuan());
         verifyNoInteractions(resources);
     }
 
     @Test
-    void managedDetailUsesAuthorizedPreviewAndPreservesSeparateIds() {
+    void resourceInfoUsesAuthorizedPreviewAndPreservesSeparateIds() {
         jdbc.update("UPDATE wx_3d_model SET resource_id=201,model_file_id=NULL WHERE id=1");
+        jdbc.update("INSERT INTO wx_3d_resource(id,tenant_id,resource_type,resource_scope) VALUES(201,'41','MODEL','TENANT_SHARED')");
         when(resources.modelPreview("201")).thenReturn(Map.of("modelFileUrl", "https://example.invalid/tree.glb",
-                "downloadExpiresAt", "2030-01-01T00:00:00Z"));
-        var result = service.getModel(1L);
-        assertEquals("https://example.invalid/tree.glb", result.getModelFileUrl());
-        assertEquals("2030-01-01T00:00:00Z", result.getDownloadExpiresAt());
-        assertEquals(201L, result.getModelFileId());
-        assertNull(result.getResourceRelativePath());
-        assertEquals(201L, result.getResourceId());
+                "downloadExpiresAt", "2030-01-01T00:00:00Z", "resourceRelativePath", "resources/tree.glb"));
+        var result = service.getModelResource(201L);
+        assertEquals("https://example.invalid/tree.glb", result.get("modelFileUrl"));
+        assertEquals("2030-01-01T00:00:00Z", result.get("downloadExpiresAt"));
+        assertEquals("201", result.get("id"));
+        assertEquals("resources/tree.glb", result.get("resourceRelativePath"));
         assertNull(jdbc.queryForObject("SELECT model_file_id FROM wx_3d_model WHERE id=1", Long.class));
     }
 
@@ -82,11 +84,11 @@ class Dim3dModelPreviewTest {
     @Test
     void missingWrongTypeAndOtherTenantFilesCannotSupplyPreview() {
         jdbc.update("UPDATE wx_3d_resource SET resource_type='SPRITE' WHERE id=101");
-        assertThrows(ServiceException.class, () -> service.getModel(1L));
+        assertThrows(ServiceException.class, () -> service.getModelResource(101L));
         jdbc.update("UPDATE wx_3d_resource SET resource_type='MODEL',tenant_id='42' WHERE id=101");
-        assertThrows(ServiceException.class, () -> service.getModel(1L));
+        assertThrows(ServiceException.class, () -> service.getModelResource(101L));
         jdbc.update("DELETE FROM wx_3d_resource WHERE id=101");
-        assertThrows(ServiceException.class, () -> service.getModel(1L));
+        assertThrows(ServiceException.class, () -> service.getModelResource(101L));
     }
 
     /** 分页只读取目录，不能因为预览服务故障阻断列表或产生逐条存储查询。 */

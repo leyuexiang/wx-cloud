@@ -140,9 +140,22 @@ def verify(target, formal):
               and len(page.get('rows', [])) == 1 and 'data' not in page)
         detail = request('/admin-api/dim3d/model/info/' + directory, actor=actor)['data']
         check('详情编号及元值符合契约', detail['id'] == directory and detail['modelFileId'] == resource
-              and float(detail['priceYuan']) == 12.99 and 'price' not in detail)
-        check('详情包含预览签名和到期时间', bool(detail.get('modelFileUrl')) and bool(detail.get('downloadExpiresAt')))
-        with SECURE.open(detail['modelFileUrl'], timeout=30) as response:
+              and detail['priceYuan'] == '12.99' and 'price' not in detail)
+        # 详情及分页严格核对本次参考字段，真实名称通过现有系统用户查询链路回读。
+        expected_fields = {'id', 'modelName', 'modelDesc', 'category', 'resourceBelong', 'isPaid',
+            'priceYuan', 'coverImageId', 'modelFileId', 'status', 'createBy', 'createByName',
+            'createTime', 'updateBy', 'updateByName', 'updateTime'}
+        check('详情与分页采用十六字段白名单', set(detail) == expected_fields and set(page['rows'][0]) == expected_fields)
+        check('操作编号和时间使用参考字符串格式', detail['createBy'] == actor['userId']
+              and detail['updateBy'] == actor['userId'] and bool(re.fullmatch(
+                  r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}', detail['createTime'] or '')))
+        nickname = sql('SELECT nickname FROM wx_editor.wx_system_users WHERE id=' + actor['userId'] + ' AND deleted=0;')
+        check('操作人名称来自真实系统账号', bool(nickname)
+              and detail['createByName'] == nickname and detail['updateByName'] == nickname)
+        preview = request('/admin-api/dim3d/resource/info/' + resource, actor=actor)
+        check('文件详情包含预览签名和到期时间', preview.get('code') == 200
+              and bool(preview['data'].get('modelFileUrl')) and bool(preview['data'].get('downloadExpiresAt')))
+        with SECURE.open(preview['data']['modelFileUrl'], timeout=30) as response:
             model = response.read(8 * 1024 * 1024)
             check('私有预览真实回读为模型', response.status == 200 and model[:4] == b'glTF')
         check('资源详情投影可回读', request('/admin-api/dim3d/resource/info/' + resource, actor=actor).get('code') == 200)
@@ -150,17 +163,33 @@ def verify(target, formal):
         check('同租户其他账号不可读个人模型', denied.get('code') != 200)
         denied = request('/admin-api/dim3d/model/info/' + directory, actor=actors['super_admin'])
         check('其他租户不可读个人模型', denied.get('code') != 200)
+        # 先下线再编辑及换文件，验证状态接口与两条写入路径共同保全状态和审计。
+        response = request('/admin-api/dim3d/model/OFFLINE/' + directory, method='PUT', actor=actor)
+        check('受管模型下线返回空数据', response.get('code') == 200 and response.get('data') is None)
+        before = sql('SELECT CONCAT(status,\':\',update_by,\':\',update_time) FROM `' + database + '`.wx_3d_model WHERE id=' + directory + ';')
+        response = request('/admin-api/dim3d/model/OFFLINE/' + directory, method='PUT', actor=actor)
+        after = sql('SELECT CONCAT(status,\':\',update_by,\':\',update_time) FROM `' + database + '`.wx_3d_model WHERE id=' + directory + ';')
+        check('同状态重试保留审计', response.get('code') == 200 and before == after and before.startswith('OFFLINE:'))
+        for name, identity in (('只读角色', actors['viewer']), ('其他租户', actors['super_admin'])):
+            check(name + '无法修改个人状态', request('/admin-api/dim3d/model/ONLINE/' + directory,
+                method='PUT', actor=identity).get('code') != 200)
+        check('非法状态拒绝', request('/admin-api/dim3d/model/online/' + directory, method='PUT', actor=actor).get('code') == 400)
         changed = {**body, 'modelName': marker + '-编辑', 'modelDesc': ''}
         response = request('/admin-api/dim3d/model/edit/' + directory, changed, 'PUT', actor)
         check('编辑成功且数据为空', response.get('code') == 200 and response.get('data') is None)
         detail = request('/admin-api/dim3d/model/info/' + directory, actor=actor)['data']
-        check('编辑字段真实回读', detail['modelName'] == changed['modelName'] and detail['modelDesc'] == '')
+        check('编辑字段及下线状态真实回读', detail['modelName'] == changed['modelName']
+              and detail['modelDesc'] == '' and detail['status'] == 'OFFLINE')
         new_operation, new_resource = upload(actor, 'MINE')
         changed['modelFileId'] = new_resource
         response = request('/admin-api/dim3d/model/edit/' + directory, changed, 'PUT', actor)
-        check('新文件编辑保持目录编号', response.get('code') == 200 and request(
-            '/admin-api/dim3d/model/info/' + directory, actor=actor)['data']['modelFileId'] == new_resource)
+        replaced = request('/admin-api/dim3d/model/info/' + directory, actor=actor)['data']
+        check('新文件编辑保持目录编号及下线状态', response.get('code') == 200
+              and replaced['modelFileId'] == new_resource and replaced['status'] == 'OFFLINE')
         wait(new_operation, 'COMMITTED', actor)
+        response = request('/admin-api/dim3d/model/ONLINE/' + directory, method='PUT', actor=actor)
+        check('受管模型重新上线', response.get('code') == 200 and response.get('data') is None
+              and request('/admin-api/dim3d/model/info/' + directory, actor=actor)['data']['status'] == 'ONLINE')
         # 仅在独立空副本插入本次资源的引用夹具，验证真实 MySQL 行锁下删除拒绝与回滚。
         if not formal:
             sql("INSERT INTO `" + database + "`.wx_3d_scene_publication_resource(id,publication_id,tenant_id,resource_key,"
@@ -174,6 +203,7 @@ def verify(target, formal):
         response = request('/admin-api/dim3d/model/remove/' + directory, method='DELETE', actor=actor)
         check('删除成功且数据为空', response.get('code') == 200 and response.get('data') is None)
         check('删除后详情不可读', request('/admin-api/dim3d/model/info/' + directory, actor=actor).get('code') != 200)
+        check('已删除模型无法上线', request('/admin-api/dim3d/model/ONLINE/' + directory, method='PUT', actor=actor).get('code') != 200)
         administrator = actors['super_admin']
         operation, resource = upload(administrator, 'SYSTEM')
         legacy = {'operationId': operation, 'resourceId': resource, 'modelName': marker + '-兼容',
@@ -185,6 +215,10 @@ def verify(target, formal):
         legacy_id = sql('SELECT id FROM `' + database + '`.wx_3d_model WHERE resource_id=' + resource + " AND del_flag='0';")
         directories.append((legacy_id, administrator))
         check('系统模型跨租户可读', request('/admin-api/dim3d/model/info/' + legacy_id, actor=actor).get('code') == 200)
+        check('租户账号无法上下线系统目录', request('/admin-api/dim3d/model/OFFLINE/' + legacy_id,
+            method='PUT', actor=actor).get('code') != 200)
+        response = request('/admin-api/dim3d/model/OFFLINE/' + legacy_id, method='PUT', actor=administrator)
+        check('平台账号可下线系统目录', response.get('code') == 200 and response.get('data') is None)
         result['passed'] = True
     except Exception as error:
         result['errorType'] = type(error).__name__
@@ -239,5 +273,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--target', choices=('main', 'data08'), required=True)
     parser.add_argument('--formal', action='store_true')
+    parser.add_argument('--batch', default='model09-20261117')
     args = parser.parse_args()
+    if not re.fullmatch(r'model[0-9]{2}-[0-9]{8}', args.batch):
+        parser.error('批次应为模型编号及八位日期')
+    prefix, stamp = args.batch.split('-')
+    RELEASE = Path('/home/wx-' + prefix + '-release-' + stamp)
     raise SystemExit(verify(args.target, args.formal))

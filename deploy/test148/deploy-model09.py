@@ -1,4 +1,4 @@
-"""MODEL-09 双库发布。受限备份、空数据结构副本、独立候选与原容器回退分别留存回执。"""
+"""模型接口双库发布。按批次保留受限备份、结构副本、独立候选及原容器回退回执。"""
 import argparse
 import copy
 import http.client
@@ -17,6 +17,7 @@ from server_support import file_sha256, mysql_command, runtime_identity
 ROOT = Path('/opt/wx/editor-test148')
 RELEASE = Path('/home/wx-model09-release-20261117')
 SOURCE = Path('/home/wx-model09-source-20261117')
+PREFIX, STAMP = 'model09', '20261117'
 TARGETS = {'main': ('wx_editor', 'wx-editor-dimensions', 48092, 49212),
            'data08': ('wx_editor_data08', 'wx-editor-dimensions-data08', 48093, 49213)}
 OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
@@ -82,7 +83,7 @@ def clone_container(original, name, mounts, candidate=False, port=None):
                          '--server.address=127.0.0.1', '--server.port=' + str(port),
                          '--wx.websocket.sender-type=local', '--wx.iot-state.enabled=false']
         config.pop('Healthcheck', None)
-        config['Labels'] = {'wx.release': 'model09-20261117'}
+        config['Labels'] = {'wx.release': PREFIX + '-' + STAMP}
     config['HostConfig'] = host
     connection = DockerConnection('localhost', timeout=30)
     connection.request('POST', '/v1.41/containers/create?name=' + name,
@@ -145,7 +146,7 @@ def prepare():
                                         stdout=output, stderr=subprocess.PIPE)
             if result.returncode:
                 raise RuntimeError('数据库备份失败 ' + key)
-        clone = 'wx_model09_' + key + '_20261117'
+        clone = 'wx_' + PREFIX + '_' + key + '_' + STAMP
         if sql("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name='" + clone + "';") != '0':
             raise RuntimeError('候选库已存在，请根据回执接续')
         sql('CREATE DATABASE `' + clone + '` CHARACTER SET utf8mb4;')
@@ -168,7 +169,7 @@ def prepare():
             (directory / private).chmod(0o600)
         with socket.socket() as listener:
             listener.bind(('127.0.0.1', candidate_port))
-        candidate = 'wx-editor-model09-' + key
+        candidate = 'wx-editor-' + PREFIX + '-' + key
         clone_container(original, candidate, {'/opt/wx/app.jar': str(package),
                         '/opt/wx/application.yaml': str(config)}, True, candidate_port)
         healthy(candidate_port)
@@ -188,6 +189,11 @@ def switch():
         verified = json.loads((RELEASE / ('verify-candidate-' + key + '.json')).read_text())
         if not verified.get('passed') or not verified.get('cleaned'):
             raise RuntimeError('候选真实验收或清理尚未通过 ' + key)
+        # 预先拒绝已占用的回退名称，避免停止正式实例后才发现无法保留原容器。
+        backup_name = report['targets'][key]['container'] + '-before-' + PREFIX + '-' + STAMP
+        occupied = subprocess.run(['docker', 'inspect', backup_name], capture_output=True)
+        if occupied.returncode == 0:
+            raise RuntimeError('本批回退容器已存在，请根据回执接续')
     switched = []
     try:
         # 正式程序仍采用原启动模式。主实例展开目录从同一摘要的包生成。
@@ -205,7 +211,7 @@ def switch():
                 raise RuntimeError('发布期间原容器已被其他任务替换')
             target['appliedMigrations'] = apply_reference(target['database'])
             run(['docker', 'stop', target['container']])
-            backup_name = target['container'] + '-before-model09'
+            backup_name = target['container'] + '-before-' + PREFIX + '-' + STAMP
             run(['docker', 'rename', target['container'], backup_name])
             switched.append((target, backup_name))
             run(['docker', 'update', '--restart=no', backup_name])
@@ -238,14 +244,22 @@ def switch():
 
 
 def main():
+    global RELEASE, SOURCE, PREFIX, STAMP
     os.umask(0o077)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('action', choices=('prepare', 'switch'))
+    parser.add_argument('--batch', default='model09-20261117')
+    arguments = parser.parse_args()
+    # 批次只允许规范模型编号和日期，所有程序、备份及候选均从该标识派生，避免覆盖上一批。
+    if not re.fullmatch(r'model[0-9]{2}-[0-9]{8}', arguments.batch):
+        parser.error('批次应为模型编号及八位日期')
+    PREFIX, STAMP = arguments.batch.split('-')
+    RELEASE = Path('/home/wx-' + PREFIX + '-release-' + STAMP)
+    SOURCE = Path('/home/wx-' + PREFIX + '-source-' + STAMP)
     # 发布目录可穿越，备份与快照逐文件为 600，避免容器非特权用户无法读包。
     RELEASE.mkdir(exist_ok=True)
     RELEASE.chmod(0o755)
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=('prepare', 'switch'))
-    action = parser.parse_args().action
-    result = prepare() if action == 'prepare' else switch()
+    result = prepare() if arguments.action == 'prepare' else switch()
     print(json.dumps(result, ensure_ascii=False))
 
 

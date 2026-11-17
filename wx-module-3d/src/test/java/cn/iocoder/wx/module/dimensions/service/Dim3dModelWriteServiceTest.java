@@ -109,6 +109,154 @@ class Dim3dModelWriteServiceTest {
     @AfterEach
     void release() { jdbc.execute("SHUTDOWN"); }
 
+    /** 从原目录服务入口验证受管模型可上下线，避免旧文件写保护阻断纯目录状态更新。 */
+    @Test
+    void managedModelStatusUsesUnifiedWriteService() {
+        long id = service.create(form(201L));
+        var catalog = new cn.iocoder.wx.module.dimensions.service.impl.Dim3dResourceCatalogServiceImpl();
+        ReflectionTestUtils.setField(catalog, "jdbc", jdbc);
+        ReflectionTestUtils.setField(catalog, "access", access);
+        ReflectionTestUtils.setField(catalog, "models", service);
+        ReflectionTestUtils.setField(catalog, "artResources", ReflectionTestUtils.getField(service, "resources"));
+        catalog.changeModelStatus(id, "OFFLINE");
+        assertEquals("OFFLINE", row(id).get("status"));
+    }
+
+    /** 两类目录均可往返切换，更新范围限定为状态与可信更新审计，资源及其他字段保持原值。 */
+    @Test
+    void statusRoundTripsPreserveMetadataAndResourceRevision() {
+        for (long file : List.of(101L, 201L)) {
+            long id = service.create(form(file));
+            jdbc.update("UPDATE wx_3d_model SET update_by=99,update_time=TIMESTAMP '2020-01-01 00:00:00' WHERE id=?", id);
+            var before = row(id);
+            var resource = jdbc.queryForMap("SELECT * FROM wx_3d_resource WHERE id=?", file);
+            clearInvocations(dictionaries);
+            service.changeStatus(id, "OFFLINE");
+            var after = row(id);
+            assertEquals("OFFLINE", after.get("status"));
+            assertEquals(10L, after.get("update_by"));
+            assertNotEquals(before.get("update_time"), after.get("update_time"));
+            // 去除本次允许变更的三个字段后逐项比较，防止状态写入覆盖表单和文件关联。
+            var fields = List.of("status", "update_by", "update_time");
+            fields.forEach(before::remove);
+            fields.forEach(after::remove);
+            assertEquals(before, after);
+            assertEquals(resource, jdbc.queryForMap("SELECT * FROM wx_3d_resource WHERE id=?", file));
+            service.changeStatus(id, "ONLINE");
+            assertEquals("ONLINE", row(id).get("status"));
+            verifyNoInteractions(dictionaries, store, imports, worker);
+        }
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_resource_operation", Integer.class));
+    }
+
+    /** 重试相同状态应保全第一次更新审计，包括由其他平台维护账号写入的记录。 */
+    @Test
+    void repeatedStatusDoesNotRewriteAudit() {
+        long id = service.create(form(201L));
+        service.changeStatus(id, "OFFLINE");
+        jdbc.update("UPDATE wx_3d_model SET update_by=99,update_time=TIMESTAMP '2020-01-01 00:00:00' WHERE id=?", id);
+        var before = row(id);
+        service.changeStatus(id, "OFFLINE");
+        assertEquals(before, row(id));
+    }
+
+    /** 非法状态和目录编号不得写库，逻辑删除目录也不能重新上线。 */
+    @Test
+    void statusRejectsInvalidInputAndDeletedDirectory() {
+        long id = service.create(form(101L));
+        var before = row(id);
+        assertEquals(400, assertThrows(ServiceException.class, () -> service.changeStatus(id, null)).getCode());
+        for (String state : List.of("online", "DELETED", "", " OFFLINE ")) {
+            assertEquals(400, assertThrows(ServiceException.class, () -> service.changeStatus(id, state)).getCode());
+        }
+        assertEquals(400, assertThrows(ServiceException.class, () -> service.changeStatus(null, "ONLINE")).getCode());
+        assertEquals(400, assertThrows(ServiceException.class, () -> service.changeStatus(0L, "ONLINE")).getCode());
+        assertEquals(404, assertThrows(ServiceException.class, () -> service.changeStatus(999L, "ONLINE")).getCode());
+        assertEquals(before, row(id));
+        service.delete(id);
+        var deleted = row(id);
+        assertEquals(404, assertThrows(ServiceException.class, () -> service.changeStatus(id, "ONLINE")).getCode());
+        assertEquals(deleted, row(id));
+    }
+
+    /** 服务层复核编辑权限及个人目录范围，避免内部调用绕开控制器或跨账号、跨租户写入。 */
+    @Test
+    void statusRequiresEditPermissionAndPersonalOwnership() {
+        long id = service.create(form(201L));
+        var before = row(id);
+        when(security.hasPermission("dim3d:model:edit")).thenReturn(false);
+        assertEquals(403, assertThrows(ServiceException.class, () -> service.changeStatus(id, "OFFLINE")).getCode());
+        when(security.hasPermission("dim3d:model:edit")).thenReturn(true);
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(11, 2));
+        assertEquals(404, assertThrows(ServiceException.class, () -> service.changeStatus(id, "OFFLINE")).getCode());
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(10, 3));
+        assertEquals(404, assertThrows(ServiceException.class, () -> service.changeStatus(id, "OFFLINE")).getCode());
+        assertEquals(before, row(id));
+    }
+
+    /** 公共系统目录跨租户可读，状态维护仍须经过既有平台维护权限。 */
+    @Test
+    void systemStatusRequiresPlatformMaintenanceAndUsesTrustedActor() {
+        var body = form(101L);
+        body.setResourceBelong("SYSTEM");
+        long id = service.create(body);
+        var maintainer = new ArtResourceAccess.Actor(12, 3);
+        when(access.actor()).thenReturn(maintainer);
+        doThrow(new ServiceException(403, "无系统资源维护权限"))
+                .when(access).maintain(maintainer, "GLOBAL_SYSTEM", "0");
+        assertEquals(403, assertThrows(ServiceException.class, () -> service.changeStatus(id, "OFFLINE")).getCode());
+        assertEquals("ONLINE", row(id).get("status"));
+        doNothing().when(access).maintain(maintainer, "GLOBAL_SYSTEM", "0");
+        service.changeStatus(id, "OFFLINE");
+        assertEquals("OFFLINE", row(id).get("status"));
+        assertEquals(12L, row(id).get("update_by"));
+        assertEquals("0", row(id).get("tenant_id"));
+    }
+
+    /** 预检后发生归属迁移或删除时必须使用锁内现值拒绝，不覆盖新归属或复活目录。 */
+    @Test
+    void statusRechecksScopeAndDeletionAfterPreflight() {
+        long id = service.create(form(101L));
+        doAnswer(invocation -> {
+            jdbc.update("UPDATE wx_3d_model SET resource_belong='SYSTEM',tenant_id='0' WHERE id=?", id);
+            return null;
+        }).when(access).maintain(any(), eq("TENANT_SHARED"), eq("2"));
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.changeStatus(id, "OFFLINE")).getCode());
+        assertEquals("ONLINE", row(id).get("status"));
+        doAnswer(invocation -> {
+            jdbc.update("UPDATE wx_3d_model SET del_flag='1' WHERE id=?", id);
+            return null;
+        }).when(access).maintain(any(), eq("GLOBAL_SYSTEM"), eq("0"));
+        assertEquals(404, assertThrows(ServiceException.class, () -> service.changeStatus(id, "OFFLINE")).getCode());
+        assertEquals("ONLINE", row(id).get("status"));
+        assertEquals("1", row(id).get("del_flag"));
+    }
+
+    /** 状态更新失败时事务回滚，状态及更新审计共同保持原值。 */
+    @Test
+    void statusUpdateFailureRollsBack() {
+        long id = service.create(form(201L));
+        var before = row(id);
+        jdbc.execute("ALTER TABLE wx_3d_model ADD CONSTRAINT reject_offline CHECK(status<>'OFFLINE')");
+        assertThrows(RuntimeException.class, () -> service.changeStatus(id, "OFFLINE"));
+        assertEquals(before, row(id));
+        verifyNoInteractions(store, imports, worker);
+    }
+
+    /** 下线后的普通编辑及文件替换沿用锁定目录状态，避免表单默认上线造成意外上架。 */
+    @Test
+    void offlineStatusSurvivesMetadataAndFileReplacement() {
+        long id = service.create(form(101L));
+        service.changeStatus(id, "OFFLINE");
+        var body = form(101L);
+        body.setModelName("下线后编辑");
+        service.update(id, body);
+        assertEquals("OFFLINE", row(id).get("status"));
+        service.update(id, form(201L));
+        assertEquals("OFFLINE", row(id).get("status"));
+        assertEquals(201L, row(id).get("resource_id"));
+    }
+
     @Test
     void createsPublicSystemAndIgnoresForgedIdentity() {
         var body = form(101L);
