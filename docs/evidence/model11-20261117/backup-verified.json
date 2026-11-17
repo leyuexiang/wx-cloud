@@ -1,0 +1,58 @@
+[
+  {
+    "target": "main",
+    "backupSha256": "ca9ec4e8c22938e2cee0839bee517321add63133d498e3c47e063db0c65553b2",
+    "fullRestoreVerified": true,
+    "tables": {
+      "wx_3d_model": {
+        "originalRows": 18,
+        "originalRowsUnchanged": true,
+        "sha256": "587ea10509b5379c07dd5f5abf3d42fc679b963b98573251c970984b72fe035e"
+      },
+      "wx_3d_resource": {
+        "originalRows": 12,
+        "originalRowsUnchanged": true,
+        "sha256": "0cc2c96941d6d7378d80b98bbdcdedf100b20b5acde63a8f899d3d34d17817fd"
+      },
+      "wx_3d_resource_operation": {
+        "originalRows": 26,
+        "originalRowsUnchanged": true,
+        "sha256": "72ad9d7338f5645fb925150319877709f9dc2e5d04d130163db5195cbfb4f520"
+      },
+      "wx_3d_resource_import": {
+        "originalRows": 7,
+        "originalRowsUnchanged": true,
+        "sha256": "7f3626da1a31977bb34a41d8acd8f64bf9aab100959b26d0cfd2e4bfea3447f3"
+      }
+    },
+    "allOriginalModelRowsUnchanged": true
+  },
+  {
+    "target": "data08",
+    "backupSha256": "4bdc73258486bc5a085645d9bac7d79dd9eb1c05dbaf7366723b877ccf2b2712",
+    "fullRestoreVerified": true,
+    "tables": {
+      "wx_3d_model": {
+        "originalRows": 17,
+        "originalRowsUnchanged": true,
+        "sha256": "9f55fe5e20e6f514b04df2da8a44a3c9e9b3f5d044cd5ec57f7dfeb10cd6b9ef"
+      },
+      "wx_3d_resource": {
+        "originalRows": 12,
+        "originalRowsUnchanged": true,
+        "sha256": "14be41d2058187c5ae8c754d1ae2b1eb4b294669c8173944ba1b65fdcdbf2349"
+      },
+      "wx_3d_resource_operation": {
+        "originalRows": 32,
+        "originalRowsUnchanged": true,
+        "sha256": "e8b3712dc5601721a3dc66e7adbe4e87d9b2ee76f87505775a1909b06b31f649"
+      },
+      "wx_3d_resource_import": {
+        "originalRows": 6,
+        "originalRowsUnchanged": true,
+        "sha256": "c3de22b03c6c23a541d6fe319d9eda8a1c48d3509ca0babd81b4fe155a16e2db"
+      }
+    },
+    "allOriginalModelRowsUnchanged": true
+  }
+]
