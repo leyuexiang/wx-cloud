@@ -1,0 +1,536 @@
+{
+  "logicalDevices": 1000,
+  "intervalSeconds": 5,
+  "clients": 50,
+  "bindingsPerClient": 1000,
+  "mqttConnections": 1,
+  "distinctAccounts": 1,
+  "cycles": 12,
+  "expectedMessages": 12000,
+  "expectedDeliveries": 600000,
+  "targetMessagesPerSecond": 200.0,
+  "clockSource": "同一负载发生器的单调时钟",
+  "renderingMeasured": false,
+  "subscriptionScope": "draft",
+  "passed": true,
+  "setupSeconds": 6.852,
+  "publishSeconds": 60.055,
+  "loadGeneratorCpuSeconds": 0.266,
+  "abortReason": null,
+  "messagesAcknowledged": 12000,
+  "mqttMaxInFlight": 20,
+  "uniqueDeliveries": 600000,
+  "duplicateDeliveries": 0,
+  "drainSeconds": 0.2,
+  "clientErrors": [],
+  "clientResults": [
+    {
+      "client": 0,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 81.849,
+        "p95": 1342.717,
+        "p99": 1388.499
+      }
+    },
+    {
+      "client": 1,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 81.516,
+        "p95": 1342.836,
+        "p99": 1388.749
+      }
+    },
+    {
+      "client": 2,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 81.881,
+        "p95": 1342.495,
+        "p99": 1387.71
+      }
+    },
+    {
+      "client": 3,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.334,
+        "p95": 1342.19,
+        "p99": 1386.906
+      }
+    },
+    {
+      "client": 4,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 81.717,
+        "p95": 1342.622,
+        "p99": 1387.301
+      }
+    },
+    {
+      "client": 5,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.071,
+        "p95": 1341.253,
+        "p99": 1388.175
+      }
+    },
+    {
+      "client": 6,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.092,
+        "p95": 1341.687,
+        "p99": 1390.083
+      }
+    },
+    {
+      "client": 7,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 81.725,
+        "p95": 1342.246,
+        "p99": 1387.953
+      }
+    },
+    {
+      "client": 8,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 81.362,
+        "p95": 1341.555,
+        "p99": 1389.578
+      }
+    },
+    {
+      "client": 9,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 81.985,
+        "p95": 1341.043,
+        "p99": 1385.487
+      }
+    },
+    {
+      "client": 10,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 81.59,
+        "p95": 1342.059,
+        "p99": 1391.425
+      }
+    },
+    {
+      "client": 11,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.11,
+        "p95": 1341.907,
+        "p99": 1388.469
+      }
+    },
+    {
+      "client": 12,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 81.744,
+        "p95": 1341.689,
+        "p99": 1386.535
+      }
+    },
+    {
+      "client": 13,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 81.274,
+        "p95": 1342.234,
+        "p99": 1387.465
+      }
+    },
+    {
+      "client": 14,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 81.472,
+        "p95": 1341.332,
+        "p99": 1386.668
+      }
+    },
+    {
+      "client": 15,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 81.562,
+        "p95": 1342.629,
+        "p99": 1388.911
+      }
+    },
+    {
+      "client": 16,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.287,
+        "p95": 1343.086,
+        "p99": 1389.9
+      }
+    },
+    {
+      "client": 17,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.207,
+        "p95": 1343.083,
+        "p99": 1386.18
+      }
+    },
+    {
+      "client": 18,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.354,
+        "p95": 1341.374,
+        "p99": 1390.344
+      }
+    },
+    {
+      "client": 19,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 81.936,
+        "p95": 1341.573,
+        "p99": 1388.461
+      }
+    },
+    {
+      "client": 20,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.324,
+        "p95": 1341.734,
+        "p99": 1390.734
+      }
+    },
+    {
+      "client": 21,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.094,
+        "p95": 1343.064,
+        "p99": 1391.131
+      }
+    },
+    {
+      "client": 22,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 81.98,
+        "p95": 1342.601,
+        "p99": 1388.601
+      }
+    },
+    {
+      "client": 23,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 81.929,
+        "p95": 1341.065,
+        "p99": 1391.045
+      }
+    },
+    {
+      "client": 24,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.825,
+        "p95": 1344.306,
+        "p99": 1390.202
+      }
+    },
+    {
+      "client": 25,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.31,
+        "p95": 1341.899,
+        "p99": 1391.901
+      }
+    },
+    {
+      "client": 26,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.456,
+        "p95": 1343.158,
+        "p99": 1389.277
+      }
+    },
+    {
+      "client": 27,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.821,
+        "p95": 1343.01,
+        "p99": 1390.183
+      }
+    },
+    {
+      "client": 28,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.499,
+        "p95": 1343.666,
+        "p99": 1388.73
+      }
+    },
+    {
+      "client": 29,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.489,
+        "p95": 1342.069,
+        "p99": 1390.344
+      }
+    },
+    {
+      "client": 30,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.547,
+        "p95": 1341.546,
+        "p99": 1389.828
+      }
+    },
+    {
+      "client": 31,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 83.065,
+        "p95": 1342.744,
+        "p99": 1388.741
+      }
+    },
+    {
+      "client": 32,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.591,
+        "p95": 1343.191,
+        "p99": 1387.208
+      }
+    },
+    {
+      "client": 33,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.219,
+        "p95": 1343.272,
+        "p99": 1390.847
+      }
+    },
+    {
+      "client": 34,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.794,
+        "p95": 1342.213,
+        "p99": 1389.657
+      }
+    },
+    {
+      "client": 35,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.181,
+        "p95": 1343.511,
+        "p99": 1387.373
+      }
+    },
+    {
+      "client": 36,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.694,
+        "p95": 1344.162,
+        "p99": 1389.33
+      }
+    },
+    {
+      "client": 37,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.933,
+        "p95": 1343.058,
+        "p99": 1391.782
+      }
+    },
+    {
+      "client": 38,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.411,
+        "p95": 1341.76,
+        "p99": 1390.315
+      }
+    },
+    {
+      "client": 39,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.301,
+        "p95": 1342.008,
+        "p99": 1391.506
+      }
+    },
+    {
+      "client": 40,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.585,
+        "p95": 1342.574,
+        "p99": 1391.439
+      }
+    },
+    {
+      "client": 41,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.695,
+        "p95": 1344.225,
+        "p99": 1392.206
+      }
+    },
+    {
+      "client": 42,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.153,
+        "p95": 1342.918,
+        "p99": 1388.159
+      }
+    },
+    {
+      "client": 43,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.311,
+        "p95": 1341.99,
+        "p99": 1390.801
+      }
+    },
+    {
+      "client": 44,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.926,
+        "p95": 1343.001,
+        "p99": 1390.669
+      }
+    },
+    {
+      "client": 45,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.687,
+        "p95": 1343.149,
+        "p99": 1388.783
+      }
+    },
+    {
+      "client": 46,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 83.036,
+        "p95": 1342.697,
+        "p99": 1387.845
+      }
+    },
+    {
+      "client": 47,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.809,
+        "p95": 1343.368,
+        "p99": 1389.832
+      }
+    },
+    {
+      "client": 48,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 83.068,
+        "p95": 1344.08,
+        "p99": 1389.04
+      }
+    },
+    {
+      "client": 49,
+      "received": 12000,
+      "missing": 0,
+      "latencyMs": {
+        "p50": 82.601,
+        "p95": 1343.37,
+        "p99": 1389.937
+      }
+    }
+  ],
+  "latencyMs": {
+    "p50": 82.266,
+    "p95": 1342.541,
+    "p99": 1389.424
+  },
+  "deliveryComplete": true,
+  "latencyGateMs": 5000,
+  "totalSeconds": 67.464
+}
