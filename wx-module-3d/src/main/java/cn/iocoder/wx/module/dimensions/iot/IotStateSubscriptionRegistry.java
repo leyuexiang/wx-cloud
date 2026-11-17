@@ -13,6 +13,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.web.socket.WebSocketSession;
@@ -161,12 +162,13 @@ public class IotStateSubscriptionRegistry {
         Set<String> members = redis.opsForZSet().rangeByScore(key, now + 1, Double.POSITIVE_INFINITY);
         if (members == null || members.isEmpty()) return;
         List<PublishedDelivery> publishedMembers = null;
+        List<PublishedDelivery> deliveries = new ArrayList<>();
         Set<String> ticketIds = null;
         for (String raw : members) {
             RegisteredBinding binding = parse(raw);
             if (binding == null || !IotSceneBindingScope.matchesEvent(event, binding.sceneId, binding.objectId, binding.domain)) continue;
             if (binding.publicationTicketId == null) {
-                sendCurrent(raw, binding, event, stateVersion);
+                deliveries.add(new PublishedDelivery(raw, binding));
             } else if (binding.loginExpiresAt != null && binding.loginExpiresAt > now) {
                 if (publishedMembers == null) {
                     publishedMembers = new ArrayList<>();
@@ -176,28 +178,51 @@ public class IotStateSubscriptionRegistry {
                 ticketIds.add(binding.publicationTicketId);
             }
         }
-        if (publishedMembers == null) return;
+        if (publishedMembers == null) {
+            sendCurrentBatch(deliveries, event, stateVersion);
+            return;
+        }
         Set<String> activeTickets;
         try {
             activeTickets = scope.activeLiveTickets(event.getTenantId(), ticketIds);
         } catch (RuntimeException error) {
             // 发布状态无法核验时停止发布投递，草稿投递和已写入的最新状态不受影响。
             log.warn("物联网发布订阅票据状态检查失败，tenant={}", event.getTenantId(), error);
+            sendCurrentBatch(deliveries, event, stateVersion);
             return;
         }
         for (PublishedDelivery delivery : publishedMembers) {
             RegisteredBinding binding = delivery.binding;
             if (activeTickets.contains(binding.publicationTicketId) && binding.loginExpiresAt > System.currentTimeMillis()) {
-                sendCurrent(delivery.raw, binding, event, stateVersion);
+                deliveries.add(delivery);
             }
         }
+        sendCurrentBatch(deliveries, event, stateVersion);
     }
 
-    private void sendCurrent(String raw, RegisteredBinding binding, TwinTelemetryEvent event, String stateVersion) {
-        // 共享点位集合可能被其他会话续期，发送前核对自己的会话记录。
-        if (!raw.equals(redis.opsForHash().get(sessionKey(binding.sessionId), binding.subscriptionId))) return;
-        sender.sendObject(binding.sessionId, "iot-state-update",
-                IotStateUpdateMessage.from(binding.subscriptionId, binding.sceneId, binding.objectId, event, stateVersion));
+    private void sendCurrentBatch(List<PublishedDelivery> deliveries, TwinTelemetryEvent event, String stateVersion) {
+        // 保留逐项会话登记校验，仅合并 Redis 网络往返；分批限制流水线缓冲大小。
+        for (int offset = 0; offset < deliveries.size(); offset += 128) {
+            List<PublishedDelivery> batch = deliveries.subList(offset, Math.min(offset + 128, deliveries.size()));
+            List<Object> current = redis.executePipelined((RedisCallback<Object>) connection -> {
+                for (PublishedDelivery delivery : batch) {
+                    RegisteredBinding binding = delivery.binding;
+                    connection.hashCommands().hGet(sessionKey(binding.sessionId).getBytes(StandardCharsets.UTF_8),
+                            binding.subscriptionId.getBytes(StandardCharsets.UTF_8));
+                }
+                return null;
+            });
+            if (current.size() != batch.size()) throw new IllegalStateException("订阅会话批量校验结果不完整");
+            for (int i = 0; i < batch.size(); i++) {
+                PublishedDelivery delivery = batch.get(i);
+                RegisteredBinding binding = delivery.binding;
+                if (!delivery.raw.equals(current.get(i))) continue;
+                if (binding.publicationTicketId != null && (binding.loginExpiresAt == null
+                        || binding.loginExpiresAt <= System.currentTimeMillis())) continue;
+                sender.sendObject(binding.sessionId, "iot-state-update",
+                        IotStateUpdateMessage.from(binding.subscriptionId, binding.sceneId, binding.objectId, event, stateVersion));
+            }
+        }
     }
 
     private LoginUser requireUser(WebSocketSession session) {
