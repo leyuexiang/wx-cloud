@@ -1,0 +1,2299 @@
+{
+  "savedScene": {
+    "sceneId": "2122269441737682946",
+    "revisionNo": 5,
+    "widgetId": "115772655977013248",
+    "adapter": {
+      "adapterId": "iot-state",
+      "config": {
+        "deviceId": "lab-temperature-01",
+        "pointCode": "temperature",
+        "delivery": "websocket",
+        "pollIntervalSeconds": 5
+      }
+    },
+    "mapping": [
+      {
+        "kind": "widget",
+        "targetPath": "value",
+        "sourceField": "value",
+        "valueType": "string"
+      }
+    ]
+  },
+  "publication": {
+    "publicationId": "PUB-2122542758537261058",
+    "sceneId": "2122269441737682946",
+    "status": "PUBLISHED",
+    "revisionNo": 5
+  },
+  "backend": {
+    "scope": {
+      "invalidBindingsRejected": [
+        {
+          "domain": "threeD"
+        },
+        {
+          "domain": "invalid"
+        },
+        {
+          "objectId": "removed-widget"
+        },
+        {
+          "deviceId": "lab-switch-01",
+          "pointCode": "visible"
+        }
+      ],
+      "oldRevisionCannotBorrowDraftWidget": true,
+      "forgedTenantRejected": true
+    },
+    "duplicate": {
+      "value": 29.5,
+      "eventId": "af29325a-6447-3bcd-8126-84d87827d51c",
+      "sourceObjectId": "lab-temperature-model",
+      "consumerObjectId": "115772655977013248",
+      "stateVersion": "31557015962108113218299000:af29325a-6447-3bcd-8126-84d87827d51c",
+      "acceptedRecords": 1,
+      "sentMessages": 2,
+      "inboxStatus": "PUBLISHED"
+    },
+    "outOfOrder": {
+      "value": 31.125,
+      "eventId": "e183c356-41f8-3b9d-941e-8e1f0a076eef",
+      "sourceObjectId": "lab-temperature-model",
+      "consumerObjectId": "115772655977013248",
+      "stateVersion": "31557015962108115228210000:e183c356-41f8-3b9d-941e-8e1f0a076eef",
+      "acceptedRecords": 2,
+      "sentMessages": 2,
+      "inboxStatus": "PUBLISHED"
+    },
+    "reconnectSnapshot": {
+      "value": 26.125,
+      "eventId": "e4e7d4aa-5964-348e-83ae-2c3642e5f534"
+    },
+    "restored": {
+      "value": 29.5,
+      "eventId": "0c506641-dd40-3c32-9718-e7346fd6ac35",
+      "sourceObjectId": "lab-temperature-model",
+      "consumerObjectId": "115772655977013248",
+      "stateVersion": "31557015962108118519461000:0c506641-dd40-3c32-9718-e7346fd6ac35",
+      "acceptedRecords": 1,
+      "sentMessages": 1,
+      "inboxStatus": "PUBLISHED"
+    },
+    "ticketRevocationStopsQueryAndPush": true,
+    "publicationId": "PUB-2122542758537261058",
+    "revisionNo": 5
+  },
+  "draft": {
+    "before": {
+      "updates": [],
+      "acks": [
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        }
+      ],
+      "errors": 0,
+      "subscriptions": [
+        {
+          "sceneId": "2122269441737682946",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "sceneId": "2122269441737682946",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "sceneId": "2122269441737682946",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "sceneId": "2122269441737682946",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "sceneId": "2122269441737682946",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "sceneId": "2122269441737682946",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        }
+      ],
+      "sockets": 1,
+      "scenes": 0,
+      "commits": 0,
+      "timeOrigin": 1794888234417.275,
+      "body": "数据可视化生产平台\nIoT 虚拟设备试运行\n系统资源\n我的资源\n结构\n基础\n相机\n环境设置\n植被系统\n二维验收阶段尚未接入 Unity 三维运行时\n相机\n第一人称\n基础几何体\n立方体\n胶囊\n圆形\n圆锥\n圆柱\n十二面体\n二十面体\n八面体\n平面\n球\n四面体\n圆环\n城市\n城市\n发布画布\n尺寸\nx\n温度\n26.125\n°C",
+      "snapshotRequests": 2,
+      "fixedFiles": 0,
+      "playerLoaded": false
+    },
+    "after": {
+      "updates": [
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "5348b7de-119f-3831-b1b4-60aabb1c1cd2",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962107516943621000:5348b7de-119f-3831-b1b4-60aabb1c1cd2"
+        }
+      ],
+      "acks": [
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        }
+      ],
+      "errors": 0,
+      "subscriptions": [
+        {
+          "sceneId": "2122269441737682946",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "sceneId": "2122269441737682946",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "sceneId": "2122269441737682946",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "sceneId": "2122269441737682946",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "sceneId": "2122269441737682946",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "sceneId": "2122269441737682946",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        }
+      ],
+      "sockets": 1,
+      "scenes": 0,
+      "commits": 0,
+      "timeOrigin": 1794888234417.275,
+      "body": "数据可视化生产平台\nIoT 虚拟设备试运行\n系统资源\n我的资源\n结构\n基础\n相机\n环境设置\n植被系统\n二维验收阶段尚未接入 Unity 三维运行时\n相机\n第一人称\n基础几何体\n立方体\n胶囊\n圆形\n圆锥\n圆柱\n十二面体\n二十面体\n八面体\n平面\n球\n四面体\n圆环\n城市\n城市\n发布画布\n尺寸\nx\n温度\n29.500\n°C\n预览",
+      "snapshotRequests": 2,
+      "fixedFiles": 0,
+      "playerLoaded": false
+    },
+    "savedRevision": 5,
+    "delivery": "websocket",
+    "pollingRequestsDuringUpdate": 0
+  },
+  "fixedBaseline": {
+    "publicationId": "PUB-2122542758537261058",
+    "ticketId": "TKT-2122543404833370113",
+    "revisionNo": 5,
+    "state": {
+      "updates": [],
+      "acks": [
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        }
+      ],
+      "errors": 0,
+      "subscriptions": [
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        }
+      ],
+      "sockets": 1,
+      "scenes": 1,
+      "commits": 0,
+      "timeOrigin": 1794888672964.775,
+      "body": "温度\n29.500\n°C",
+      "snapshotRequests": 2,
+      "fixedFiles": 5,
+      "playerLoaded": true
+    }
+  },
+  "fixedLive": {
+    "before": {
+      "updates": [
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "2284f62f-187b-3e06-9d78-657787ff2d48",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108085368754000:2284f62f-187b-3e06-9d78-657787ff2d48"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "af29325a-6447-3bcd-8126-84d87827d51c",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108113218299000:af29325a-6447-3bcd-8126-84d87827d51c"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "e183c356-41f8-3b9d-941e-8e1f0a076eef",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 31.125,
+          "stateVersion": "31557015962108115228210000:e183c356-41f8-3b9d-941e-8e1f0a076eef"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "e4e7d4aa-5964-348e-83ae-2c3642e5f534",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 26.125,
+          "stateVersion": "31557015962108117494514000:e4e7d4aa-5964-348e-83ae-2c3642e5f534"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "0c506641-dd40-3c32-9718-e7346fd6ac35",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108118519461000:0c506641-dd40-3c32-9718-e7346fd6ac35"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "3dc4dacf-22cc-384b-82b2-4dd2cd22bd80",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108120731884000:3dc4dacf-22cc-384b-82b2-4dd2cd22bd80"
+        }
+      ],
+      "acks": [
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        }
+      ],
+      "errors": 0,
+      "subscriptions": [
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        }
+      ],
+      "sockets": 1,
+      "scenes": 1,
+      "commits": 0,
+      "timeOrigin": 1794888672964.775,
+      "body": "温度\n29.500\n°C",
+      "snapshotRequests": 2,
+      "fixedFiles": 5,
+      "playerLoaded": true
+    },
+    "after": {
+      "updates": [
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "2284f62f-187b-3e06-9d78-657787ff2d48",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108085368754000:2284f62f-187b-3e06-9d78-657787ff2d48"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "af29325a-6447-3bcd-8126-84d87827d51c",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108113218299000:af29325a-6447-3bcd-8126-84d87827d51c"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "e183c356-41f8-3b9d-941e-8e1f0a076eef",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 31.125,
+          "stateVersion": "31557015962108115228210000:e183c356-41f8-3b9d-941e-8e1f0a076eef"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "e4e7d4aa-5964-348e-83ae-2c3642e5f534",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 26.125,
+          "stateVersion": "31557015962108117494514000:e4e7d4aa-5964-348e-83ae-2c3642e5f534"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "0c506641-dd40-3c32-9718-e7346fd6ac35",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108118519461000:0c506641-dd40-3c32-9718-e7346fd6ac35"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "3dc4dacf-22cc-384b-82b2-4dd2cd22bd80",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108120731884000:3dc4dacf-22cc-384b-82b2-4dd2cd22bd80"
+        },
+        {
+          "subscriptionId": "iot-0-1",
+          "eventId": "aee9432f-3531-3cf3-b15b-028aeccde326",
+          "sceneId": "2122269441737682946",
+          "objectId": "lab-switch-model",
+          "deviceId": "lab-switch-01",
+          "pointCode": "visible",
+          "value": false,
+          "stateVersion": "31557015962108167354377000:aee9432f-3531-3cf3-b15b-028aeccde326"
+        },
+        {
+          "subscriptionId": "iot-0-1",
+          "eventId": "591e3115-014e-3c63-ad1b-a579c2d14c85",
+          "sceneId": "2122269441737682946",
+          "objectId": "lab-switch-model",
+          "deviceId": "lab-switch-01",
+          "pointCode": "visible",
+          "value": true,
+          "stateVersion": "31557015962108169996525000:591e3115-014e-3c63-ad1b-a579c2d14c85"
+        }
+      ],
+      "acks": [
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        }
+      ],
+      "errors": 0,
+      "subscriptions": [
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        }
+      ],
+      "sockets": 1,
+      "scenes": 1,
+      "commits": 0,
+      "timeOrigin": 1794888672964.775,
+      "body": "温度\n29.500\n°C",
+      "snapshotRequests": 2,
+      "fixedFiles": 5,
+      "playerLoaded": true
+    },
+    "modelValues": [
+      false,
+      true
+    ],
+    "temperatureUnchanged": 29.5,
+    "extraPollingRequests": 0
+  },
+  "recovery": {
+    "before": {
+      "updates": [
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "2284f62f-187b-3e06-9d78-657787ff2d48",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108085368754000:2284f62f-187b-3e06-9d78-657787ff2d48"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "af29325a-6447-3bcd-8126-84d87827d51c",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108113218299000:af29325a-6447-3bcd-8126-84d87827d51c"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "e183c356-41f8-3b9d-941e-8e1f0a076eef",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 31.125,
+          "stateVersion": "31557015962108115228210000:e183c356-41f8-3b9d-941e-8e1f0a076eef"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "e4e7d4aa-5964-348e-83ae-2c3642e5f534",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 26.125,
+          "stateVersion": "31557015962108117494514000:e4e7d4aa-5964-348e-83ae-2c3642e5f534"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "0c506641-dd40-3c32-9718-e7346fd6ac35",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108118519461000:0c506641-dd40-3c32-9718-e7346fd6ac35"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "3dc4dacf-22cc-384b-82b2-4dd2cd22bd80",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108120731884000:3dc4dacf-22cc-384b-82b2-4dd2cd22bd80"
+        },
+        {
+          "subscriptionId": "iot-0-1",
+          "eventId": "aee9432f-3531-3cf3-b15b-028aeccde326",
+          "sceneId": "2122269441737682946",
+          "objectId": "lab-switch-model",
+          "deviceId": "lab-switch-01",
+          "pointCode": "visible",
+          "value": false,
+          "stateVersion": "31557015962108167354377000:aee9432f-3531-3cf3-b15b-028aeccde326"
+        },
+        {
+          "subscriptionId": "iot-0-1",
+          "eventId": "591e3115-014e-3c63-ad1b-a579c2d14c85",
+          "sceneId": "2122269441737682946",
+          "objectId": "lab-switch-model",
+          "deviceId": "lab-switch-01",
+          "pointCode": "visible",
+          "value": true,
+          "stateVersion": "31557015962108169996525000:591e3115-014e-3c63-ad1b-a579c2d14c85"
+        }
+      ],
+      "acks": [
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        }
+      ],
+      "errors": 0,
+      "subscriptions": [
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        }
+      ],
+      "sockets": 1,
+      "scenes": 1,
+      "commits": 0,
+      "timeOrigin": 1794888672964.775,
+      "body": "温度\n29.500\n°C",
+      "snapshotRequests": 2,
+      "fixedFiles": 5,
+      "playerLoaded": true
+    },
+    "during": {
+      "online": false,
+      "valueUnchanged": true,
+      "updates": 8
+    },
+    "recovered": {
+      "updates": [
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "2284f62f-187b-3e06-9d78-657787ff2d48",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108085368754000:2284f62f-187b-3e06-9d78-657787ff2d48"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "af29325a-6447-3bcd-8126-84d87827d51c",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108113218299000:af29325a-6447-3bcd-8126-84d87827d51c"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "e183c356-41f8-3b9d-941e-8e1f0a076eef",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 31.125,
+          "stateVersion": "31557015962108115228210000:e183c356-41f8-3b9d-941e-8e1f0a076eef"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "e4e7d4aa-5964-348e-83ae-2c3642e5f534",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 26.125,
+          "stateVersion": "31557015962108117494514000:e4e7d4aa-5964-348e-83ae-2c3642e5f534"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "0c506641-dd40-3c32-9718-e7346fd6ac35",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108118519461000:0c506641-dd40-3c32-9718-e7346fd6ac35"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "3dc4dacf-22cc-384b-82b2-4dd2cd22bd80",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108120731884000:3dc4dacf-22cc-384b-82b2-4dd2cd22bd80"
+        },
+        {
+          "subscriptionId": "iot-0-1",
+          "eventId": "aee9432f-3531-3cf3-b15b-028aeccde326",
+          "sceneId": "2122269441737682946",
+          "objectId": "lab-switch-model",
+          "deviceId": "lab-switch-01",
+          "pointCode": "visible",
+          "value": false,
+          "stateVersion": "31557015962108167354377000:aee9432f-3531-3cf3-b15b-028aeccde326"
+        },
+        {
+          "subscriptionId": "iot-0-1",
+          "eventId": "591e3115-014e-3c63-ad1b-a579c2d14c85",
+          "sceneId": "2122269441737682946",
+          "objectId": "lab-switch-model",
+          "deviceId": "lab-switch-01",
+          "pointCode": "visible",
+          "value": true,
+          "stateVersion": "31557015962108169996525000:591e3115-014e-3c63-ad1b-a579c2d14c85"
+        }
+      ],
+      "acks": [
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        }
+      ],
+      "errors": 0,
+      "subscriptions": [
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        }
+      ],
+      "sockets": 3,
+      "scenes": 1,
+      "commits": 0,
+      "timeOrigin": 1794888672964.775,
+      "body": "温度\n28.125\n°C",
+      "snapshotRequests": 4,
+      "fixedFiles": 5,
+      "playerLoaded": true
+    },
+    "restored": {
+      "updates": [
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "2284f62f-187b-3e06-9d78-657787ff2d48",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108085368754000:2284f62f-187b-3e06-9d78-657787ff2d48"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "af29325a-6447-3bcd-8126-84d87827d51c",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108113218299000:af29325a-6447-3bcd-8126-84d87827d51c"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "e183c356-41f8-3b9d-941e-8e1f0a076eef",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 31.125,
+          "stateVersion": "31557015962108115228210000:e183c356-41f8-3b9d-941e-8e1f0a076eef"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "e4e7d4aa-5964-348e-83ae-2c3642e5f534",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 26.125,
+          "stateVersion": "31557015962108117494514000:e4e7d4aa-5964-348e-83ae-2c3642e5f534"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "0c506641-dd40-3c32-9718-e7346fd6ac35",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108118519461000:0c506641-dd40-3c32-9718-e7346fd6ac35"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "3dc4dacf-22cc-384b-82b2-4dd2cd22bd80",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108120731884000:3dc4dacf-22cc-384b-82b2-4dd2cd22bd80"
+        },
+        {
+          "subscriptionId": "iot-0-1",
+          "eventId": "aee9432f-3531-3cf3-b15b-028aeccde326",
+          "sceneId": "2122269441737682946",
+          "objectId": "lab-switch-model",
+          "deviceId": "lab-switch-01",
+          "pointCode": "visible",
+          "value": false,
+          "stateVersion": "31557015962108167354377000:aee9432f-3531-3cf3-b15b-028aeccde326"
+        },
+        {
+          "subscriptionId": "iot-0-1",
+          "eventId": "591e3115-014e-3c63-ad1b-a579c2d14c85",
+          "sceneId": "2122269441737682946",
+          "objectId": "lab-switch-model",
+          "deviceId": "lab-switch-01",
+          "pointCode": "visible",
+          "value": true,
+          "stateVersion": "31557015962108169996525000:591e3115-014e-3c63-ad1b-a579c2d14c85"
+        },
+        {
+          "subscriptionId": "iot-0-2",
+          "eventId": "b834acbd-4408-31d3-bf23-3336b43f21ff",
+          "sceneId": "2122269441737682946",
+          "objectId": "115772655977013248",
+          "deviceId": "lab-temperature-01",
+          "pointCode": "temperature",
+          "value": 29.5,
+          "stateVersion": "31557015962108214779591000:b834acbd-4408-31d3-bf23-3336b43f21ff"
+        }
+      ],
+      "acks": [
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-1"
+          ],
+          "rejected": []
+        },
+        {
+          "accepted": [
+            "iot-0-2"
+          ],
+          "rejected": []
+        }
+      ],
+      "errors": 0,
+      "subscriptions": [
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-1",
+              "objectId": "lab-switch-model",
+              "deviceId": "lab-switch-01",
+              "pointCode": "visible"
+            }
+          ]
+        },
+        {
+          "publicationId": "PUB-2122542758537261058",
+          "bindings": [
+            {
+              "subscriptionId": "iot-0-2",
+              "objectId": "115772655977013248",
+              "domain": "twoD",
+              "deviceId": "lab-temperature-01",
+              "pointCode": "temperature"
+            }
+          ]
+        }
+      ],
+      "sockets": 3,
+      "scenes": 1,
+      "commits": 0,
+      "timeOrigin": 1794888672964.775,
+      "body": "温度\n29.500\n°C",
+      "snapshotRequests": 4,
+      "fixedFiles": 5,
+      "playerLoaded": true
+    },
+    "pageReloaded": false,
+    "missedValueRecoveredBySnapshot": 28.125,
+    "finalValue": 29.5
+  },
+  "modelPixels": {
+    "hidden": 300147,
+    "restored": 0
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "web": {
+    "tests": 92,
+    "failed": 0,
+    "typeCheck": "PASS",
+    "productionBuild": "PASS",
+    "sourceCommit": "e56294b352a6bc12fb0a599525ba8463c183582c",
+    "command": "pnpm test src/integrations/scene/__tests__/iotWidgetRealtime.test.ts src/integrations/scene/__tests__/iotStatePollingRuntime.test.ts src/integrations/scene/widgetRuntime/__tests__ src/servers/manual/iot/__tests__ src/views/sceneEdit/__tests__/inspectorMode.test.ts"
+  },
+  "server": {
+    "tests": 35,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 3,
+    "productionBuild": "PASS (test148 profile)",
+    "sourceCommit": "c97f1de990a386f664f771506a065d469f39d759",
+    "command": "mvn -q -o -Ptest148 -pl wx-module-3d -am '-Dtest=Iot*Test,KafkaWebSocketRoutingTest' '-Dsurefire.failIfNoSpecifiedTests=false' package",
+    "skippedReason": "三项 Redis 独立集成测试未配置专用端口；另有真实 MQTT→Kafka→Redis→WebSocket 的实际依赖验收。"
+  },
+  "unity": {
+    "sourceCommit": "793d3356",
+    "codeChanged": false,
+    "runtime": "现有网页播放器实际加载与画面验证；本地官方插件 status 未发现连接的编辑器。"
+  },
+  "buildStorage": "D:/UnityProject/jtyf-dts-webgpu/artifacts/Builds/latest/iot-m3-03a-20261114",
+  "guiPublicationGap": "管理接口 dim3d_access_mode 字典为空，未用本地假选项绕过；本批使用现有角色保护的 /dim3d/scene/publication/publish 固定修订。"
+}
