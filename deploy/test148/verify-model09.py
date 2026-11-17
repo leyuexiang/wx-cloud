@@ -1,0 +1,244 @@
+"""使用真实登录、转换器及私有对象存储验证模型五类接口，结果仅保留断言和清理状态。"""
+import argparse
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+import re
+import ssl
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+import uuid
+import xml.etree.ElementTree as ET
+
+from server_support import mysql_command
+import subprocess
+
+ROOT = Path('/opt/wx/editor-test148')
+RELEASE = Path('/home/wx-model09-release-20261117')
+OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+SECURE = urllib.request.build_opener(urllib.request.ProxyHandler({}), urllib.request.HTTPSHandler(
+    context=ssl.create_default_context(cafile='/home/wx-editor-web148/releases/iot-web-20261111/server.crt')))
+
+
+def load(name, filename):
+    spec = importlib.util.spec_from_file_location(name, Path(__file__).with_name(filename))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def sql(statement):
+    result = subprocess.run(mysql_command() + ['-N', '-B'], input=statement.encode(), capture_output=True)
+    if result.returncode:
+        raise RuntimeError('数据库验收查询失败')
+    return result.stdout.decode().strip()
+
+
+def verify(target, formal):
+    """正式验收经两个各自网关，候选直接连接回环服务；每次登录和样例均独立回收。"""
+    stage = json.loads((RELEASE / 'prepared.json').read_text())['targets'][target]
+    database = stage['database'] if formal else stage['clone']
+    port = (12522 if target == 'main' else 12525) if formal else stage['candidatePort']
+    actors = {item['role']: dict(item) for item in json.loads((ROOT / 'test-identities.json').read_text())}
+    result = {'target': target, 'formal': formal, 'port': port, 'database': database,
+              'checks': [], 'passed': False, 'cleaned': False}
+    resources = []
+    directories = []
+    operations = []
+    prefixes = set()
+    marker = 'MODEL09-' + uuid.uuid4().hex[:12]
+
+    def check(name, condition):
+        result['checks'].append({'name': name, 'passed': bool(condition)})
+        if not condition:
+            raise RuntimeError(name)
+
+    def request(path, body=None, method='GET', actor=None, login=False, content_type='application/json'):
+        headers = {'Content-Type': content_type, 'ClientId': 'admin-api'}
+        if actor:
+            headers['tenant-id'] = str(actor['tenantId'])
+            if actor.get('token'):
+                headers['Authorization'] = 'Bearer ' + actor['token']
+        data = body if isinstance(body, bytes) else json.dumps(body).encode() if body is not None else None
+        endpoint = 12522 if login else port
+        req = urllib.request.Request('http://127.0.0.1:' + str(endpoint) + path,
+                                     data=data, headers=headers, method=method)
+        try:
+            response = OPENER.open(req, timeout=45)
+        except urllib.error.HTTPError as error:
+            response = error
+        with response:
+            return json.load(response)
+
+    def wait(operation, expected, actor):
+        deadline = time.monotonic() + 150
+        while time.monotonic() < deadline:
+            state = request('/admin-api/dim3d/model-imports/' + operation, actor=actor)
+            if state.get('code') != 200:
+                raise RuntimeError('导入状态读取失败')
+            state = state['data']
+            if state['importStatus'] == expected:
+                return state
+            if state['importStatus'] in ('FAILED', 'CANCELLED', 'CONFLICT', 'EXPIRED'):
+                result['failedImport'] = {key: state.get(key) for key in ('importStatus', 'errorNumber', 'errorCode')}
+                raise RuntimeError('模型转换未达到预期阶段')
+            time.sleep(1)
+        raise RuntimeError('模型转换等待超时')
+
+    def upload(actor, belong):
+        payload, _ = load('model09_source', 'verify-model-import-source.py').source_payload('obj')
+        boundary = 'model09' + uuid.uuid4().hex
+        body = ('--' + boundary + '\r\nContent-Disposition: form-data; name="resourceBelong"\r\n\r\n'
+                + belong + '\r\n--' + boundary + '\r\nContent-Disposition: form-data; name="file"; '
+                'filename="' + marker + '.zip"\r\nContent-Type: application/zip\r\n\r\n').encode()
+        body += payload + ('\r\n--' + boundary + '--\r\n').encode()
+        response = request('/admin-api/dim3d/resource/uploadConvert', body, 'POST', actor,
+                           content_type='multipart/form-data; boundary=' + boundary)
+        check('真实模型上传受理', response.get('code') == 200)
+        state = response['data']
+        operation, resource = state['operationId'], state['resourceId']
+        operations.append((operation, actor))
+        resources.append((resource, actor))
+        for prefix in ('resources/staging/model-imports/', 'resources/model-imports/'):
+            prefixes.add(prefix + operation + '/')
+        wait(operation, 'PUBLISHING', actor)
+        return operation, resource
+
+    try:
+        for role in ('super_admin', 'tenant_admin', 'viewer'):
+            actor = actors[role]
+            response = request('/admin-api/system/auth/login', {'username': actor['username'],
+                'password': actor['password'], 'captchaVerification': ''}, 'POST', actor, login=True)
+            check(role + '真实登录', response.get('code') == 200)
+            actor['token'] = response['data']['accessToken']
+            actor['userId'] = str(response['data']['userId'])
+        actor = actors['tenant_admin']
+        check('匿名模型分页拒绝', request('/admin-api/dim3d/model/page').get('code') == 401)
+        check('只读角色新增拒绝', request('/admin-api/dim3d/model/add', {}, 'POST', actors['viewer']).get('code') == 403)
+        category = sql("SELECT value FROM wx_editor.wx_system_dict_data WHERE dict_type='dim3d_model_category'"
+                       " AND status=0 AND deleted=0 ORDER BY sort,id LIMIT 1;")
+        check('使用现有启用模型分类', bool(re.fullmatch(r'[A-Za-z0-9_-]{1,32}', category)))
+        operation, resource = upload(actor, 'MINE')
+        body = {'modelName': marker, 'category': category, 'modelDesc': '真实发布接口验收',
+                'resourceBelong': 'MINE', 'isPaid': 'PAID', 'price': 1299, 'modelFileId': resource}
+        invalid = request('/admin-api/dim3d/model/add', {**body, 'price': 12.99}, 'POST', actor)
+        check('小数分金额拒绝', invalid.get('code') == 400)
+        response = request('/admin-api/dim3d/model/add', body, 'POST', actor)
+        check('文档新增成功且数据为空', response.get('code') == 200 and response.get('data') is None)
+        wait(operation, 'COMMITTED', actor)
+        directory = sql('SELECT id FROM `' + database + '`.wx_3d_model WHERE resource_id=' + resource + " AND del_flag='0';")
+        check('新增实际落库且编号有效', bool(re.fullmatch(r'[1-9][0-9]{0,18}', directory)))
+        directories.append((directory, actor))
+        check('相同模型表单可重试', request('/admin-api/dim3d/model/add', body, 'POST', actor).get('code') == 200)
+        query = urllib.parse.urlencode({'modelName': marker, 'resourceBelong': 'MINE', 'category': category,
+            'status': 'ONLINE', 'isPaid': 'PAID', 'pageNum': 1, 'pageSize': 10,
+            'orderByColumn': 'priceYuan', 'isAsc': 'asc'})
+        page = request('/admin-api/dim3d/model/page?' + query, actor=actor)
+        check('根级分页及全部筛选有效', page.get('code') == 200 and page.get('total') == 1
+              and len(page.get('rows', [])) == 1 and 'data' not in page)
+        detail = request('/admin-api/dim3d/model/info/' + directory, actor=actor)['data']
+        check('详情编号及元值符合契约', detail['id'] == directory and detail['modelFileId'] == resource
+              and float(detail['priceYuan']) == 12.99 and 'price' not in detail)
+        check('详情包含预览签名和到期时间', bool(detail.get('modelFileUrl')) and bool(detail.get('downloadExpiresAt')))
+        with SECURE.open(detail['modelFileUrl'], timeout=30) as response:
+            model = response.read(8 * 1024 * 1024)
+            check('私有预览真实回读为模型', response.status == 200 and model[:4] == b'glTF')
+        check('资源详情投影可回读', request('/admin-api/dim3d/resource/info/' + resource, actor=actor).get('code') == 200)
+        denied = request('/admin-api/dim3d/model/info/' + directory, actor=actors['viewer'])
+        check('同租户其他账号不可读个人模型', denied.get('code') != 200)
+        denied = request('/admin-api/dim3d/model/info/' + directory, actor=actors['super_admin'])
+        check('其他租户不可读个人模型', denied.get('code') != 200)
+        changed = {**body, 'modelName': marker + '-编辑', 'modelDesc': ''}
+        response = request('/admin-api/dim3d/model/edit/' + directory, changed, 'PUT', actor)
+        check('编辑成功且数据为空', response.get('code') == 200 and response.get('data') is None)
+        detail = request('/admin-api/dim3d/model/info/' + directory, actor=actor)['data']
+        check('编辑字段真实回读', detail['modelName'] == changed['modelName'] and detail['modelDesc'] == '')
+        new_operation, new_resource = upload(actor, 'MINE')
+        changed['modelFileId'] = new_resource
+        response = request('/admin-api/dim3d/model/edit/' + directory, changed, 'PUT', actor)
+        check('新文件编辑保持目录编号', response.get('code') == 200 and request(
+            '/admin-api/dim3d/model/info/' + directory, actor=actor)['data']['modelFileId'] == new_resource)
+        wait(new_operation, 'COMMITTED', actor)
+        # 仅在独立空副本插入本次资源的引用夹具，验证真实 MySQL 行锁下删除拒绝与回滚。
+        if not formal:
+            sql("INSERT INTO `" + database + "`.wx_3d_scene_publication_resource(id,publication_id,tenant_id,resource_key,"
+                "resource_id,resource_revision,content_hash,manifest_sha256,operation_id,resource_scope,resource_tenant_id,snapshot_json) "
+                "VALUES(900000000000000001,'" + marker + "',2,'model'," + new_resource + ",1,'" + '0'*64 + "','"
+                + '0'*64 + "','" + new_operation + "','TENANT_SHARED','2','{}');")
+            response = request('/admin-api/dim3d/model/remove/' + directory, method='DELETE', actor=actor)
+            check('已发布引用阻止删除', response.get('code') != 200 and request(
+                '/admin-api/dim3d/model/info/' + directory, actor=actor).get('code') == 200)
+            sql("DELETE FROM `" + database + "`.wx_3d_scene_publication_resource WHERE publication_id='" + marker + "';")
+        response = request('/admin-api/dim3d/model/remove/' + directory, method='DELETE', actor=actor)
+        check('删除成功且数据为空', response.get('code') == 200 and response.get('data') is None)
+        check('删除后详情不可读', request('/admin-api/dim3d/model/info/' + directory, actor=actor).get('code') != 200)
+        administrator = actors['super_admin']
+        operation, resource = upload(administrator, 'SYSTEM')
+        legacy = {'operationId': operation, 'resourceId': resource, 'modelName': marker + '-兼容',
+                  'category': category, 'isPaid': 'FREE', 'price': 0}
+        response = request('/admin-api/dim3d/model/add', legacy, 'POST', administrator)
+        check('既有网页保存返回导入回执', response.get('code') == 200
+              and isinstance(response.get('data'), dict) and response['data'].get('operationId') == operation)
+        wait(operation, 'COMMITTED', administrator)
+        legacy_id = sql('SELECT id FROM `' + database + '`.wx_3d_model WHERE resource_id=' + resource + " AND del_flag='0';")
+        directories.append((legacy_id, administrator))
+        check('系统模型跨租户可读', request('/admin-api/dim3d/model/info/' + legacy_id, actor=actor).get('code') == 200)
+        result['passed'] = True
+    except Exception as error:
+        result['errorType'] = type(error).__name__
+    finally:
+        # 业务接口回收所有本次目录及独立资源，再按已记录操作前缀逐个删除私有存储对象。
+        cleaned = True
+        try:
+            for directory, actor in directories:
+                response = request('/admin-api/dim3d/model/remove/' + directory, method='DELETE', actor=actor)
+                cleaned = response.get('code') == 200 and cleaned
+            for resource, actor in resources:
+                value = sql('SELECT CONCAT(current_revision,\':\',content_state,\':\',del_flag) FROM `'
+                            + database + '`.wx_3d_resource WHERE id=' + resource + ';')
+                revision, state, deleted = value.split(':')
+                if state == 'READY' and deleted == '0':
+                    deletion = str(uuid.uuid4())
+                    request('/admin-api/dim3d/resource-operations', {'operationId': deletion,
+                        'operationType': 'DELETE', 'resourceId': resource, 'expectedRevision': revision}, 'POST', actor)
+                    response = request('/admin-api/dim3d/resource-operations/' + deletion + '/commit', {}, 'POST', actor)
+                    cleaned = response.get('code') == 200 and cleaned
+            for operation, actor in operations:
+                request('/admin-api/dim3d/resource-operations/' + operation + '/cancel', {}, 'POST', actor)
+                rows = sql('SELECT storage_prefix FROM `' + database + "`.wx_3d_resource_operation WHERE id='" + operation + "';")
+                if rows.startswith('resources/') and operation in rows:
+                    prefixes.add(rows)
+            s3 = load('model09_s3', 'art-s3-test-support.py')
+            for prefix in prefixes:
+                status, data = s3.request('GET', '/wx-art-test148', query=urllib.parse.urlencode({'list-type': '2', 'prefix': prefix}))
+                tree = ET.fromstring(data)
+                keys = [item.text for item in tree.findall('{*}Contents/{*}Key')]
+                safe = status == 200 and len(keys) <= 128 and tree.findtext('{*}IsTruncated') == 'false'
+                if not safe or not all(key.startswith(prefix) for key in keys):
+                    raise RuntimeError('测试对象清理范围无效')
+                for key in keys:
+                    cleaned = s3.request('DELETE', '/wx-art-test148/' + key)[0] in (200, 204) and cleaned
+            result['cleaned'] = cleaned
+        except Exception:
+            result['cleanupFailed'] = True
+        for actor in actors.values():
+            if actor.get('token'):
+                try:
+                    request('/admin-api/system/auth/logout', {}, 'POST', actor, login=True)
+                except Exception:
+                    result['logoutFailed'] = True
+    output = RELEASE / ('verify-' + ('formal-' if formal else 'candidate-') + target + '.json')
+    output.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
+    print(json.dumps(result, ensure_ascii=False))
+    return 0 if result['passed'] and result['cleaned'] and not result.get('logoutFailed') else 1
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--target', choices=('main', 'data08'), required=True)
+    parser.add_argument('--formal', action='store_true')
+    args = parser.parse_args()
+    raise SystemExit(verify(args.target, args.formal))
