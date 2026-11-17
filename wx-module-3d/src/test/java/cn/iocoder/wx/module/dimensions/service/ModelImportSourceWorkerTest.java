@@ -41,6 +41,7 @@ class ModelImportSourceWorkerTest {
         db.execute("CREATE TABLE wx_3d_model(id BIGINT AUTO_INCREMENT PRIMARY KEY,resource_id BIGINT,model_file_id BIGINT,tenant_id VARCHAR(20),del_flag CHAR DEFAULT '0',status VARCHAR(16) DEFAULT 'ONLINE',model_name VARCHAR(50),category VARCHAR(32),model_desc VARCHAR(500),resource_belong VARCHAR(16),is_paid VARCHAR(16),data_user_id BIGINT,create_by BIGINT,update_by BIGINT)");
         db.execute("ALTER TABLE wx_3d_model ADD price INT");
         db.execute("ALTER TABLE wx_3d_model ADD cover_image_id BIGINT");
+        db.execute("ALTER TABLE wx_3d_model ADD update_time TIMESTAMP");
         db.execute("CREATE TABLE wx_infra_file(id BIGINT PRIMARY KEY,tenant_id BIGINT,uploader_id BIGINT,visibility_scope VARCHAR(20),type VARCHAR(40),size INT,deleted BOOLEAN DEFAULT FALSE,update_time TIMESTAMP)");
         db.update("INSERT INTO wx_infra_file VALUES(5,2,10,'PRIVATE_UPLOAD','image/png',50,FALSE,NULL)");
         for(String table:List.of("wx_3d_icon","wx_3d_template"))
@@ -49,6 +50,128 @@ class ModelImportSourceWorkerTest {
         ReflectionTestUtils.setField(worker,"jdbc",db);ReflectionTestUtils.setField(worker,"transactions",new DataSourceTransactionManager(data));
         ReflectionTestUtils.setField(worker,"store",store);ReflectionTestUtils.setField(worker,"access",access);
     }
+    /** 定向保存沿用真实发布执行器，只发布指定操作并提交目录和内容。 */
+    @Test void publishesOnlyRequestedOperation() throws Exception {
+        preparePublication();
+        assertTrue(worker.publishOperation(op));
+        assertEquals("COMMITTED", status());
+        assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM wx_3d_model", Integer.class));
+    }
+
+    @Test void redirectsNewFileIntoExistingDirectoryAtomically() throws Exception {
+        preparePublication();
+        redirectToLegacyDirectory();
+        assertTrue(worker.publishOperation(op));
+        assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM wx_3d_model", Integer.class));
+        assertEquals(101L, db.queryForObject("SELECT resource_id FROM wx_3d_model WHERE id=44", Long.class));
+        assertNull(db.queryForObject("SELECT model_file_id FROM wx_3d_model WHERE id=44", Long.class));
+        assertEquals("OFFLINE", db.queryForObject("SELECT status FROM wx_3d_model WHERE id=44", String.class));
+        assertEquals("COMMITTED", status());
+    }
+
+    @Test void redirectedPublicationRejectsConcurrentFileChange() throws Exception {
+        preparePublication();
+        redirectToLegacyDirectory();
+        db.update("UPDATE wx_3d_model SET model_file_id=302 WHERE id=44");
+        assertFalse(worker.publishOperation(op));
+        assertEquals(302L, db.queryForObject("SELECT model_file_id FROM wx_3d_model WHERE id=44", Long.class));
+        assertNull(db.queryForObject("SELECT resource_id FROM wx_3d_model WHERE id=44", Long.class));
+        assertEquals(0L, db.queryForObject("SELECT current_revision FROM wx_3d_resource WHERE id=101", Long.class));
+        assertEquals("FAILED", status());
+    }
+
+    @Test void redirectedPublicationRechecksEditPermission() throws Exception {
+        preparePublication();
+        redirectToLegacyDirectory();
+        when(permissions.hasAnyPermissions(10L, "dim3d:model:edit")).thenReturn(CommonResult.success(false));
+        assertFalse(worker.publishOperation(op));
+        assertEquals(301L, db.queryForObject("SELECT model_file_id FROM wx_3d_model WHERE id=44", Long.class));
+        assertEquals("IMPORT_PERMISSION_REVOKED", db.queryForObject("SELECT error_code FROM wx_3d_resource_import", String.class));
+    }
+
+    /** 实际表单服务贯通原发布确认和后台执行器，重复保存不会新增目录或内容修订。 */
+    @Test void canonicalCreatePublishesOriginalUploadAndReplaysSingleDirectory() throws Exception {
+        var catalog = catalogWriter();
+        var body = catalogForm();
+        long first = catalog.create(body);
+        assertEquals(first, catalog.create(catalogForm()));
+        assertEquals("COMMITTED", status());
+        assertEquals(1L, db.queryForObject("SELECT current_revision FROM wx_3d_resource WHERE id=101", Long.class));
+        assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM wx_3d_model", Integer.class));
+        assertEquals(101L, db.queryForObject("SELECT resource_id FROM wx_3d_model WHERE id=?", Long.class, first));
+        assertNull(db.queryForObject("SELECT model_file_id FROM wx_3d_model WHERE id=?", Long.class, first));
+    }
+
+    @Test void canonicalEditPublishesNewUploadIntoOriginalDirectory() throws Exception {
+        var catalog = catalogWriter();
+        db.update("INSERT INTO wx_3d_model(id,model_file_id,tenant_id,resource_belong,data_user_id,create_by,status,model_name,model_desc,cover_image_id)"
+                + " VALUES(44,301,'2','MINE',10,10,'OFFLINE','旧模型','保留描述',5)");
+        db.update("UPDATE wx_infra_file SET visibility_scope='TENANT',uploader_id=11 WHERE id=5");
+        catalog.update(44L, catalogForm());
+        assertEquals("COMMITTED", status());
+        assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM wx_3d_model", Integer.class));
+        assertEquals(101L, db.queryForObject("SELECT resource_id FROM wx_3d_model WHERE id=44", Long.class));
+        assertNull(db.queryForObject("SELECT model_file_id FROM wx_3d_model WHERE id=44", Long.class));
+        assertEquals("OFFLINE", db.queryForObject("SELECT status FROM wx_3d_model WHERE id=44", String.class));
+        assertEquals("保留描述", db.queryForObject("SELECT model_desc FROM wx_3d_model WHERE id=44", String.class));
+        assertEquals(5L, db.queryForObject("SELECT cover_image_id FROM wx_3d_model WHERE id=44", Long.class));
+    }
+
+    private cn.iocoder.wx.module.dimensions.entity.Dim3dModel catalogForm() {
+        var body = new cn.iocoder.wx.module.dimensions.entity.Dim3dModel();
+        body.setModelName("样本模型");
+        body.setCategory("sample");
+        body.setResourceBelong("MINE");
+        body.setIsPaid("FREE");
+        body.setModelFileId(101L);
+        return body;
+    }
+
+    /** 复用现有真实发布夹具，替换其确认服务测试替身以覆盖目录保存的正常入口。 */
+    private Dim3dModelWriteService catalogWriter() throws Exception {
+        preparePublication();
+        db.update("UPDATE wx_3d_resource_import SET publish_descriptor=NULL");
+        db.update("UPDATE wx_3d_resource_operation SET expires_at=?", LocalDateTime.now().plusDays(1));
+        db.execute("ALTER TABLE wx_3d_resource ADD create_by BIGINT DEFAULT 10");
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(10, 2));
+        var json = new com.fasterxml.jackson.databind.ObjectMapper();
+        var security = mock(cn.iocoder.wx.framework.security.core.service.SecurityFrameworkService.class);
+        when(security.hasPermission(anyString())).thenReturn(true);
+        var dictionary = mock(cn.iocoder.wx.module.system.api.dict.DictDataApi.class);
+        when(dictionary.validateDictDataList(eq("dim3d_model_category"), anyCollection())).thenReturn(CommonResult.success(true));
+        var actualImports = new ModelImportService();
+        ReflectionTestUtils.setField(actualImports, "enabled", true);
+        var catalog = new Dim3dModelWriteService();
+        var transactions = ReflectionTestUtils.getField(worker, "transactions");
+        var publicationTransaction = ReflectionTestUtils.getField(worker, "resourceTransactions");
+        var images = ReflectionTestUtils.getField(publicationTransaction, "images");
+        for (Object target : List.of(actualImports, catalog)) {
+            ReflectionTestUtils.setField(target, "jdbc", db);
+            ReflectionTestUtils.setField(target, "transactions", transactions);
+            ReflectionTestUtils.setField(target, "access", access);
+            ReflectionTestUtils.setField(target, "json", json);
+            ReflectionTestUtils.setField(target, "dictionaries", dictionary);
+            ReflectionTestUtils.setField(target, "images", images);
+        }
+        ReflectionTestUtils.setField(actualImports, "permissions", security);
+        ReflectionTestUtils.setField(worker, "importService", actualImports);
+        ReflectionTestUtils.setField(catalog, "security", security);
+        ReflectionTestUtils.setField(catalog, "imports", actualImports);
+        ReflectionTestUtils.setField(catalog, "worker", worker);
+        return catalog;
+    }
+
+    /** 内部目标只能由服务端确认生成，夹具固定旧关联用于最终事务的并发检查。 */
+    private void redirectToLegacyDirectory() throws Exception {
+        db.update("INSERT INTO wx_3d_model(id,model_file_id,tenant_id,resource_belong,data_user_id,create_by,status,model_name)"
+                + " VALUES(44,301,'2','MINE',10,10,'OFFLINE','旧模型')");
+        var directory = (com.fasterxml.jackson.databind.node.ObjectNode) new com.fasterxml.jackson.databind.ObjectMapper().readTree(
+                db.queryForObject("SELECT publish_descriptor FROM wx_3d_resource_import WHERE operation_id=?", String.class, op));
+        directory.putObject("catalogTarget").put("id", "44").put("resourceId", "").put("modelFileId", "301")
+                .put("tenantId", "2").put("resourceBelong", "MINE");
+        db.update("UPDATE wx_3d_resource_import SET publish_descriptor=? WHERE operation_id=?", directory.toString(), op);
+    }
+
     @Test void publishesDirectoryPointerAndReceiptTogether() throws Exception {
         preparePublication();
         assertTrue(worker.runNext());assertEquals("COMMITTED",status());
@@ -208,6 +331,7 @@ class ModelImportSourceWorkerTest {
         ReflectionTestUtils.setField(worker,"publication",publication);
         var resourceTransactions=new ArtResourceTransactionService();
         ReflectionTestUtils.setField(resourceTransactions,"jdbc",db);
+        ReflectionTestUtils.setField(resourceTransactions,"access",access);
         ReflectionTestUtils.setField(resourceTransactions,"json",new com.fasterxml.jackson.databind.ObjectMapper());
         var images = new Dim3dImageResourceService();
         ReflectionTestUtils.setField(images, "jdbc", db);
