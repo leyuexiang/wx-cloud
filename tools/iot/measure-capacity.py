@@ -162,7 +162,7 @@ class Viewer:
              'domain': 'twoD', 'pointCode': 'temperature'} for row in batch]} for i, batch in enumerate(batches(rows))]
         self.socket = websocket.create_connection(config['websocket'] + '?' + urllib.parse.urlencode({
             'token': api.token, 'tenant-id': str(config['tenantId'])}), timeout=20,
-            sslopt={'ca_certs': config['siteCa']}, http_proxy_host=None)
+            sslopt={'ca_certs': config['siteCa']}, http_proxy_host=None, skip_utf8_validation=True)
         self.send_lock = threading.Lock()
         try:
             for frame in self.frames:
@@ -271,6 +271,8 @@ def measure(api, config, secrets, state, count, clients, cycles):
                     raise RuntimeError('MQTT 认证失败')
                 start, cpu_start = time.monotonic(), time.process_time()
                 abort = None
+                awaiting = []
+                acknowledged = 0
                 for sequence in range(count * cycles):
                     deadline = start + sequence * 5 / count
                     remaining = deadline - time.monotonic()
@@ -291,11 +293,21 @@ def measure(api, config, secrets, state, count, clients, cycles):
                     body = topic + packet_id + json.dumps(payload).encode('utf-8')
                     sent[value] = time.perf_counter_ns()
                     conn.sendall(b'\x32' + protocol['encode_remaining_length'](len(body)) + body)
-                    if protocol['wait_ack'](conn, 0x40, time.monotonic() + 5) != packet_id:
-                        raise RuntimeError('MQTT 发布确认编号不匹配')
+                    # 发送时钟与接收端 CPU 压力分离，最多 20 条在途；每个确认仍逐条核对。
+                    awaiting.append(packet_id)
+                    if len(awaiting) == 20 or value == count * cycles:
+                        for expected_id in awaiting:
+                            if protocol['wait_ack'](conn, 0x40, time.monotonic() + 5) != expected_id:
+                                raise RuntimeError('MQTT 发布确认编号不匹配')
+                            acknowledged += 1
+                        awaiting.clear()
                     if value % count == 0:
                         print(json.dumps({'stage': 'publishing', 'messages': value,
                             'deliveries': sum(len(v.seen) for v in viewers)}), flush=True)
+                for expected_id in awaiting:
+                    if protocol['wait_ack'](conn, 0x40, time.monotonic() + 5) != expected_id:
+                        raise RuntimeError('MQTT 发布确认编号不匹配')
+                    acknowledged += 1
                 report['publishSeconds'] = round(time.monotonic() - start, 3)
                 report['loadGeneratorCpuSeconds'] = round(time.process_time() - cpu_start, 3)
                 report['abortReason'] = abort
@@ -303,7 +315,7 @@ def measure(api, config, secrets, state, count, clients, cycles):
         drain_start = time.monotonic()
         while time.monotonic() - drain_start < 20 and any(len(v.seen) < len(sent) for v in viewers) and not any(v.errors for v in viewers):
             time.sleep(.2)
-        report.update(messagesAcknowledged=len(sent), uniqueDeliveries=sum(len(v.seen) for v in viewers),
+        report.update(messagesAcknowledged=acknowledged, mqttMaxInFlight=20, uniqueDeliveries=sum(len(v.seen) for v in viewers),
             duplicateDeliveries=sum(v.duplicates for v in viewers), drainSeconds=round(time.monotonic() - drain_start, 3),
             clientErrors=[{'client': v.number, 'errors': v.errors} for v in viewers if v.errors])
         report['clientResults'] = [{'client': v.number, 'received': len(v.seen), 'missing': len(sent) - len(v.seen),

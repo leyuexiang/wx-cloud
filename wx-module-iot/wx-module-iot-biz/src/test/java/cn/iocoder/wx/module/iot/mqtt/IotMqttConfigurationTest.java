@@ -45,7 +45,8 @@ class IotMqttConfigurationTest {
     @Test
     void shouldCreateNoMqttResourcesByDefault() {
         runner.run(context -> assertThat(context).hasNotFailed().doesNotHaveBean(IotMqttWorker.class)
-                .doesNotHaveBean(IotMqttLease.class).doesNotHaveBean(IotMqttDynamicManager.class));
+                .doesNotHaveBean(IotMqttLease.class).doesNotHaveBean(IotMqttDynamicManager.class)
+                .doesNotHaveBean(IotMqttReceiveDispatcher.class));
     }
 
     @Test
@@ -60,6 +61,7 @@ class IotMqttConfigurationTest {
                 "wx.iot.mqtt.connector-id=pilot")
                 .run(context -> assertThat(context).hasNotFailed().hasSingleBean(IotMqttWorker.class)
                         .hasSingleBean(IotMqttConnection.Factory.class).hasSingleBean(IotTelemetryService.class)
+                        .hasSingleBean(IotMqttReceiveDispatcher.class)
                         .doesNotHaveBean(IotMqttDynamicManager.class));
     }
 
@@ -78,5 +80,14 @@ class IotMqttConfigurationTest {
         runner.withPropertyValues("wx.iot.mqtt.enabled=true", "wx.iot.mqtt.mode=DYNAMIC",
                         "wx.iot.mqtt.tenant-id=7", "wx.iot.mqtt.max-connections=2", "wx.iot.mqtt.connect-concurrency=3")
                 .run(context -> assertThat(context).hasFailed());
+    }
+
+    @Test
+    void shouldRejectUnboundedReceiveSettings() {
+        for (String invalid : new String[]{"receive-concurrency=0", "receive-queue-capacity=4097", "receive-max-in-flight=257"}) {
+            runner.withPropertyValues("wx.iot.mqtt.enabled=true", "wx.iot.mqtt.tenant-id=7",
+                            "wx.iot.mqtt.connector-id=pilot", "wx.iot.mqtt." + invalid)
+                    .run(context -> assertThat(context).hasFailed());
+        }
     }
 }

@@ -168,8 +168,9 @@ public class WxWebSocketAutoConfiguration {
         @Bean
         public KafkaWebSocketMessageSender kafkaWebSocketMessageSender(
                 WebSocketSessionManager sessionManager, KafkaTemplate<Object, Object> kafkaTemplate,
-                @Value("${wx.websocket.sender-kafka.topic}") String topic) {
-            return new KafkaWebSocketMessageSender(sessionManager, kafkaTemplate, topic);
+                @Value("${wx.websocket.sender-kafka.topic}") String topic,
+                @Value("${wx.websocket.sender-kafka.max-pending:0}") int maxPending) {
+            return new KafkaWebSocketMessageSender(sessionManager, kafkaTemplate, topic, maxPending);
         }
 
         @Bean

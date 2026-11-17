@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.UUID;
+import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 
 /** 遥测接入编排服务，统一 MQTT、HTTPS 和模拟适配器的后续入口。 */
 @Service
@@ -22,6 +25,12 @@ public class IotTelemetryService {
     private final IotDeviceBindingService deviceBindingService;
     private final IotPointMappingService pointMappingService;
     private final IotMessageInboxService inboxService;
+    private volatile Executor publicationResultExecutor = Runnable::run;
+
+    /** 接入装配可复用有界工作池，避免持久回写阻塞 Kafka 网络线程；未配置时保留原同步语义。 */
+    public void setPublicationResultExecutor(Executor executor) {
+        publicationResultExecutor = Objects.requireNonNull(executor);
+    }
 
     /**
      * 构造统一事件并发布。
@@ -77,17 +86,23 @@ public class IotTelemetryService {
         }
         try {
             eventPublisher.publish(event).whenComplete((result, throwable) -> {
-                try {
-                    if (throwable == null) {
-                        inboxService.markPublished(event.getTenantId(), event.getEventId(), claimToken);
-                    } else {
-                        inboxService.markFailed(event.getTenantId(), event.getEventId(), claimToken, throwable);
+                Runnable recordResult = () -> {
+                    try {
+                        if (throwable == null) {
+                            inboxService.markPublished(event.getTenantId(), event.getEventId(), claimToken);
+                        } else {
+                            inboxService.markFailed(event.getTenantId(), event.getEventId(), claimToken, throwable);
+                        }
+                    } catch (RuntimeException recordingError) {
+                        // 不重发或改写原结果，保留 CLAIMED 超时抢占；异步失败仍携带原租户与事件。
+                        log.error("物联网异步投递状态更新失败，tenantId={}, eventId={}, publishSucceeded={}",
+                                event.getTenantId(), event.getEventId(), throwable == null, recordingError);
                     }
-                } catch (RuntimeException recordingError) {
-                    // HTTP 可能已返回或 MQTT 已确认，回调异常必须落日志；租户以原事件为准。
-                    // 不重发、不改写发送结果，保留现有 CLAIMED 超时抢占及下游幂等边界。
-                    log.error("物联网异步投递状态更新失败，tenantId={}, eventId={}, publishSucceeded={}",
-                            event.getTenantId(), event.getEventId(), throwable == null, recordingError);
+                };
+                try { publicationResultExecutor.execute(recordResult); }
+                catch (RejectedExecutionException saturatedOrClosed) {
+                    // 有界池饱和或关闭时回退当前线程施加背压，不能丢弃发布结果。
+                    recordResult.run();
                 }
             });
         } catch (RuntimeException ex) {

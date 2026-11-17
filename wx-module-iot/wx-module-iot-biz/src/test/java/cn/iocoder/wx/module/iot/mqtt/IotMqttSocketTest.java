@@ -36,6 +36,16 @@ class IotMqttSocketTest {
     }
 
     @Test
+    void shouldNotSendAsyncPubackBeforeDurableReception() throws Exception {
+        verifyWireAcknowledgement(false, true);
+    }
+
+    @Test
+    void shouldLeaveAsyncFailureUnacknowledgedUntilRuntimeClosesSession() throws Exception {
+        verifyWireAcknowledgement(true, true);
+    }
+
+    @Test
     void shouldReceiveAndAcknowledgeTwoSourcesInsideOneDynamicManager() throws Exception {
         var received = new CountDownLatch(2);
         var finishReception = new CountDownLatch(1);
@@ -117,11 +127,15 @@ class IotMqttSocketTest {
     }
 
     private void verifyWireAcknowledgement(boolean fail) throws Exception {
+        verifyWireAcknowledgement(fail, false);
+    }
+
+    private void verifyWireAcknowledgement(boolean fail, boolean async) throws Exception {
         var received = new CountDownLatch(1);
         var finishReception = new CountDownLatch(1);
         var lease = mock(IotMqttLease.class);
         when(lease.isValid()).thenReturn(true);
-        try (var broker = new LoopbackBroker()) {
+        try (var broker = new LoopbackBroker(); var dispatcher = new IotMqttReceiveDispatcher(2, 2)) {
             var connector = IotMqttSettingsTest.connector();
             connector.setEndpoint("tcp://127.0.0.1:" + broker.server.getLocalPort());
             var settings = IotMqttSettings.parse(connector, true, new ObjectMapper());
@@ -140,11 +154,18 @@ class IotMqttSocketTest {
                         if (fail) {
                             throw new IllegalStateException("模拟持久接收失败");
                         }
-                    })) {
+                    }, async ? dispatcher : null, 2)) {
                 connection.connect();
                 assertTrue(received.await(5, TimeUnit.SECONDS));
                 assertTrue(broker.checkedNoEarlyAck.await(5, TimeUnit.SECONDS));
                 finishReception.countDown();
+                if (async && fail) {
+                    // 真实运行时按失效状态关闭旧连接；此处复现其关闭动作并观察未确认断开。
+                    long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(2);
+                    while (connection.isConnected() && System.nanoTime() < deadline) Thread.sleep(10);
+                    assertFalse(connection.isConnected());
+                    connection.close();
+                }
                 var acknowledgement = broker.result.get(8, TimeUnit.SECONDS);
                 if (fail) {
                     assertNull(acknowledgement);

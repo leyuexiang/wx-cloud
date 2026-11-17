@@ -106,7 +106,8 @@ public abstract class AbstractWebSocketMessageSender implements WebSocketMessage
             // 2. 执行发送
             try {
                 session.sendMessage(new TextMessage(payload));
-                log.info("[doSend][session({}) 发送消息成功，message({})]", session.getId(), message);
+                // 高频成功路径仅保留调试元信息，避免逐帧正文日志放大磁盘写入及暴露业务数据。
+                log.debug("WebSocket 发送成功，session={}, messageType={}, chars={}", session.getId(), messageType, payload.length());
             } catch (IOException ex) {
                 log.error("[doSend][session({}) 发送消息失败，message({})]", session.getId(), message, ex);
             }
@@ -133,7 +134,8 @@ public abstract class AbstractWebSocketMessageSender implements WebSocketMessage
             // 2. 执行发送
             try {
                 session.sendMessage(new TextMessage(message));
-                log.info("[doSend][session({}) 发送消息成功，message({})]", session.getId(), message);
+                // 旧原文发送分支同样不在信息日志中输出完整正文。
+                log.debug("WebSocket 原文发送成功，session={}, chars={}", session.getId(), message.length());
             } catch (IOException ex) {
                 log.error("[doSend][session({}) 发送消息失败，message({})]", session.getId(), message, ex);
             }
