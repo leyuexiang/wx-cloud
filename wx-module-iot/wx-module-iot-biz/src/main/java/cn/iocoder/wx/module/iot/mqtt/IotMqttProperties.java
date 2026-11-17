@@ -27,6 +27,13 @@ public class IotMqttProperties {
     private int controlConcurrency = 4;
     @Min(1) @Max(256)
     private int discoveryBatchSize = 32;
+    /** 共享接收池与单连接在途配额共同限制线程、报文副本及数据库并发。 */
+    @Min(1) @Max(32)
+    private int receiveConcurrency = 8;
+    @Min(1) @Max(4096)
+    private int receiveQueueCapacity = 256;
+    @Min(1) @Max(256)
+    private int receiveMaxInFlight = 16;
 
     public enum Mode { SINGLE, DYNAMIC }
 
