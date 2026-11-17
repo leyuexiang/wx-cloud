@@ -24,7 +24,10 @@ final class IotSceneBindingScope {
         this.json = json;
     }
 
-    record SavedScene(JsonNode threeD, JsonNode dependencies) { }
+    record SavedScene(JsonNode threeD, JsonNode dependencies, JsonNode twoD) {
+        // 历史调用仍表示三维范围，缺少二维正文时不能授权二维实例。
+        SavedScene(JsonNode threeD, JsonNode dependencies) { this(threeD, dependencies, null); }
+    }
     record ScopedScene(String sceneId, String ticketId, SavedScene savedScene) { }
 
     SavedScene read(String sceneId) {
@@ -59,16 +62,26 @@ final class IotSceneBindingScope {
     private SavedScene readRevision(Map<?, ?> revision) {
         try {
             return new SavedScene(json.readTree((String) revision.get("threeDJson")),
-                    json.readTree((String) revision.get("dependenciesJson")));
+                    json.readTree((String) revision.get("dependenciesJson")),
+                    revision.get("twoDJson") instanceof String twoD ? json.readTree(twoD) : null);
         } catch (com.fasterxml.jackson.core.JsonProcessingException error) {
             throw new IllegalStateException("无法解析场景修订", error);
         }
     }
 
     static boolean hasBinding(SavedScene scene, String objectId, String deviceId, String pointCode) {
-        if (scene == null || scene.threeD() == null || objectId == null || objectId.isBlank()) return false;
-        JsonNode target = findInstance(scene.threeD().path("objects"), objectId);
-        if (target == null) target = findInstance(scene.threeD().path("components"), objectId);
+        return hasBinding(scene, "threeD", objectId, deviceId, pointCode);
+    }
+
+    /** 域和消费实例同时校验，禁止二维与三维同编号实例互相借用授权。 */
+    static boolean hasBinding(SavedScene scene, String domain, String objectId, String deviceId, String pointCode) {
+        domain = domain == null ? "threeD" : domain;
+        if (scene == null || objectId == null || objectId.isBlank()
+                || !("threeD".equals(domain) || "twoD".equals(domain))) return false;
+        JsonNode document = "twoD".equals(domain) ? scene.twoD() : scene.threeD();
+        if (document == null) return false;
+        JsonNode target = findInstance(document.path("components"), objectId);
+        if (target == null && "threeD".equals(domain)) target = findInstance(document.path("objects"), objectId);
         if (target == null) return false;
 
         // 四包格式的模型、几何体分别落在 objects、components，绑定以同修订依赖包为准。
@@ -76,13 +89,14 @@ final class IotSceneBindingScope {
         if (dependencies != null) {
             for (JsonNode binding : dependencies.path("dataBindings")) {
                 JsonNode source = binding.path("source");
-                if (isActiveOwner(binding, objectId)
+                if (isActiveOwner(binding, domain, objectId)
                         && matchesRequest(source.path("type"), source.path("requestConfig"), deviceId, pointCode)) return true;
             }
             for (JsonNode binding : dependencies.path("deviceBindings")) {
-                if (isActiveOwner(binding, objectId) && matchesPoint(binding, deviceId, pointCode)) return true;
+                if (isActiveOwner(binding, domain, objectId) && matchesPoint(binding, deviceId, pointCode)) return true;
             }
         }
+        if ("twoD".equals(domain)) return false;
         // 仅对旧内嵌实例回读历史绑定，防止已从正式依赖包解绑的配置通过旧镜像恢复权限。
         if (target.has("targetType") || target.has("contentJson")) return false;
         JsonNode metadata = target.path("metadata");
@@ -103,9 +117,9 @@ final class IotSceneBindingScope {
         return null;
     }
 
-    private static boolean isActiveOwner(JsonNode binding, String objectId) {
+    private static boolean isActiveOwner(JsonNode binding, String domain, String objectId) {
         JsonNode owner = binding.path("owner");
-        return "threeD".equals(owner.path("domain").asText())
+        return domain.equals(owner.path("domain").asText())
                 && "instance".equals(owner.path("ownerType").asText())
                 && objectId.equals(owner.path("instanceId").asText())
                 && (!binding.has("enabled") || binding.path("enabled").booleanValue());
@@ -125,7 +139,14 @@ final class IotSceneBindingScope {
     }
 
     static boolean matchesEvent(TwinTelemetryEvent event, String sceneId, String objectId) {
-        // 事件目标由接入服务映射，不能由订阅请求替遥测指定场景或实例。
+        return matchesEvent(event, sceneId, objectId, null);
+    }
+
+    static boolean matchesEvent(TwinTelemetryEvent event, String sceneId, String objectId, String domain) {
+        // 二维消费的是同场景的已授权点位，来源模型由接入服务映射；三维仍精确匹配实例。
+        if ("twoD".equals(domain)) return event != null && sceneId != null && objectId != null
+                && Objects.equals(event.getSceneId(), sceneId);
+        if (domain != null && !"threeD".equals(domain)) return false;
         return sceneId != null && objectId != null && Objects.equals(event.getSceneId(), sceneId)
                 && Objects.equals(event.getObjectId(), objectId);
     }

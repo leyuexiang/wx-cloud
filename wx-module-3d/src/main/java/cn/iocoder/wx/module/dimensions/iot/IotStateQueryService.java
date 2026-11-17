@@ -31,25 +31,34 @@ public class IotStateQueryService {
 
     /** 场景运行态补偿查询复用订阅的范围校验，管理查询沿用原权限。 */
     public TwinTelemetryEvent get(String deviceId, String pointCode, String sceneId, String objectId) {
+        return get(deviceId, pointCode, sceneId, objectId, null);
+    }
+
+    /** 二维快照与实时订阅使用同一实例域，显式传域时禁止退回租户级管理查询。 */
+    public TwinTelemetryEvent get(String deviceId, String pointCode, String sceneId, String objectId, String domain) {
         return withQueryPermission(tenant -> {
-            if (sceneId == null && objectId == null) return store.get(tenant, deviceId, pointCode);
-            return getScoped(tenant, sceneId, objectId, deviceId, pointCode, scope.read(sceneId));
+            if (sceneId == null && objectId == null && domain == null) return store.get(tenant, deviceId, pointCode);
+            return getScoped(tenant, sceneId, objectId, deviceId, pointCode, scope.read(sceneId), domain);
         });
     }
 
     /** 发布页首屏及重连补偿都以票据固定的修订为准。 */
     public TwinTelemetryEvent getPublished(String publicationId, String ticket, String objectId, String deviceId, String pointCode) {
+        return getPublished(publicationId, ticket, objectId, deviceId, pointCode, null);
+    }
+
+    public TwinTelemetryEvent getPublished(String publicationId, String ticket, String objectId, String deviceId, String pointCode, String domain) {
         return withQueryPermission(tenant -> {
             var published = scope.readPublished(publicationId, ticket, tenant);
-            return getScoped(tenant, published.sceneId(), objectId, deviceId, pointCode, published.savedScene());
+            return getScoped(tenant, published.sceneId(), objectId, deviceId, pointCode, published.savedScene(), domain);
         });
     }
 
     private TwinTelemetryEvent getScoped(long tenant, String sceneId, String objectId, String deviceId, String pointCode,
-                                         IotSceneBindingScope.SavedScene saved) {
-        if (!IotSceneBindingScope.hasBinding(saved, objectId, deviceId, pointCode)) throw IotSceneBindingScope.denied();
+                                         IotSceneBindingScope.SavedScene saved, String domain) {
+        if (!IotSceneBindingScope.hasBinding(saved, domain, objectId, deviceId, pointCode)) throw IotSceneBindingScope.denied();
         var event = store.get(tenant, deviceId, pointCode);
-        return event != null && IotSceneBindingScope.matchesEvent(event, sceneId, objectId) ? event : null;
+        return event != null && IotSceneBindingScope.matchesEvent(event, sceneId, objectId, domain) ? event : null;
     }
 
     private TwinTelemetryEvent withQueryPermission(LongFunction<TwinTelemetryEvent> action) {

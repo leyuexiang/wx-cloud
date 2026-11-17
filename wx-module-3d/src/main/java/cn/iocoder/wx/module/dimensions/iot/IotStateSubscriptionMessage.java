@@ -20,6 +20,8 @@ public class IotStateSubscriptionMessage {
     public static class Binding {
         private String subscriptionId;
         private String objectId;
+        // 缺省兼容历史三维消费者，二维必须显式指定域。
+        private String domain;
         private String deviceId;
         private String pointCode;
     }

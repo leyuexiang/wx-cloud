@@ -91,14 +91,14 @@ public class IotStateSubscriptionRegistry {
                 rejected.add(new IotStateSubscriptionAck.Rejected(binding == null ? null : binding.getSubscriptionId(), "INVALID_BINDING", reason));
                 continue;
             }
-            if (!IotSceneBindingScope.hasBinding(scene.savedScene(), binding.getObjectId(), binding.getDeviceId(), binding.getPointCode())) {
+            if (!IotSceneBindingScope.hasBinding(scene.savedScene(), binding.getDomain(), binding.getObjectId(), binding.getDeviceId(), binding.getPointCode())) {
                 removeBinding(session.getId(), binding.getSubscriptionId());
                 rejected.add(new IotStateSubscriptionAck.Rejected(binding.getSubscriptionId(), "FORBIDDEN", "场景实例没有配置此物联网点位"));
                 continue;
             }
             RegisteredBinding registered = new RegisteredBinding(
                     binding.getSubscriptionId(), session.getId(), user.getTenantId(), scene.sceneId(),
-                    binding.getObjectId(), binding.getDeviceId(), binding.getPointCode(), scene.ticketId(), loginExpiresAt);
+                    binding.getObjectId(), binding.getDeviceId(), binding.getPointCode(), scene.ticketId(), loginExpiresAt, binding.getDomain());
             String serialized = JsonUtils.toJsonString(registered);
             Object previousRaw = redis.opsForHash().get(sessionKey(session.getId()), registered.subscriptionId);
             if (previousRaw != null) {
@@ -164,7 +164,7 @@ public class IotStateSubscriptionRegistry {
         Set<String> ticketIds = null;
         for (String raw : members) {
             RegisteredBinding binding = parse(raw);
-            if (binding == null || !IotSceneBindingScope.matchesEvent(event, binding.sceneId, binding.objectId)) continue;
+            if (binding == null || !IotSceneBindingScope.matchesEvent(event, binding.sceneId, binding.objectId, binding.domain)) continue;
             if (binding.publicationTicketId == null) {
                 sendCurrent(raw, binding, event, stateVersion);
             } else if (binding.loginExpiresAt != null && binding.loginExpiresAt > now) {
@@ -254,7 +254,7 @@ public class IotStateSubscriptionRegistry {
 
     private record RegisteredBinding(String subscriptionId, String sessionId, Long tenantId,
                                      String sceneId, String objectId, String deviceId, String pointCode,
-                                     String publicationTicketId, Long loginExpiresAt) {}
+                                     String publicationTicketId, Long loginExpiresAt, String domain) {}
 
     /** 保留原始索引值供会话核对，批量校验后无需再次解析。 */
     private record PublishedDelivery(String raw, RegisteredBinding binding) {}

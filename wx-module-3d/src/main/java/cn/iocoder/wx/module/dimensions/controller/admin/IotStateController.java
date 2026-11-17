@@ -34,9 +34,10 @@ public class IotStateController {
             @RequestParam("deviceId") @NotBlank @Size(max = 256) String deviceId,
             @RequestParam("pointCode") @NotBlank @Size(max = 256) String pointCode,
             @RequestParam(value = "sceneId", required = false) @Size(max = 19) String sceneId,
-            @RequestParam(value = "objectId", required = false) @Size(max = 256) String objectId) {
+            @RequestParam(value = "objectId", required = false) @Size(max = 256) String objectId,
+            @RequestParam(value = "domain", required = false) @Size(max = 6) String domain) {
         // 运行态携带场景和实例，兼容原有租户级状态查询。
-        return CommonResult.success(IotStateRespVO.from(queryService.get(deviceId, pointCode, sceneId, objectId)));
+        return CommonResult.success(IotStateRespVO.from(queryService.get(deviceId, pointCode, sceneId, objectId, domain)));
     }
 
     /** 票据放在专用请求头，发布页的最新测点状态不得进入共享缓存。 */
@@ -49,8 +50,9 @@ public class IotStateController {
             @RequestParam("objectId") @NotBlank @Size(max = 256) String objectId,
             @RequestParam("deviceId") @NotBlank @Size(max = 256) String deviceId,
             @RequestParam("pointCode") @NotBlank @Size(max = 256) String pointCode,
+            @RequestParam(value = "domain", required = false) @Size(max = 6) String domain,
             HttpServletResponse response) {
         response.setHeader("Cache-Control", "no-store");
-        return CommonResult.success(IotStateRespVO.from(queryService.getPublished(publicationId, ticket, objectId, deviceId, pointCode)));
+        return CommonResult.success(IotStateRespVO.from(queryService.getPublished(publicationId, ticket, objectId, deviceId, pointCode, domain)));
     }
 }
