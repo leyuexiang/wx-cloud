@@ -1,0 +1,12 @@
+{
+  "api": "https://example.internal/dts-api/admin-api",
+  "websocket": "wss://example.internal/dimensions/ws",
+  "tenantId": 2,
+  "siteCa": "D:/iot-capacity/site-ca.crt",
+  "mqttCa": "D:/iot-capacity/mqtt-ca.crt",
+  "mqttHost": "127.0.0.1",
+  "mqttPort": 18885,
+  "mqttUsername": "capacity-publisher",
+  "topic": "capacity/tenant-2/telemetry",
+  "connectorId": "capacity-test"
+}

@@ -1,0 +1,15 @@
+{
+  "toolTests": {
+    "passed": 3,
+    "failed": 0,
+    "command": "python tools/iot/test_measure_capacity.py"
+  },
+  "syntax": "PASS (ast.parse)",
+  "businessCodeChanged": false,
+  "webCodeChanged": false,
+  "unityCodeChanged": false,
+  "databaseMigration": false,
+  "capacityTargetPassed": false,
+  "containerRecoveryPassed": true,
+  "hostRecoveryTested": false
+}

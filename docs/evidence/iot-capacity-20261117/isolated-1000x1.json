@@ -1,0 +1,43 @@
+{
+  "logicalDevices": 1000,
+  "intervalSeconds": 5,
+  "clients": 1,
+  "bindingsPerClient": 1000,
+  "mqttConnections": 1,
+  "distinctAccounts": 1,
+  "cycles": 2,
+  "expectedMessages": 2000,
+  "expectedDeliveries": 2000,
+  "targetMessagesPerSecond": 200.0,
+  "clockSource": "同一负载发生器的单调时钟",
+  "renderingMeasured": false,
+  "subscriptionScope": "draft",
+  "passed": false,
+  "setupSeconds": 0.507,
+  "publishSeconds": 9.996,
+  "loadGeneratorCpuSeconds": 0.125,
+  "abortReason": null,
+  "messagesAcknowledged": 2000,
+  "uniqueDeliveries": 1223,
+  "duplicateDeliveries": 0,
+  "drainSeconds": 20.043,
+  "clientErrors": [],
+  "clientResults": [
+    {
+      "client": 0,
+      "received": 1223,
+      "missing": 777,
+      "latencyMs": {
+        "p50": 12118.716,
+        "p95": 22724.737,
+        "p99": 23692.015
+      }
+    }
+  ],
+  "latencyMs": {
+    "p50": 12118.716,
+    "p95": 22724.737,
+    "p99": 23692.015
+  },
+  "totalSeconds": 30.628
+}
