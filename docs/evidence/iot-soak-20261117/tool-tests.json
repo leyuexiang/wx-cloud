@@ -1,0 +1,19 @@
+{
+  "tests": 22,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "syntaxChecked": [
+    "measure-capacity.py",
+    "test_measure_capacity.py",
+    "probe-mqtt.py",
+    "test_probe_mqtt.py"
+  ],
+  "sourceCommit": "7c32e7f4553bf44ca19e3baf29b8ab6bc6de275a",
+  "sha256": {
+    "measure-capacity.py": "379e0085e164d9ecdee11df91961da67bcc63d67b5200170d99aa6d86536ff18",
+    "test_measure_capacity.py": "3348191d4be778b71c7da727774f228d298e33f1336f5e605b680b7daf7173d4",
+    "probe-mqtt.py": "694107c89ea726e7a8e9979b97e5559dc8c527888aace148a739e8c3452315c5",
+    "test_probe_mqtt.py": "22f384b5fd79f68bf8ce662297c3d5ec12f3425b0e54bd7ad8b3feb802ef5c7a"
+  }
+}

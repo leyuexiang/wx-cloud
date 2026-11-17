@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "tenantId": 1,
+    "role": "super_admin",
+    "permissionInfoContains": {
+      "system:user:create": false,
+      "system:user:delete": false,
+      "system:permission:assign-user-role": false,
+      "dimensions:iot-state:query": true,
+      "dimensions:iot-state:subscribe": true
+    }
+  },
+  {
+    "id": 2,
+    "tenantId": 2,
+    "role": "tenant_admin",
+    "permissionInfoContains": {
+      "system:user:create": false,
+      "system:user:delete": false,
+      "system:permission:assign-user-role": false,
+      "dimensions:iot-state:query": true,
+      "dimensions:iot-state:subscribe": true
+    }
+  },
+  {
+    "id": 3,
+    "tenantId": 2,
+    "role": "viewer",
+    "permissionInfoContains": {
+      "system:user:create": false,
+      "system:user:delete": false,
+      "system:permission:assign-user-role": false,
+      "dimensions:iot-state:query": false,
+      "dimensions:iot-state:subscribe": false
+    }
+  }
+]
