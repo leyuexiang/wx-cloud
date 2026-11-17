@@ -121,5 +121,6 @@
 - [IOT-M3-05 千设备容量基线与隔离恢复](evidence/iot-capacity-20261117/README.md)：保留优化前未通过的原始基线
 - [IOT-M3-05A/B 有界接收与分发复测](evidence/iot-concurrency-20261117/README.md)：优化后两轮协议客户端工程基线通过，独立身份及浏览器容量另验
 - [IOT-M3-05C 固定发布稳态与浏览器复验](evidence/iot-soak-20261117/README.md)：十分钟协议稳态及单浏览器实时/续期通过，保留排程停止轮，50 独立身份及浏览器规模仍待
+- [IOT-M3-05D 独立身份协议容量与单浏览器验收](evidence/iot-identities-20261117/README.md)：50 独立身份十分钟及单浏览器通过；首次延迟、匿名共享握手与身份接口缺口留证，50 真实播放器按用户选择暂不推进
 - [MQTT 入门与 Kafka 对比](guides/08_MQTT入门与Kafka对比.md)：首次接触 MQTT 时读，讲清概念、本项目取值、部署与联调步骤及与 Kafka 的分工
 - [物联网历史验证记录](records/07_20261023_M2连接测试验证记录.md)

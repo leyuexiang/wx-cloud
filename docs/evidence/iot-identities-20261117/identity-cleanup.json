@@ -1,0 +1,17 @@
+{
+  "viewersDeleted": 50,
+  "workingTenantAdminDeleted": true,
+  "viewerRoleDeleted": true,
+  "temporaryTenantsDeleted": 2,
+  "packageDeleted": true,
+  "temporaryMenusDeleted": 7,
+  "originalTenant2Unchanged": true,
+  "originalMenusPackagesAndRoleGrantsUnchanged": true,
+  "automaticSystemRolesRetained": 2,
+  "failedBootstrapAdminRetainedUnderDeletedTenant": true,
+  "failedBootstrapTenantDisabled": true,
+  "credentialsFileRemoved": true,
+  "selfDeletedAdminLogoutReturned400": true,
+  "workingAutomaticRoleEffectivePermissionsCleared": true,
+  "retainedLinksToDeletedMenus": 1
+}

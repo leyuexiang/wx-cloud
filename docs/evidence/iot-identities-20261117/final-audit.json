@@ -1,0 +1,17 @@
+{
+  "tenantId": 1276673,
+  "tag": "capacity-c2be3d15c726",
+  "inboxCounts": {
+    "PUBLISHED": 124000
+  },
+  "inboxTotal": 124000,
+  "ticketCounts": {
+    "REVOKED": 151
+  },
+  "publicationRevoked": true,
+  "noActiveUsersInActiveTemporaryTenants": true,
+  "workingSystemRoleEffectiveMenuCount": 0,
+  "retainedLinksToDeletedMenus": 1,
+  "temporaryTenantActiveTokens": 0,
+  "expectedAcknowledged": 124000
+}
