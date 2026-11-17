@@ -1,0 +1,16 @@
+{
+  "hostRebooted": false,
+  "sharedContainersRestarted": false,
+  "scope": "本轮隔离 MQTT 与接入容器",
+  "passed": true,
+  "offlineMessagesAcknowledged": 10,
+  "recoverySeconds": 22.621,
+  "uniqueDeliveries": 4,
+  "duplicates": 0,
+  "finalValue": 100012,
+  "sameWebsocket": true,
+  "queuedAcrossBrokerRestart": true,
+  "durableRecords": 12,
+  "stateVersionsMonotonic": true,
+  "intermediateOutOfOrderStatesMayBeSuppressed": true
+}

@@ -116,6 +116,7 @@
 - [IOT-M3-03 候选链路验收证据](evidence/iot-m3-03-20261113/README.md)
 - [IOT-M3-03C 持久化消息服务验收](evidence/iot-m3-03c-20261116/README.md)
 - [PUB-UI-01 统一发布入口与凭证续期验收](evidence/publication-ui-20261117/README.md)
-- [IOT-M3-05 千设备容量基线与隔离恢复](evidence/iot-capacity-20261117/README.md)：千设备目标未通过，下一项优化持久接收
+- [IOT-M3-05 千设备容量基线与隔离恢复](evidence/iot-capacity-20261117/README.md)：保留优化前未通过的原始基线
+- [IOT-M3-05A/B 有界接收与分发复测](evidence/iot-concurrency-20261117/README.md)：优化后两轮协议客户端工程基线通过，独立身份及浏览器容量另验
 - [MQTT 入门与 Kafka 对比](guides/08_MQTT入门与Kafka对比.md)：首次接触 MQTT 时读，讲清概念、本项目取值、部署与联调步骤及与 Kafka 的分工
 - [物联网历史验证记录](records/07_20261023_M2连接测试验证记录.md)

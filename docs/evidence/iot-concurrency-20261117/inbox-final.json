@@ -1,0 +1,9 @@
+{
+  "tag": "capacity-e9188b8d8d88",
+  "connectorId": "capacity-concurrency-1117",
+  "counts": {
+    "PUBLISHED": 77520
+  },
+  "total": 77520,
+  "expectedAccepted": 77520
+}

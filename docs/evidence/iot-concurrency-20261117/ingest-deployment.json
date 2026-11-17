@@ -1,0 +1,12 @@
+{
+  "sourceCommit": "470d2a8395cbc955e01f507fee40865df839d4c9",
+  "jarSha256": "a84e147d36f20d80a31299f79999ab9c023ed0437490895c4995f9a9dac02954",
+  "health": "UP",
+  "backupContainer": "wx-editor-iot-data08-before-concurrency-1117",
+  "receiveConcurrency": 16,
+  "receiveQueueCapacity": 256,
+  "receiveMaxInFlight": 16,
+  "jdbcMaxActive": 24,
+  "originalConnectorAndBrokerPreserved": true,
+  "databaseMigration": false
+}
