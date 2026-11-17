@@ -174,4 +174,21 @@ class IotMqttAsyncAcknowledgementTest {
             assertThrows(RejectedExecutionException.class, () -> dispatcher.execute(() -> {}));
         } finally { wait.countDown(); }
     }
+
+    @Test
+    void shutdownMustDrainQueuedPublicationResultsWhileCancellingReceptions() throws Exception {
+        var entered = new CountDownLatch(1);
+        var written = new java.util.concurrent.atomic.AtomicInteger();
+        try (var dispatcher = new IotMqttReceiveDispatcher(1, 1)) {
+            dispatcher.execute(() -> {
+                entered.countDown();
+                try { new CountDownLatch(1).await(); }
+                catch (InterruptedException error) { Thread.currentThread().interrupt(); }
+            });
+            assertTrue(entered.await(2, TimeUnit.SECONDS));
+            dispatcher.execute(written::incrementAndGet);
+            dispatcher.close();
+            assertEquals(1, written.get());
+        }
+    }
 }
