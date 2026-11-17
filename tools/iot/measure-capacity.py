@@ -139,8 +139,10 @@ class Api:
         self.config = config
         self.tls = ssl.create_default_context(cafile=config['siteCa'])
         self.token = None
-        self.token = self.call('/system/auth/login', 'POST', {
-            'username': secrets['username'], 'password': secrets['password']})['accessToken']
+        login = self.call('/system/auth/login', 'POST', {
+            'username': secrets['username'], 'password': secrets['password']})
+        self.token = login['accessToken']
+        self.user_id = str(login['userId'])
 
     def call(self, path, method='GET', body=None):
         headers = {'tenant-id': str(self.config['tenantId']), 'Content-Type': 'application/json'}
@@ -159,6 +161,29 @@ class Api:
         if self.token:
             self.call('/system/auth/logout', 'POST')
             self.token = None
+
+
+def viewer_credentials(secrets, clients):
+    """查看身份可选，兼容原单账号；显式多账号必须足量且不能重复选取。"""
+    if 'viewers' not in secrets:
+        return []
+    accounts = secrets['viewers']
+    if not isinstance(accounts, list) or not clients <= len(accounts) <= 50:
+        raise ValueError('查看账号必须足量且不超过五十个')
+    selected = accounts[:clients]
+    names = [account.get('username') for account in selected]
+    if any(not isinstance(name, str) or not name for name in names) or len(set(names)) != clients:
+        raise ValueError('查看账号不能缺失或重复')
+    return selected
+
+
+def open_viewer_apis(config, secrets, clients, opened):
+    """逐个登录并按服务端用户编号去重；先登记会话，失败时调用者也能全部注销。"""
+    for account in viewer_credentials(secrets, clients):
+        opened.append(Api(config, account))
+    if len({api.user_id for api in opened}) != len(opened):
+        raise ValueError('登录结果未对应独立身份')
+    return opened
 
 
 def query(path, **params):
@@ -257,6 +282,7 @@ def cleanup(api, config, path):
 class Viewer:
     def __init__(self, api, config, state, rows, number, sent, stop, ticket=None):
         self.number, self.sent, self.stop = number, sent, stop
+        self.user_id = api.user_id
         self.rows, self.scene_id, self.tenant_id = rows, state['sceneId'], config['tenantId']
         self.metrics, self.errors = DeliveryMetrics(len(sent.values) - 1), []
         self.renewal_acks = 0
@@ -410,7 +436,7 @@ def measure(api, config, secrets, state, count, clients, cycles, scope='draft'):
     rows = state['devices'][:count]
     if len(rows) != count:
         raise ValueError('设备清单不足')
-    viewers, sent, tickets = [], SentClock(count * cycles), []
+    viewers, sent, tickets, viewer_apis = [], SentClock(count * cycles), [], []
     stop = threading.Event()
     begun = time.monotonic()
     report = {'logicalDevices': count, 'intervalSeconds': 5, 'clients': clients,
@@ -420,6 +446,8 @@ def measure(api, config, secrets, state, count, clients, cycles, scope='draft'):
         'renderingMeasured': False, 'subscriptionScope': scope, 'passed': False,
         'latencyResolutionMs': 1, 'latencyRounding': 'ceil', 'minuteSamples': []}
     try:
+        open_viewer_apis(config, secrets, clients, viewer_apis)
+        report['distinctAccounts'] = len(viewer_apis) if viewer_apis else 1
         if scope == 'publication':
             if not state.get('publicationId'):
                 raise ValueError('固定发布测试需要资源清单中的 publicationId')
@@ -430,7 +458,7 @@ def measure(api, config, secrets, state, count, clients, cycles, scope='draft'):
         report['distinctTickets'] = len(tickets)
         # 限制建连并发，避免把同时握手突发和稳态消息容量混在一起。
         with ThreadPoolExecutor(max_workers=5) as pool:
-            futures = [pool.submit(Viewer, api, config, state, rows, i, sent, stop,
+            futures = [pool.submit(Viewer, viewer_apis[i] if viewer_apis else api, config, state, rows, i, sent, stop,
                 tickets[i] if tickets else None) for i in range(clients)]
             setup_errors = []
             for future in as_completed(futures):
@@ -504,7 +532,7 @@ def measure(api, config, secrets, state, count, clients, cycles, scope='draft'):
         report.update(messagesAcknowledged=acknowledged, mqttMaxInFlight=20, uniqueDeliveries=sum(v.metrics.received for v in viewers),
             duplicateDeliveries=sum(v.metrics.duplicates for v in viewers), drainSeconds=round(time.monotonic() - drain_start, 3),
             clientErrors=[{'client': v.number, 'errors': v.errors} for v in viewers if v.errors])
-        report['clientResults'] = [{'client': v.number, 'received': v.metrics.received,
+        report['clientResults'] = [{'client': v.number, 'userId': v.user_id, 'received': v.metrics.received,
             'missing': count * cycles - v.metrics.received, 'renewalAcks': v.renewal_acks,
             'latencyMs': v.metrics.percentiles()} for v in sorted(viewers, key=lambda v: v.number)]
         combined = [sum(v.metrics.histogram[i] for v in viewers) for i in range(60002)]
@@ -530,6 +558,17 @@ def measure(api, config, secrets, state, count, clients, cycles, scope='draft'):
             except Exception:
                 revoke_failures += 1
         report.update(ticketsRevoked=revoked, ticketRevokeFailures=revoke_failures)
+        logout_failures = 0
+        for viewer_api in viewer_apis:
+            try:
+                viewer_api.logout()
+            except Exception:
+                logout_failures += 1
+        # 失败轮也按实际登录返回编号统计，不以配置名称或预期连接数冒充独立身份。
+        report['distinctAccounts'] = len({viewer_api.user_id for viewer_api in viewer_apis}) if 'viewers' in secrets else 1
+        report.update(viewerSessionsLoggedOut=len(viewer_apis) - logout_failures, viewerLogoutFailures=logout_failures)
+        if logout_failures:
+            report['passed'] = False
         if revoke_failures:
             report['passed'] = False
     report['totalSeconds'] = round(time.monotonic() - begun, 3)

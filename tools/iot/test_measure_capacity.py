@@ -11,6 +11,23 @@ spec.loader.exec_module(capacity)
 
 
 class CapacityMetricsTest(unittest.TestCase):
+    def test_distinct_viewer_selection_rejects_duplicate_names_and_short_lists(self):
+        with self.assertRaises(ValueError):
+            capacity.viewer_credentials({'viewers': [{'username': 'same'}, {'username': 'same'}]}, 2)
+        with self.assertRaises(ValueError):
+            capacity.viewer_credentials({'viewers': [{'username': 'only'}]}, 2)
+        self.assertEqual(capacity.viewer_credentials({}, 2), [])
+
+    def test_viewer_login_rejects_same_server_identity_and_tracks_partial_sessions(self):
+        opened = []
+        first, second = Mock(), Mock()
+        first.user_id = second.user_id = 'same-id'
+        with patch.object(capacity, 'Api', side_effect=[first, second]):
+            with self.assertRaises(ValueError):
+                capacity.open_viewer_apis({}, {'viewers': [{'username': 'first'}, {'username': 'second'}]}, 2, opened)
+        # 调用者 finally 持有全部已建立会话，第二个重复身份也不能遗漏注销。
+        self.assertEqual(opened, [first, second])
+
     def test_isolated_publisher_uses_explicit_credential_and_returns_ack(self):
         # 模拟传输仅验证独立发送函数的依赖和确认回执；真实进程/网络另行验收。
         protocol = capacity.runpy.run_path(str(Path(__file__).with_name('probe-mqtt.py')))
