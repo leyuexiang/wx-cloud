@@ -118,6 +118,29 @@ public class Dim3dModelWriteService {
         });
     }
 
+    /**
+     * 上下线仅更新目录状态，历史文件及受管文件共用同一权限和归属边界。
+     * 远程维护权限在锁外预检，事务内重新锁定有效目录并核对归属，避免覆盖并发迁移。
+     * 重复提交同一状态直接成功，不刷新审计时间，也不触发文件转换、签名或资源修订。
+     */
+    public void changeStatus(Long id, String state) {
+        var actor = actorWithPermission("dim3d:model:edit");
+        if (!"ONLINE".equals(state) && !"OFFLINE".equals(state)) throw invalid("模型状态仅支持 ONLINE 或 OFFLINE");
+        var previous = directory(id, actor, false, false);
+        requireScope(actor, previous.get("resource_belong").toString());
+        new TransactionTemplate(transactions).executeWithoutResult(transaction -> {
+            var current = directory(id, actor, true, false);
+            if (!Objects.equals(previous.get("tenant_id"), current.get("tenant_id"))
+                    || !Objects.equals(previous.get("resource_belong"), current.get("resource_belong"))) {
+                throw conflict("模型归属已变化，请刷新后重试");
+            }
+            if (state.equals(current.get("status"))) return;
+            // 身份取自认证账号，只修改状态及更新审计，保全文件关联、业务元数据和已发布引用。
+            jdbc.update("UPDATE wx_3d_model SET status=?,update_by=?,update_time=CURRENT_TIMESTAMP WHERE id=?",
+                    state, actor.user(), id);
+        });
+    }
+
     /** 受管删除在同一数据库事务中复用原资源 DELETE 提交，引用拒绝时目录保持原样。 */
     public void delete(Long id) {
         var actor = actorWithPermission("dim3d:model:delete");

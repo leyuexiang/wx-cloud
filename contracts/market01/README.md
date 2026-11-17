@@ -98,15 +98,16 @@ POST /model-imports/{operationId}/publish 在 PUBLISHING 固定一次目录输�
 
 | 接口 | 本地调整及核对结果 | 与参考合同的剩余差异 |
 | --- | --- | --- |
-| `GET /admin-api/dim3d/model/info/{id}` | 返回 `data`，两类模型均返回字符串 `modelFileId`；历史模型返回真实相对路径，受管模型返回校验后的相对路径、`modelFileUrl` 及 `downloadExpiresAt` | 受管文件编号为接口投影，数据库仍通过独立 `resource_id` 关联；真实私有文件优先使用签名地址 |
+| `GET /admin-api/dim3d/model/info/{id}` | MODEL-10 本地响应采用参考的 16 个目录字段，统一使用字符串 `modelFileId`；补充操作人名称及格式化时间 | 受管文件编号为接口投影，数据库仍通过独立 `resource_id` 关联；路径与签名地址从文件资源详情获取；本次收敛待发布 |
 | `GET /admin-api/dim3d/model/page` | 返回根级 `code/msg/rows/total`，支持文档筛选、排序、字符串文件编号及 `priceYuan` | 排序使用固定单列白名单及 `asc/desc`，沿用单页 200 条上限，列表不读取模型清单 |
 | `POST /admin-api/dim3d/model/add` | 必填 `modelName/category/resourceBelong/isPaid/modelFileId`；历史文件归属与目录共同提交，受管文件沿用原上传发布事务；成功 `data=null` | 归属与付费状态缺失即拒绝；系统落公共租户 0，个人落当前账号；相同受管文件及表单重复保存返回原提交结果 |
 | `PUT /admin-api/dim3d/model/edit/{id}` | 使用相同必填表单，支持受管元数据编辑及新文件替换；目录编号和原上下线状态保留；成功 `data=null` | 描述或封面省略时保留锁定现值，显式空值清空；新受管文件的最终发布与目录改绑同事务，原资源及发布快照保留 |
 | `DELETE /admin-api/dim3d/model/remove/{id}` | 历史目录逻辑删除；受管目录通过原 DELETE 资源操作及引用保护事务共同删除；成功 `data=null` | 有历史发布引用时拒绝删除；同账号重复删除保持成功；文件和封面不物理回收 |
+| `PUT /admin-api/dim3d/model/{status}/{id}` | MODEL-11 本地已统一历史及受管模型上下线；仅接受 `ONLINE/OFFLINE`，无需请求体；成功 `code=200`、`data=null` | 要求 `dim3d:model:edit` 及既有系统/个人维护权限；短事务锁定有效目录，归属变化拒绝；同状态重复请求保全审计，状态变化仅更新状态及可信更新审计；本次调整待发布 |
 
-用户最新要求已将前轮核对发现的五类接口差异收口。模型详情和列表返回精确元字段 `priceYuan`，写入 `price` 使用整数分且不在响应中回显。FREE 允许零或省略并归零，PAID 必须为 1～2147483647 的整数分；系统和个人遵循同一规则。目录、资源、模型文件及封面编号使用字符串输出，临时预览字段和元价格字段只读且不落库。预览签名沿用当前 300 秒有效期，完整签名地址不写入业务记录或验收日志。
+用户最新要求已将前轮核对发现的五类接口差异收口。MODEL-10 本地详情和列表采用独立响应对象，字段固定为 `id/modelName/modelDesc/category/resourceBelong/isPaid/priceYuan/coverImageId/modelFileId/status/createBy/createByName/createTime/updateBy/updateByName/updateTime`。编号和元价格均以字符串返回，价格保留两位小数，时间采用 `yyyy-MM-dd HH:mm:ss`，名称复用系统用户批量查询，缺失或当前范围未返回时保留空值。写入 `price` 使用整数分，FREE 允许零或省略并归零，PAID 必须为 1～2147483647 的整数分，系统和个人遵循同一规则。文件预览签名沿用当前 300 秒有效期，完整签名地址不写入业务记录或验收日志。
 
-单次受管详情按需读取并校验一份清单，签发模型入口，文件固定在提交快照对应的前缀。文件签发与详情复用同一快照校验。当前新增输出为二进制模型格式（GLB）；文本模型格式（glTF）的外部贴图和缓冲依赖仍通过既有成员签发读取，入口地址验证不等于完整浏览器加载验收。
+单次受管文件资源详情按需读取并校验一份清单，签发模型入口，文件固定在提交快照对应的前缀。目录详情只读取已授权元数据，文件签发复用已有快照校验。当前新增输出为二进制模型格式（GLB）；文本模型格式（glTF）的外部贴图和缓冲依赖仍通过既有成员签发读取，入口地址验证不等于完整浏览器加载验收。
 
 参考文档第 5.4 节的 `GET /admin-api/dim3d/resource/info/{id}` 已补充控制器，复用当前账号的目录可见范围，返回 `id/resourceName/resourceType/assetName/resourceRelativePath`，私有文件同时返回 `modelFileUrl/downloadExpiresAt`。受管地址的相对路径来自真实冻结前缀与清单入口，前端应优先读取签名地址；历史 `/amm/` 根地址仍需与实际部署映射一致，完整页面及真实存储验收另记。
 

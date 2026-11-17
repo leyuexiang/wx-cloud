@@ -11,7 +11,6 @@ import cn.iocoder.wx.module.dimensions.entity.Dim3dTemplate;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dResourceBaseEntity;
 import cn.iocoder.wx.module.dimensions.exception.ErrorCodeConstants;
 import cn.iocoder.wx.module.dimensions.mapper.Dim3dConvertedResourceMapper;
-import cn.iocoder.wx.module.dimensions.mapper.Dim3dModelMapper;
 import cn.iocoder.wx.module.dimensions.mapper.Dim3dTemplateMapper;
 import cn.iocoder.wx.module.dimensions.service.Dim3dResourceCatalogService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -53,7 +52,6 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
     /** 模型写入集中处理归属、文件关系、发布和删除，复用既有基础事务。 */
     @Resource private cn.iocoder.wx.module.dimensions.service.Dim3dModelWriteService models;
 
-    @Resource private Dim3dModelMapper modelMapper;
     @Resource private Dim3dTemplateMapper templateMapper;
     @Resource private Dim3dConvertedResourceMapper convertedResourceMapper;
     @Resource private RestTemplate restTemplate;
@@ -68,9 +66,9 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
 
     @Override public Long createModel(Dim3dModel model) { return models.create(model); }
     @Override public void updateModel(Long id, Dim3dModel model) { models.update(id, model); }
-    /** 目录授权后按需生成预览，避免列表逐条读取对象存储，也不让写入依赖预览服务可用性。 */
+    /** 目录详情只读取授权元数据；模型路径与签名由文件资源详情按需查询。 */
     @Override public Dim3dModel getModel(Long id) {
-        return modelDetails(findModel(id));
+        return findModel(id);
     }
 
     /** 在完成目录授权的对象上补充文件投影，内部数据库关联不受响应字段影响。 */
@@ -150,8 +148,6 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
         args.add(pageSize(size));
         args.add(((long) pageNum(num) - 1) * pageSize(size));
         List<Dim3dModel> rows = jdbc.query("SELECT *" + where + order + " LIMIT ? OFFSET ?", MODEL_ROW, args.toArray());
-        // 对外文件编号映射只作用于查询结果，受管记录的历史文件列继续保持空值。
-        rows.forEach(model -> { if (model.getResourceId() != null) model.setModelFileId(model.getResourceId()); });
         return new PageResult<>(rows, total == null ? 0 : total);
     }
 
@@ -184,7 +180,8 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
         return new PageResult<>(page.getRecords(), page.getTotal());
     }
 
-    @Override public void changeModelStatus(Long id, String status) { legacy(findModel(id)); checkStatus(status); Dim3dModel e = new Dim3dModel(); e.setId(id); e.setStatus(status); require(modelMapper.updateById(e)); }
+    /** 统一处理历史及受管模型的状态写入，复用编辑权限、目录归属和短事务。 */
+    @Override public void changeModelStatus(Long id, String status) { models.changeStatus(id, status); }
     @Override public void changeIconStatus(Long id, String status) { legacy(getIcon(id)); images.changeStatus(id, status); }
     @Override public void changeTemplateStatus(Long id, String status) { legacy(getTemplate(id)); checkStatus(status); Dim3dTemplate e = new Dim3dTemplate(); e.setId(id); e.setStatus(status); require(templateMapper.updateById(e)); }
     @Override public void deleteModel(Long id) { models.delete(id); }

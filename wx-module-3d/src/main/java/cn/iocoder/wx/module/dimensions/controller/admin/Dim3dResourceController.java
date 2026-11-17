@@ -5,6 +5,8 @@ import cn.iocoder.wx.framework.common.pojo.PageResult;
 import cn.iocoder.wx.framework.common.util.validation.ValidationUtils;
 import cn.iocoder.wx.module.dimensions.service.ModelImportService;
 import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dModelPageResponse;
+import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dModelResponse;
+import cn.iocoder.wx.module.dimensions.service.Dim3dModelResponseAssembler;
 import cn.iocoder.wx.framework.common.exception.ServiceException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +42,8 @@ public class Dim3dResourceController {
     @Resource private ModelImportService modelImports;
     @Resource private ObjectMapper json;
     @Resource private Validator validator;
+    /** 目录响应使用明确字段投影，操作人名称按一页去重合批补充。 */
+    @Resource private Dim3dModelResponseAssembler modelResponses;
 
     @PostMapping("/model/add")
     @Operation(summary = "新增模型", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -65,17 +69,21 @@ public class Dim3dResourceController {
         return CommonResult.success(null);
     }
     @GetMapping("/model/info/{id}") @Operation(summary = "查询模型详情") @PreAuthorize("@ss.hasPermission('dim3d:model:query')")
-    public CommonResult<Dim3dModel> modelInfo(@PathVariable Long id) { return CommonResult.success(service.getModel(id)); }
+    public CommonResult<Dim3dModelResponse> modelInfo(@PathVariable Long id) {
+        return CommonResult.success(modelResponses.single(service.getModel(id)));
+    }
     @GetMapping("/model/page") @Operation(summary = "分页查询模型") @PreAuthorize("@ss.hasPermission('dim3d:model:query')")
     public Dim3dModelPageResponse modelPage(String modelName, String resourceBelong, String status, String isPaid,
                                             String category, Integer pageNum, Integer pageSize,
                                             String orderByColumn, String isAsc) {
         // 模型分页直接返回契约根级字段，避免重复序列化同一记录集合。
-        return new Dim3dModelPageResponse(service.getModelPage(modelName, resourceBelong, status, isPaid,
-                category, pageNum, pageSize, orderByColumn, isAsc));
+        var page = service.getModelPage(modelName, resourceBelong, status, isPaid,
+                category, pageNum, pageSize, orderByColumn, isAsc);
+        return new Dim3dModelPageResponse(new PageResult<>(modelResponses.multiple(page.getList()), page.getTotal()));
     }
+    /** 上下线沿用文档路径和模型编辑权限，成功仅返回统一空数据响应。 */
     @PutMapping("/model/{status}/{id}") @Operation(summary = "模型上线或下线") @PreAuthorize("@ss.hasPermission('dim3d:model:edit')")
-    public CommonResult<Boolean> modelStatus(@PathVariable String status, @PathVariable Long id) { service.changeModelStatus(id, status); return CommonResult.success(true); }
+    public CommonResult<Void> modelStatus(@PathVariable String status, @PathVariable Long id) { service.changeModelStatus(id, status); return CommonResult.success(null); }
     @DeleteMapping("/model/remove/{id}") @Operation(summary = "删除模型") @PreAuthorize("@ss.hasPermission('dim3d:model:delete')")
     public CommonResult<Void> removeModel(@PathVariable Long id) { service.deleteModel(id); return CommonResult.success(null); }
 
