@@ -1,0 +1,10 @@
+{
+  "health": "healthy",
+  "sourceCommit": "40d40effd4d67117897632411014ea2c78b9b1b4",
+  "webCommit": "b3711ddf396f92f99b67274b11cef49c7bd0f4c8",
+  "jarSha256": "c92ccb8bc71bf32dec200f0ebcf2cc38203fe02141e712bac9fcffd0fc4a56fb",
+  "siteSha256": "c41d7400f759adec56012e38178d9e0a062a7e5541779f57be1653c4f6374a72",
+  "backupStopped": true,
+  "backupContainer": "wx-editor-dimensions-data08-before-handshake-1117",
+  "originalGatewayRestarted": false
+}

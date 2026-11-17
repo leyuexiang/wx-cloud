@@ -1,0 +1,11 @@
+{
+  "candidateRemoved": true,
+  "temporaryIngestAndBrokerRemoved": true,
+  "certificateCopiesRemoved": true,
+  "credentialsFileRemoved": true,
+  "temporaryLoadDirectoryRemoved": true,
+  "helperScriptsAndRunnerRemoved": true,
+  "temporaryBrokerPortClosed": true,
+  "publicIdentityAuditRetained": "/home/wx-iot-cold-identities-20261117",
+  "residentAndRollbackPreserved": true
+}

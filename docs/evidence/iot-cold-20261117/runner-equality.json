@@ -1,0 +1,9 @@
+{
+  "sourceFilesCompared": 33,
+  "allSourceHashesMatch": true,
+  "capacityToolSha256": "1afc48240f40f1291e540ed24a65e890204b5432838b625be2ce377dfd99945e",
+  "mqttHelperSha256": "694107c89ea726e7a8e9979b97e5559dc8c527888aace148a739e8c3452315c5",
+  "websocketClientVersion": "1.9.0",
+  "runtimeDifference": "工作站 Windows Python 3.13.12；测试主机 Linux Python 3.13.13",
+  "dependenciesInstalledOrUpgraded": false
+}

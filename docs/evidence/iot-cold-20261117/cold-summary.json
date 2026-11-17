@@ -1,0 +1,121 @@
+{
+  "coldScope": "isolated-dimensions-process; shared dependencies and OS caches retained",
+  "firstWarmDelayReason": "第一轮首测返回未过门槛代码 2，原执行器中止；保持进程继续，未覆盖首测",
+  "rounds": [
+    {
+      "round": 1,
+      "phase": "first",
+      "report": "cold-1-first.json",
+      "secondsAfterHealthAtInvocation": null,
+      "existingReportPreserved": true,
+      "passed": false,
+      "distinctAccounts": 50,
+      "messagesAcknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "latencyMs": {
+        "p50": 7402,
+        "p95": 11133,
+        "p99": 11532
+      },
+      "setupSeconds": 13.7,
+      "ticketsRevoked": 50,
+      "viewerSessionsLoggedOut": 50,
+      "invocationDelayNote": "原执行器记录首测前置健康，但未写出该时延字段，未补造数值"
+    },
+    {
+      "round": 1,
+      "phase": "warm",
+      "report": "cold-1-warm.json",
+      "secondsAfterHealthAtInvocation": 125.392,
+      "existingReportPreserved": false,
+      "passed": false,
+      "distinctAccounts": 50,
+      "messagesAcknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "latencyMs": {
+        "p50": 3242,
+        "p95": 7423,
+        "p99": 7667
+      },
+      "setupSeconds": 12.385,
+      "ticketsRevoked": 50,
+      "viewerSessionsLoggedOut": 50
+    },
+    {
+      "round": 2,
+      "phase": "first",
+      "report": "cold-2-first.json",
+      "secondsAfterHealthAtInvocation": 0.001,
+      "existingReportPreserved": false,
+      "passed": false,
+      "distinctAccounts": 50,
+      "messagesAcknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "latencyMs": {
+        "p50": 2843,
+        "p95": 6140,
+        "p99": 6396
+      },
+      "setupSeconds": 13.747,
+      "ticketsRevoked": 50,
+      "viewerSessionsLoggedOut": 50
+    },
+    {
+      "round": 2,
+      "phase": "warm",
+      "report": "cold-2-warm.json",
+      "secondsAfterHealthAtInvocation": 41.353,
+      "existingReportPreserved": false,
+      "passed": false,
+      "distinctAccounts": 50,
+      "messagesAcknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "latencyMs": {
+        "p50": 3172,
+        "p95": 6779,
+        "p99": 6984
+      },
+      "setupSeconds": 12.12,
+      "ticketsRevoked": 50,
+      "viewerSessionsLoggedOut": 50
+    },
+    {
+      "round": 3,
+      "phase": "first",
+      "report": "cold-3-first.json",
+      "secondsAfterHealthAtInvocation": 0.003,
+      "existingReportPreserved": false,
+      "passed": false,
+      "distinctAccounts": 50,
+      "messagesAcknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "latencyMs": {
+        "p50": 2347,
+        "p95": 5828,
+        "p99": 6037
+      },
+      "setupSeconds": 13.927,
+      "ticketsRevoked": 50,
+      "viewerSessionsLoggedOut": 50
+    },
+    {
+      "round": 3,
+      "phase": "warm",
+      "report": "cold-3-warm.json",
+      "secondsAfterHealthAtInvocation": 41.347,
+      "existingReportPreserved": false,
+      "passed": false,
+      "distinctAccounts": 50,
+      "messagesAcknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "latencyMs": {
+        "p50": 3222,
+        "p95": 6569,
+        "p99": 6769
+      },
+      "setupSeconds": 11.776,
+      "ticketsRevoked": 50,
+      "viewerSessionsLoggedOut": 50
+    }
+  ]
+}

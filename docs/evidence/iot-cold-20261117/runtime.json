@@ -1,0 +1,7 @@
+{
+  "platform": "linux",
+  "pythonVersion": "3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:19:41) [GCC 14.3.0]",
+  "websocketClientVersion": "1.9.0",
+  "capacityToolSha256": "1afc48240f40f1291e540ed24a65e890204b5432838b625be2ce377dfd99945e",
+  "dependenciesInstalledOrUpgraded": false
+}

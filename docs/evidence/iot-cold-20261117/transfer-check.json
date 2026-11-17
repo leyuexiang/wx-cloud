@@ -1,0 +1,9 @@
+{
+  "bytesReceived": 8388608,
+  "elapsedSeconds": 1.048,
+  "megabitsPerSecondIncludingSshSetup": 64.041,
+  "transport": "SSH uncompressed random bytes",
+  "direction": "test-server-to-current-workstation",
+  "payloadPersisted": false,
+  "concurrentPhase": "server-local protocol capacity run; independent control transfer"
+}

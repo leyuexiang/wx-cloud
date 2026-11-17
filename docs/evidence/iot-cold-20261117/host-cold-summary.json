@@ -1,0 +1,114 @@
+{
+  "generatorLocation": "test-server-local",
+  "coldScope": "isolated-dimensions-process; shared dependencies and OS caches retained",
+  "rounds": [
+    {
+      "round": 1,
+      "phase": "first",
+      "report": "host-cold-1-first.json",
+      "secondsAfterHealthAtInvocation": 0.002,
+      "passed": true,
+      "distinctAccounts": 50,
+      "messagesAcknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "latencyMs": {
+        "p50": 56,
+        "p95": 104,
+        "p99": 129
+      },
+      "setupSeconds": 13.845,
+      "ticketsRevoked": 50,
+      "viewerSessionsLoggedOut": 50
+    },
+    {
+      "round": 1,
+      "phase": "warm",
+      "report": "host-cold-1-warm.json",
+      "secondsAfterHealthAtInvocation": 31.529,
+      "passed": true,
+      "distinctAccounts": 50,
+      "messagesAcknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "latencyMs": {
+        "p50": 53,
+        "p95": 85,
+        "p99": 103
+      },
+      "setupSeconds": 11.904,
+      "ticketsRevoked": 50,
+      "viewerSessionsLoggedOut": 50
+    },
+    {
+      "round": 2,
+      "phase": "first",
+      "report": "host-cold-2-first.json",
+      "secondsAfterHealthAtInvocation": 0.002,
+      "passed": true,
+      "distinctAccounts": 50,
+      "messagesAcknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "latencyMs": {
+        "p50": 53,
+        "p95": 81,
+        "p99": 95
+      },
+      "setupSeconds": 13.773,
+      "ticketsRevoked": 50,
+      "viewerSessionsLoggedOut": 50
+    },
+    {
+      "round": 2,
+      "phase": "warm",
+      "report": "host-cold-2-warm.json",
+      "secondsAfterHealthAtInvocation": 31.344,
+      "passed": true,
+      "distinctAccounts": 50,
+      "messagesAcknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "latencyMs": {
+        "p50": 53,
+        "p95": 98,
+        "p99": 167
+      },
+      "setupSeconds": 11.694,
+      "ticketsRevoked": 50,
+      "viewerSessionsLoggedOut": 50
+    },
+    {
+      "round": 3,
+      "phase": "first",
+      "report": "host-cold-3-first.json",
+      "secondsAfterHealthAtInvocation": 0.001,
+      "passed": true,
+      "distinctAccounts": 50,
+      "messagesAcknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "latencyMs": {
+        "p50": 56,
+        "p95": 158,
+        "p99": 271
+      },
+      "setupSeconds": 13.644,
+      "ticketsRevoked": 50,
+      "viewerSessionsLoggedOut": 50
+    },
+    {
+      "round": 3,
+      "phase": "warm",
+      "report": "host-cold-3-warm.json",
+      "secondsAfterHealthAtInvocation": 31.353,
+      "passed": true,
+      "distinctAccounts": 50,
+      "messagesAcknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "latencyMs": {
+        "p50": 52,
+        "p95": 84,
+        "p99": 107
+      },
+      "setupSeconds": 11.986,
+      "ticketsRevoked": 50,
+      "viewerSessionsLoggedOut": 50
+    }
+  ]
+}

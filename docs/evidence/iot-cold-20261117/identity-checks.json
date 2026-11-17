@@ -1,0 +1,258 @@
+{
+  "tenantId": 1276674,
+  "distinctUsers": 50,
+  "identities": [
+    {
+      "userId": 1276728,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276729,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276730,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276731,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276732,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276733,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276734,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276735,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276736,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276737,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276738,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276739,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276740,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276741,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276742,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276743,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276744,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276745,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276746,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276747,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276748,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276749,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276750,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276751,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276752,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276753,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276754,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276755,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276756,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276757,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276758,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276759,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276760,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276761,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276762,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276763,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276764,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276765,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276766,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276767,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276768,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276769,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276770,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276771,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276772,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276773,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276774,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276775,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276776,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    },
+    {
+      "userId": 1276777,
+      "permissionsExact": true,
+      "managementRoleAbsent": true
+    }
+  ],
+  "userListDenied": true,
+  "sceneWriteDenied": true
+}

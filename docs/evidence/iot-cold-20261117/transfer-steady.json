@@ -1,0 +1,10 @@
+{
+  "bytesReceived": 33554432,
+  "setupToFirstByteSeconds": 1.098,
+  "bodySeconds": 0.361,
+  "bodyMegabitsPerSecond": 744.37,
+  "transport": "SSH uncompressed random bytes; single stream",
+  "direction": "test-server-to-current-workstation",
+  "payloadPersisted": false,
+  "doesNotMeasure": "50 independent WSS receiver threads or browser rendering"
+}
