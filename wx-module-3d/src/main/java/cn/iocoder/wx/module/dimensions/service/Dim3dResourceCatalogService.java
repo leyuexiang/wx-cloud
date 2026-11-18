@@ -12,7 +12,7 @@ public interface Dim3dResourceCatalogService {
     Long createModel(Dim3dModel model);
     void updateModel(Long id, Dim3dModel model);
     Dim3dModel getModel(Long id);
-    /** 按对外模型文件编号查询真实资源元信息，读取范围由关联目录授权。 */
+    /** 按对外模型文件编号查询真实资源元信息及唯一相对路径，读取范围由关联目录授权。 */
     java.util.Map<String, Object> getModelResource(Long id);
     PageResult<Dim3dModel> getModelPage(String modelName, String resourceBelong, String status, String isPaid, String category, Integer pageNum, Integer pageSize);
     /** 带合同排序参数的模型分页；原七参数入口继续保留供已有调用方使用。 */

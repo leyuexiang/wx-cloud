@@ -153,9 +153,20 @@ def verify(target, formal):
         check('操作人名称来自真实系统账号', bool(nickname)
               and detail['createByName'] == nickname and detail['updateByName'] == nickname)
         preview = request('/admin-api/dim3d/resource/info/' + resource, actor=actor)
-        check('文件详情包含预览签名和到期时间', preview.get('code') == 200
-              and bool(preview['data'].get('modelFileUrl')) and bool(preview['data'].get('downloadExpiresAt')))
-        with SECURE.open(preview['data']['modelFileUrl'], timeout=30) as response:
+        check('文件详情仅含五个业务字段', preview.get('code') == 200 and set(preview['data']) == {
+            'id', 'resourceName', 'resourceType', 'assetName', 'resourceRelativePath'})
+        relative = preview['data']['resourceRelativePath']
+        binding = json.loads(sql("SELECT JSON_OBJECT('prefix',storage_prefix,'revision',current_revision,'hash',content_hash) "
+                                 'FROM `' + database + '`.wx_3d_resource WHERE id=' + resource + ';'))
+        prefix = binding['prefix'].rstrip('/') + '/'
+        check('文件相对路径属于真实冻结前缀', isinstance(relative, str) and relative.startswith(prefix)
+              and relative.endswith('.glb') and '://' not in relative and '?' not in relative)
+        # 相对路径接口只查询元信息，实际私有下载继续走原修订与摘要约束的受控文件接口。
+        signed = request('/admin-api/dim3d/resources/' + resource + '/file?' + urllib.parse.urlencode({
+            'revision': str(binding['revision']), 'contentHash': binding['hash'], 'path': relative[len(prefix):]}), actor=actor)
+        check('原受控下载接口继续签发有效地址', signed.get('code') == 200
+              and bool(signed['data'].get('fileUrl')) and bool(signed['data'].get('downloadExpiresAt')))
+        with SECURE.open(signed['data']['fileUrl'], timeout=30) as response:
             model = response.read(8 * 1024 * 1024)
             check('私有预览真实回读为模型', response.status == 200 and model[:4] == b'glTF')
         check('资源详情投影可回读', request('/admin-api/dim3d/resource/info/' + resource, actor=actor).get('code') == 200)

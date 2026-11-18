@@ -87,7 +87,7 @@ public class Dim3dResourceController {
     @DeleteMapping("/model/remove/{id}") @Operation(summary = "删除模型") @PreAuthorize("@ss.hasPermission('dim3d:model:delete')")
     public CommonResult<Void> removeModel(@PathVariable Long id) { service.deleteModel(id); return CommonResult.success(null); }
 
-    /** 文件详情复用目录可见范围，补齐文档约定的模型文件编号查询入口。 */
+    /** 文件详情按模型文件编号及目录可见范围读取，仅返回文档约定的相对路径。 */
     @GetMapping("/resource/info/{id}")
     @Operation(summary = "查询模型文件资源详情")
     @PreAuthorize("@ss.hasPermission('dim3d:model:query')")

@@ -142,7 +142,10 @@ class Dim3dModelControllerContractTest {
         mvc.perform(get("/dim3d/resource/info/101")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value("101"))
                 .andExpect(jsonPath("$.data.resourceType").value("MODEL"))
-                .andExpect(jsonPath("$.data.resourceRelativePath").value("models/tree.glb"));
+                .andExpect(jsonPath("$.data.resourceRelativePath").value("models/tree.glb"))
+                // 路径契约收敛为相对路径，资源详情不再同时返回签名地址和有效期。
+                .andExpect(jsonPath("$.data.modelFileUrl").doesNotExist())
+                .andExpect(jsonPath("$.data.downloadExpiresAt").doesNotExist());
         verify(catalog).getModelResource(101L);
     }
 

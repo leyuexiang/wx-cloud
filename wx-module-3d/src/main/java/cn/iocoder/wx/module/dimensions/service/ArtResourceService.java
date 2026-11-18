@@ -71,11 +71,21 @@ public class ArtResourceService {
         return Map.of("fileUrl",signed.get("manifestUrl"),"downloadExpiresAt",signed.get("downloadExpiresAt"));
     }
 
-    /**
-     * 目录详情复用当前资源可见性和不可变提交快照，只签发真实模型入口。
-     * 一次读取并校验清单后直接签名，避免先取清单地址再走成员接口导致重复存储读取。
-     */
+    /** 原模型预览调用仍按已校验的入口签发下载地址，单次仅校验一份清单。 */
     public Map<String, String> modelPreview(String id) {
+        var entry = modelEntry(id);
+        var signed = signer.sign(entry.prefix(), entry.path());
+        return Map.of("modelFileUrl", signed.get("manifestUrl"), "downloadExpiresAt", signed.get("downloadExpiresAt"),
+                "resourceRelativePath", entry.relativePath());
+    }
+
+    /** 文件详情只读取可信入口的相对路径，查询元信息时无需生成临时下载签名。 */
+    public String modelRelativePath(String id) {
+        return modelEntry(id).relativePath();
+    }
+
+    /** 路径元信息与原预览共用可见性、已提交修订及完整清单校验，避免两套授权规则漂移。 */
+    private ModelEntry modelEntry(String id) {
         var row = visible(id, access.actor(), false);
         if (!"READY".equals(row.get("content_state")) || !"MODEL".equals(row.get("resource_type"))) {
             throw ServiceException.of(NOT_VISIBLE);
@@ -90,15 +100,20 @@ public class ArtResourceService {
         String manifest = snapshot.path("manifest_path").asText();
         var checked = modelVerifier.verify(store.readManifest(prefix, manifest), id,
                 snapshot.path("manifest_sha256").asText(), manifest);
-        // 入口、格式、运行平台和兼容标识均以已提交快照为准，任何不一致都不产生下载授权。
+        // 入口、格式、运行平台和兼容标识均以已提交快照为准，失配时拒绝提供路径或下载授权。
         if (!hash.equals(checked.contentHash()) || !checked.contentFormat().equals(snapshot.path("content_format").asText())
                 || !"WebGL".equals(snapshot.path("platform").asText())
                 || !checked.compatibility().equals(snapshot.path("app_compatibility").asText())) {
             throw ServiceException.of(CHECKSUM_MISMATCH);
         }
-        var signed = signer.sign(prefix, checked.modelPath());
-        return Map.of("modelFileUrl", signed.get("manifestUrl"), "downloadExpiresAt", signed.get("downloadExpiresAt"),
-                "resourceRelativePath", prefix + (prefix.endsWith("/") ? "" : "/") + checked.modelPath());
+        return new ModelEntry(prefix, checked.modelPath());
+    }
+
+    /** 冻结存储前缀与清单入口分别保留，签名使用两段原值，相对路径仅补齐一处分隔符。 */
+    private record ModelEntry(String prefix, String path) {
+        private String relativePath() {
+            return prefix + (prefix.endsWith("/") ? "" : "/") + path;
+        }
     }
 
     /** 文件读取与目录预览共用同一提交快照检查，不能对未提交版本或失配摘要签发地址。 */

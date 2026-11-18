@@ -112,7 +112,7 @@ class ArtResourceServiceTest {
         verifyNoInteractions(signer);
     }
 
-    /** 目录详情必须签发清单中的模型入口，不能把清单地址当模型地址返回。 */
+    /** 原预览方法继续签发清单中的模型入口，单独调用签名能力时保持既有行为。 */
     @Test void modelPreviewSignsVerifiedEntryOnce() throws Exception {
         String hash = committedModelFixture("model.glb.v1", "test-loader", "model.glb.v1");
         db.update("UPDATE wx_3d_resource SET content_hash=? WHERE id=21", hash);
@@ -125,9 +125,25 @@ class ArtResourceServiceTest {
         verify(store).readManifest("resources/old/frozen/", "manifest.json");
     }
 
+    /** 两种模型格式均从真实清单提取相对入口，元信息读取只读取一份清单并跳过签名。 */
+    @Test void modelRelativePathReadsVerifiedEntryWithoutSigning() throws Exception {
+        for (String format : List.of("model.glb.v1", "model.gltf.v1")) {
+            String hash = committedModelFixture(format, "test-loader", format);
+            db.update("UPDATE wx_3d_resource SET content_hash=? WHERE id=21", hash);
+            clearInvocations(store);
+            String suffix = "model.glb.v1".equals(format) ? "glb" : "gltf";
+            assertEquals("resources/old/frozen/models/car." + suffix, service.modelRelativePath("21"));
+            verify(store).readManifest("resources/old/frozen/", "manifest.json");
+            verifyNoMoreInteractions(store);
+        }
+        verifyNoInteractions(signer);
+    }
+
     @Test void modelPreviewRejectsInvisibleAndUncommittedResourcesBeforeStorageAccess() {
         for (String id : List.of("21", "31", "41", "51")) {
             assertThrows(ServiceException.class, () -> service.modelPreview(id));
+            // 相对路径入口同样先完成权限和已提交状态校验，再读取存储清单。
+            assertThrows(ServiceException.class, () -> service.modelRelativePath(id));
         }
         verifyNoInteractions(store, signer);
     }
@@ -138,6 +154,7 @@ class ArtResourceServiceTest {
             String hash = committedModelFixture(fields.get(0), fields.get(1));
             db.update("UPDATE wx_3d_resource SET content_hash=? WHERE id=21", hash);
             assertThrows(ServiceException.class, () -> service.modelPreview("21"));
+            assertThrows(ServiceException.class, () -> service.modelRelativePath("21"));
         }
         verifyNoInteractions(signer);
     }
@@ -147,6 +164,7 @@ class ArtResourceServiceTest {
         db.update("UPDATE wx_3d_resource SET content_hash=? WHERE id=21", hash);
         when(store.readManifest("resources/old/frozen/", "manifest.json")).thenReturn(new byte[]{1});
         assertThrows(ServiceException.class, () -> service.modelPreview("21"));
+        assertThrows(ServiceException.class, () -> service.modelRelativePath("21"));
         verifyNoInteractions(signer);
     }
 

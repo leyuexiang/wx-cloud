@@ -12,7 +12,6 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -61,23 +60,25 @@ class Dim3dModelPreviewTest {
     }
 
     @Test
-    void resourceInfoUsesAuthorizedPreviewAndPreservesSeparateIds() {
+    void resourceInfoUsesRelativePathOnlyAndPreservesSeparateIds() {
         jdbc.update("UPDATE wx_3d_model SET resource_id=201,model_file_id=NULL WHERE id=1");
         jdbc.update("INSERT INTO wx_3d_resource(id,tenant_id,resource_type,resource_scope) VALUES(201,'41','MODEL','TENANT_SHARED')");
-        when(resources.modelPreview("201")).thenReturn(Map.of("modelFileUrl", "https://example.invalid/tree.glb",
-                "downloadExpiresAt", "2030-01-01T00:00:00Z", "resourceRelativePath", "resources/tree.glb"));
+        when(resources.modelRelativePath("201")).thenReturn("resources/tree.glb");
         var result = service.getModelResource(201L);
-        assertEquals("https://example.invalid/tree.glb", result.get("modelFileUrl"));
-        assertEquals("2030-01-01T00:00:00Z", result.get("downloadExpiresAt"));
+        // 文件详情仅暴露既有业务元信息和相对路径，下载签名及有效期不能混入响应。
+        assertEquals(java.util.Set.of("id", "resourceName", "resourceType", "assetName", "resourceRelativePath"), result.keySet());
         assertEquals("201", result.get("id"));
         assertEquals("resources/tree.glb", result.get("resourceRelativePath"));
         assertNull(jdbc.queryForObject("SELECT model_file_id FROM wx_3d_model WHERE id=1", Long.class));
+        verify(resources).modelRelativePath("201");
+        verifyNoMoreInteractions(resources);
     }
 
     @Test
     void hiddenDirectoryCannotTriggerSigning() {
         jdbc.update("UPDATE wx_3d_model SET resource_id=201,data_user_id=7002 WHERE id=1");
         assertThrows(ServiceException.class, () -> service.getModel(1L));
+        assertThrows(ServiceException.class, () -> service.getModelResource(201L));
         verifyNoInteractions(resources);
     }
 
@@ -89,6 +90,19 @@ class Dim3dModelPreviewTest {
         assertThrows(ServiceException.class, () -> service.getModelResource(101L));
         jdbc.update("DELETE FROM wx_3d_resource WHERE id=101");
         assertThrows(ServiceException.class, () -> service.getModelResource(101L));
+    }
+
+    /** 历史路径支持已有中文名称，空路径及错误关联的受管文件均不能作为历史资源返回。 */
+    @Test
+    void legacyResourceInfoPreservesChinesePathAndRejectsInvalidBinding() {
+        String path = "dim3d/model/41/101/药材展示台/model.glb";
+        jdbc.update("UPDATE wx_3d_resource SET resource_relative_path=? WHERE id=101", path);
+        assertEquals(path, service.getModelResource(101L).get("resourceRelativePath"));
+        jdbc.update("UPDATE wx_3d_resource SET resource_relative_path='' WHERE id=101");
+        assertThrows(ServiceException.class, () -> service.getModelResource(101L));
+        jdbc.update("UPDATE wx_3d_resource SET resource_relative_path=?,resource_scope='TENANT_SHARED' WHERE id=101", path);
+        assertThrows(ServiceException.class, () -> service.getModelResource(101L));
+        verifyNoInteractions(resources);
     }
 
     /** 分页只读取目录，不能因为预览服务故障阻断列表或产生逐条存储查询。 */
@@ -125,6 +139,8 @@ class Dim3dModelPreviewTest {
     @Test
     void resourceInfoUsesActualFileAndDirectoryVisibility() {
         var result = service.getModelResource(101L);
+        // 历史资源与受管资源使用相同的对外字段集合。
+        assertEquals(java.util.Set.of("id", "resourceName", "resourceType", "assetName", "resourceRelativePath"), result.keySet());
         assertEquals("101", result.get("id"));
         assertEquals("MODEL", result.get("resourceType"));
         assertEquals("models/tree.glb", result.get("resourceRelativePath"));
