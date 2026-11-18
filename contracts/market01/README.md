@@ -109,7 +109,7 @@ POST /model-imports/{operationId}/publish 在 PUBLISHING 固定一次目录输�
 
 单次受管文件资源详情按需读取并校验一份清单，提取模型入口相对路径，文件固定在提交快照对应的前缀。目录详情只读取已授权元数据，文件签发复用已有快照校验。当前新增输出为二进制模型格式（GLB）；文本模型格式（glTF）的外部贴图和缓冲依赖仍通过既有成员签发读取，入口地址验证不等于完整浏览器加载验收。
 
-参考文档第 5.4 节的 `GET /admin-api/dim3d/resource/info/{id}` 复用当前账号的目录可见范围。MODEL-12 本地固定返回 `id/resourceName/resourceType/assetName/resourceRelativePath`，唯一的模型路径字段为相对路径，移除 `modelFileUrl/downloadExpiresAt` 并跳过下载签名。受管相对路径来自真实冻结前缀与已校验清单入口，历史路径来自同归属有效模型文件。私有下载继续使用既有资源当前修订及固定修订文件接口；历史 `/amm/` 根地址需与实际部署映射一致，页面加载另行验收。本次文件详情收敛待发布，MODEL-10/11 已部署事实保留。
+参考文档第 5.4 节的 `GET /admin-api/dim3d/resource/info/{id}` 复用当前账号的目录可见范围。MODEL-12 固定返回 `id/resourceName/resourceType/assetName/resourceRelativePath`，唯一的模型路径字段为相对路径，移除 `modelFileUrl/downloadExpiresAt` 并跳过下载签名。受管相对路径来自真实冻结前缀与已校验清单入口，历史路径来自同归属有效模型文件。私有下载继续使用既有资源当前修订及固定修订文件接口；历史 `/amm/` 根地址需与实际部署映射一致，页面加载另行验收。本次文件详情收敛已部署并通过接口验收，MODEL-10/11 已部署事实保留。
 
 文档模型表单成功返回空数据。发布兼容保留当前网页明确携带 `operationId/resourceId` 且不含 `modelFileId` 的原异步保存形态，此分支继续返回原导入状态并通过原接口查询最终提交，沿用原操作者和资源关联校验。两种形态以实际输入区分，后续页面可迁移到完整模型表单。完整表单遇到其他执行器正在发布时返回可重试 `503`，未转换完成返回 `409`，成功只在目录和原提交完成后返回。受管上传原开关仍生效。
 

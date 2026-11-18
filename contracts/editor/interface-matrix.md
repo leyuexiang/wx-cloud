@@ -65,7 +65,7 @@ BASE-01 涉及模型、图片、场景、访问模式、行业模板和展厅模
 | FILE-01 | POST `/api/resource/oss/upload` → `/admin-api/infra/file/resource/oss/upload` | F08；图片、模型封面、模板封面 | B05 `/admin-api/infra/file/upload` 返回地址字符串；本地新增独立候选控制器/Service，有归属 schema 迁移未现场验证 | 只接受单字段 `file`；返回 `ossId,url,originalName,fileSuffix`，`ossId` 为 `wx_infra_file.id` 且按字符串传输；不得把可选兼容字段 `fileName,ext1,service` 猜成必需身份 | 适配/基础设施；合同见 [IMG-01](image-upload-contract.md) |
 | FILE-02 | GET `/api/resource/oss/listByIds/{ids}` → `/admin-api/infra/file/resource/oss/listByIds/{ids}` | F08；`sceneAssetUrlResolver.ts` 和图片部件 | 本地已有显式范围 Mapper 与签名候选；数据库字段/签名 Host 及真实读取未验 | 首期只接受一个正十进制本地文件编号；legacy 不可见，当前仅 private uploader 可读；每次按编号签发 S3 GET 短时地址；批量语法不在首期 | 新增读取适配/基础设施 |
 | RES-01 | POST `/api/dim3d/resource/uploadConvert` | F09；模型新增弹窗 | B04 有 `/admin-api/dim3d/resource/uploadConvert`；B07 代理转换 | 前端 file ZIP → `id,resourceName,resourceType,assetName,resourceRelativePath`；代理仍依赖参考服务，不能声称本地转换齐备 | 适配+外部/三维 |
-| RES-02 | GET `/admin-api/dim3d/resource/info/{id}` | F09；模型管理、资源面板、场景资源解析 | MODEL-12 本地已收敛路径字段，复用既有目录授权与快照校验 | 按字符串 `modelFileId` 返回 `id/resourceName/resourceType/assetName/resourceRelativePath`，唯一相对路径；私有下载沿用资源当前修订及文件接口；本次收敛待发布，实际页面加载另验 | 读取适配/三维 |
+| RES-02 | GET `/admin-api/dim3d/resource/info/{id}` | F09；模型管理、资源面板、场景资源解析 | MODEL-12 已收敛路径字段，复用既有目录授权与快照校验 | 按字符串 `modelFileId` 返回 `id/resourceName/resourceType/assetName/resourceRelativePath`，唯一相对路径；私有下载沿用资源当前修订及文件接口；本次收敛已部署并通过接口验收，实际页面加载另验 | 读取适配/三维 |
 | RES-03 | 静态 `{VITE_DIM3D_AMM_SERVER_URL}/amm/{resourceRelativePath}` | F09 `buildDim3dResourceUrl`，活跃资源解析 | 当前新私有桶及 ART 签名读取不是旧 `/amm/` 静态合同 | 审计资源格式/产物和访问授权；不能公开整个私有桶，也不把 GLB 路径当 Unity 包 | 外部/存储与三维 |
 
 B04 三类目录的删除/状态服务存在不等于已满足运营/租户双端权限与新场景引用规则。以上需要适配的项目，没有一项被认定为“改服务地址即可直接复用的前端接口”。
