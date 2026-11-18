@@ -1,6 +1,7 @@
 package cn.iocoder.wx.module.system.service.auth;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.iocoder.wx.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.wx.framework.common.enums.UserTypeEnum;
 import cn.iocoder.wx.framework.common.util.monitor.TracerUtils;
@@ -228,6 +229,11 @@ public class AdminAuthServiceImpl implements AdminAuthService {
             reqDTO.setUsername(getUsername(userId));
         } else {
             reqDTO.setUsername(memberService.getMemberUserMobile(userId));
+        }
+        // 令牌已撤销后账号可能被逻辑删除；保留可信编号审计，不因缺账号名再次报校验错误。
+        // 占位格式不属于允许创建的账号字符集，不能被误认为历史真实账号。
+        if (StrUtil.isBlank(reqDTO.getUsername())) {
+            reqDTO.setUsername(userId == null ? "unknown-user" : "user#" + userId);
         }
         reqDTO.setUserAgent(ServletUtils.getUserAgent());
         reqDTO.setUserIp(ServletUtils.getClientIP());
