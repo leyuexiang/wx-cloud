@@ -56,6 +56,15 @@ class ModelImportSourceWorkerTest {
         assertTrue(worker.publishOperation(op));
         assertEquals("COMMITTED", status());
         assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM wx_3d_model", Integer.class));
+        // 正式内容仅保留资源下的一层版本目录，路径与模型及主清单的实际写入共同验证。
+        String attempt = db.queryForObject("SELECT attempt_id FROM wx_3d_resource_import", String.class);
+        String prefix = "resources/TENANT_SHARED/2/101/" + attempt + "/";
+        assertEquals(prefix, db.queryForObject("SELECT storage_prefix FROM wx_3d_resource", String.class));
+        verify(store).write(eq(prefix + "scene.glb"), any(), anyLong());
+        verify(store).write(eq(prefix + "manifest.json"), any(), anyLong());
+        var snapshot = new com.fasterxml.jackson.databind.ObjectMapper().readTree(
+                db.queryForObject("SELECT after_snapshot FROM wx_3d_resource_operation", String.class));
+        assertEquals(prefix, snapshot.path("resource").path("storage_prefix").asText());
     }
 
     @Test void redirectsNewFileIntoExistingDirectoryAtomically() throws Exception {
@@ -196,6 +205,10 @@ class ModelImportSourceWorkerTest {
         assertEquals("GLOBAL", db.queryForObject("SELECT visibility_scope FROM wx_infra_file", String.class));
         assertEquals(0L, db.queryForObject("SELECT tenant_id FROM wx_infra_file", Long.class));
         assertEquals(1L, db.queryForObject("SELECT committed_revision FROM wx_3d_resource_operation", Long.class));
+        // 系统模型使用公共所有者零，正式前缀不继承上传操作目录的旧布局。
+        String attempt = db.queryForObject("SELECT attempt_id FROM wx_3d_resource_import", String.class);
+        assertEquals("resources/GLOBAL_SYSTEM/0/101/" + attempt + "/",
+                db.queryForObject("SELECT storage_prefix FROM wx_3d_resource", String.class));
     }
     @Test void receiptFailureAlsoRollsBackCoverVisibilityAndPaidDirectory() throws Exception {
         prepareCoveredSystemPublication();
@@ -312,6 +325,35 @@ class ModelImportSourceWorkerTest {
         assertEquals("OFFLINE",db.queryForObject("SELECT status FROM wx_3d_model",String.class));
         assertEquals("样本模型",db.queryForObject("SELECT model_name FROM wx_3d_model",String.class));
     }
+    /** 写入模型后主清单失败的恢复使用全新版本目录，已写入的原尝试文件不会被覆盖。 */
+    @Test void publicationRetryWritesDistinctContentVersion() throws Exception {
+        preparePublication();
+        clearInvocations(store);
+        var writeCount = new java.util.concurrent.atomic.AtomicInteger();
+        doAnswer(invocation -> {
+            if (writeCount.incrementAndGet() == 2) throw new ServiceException(503, "临时存储故障");
+            return null;
+        }).when(store).write(anyString(), any(), anyLong());
+        assertFalse(worker.runNext());
+        String previousAttempt = db.queryForObject("SELECT attempt_id FROM wx_3d_resource_import", String.class);
+        assertEquals("PUBLISHING", status());
+        assertEquals(0L, db.queryForObject("SELECT current_revision FROM wx_3d_resource", Long.class));
+        assertNull(db.queryForObject("SELECT storage_prefix FROM wx_3d_resource", String.class));
+        worker.now = worker.now.plusSeconds(121);
+        assertTrue(worker.runNext());
+        String currentAttempt = db.queryForObject("SELECT attempt_id FROM wx_3d_resource_import", String.class);
+        assertNotEquals(previousAttempt, currentAttempt);
+        String previousPrefix = "resources/TENANT_SHARED/2/101/" + previousAttempt + "/";
+        String currentPrefix = "resources/TENANT_SHARED/2/101/" + currentAttempt + "/";
+        var keys = org.mockito.ArgumentCaptor.forClass(String.class);
+        verify(store, times(4)).write(keys.capture(), any(), anyLong());
+        assertEquals(List.of(previousPrefix + "scene.glb", previousPrefix + "manifest.json",
+                currentPrefix + "scene.glb", currentPrefix + "manifest.json"), keys.getAllValues());
+        assertEquals(currentPrefix, db.queryForObject("SELECT storage_prefix FROM wx_3d_resource", String.class));
+        assertEquals(1L, db.queryForObject("SELECT current_revision FROM wx_3d_resource", Long.class));
+        assertEquals("COMMITTED", status());
+    }
+
     @Test void cancelledDuringObjectWriteCannotPublishDirectoryOrRevision() throws Exception {
         preparePublication();
         doAnswer(inv->{db.update("UPDATE wx_3d_resource_import SET cancel_requested=TRUE");return null;})
