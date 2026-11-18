@@ -1,0 +1,58 @@
+[
+  {
+    "target": "main",
+    "backupSha256": "ae55eb35f7ffc5a0fba3131df81afab29c2afe955d8f945992704f9fb8001e72",
+    "fullRestoreVerified": true,
+    "tables": {
+      "wx_3d_model": {
+        "originalRows": 23,
+        "originalRowsUnchanged": true,
+        "sha256": "fba03f9c3a545442c670de3a138693ee2cd8796677e9d079de5309c4cb5c17d8"
+      },
+      "wx_3d_resource": {
+        "originalRows": 19,
+        "originalRowsUnchanged": true,
+        "sha256": "3fa4e4326ed7a3534a61d29b202534368cf26b5d4d97bedffb4ac6ea8ec30c75"
+      },
+      "wx_3d_resource_import": {
+        "originalRows": 14,
+        "originalRowsUnchanged": true,
+        "sha256": "c67d11990dae7629ba712024605a530b7b3df2216205a59bc5c2484d57e9c813"
+      },
+      "wx_3d_resource_operation": {
+        "originalRows": 39,
+        "originalRowsUnchanged": true,
+        "sha256": "ef3dfc884daae2fb39e305074cbb577a8582954109d9c560d47639595ffd33df"
+      }
+    },
+    "allOriginalModelRowsUnchanged": true
+  },
+  {
+    "target": "data08",
+    "backupSha256": "f017090c03c0b3ee16e4bf5a48f0f07531159469f209624a86152221da3735b4",
+    "fullRestoreVerified": true,
+    "tables": {
+      "wx_3d_model": {
+        "originalRows": 21,
+        "originalRowsUnchanged": true,
+        "sha256": "756dd5c924ca491f67a93817fa21ec0e7d8eb2fe700006fdaa336528787c6e6a"
+      },
+      "wx_3d_resource": {
+        "originalRows": 18,
+        "originalRowsUnchanged": true,
+        "sha256": "22601f26f2b395592784f9f5bb495839effd67465f1d46e04af52f5ab6adef3d"
+      },
+      "wx_3d_resource_import": {
+        "originalRows": 12,
+        "originalRowsUnchanged": true,
+        "sha256": "add5d19c813c1e2e8221d3e4dcc4afbbc40f03718a670eda80b9a1cd1905b8cc"
+      },
+      "wx_3d_resource_operation": {
+        "originalRows": 44,
+        "originalRowsUnchanged": true,
+        "sha256": "93660400c734d6807e353b968a44e3bcfc179deb8908f1ec39bfa8c0574b80e8"
+      }
+    },
+    "allOriginalModelRowsUnchanged": true
+  }
+]

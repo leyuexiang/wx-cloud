@@ -308,5 +308,8 @@
     }
   ],
   "exitCode": "0",
-  "javaVersion": "21.0.6，产物目标17；服务器另用17构建验证"
+  "javaVersion": "21.0.6，产物目标17；服务器另用17构建验证",
+  "sourceCommit": "d036fa69efd055a0f1767d02a5cbf85b8a477158",
+  "skipReason": "未设置 IOT_STATE_TEST_REDIS_PORT，3 项缓存集成用例按条件跳过",
+  "command": "mvn -o -pl wx-module-3d -am -Dtest=Dim3dModel*Test,ModelImport*Test,ArtResource*Test,ModelResourceManifestVerifierTest,Dim3dResourceConvertConfigurationTest,Dim3dImageResourceServiceTest,ScenePublication*Test,Iot*Test,KafkaWebSocket*Test,Dim3dScene*Test -Dsurefire.failIfNoSpecifiedTests=false test -q"
 }
