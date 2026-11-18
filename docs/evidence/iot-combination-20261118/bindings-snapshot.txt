@@ -1,0 +1,149 @@
+[p1 "Unity 云渲染场景编辑器" | space "iot-05j-20261118"(1): 1 managed, 0 untracked — p1* "Unity 云渲染场景编辑器"]
+root
+  container
+    container
+      container
+        image
+        text "数据可视化生产平平台"
+      menubar
+        text "资源管理"
+        menuitem [ref=15]
+          text "模型管理"
+        menuitem [ref=16]
+          text "图片管理"
+        text "场景管理"
+        menuitem [ref=17]
+          text "场景列表"
+        text "物联网管理"
+        menuitem [ref=18]
+          svg_root
+          text "连接器管理"
+        menuitem [ref=19]
+          svg_root
+          text "设备绑定"
+        menuitem [ref=20]
+          svg_root
+          text "接收记录"
+      container
+        button "切换为暗色主题" [ref=21, loc=css:button[aria-label="切换为暗色主题"]]
+          svg_root
+        button [ref=22]
+          svg_root
+          text "测试用户"
+    container
+      container
+        container
+          container
+            text "设备绑定"
+            text "物联网管理/设备绑定"
+          button [ref=90]
+            text "新增绑定"
+        container "物联网筛选"
+          container
+            container
+              text "连接器编号"
+              container [ref=91]
+                textbox [ref=92]
+            container
+              text "外部设备编号"
+              container [ref=93]
+                textbox [ref=94]
+            container
+              text "期望启用"
+              container [ref=95]
+                comboboxgrouping [ref=96]
+                text "全部"
+                svg_root
+          container
+            button [ref=97]
+              text "查询"
+            button [ref=98]
+              text "重置"
+      container "物联网记录"
+        paragraph
+          text "将外部设备关联到内部设备、场景与对象，并维护点位映射。"
+        container
+          container
+            table
+              table_row
+                table_cell
+                  text "连接器编号"
+                table_cell
+                  text "外部设备编号"
+                table_cell
+                  text "内部设备"
+                table_cell
+                  text "场景编号"
+                table_cell
+                  text "映射版本"
+                table_cell
+                  text "启用"
+                table_cell
+                  text "操作"
+            table
+              container [ref=99]
+                table_row
+                  table_cell
+                    text "iot-resident-20261113"
+                  table_cell
+                    text "virtual-temperature"
+                  table_cell
+                    text "lab-temperature-01"
+                  table_cell
+                    text "2122269441737682946"
+                  table_cell
+                    text "lab-v1"
+                  table_cell
+                    text "是"
+                  table_cell
+                    button [ref=100]
+                      text "详情"
+                    button [ref=101]
+                      text "编辑"
+                    button "更多操作：virtual-temperature" [ref=102, loc=css:button[aria-label="更多操作：virtual-temperature"]]
+                      text "更多"
+                      svg_root
+                table_row
+                  table_cell
+                    text "iot-resident-20261113"
+                  table_cell
+                    text "virtual-switch"
+                  table_cell
+                    text "lab-switch-01"
+                  table_cell
+                    text "2122269441737682946"
+                  table_cell
+                    text "lab-v1"
+                  table_cell
+                    text "是"
+                  table_cell
+                    button [ref=103]
+                      text "详情"
+                    button [ref=104]
+                      text "编辑"
+                    button "更多操作：virtual-switch" [ref=105, loc=css:button[aria-label="更多操作：virtual-switch"]]
+                      text "更多"
+                      svg_root
+          svg_root
+        container "列表分页"
+          text "共 2 条记录"
+          text "© 2026 ZonSU Platfrom.All rights reseved."
+          container
+            button "上一页" [ref=106, loc=css:button[aria-label="上一页"]]
+              svg_root
+            unordered_list
+              list_item "第 1 页" [ref=107]
+                text "1"
+            button "下一页" [ref=108, loc=css:button[aria-label="下一页"]]
+              svg_root
+            container [ref=109]
+              container
+                comboboxgrouping [ref=110]
+                text "10条/页"
+              svg_root
+            container
+              text "跳至"
+              container [ref=111]
+                spinbutton "页" [ref=112, loc=css:input[aria-label="页"]]
+                  text "1"
+              text "页"

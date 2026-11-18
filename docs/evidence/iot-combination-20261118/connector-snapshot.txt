@@ -1,0 +1,222 @@
+[p1 "Unity 云渲染场景编辑器" | space "iot-05j-20261118"(1): 1 managed, 0 untracked — p1* "Unity 云渲染场景编辑器"]
+root
+  container
+    container
+      container
+        image
+        text "数据可视化生产平平台"
+      menubar
+        text "资源管理"
+        menuitem [ref=15]
+          text "模型管理"
+        menuitem [ref=16]
+          text "图片管理"
+        text "场景管理"
+        menuitem [ref=17]
+          text "场景列表"
+        text "物联网管理"
+        menuitem [ref=18]
+          svg_root
+          text "连接器管理"
+        menuitem [ref=19]
+          svg_root
+          text "设备绑定"
+        menuitem [ref=20]
+          svg_root
+          text "接收记录"
+      container
+        button "切换为暗色主题" [ref=21, loc=css:button[aria-label="切换为暗色主题"]]
+          svg_root
+        button [ref=22]
+          svg_root
+          text "测试用户"
+    container
+      container
+        container
+          container
+            text "连接器管理"
+            text "物联网管理/连接器管理"
+          button [ref=66]
+            text "新增连接器"
+        container "物联网筛选"
+          container
+            container
+              text "连接器编号"
+              container [ref=67]
+                textbox [ref=68]
+            container
+              text "协议类型"
+              container [ref=69]
+                comboboxgrouping [ref=70]
+                text "全部协议"
+                svg_root
+            container
+              text "期望启用"
+              container [ref=71]
+                comboboxgrouping [ref=72]
+                text "全部"
+                svg_root
+          container
+            button [ref=73]
+              text "查询"
+            button [ref=74]
+              text "重置"
+      container "物联网记录"
+        paragraph
+          text "统一管理连接配置。列表展示期望启用状态，实际运行情况请打开详情查看。"
+        container
+          table
+            table_row
+              table_cell
+                text "连接器编号"
+              table_cell
+                text "名称"
+              table_cell
+                text "协议"
+              table_cell
+                text "期望启用"
+              table_cell
+                text "配置版本"
+              table_cell
+                text "操作"
+          table
+            container [ref=75]
+              table_row
+                table_cell
+                  text "iot-resident-20261113"
+                table_cell
+                  text "两台虚拟设备 MQTT 试运行"
+                table_cell
+                  text "MQTT"
+                table_cell
+                  text "启用"
+                table_cell
+                  text "2"
+                table_cell
+                  button [ref=76]
+                    text "详情"
+                  button [ref=77]
+                    text "编辑"
+                  button "更多操作：两台虚拟设备 MQTT 试运行" [ref=78, loc=css:button[aria-label="更多操作：两台虚拟设备 MQTT 试运行"]]
+                    text "更多"
+                    svg_root
+        container "列表分页"
+          text "共 1 条记录"
+          text "© 2026 ZonSU Platfrom.All rights reseved."
+          container
+            button "上一页" [ref=79, loc=css:button[aria-label="上一页"]]
+              svg_root
+            unordered_list
+              list_item "第 1 页" [ref=80]
+                text "1"
+            button "下一页" [ref=81, loc=css:button[aria-label="下一页"]]
+              svg_root
+            container [ref=82]
+              container
+                comboboxgrouping [ref=83]
+                text "10条/页"
+              svg_root
+            container
+              text "跳至"
+              container [ref=84]
+                spinbutton "页" [ref=85, loc=css:input[aria-label="页"]]
+                  text "1"
+              text "页"
+  dialog "查看连接器管理"
+    container
+      heading
+        text "查看连接器管理"
+      button "关闭此对话框" [ref=86, loc=css:button[aria-label="关闭此对话框"]]
+        svg_root
+    container
+      table
+        table_row
+          table_cell
+            text "记录编号"
+          table_cell
+            text "38"
+        table_row
+          table_cell
+            text "连接器编号"
+          table_cell
+            text "iot-resident-20261113"
+        table_row
+          table_cell
+            text "名称"
+          table_cell
+            text "两台虚拟设备 MQTT 试运行"
+        table_row
+          table_cell
+            text "协议"
+          table_cell
+            text "MQTT"
+        table_row
+          table_cell
+            text "期望启用"
+          table_cell
+            text "启用"
+        table_row
+          table_cell
+            text "配置版本"
+          table_cell
+            text "2"
+        table_row
+          table_cell
+            text "服务地址"
+          table_cell
+            text "ssl://127.0.0.1:18884"
+        table_row
+          table_cell
+            text "凭据引用"
+          table_cell
+            text "IOT_MQTT_PILOT"
+        table_row
+          table_cell
+            text "协议配置"
+          table_cell
+            text "{"qos": 1, "topics": ["lab/iot/tenant-2/switch", "lab/iot/tenant-2/temperature"]}"
+        table_row
+          table_cell
+            text "创建时间"
+          table_cell
+            text "2026/11/16 18:01:31"
+        table_row
+          table_cell
+            text "更新时间"
+          table_cell
+            text "2026/11/17 16:35:49"
+      container
+        heading
+          text "运行观测"
+        button [ref=87]
+          text "刷新状态"
+      table
+        table_row
+          table_cell
+            text "观测状态"
+          table_cell
+            text "尚未观测"
+        table_row
+          table_cell
+            text "数据库租约"
+          table_cell
+            text "无有效租约"
+        table_row
+          table_cell
+            text "观测时间"
+          table_cell
+            text "2026/11/18 12:30:47"
+        table_row
+          table_cell
+            text "租约截止"
+          table_cell
+            text "—"
+      paragraph
+        text "配置启用和运行状态分别展示；租约不代表设备、消息系统或三维链路健康。"
+      button [ref=88]
+        text "测试已保存连接"
+      alert
+        svg_root
+        text "连接与订阅测试通过；本次测试不改变正式运行状态"
+    button [ref=89]
+      text "关闭"

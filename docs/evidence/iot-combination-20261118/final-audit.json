@@ -1,0 +1,23 @@
+{
+  "sceneCount": 3,
+  "publication": [
+    "5",
+    "1",
+    "PUBLISHED"
+  ],
+  "tickets": [
+    {
+      "ticketId": "TKT-2122909598098714625",
+      "status": "REVOKED",
+      "publicationId": "PUB-2122272471983910914"
+    },
+    {
+      "ticketId": "TKT-2122909597985468417",
+      "status": "REVOKED",
+      "publicationId": "PUB-2122542758537261058"
+    }
+  ],
+  "allTemporaryTicketsRevoked": true,
+  "originalSceneAndPublicationPreserved": true,
+  "directDatabaseMutations": false
+}

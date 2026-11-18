@@ -1,0 +1,84 @@
+{
+  "checkedAt": "2026-11-18T04:28:30.925545+00:00",
+  "services": [
+    {
+      "name": "wx-editor-gateway",
+      "id": "c1d2be7b4216a9b015c10793181a744aed67cfa25e6ea47cf090cbb081735ef0",
+      "startedAt": "2026-11-18T03:30:20.34720492Z",
+      "running": true,
+      "health": "healthy",
+      "jarSha256": "96bbd634961b702df692013ed0399e10a2c0489085c6d1794c3f2518e0616131"
+    },
+    {
+      "name": "wx-editor-gateway-data08",
+      "id": "0835d581c2eecdf41395c57d31dd92c35d030a0d8c99eed8b7c6d59d29ef3a58",
+      "startedAt": "2026-11-18T03:30:47.160633675Z",
+      "running": true,
+      "health": "healthy",
+      "jarSha256": "96bbd634961b702df692013ed0399e10a2c0489085c6d1794c3f2518e0616131"
+    },
+    {
+      "name": "wx-editor-dimensions",
+      "id": "5b93c4a20d37cd751b1528106161bf8b9f1040d4956b7ad78d8ce0dd64cc8b7a",
+      "startedAt": "2026-11-18T03:08:35.465634594Z",
+      "running": true,
+      "health": "healthy",
+      "jarSha256": "1ebbdbe94dc9ed289c9291e267bb62e9e3a61d28531055cc5b8bcba23ec9a2d2"
+    },
+    {
+      "name": "wx-editor-dimensions-data08",
+      "id": "0a5f9ec11d93ba3f37f2d7548757352c6dd27a98b023f21b7bb896a3162d1640",
+      "startedAt": "2026-11-18T03:08:46.455129014Z",
+      "running": true,
+      "health": "healthy",
+      "jarSha256": "1ebbdbe94dc9ed289c9291e267bb62e9e3a61d28531055cc5b8bcba23ec9a2d2"
+    },
+    {
+      "name": "wx-editor-system",
+      "id": "db0760af5d91d69218574d3dc4926d567a9b5c142044774e715639a29eff24b1",
+      "startedAt": "2026-11-18T03:02:59.969362705Z",
+      "running": true,
+      "health": "healthy",
+      "jarSha256": "0ee98ff319dbb1f92f70d7e258a81a1a4b23825baca3d19779b3fbc85dda1e90"
+    },
+    {
+      "name": "wx-editor-iot-data08",
+      "id": "32fd5453eda162df57182483aabeab2d638fcb56f8744a0adfacdddafdccb3e7",
+      "startedAt": "2026-11-17T08:35:31.254657519Z",
+      "running": true,
+      "health": "healthy",
+      "jarSha256": "a84e147d36f20d80a31299f79999ab9c023ed0437490895c4995f9a9dac02954"
+    },
+    {
+      "name": "wx-iot-mqtt-lab148",
+      "id": "f201ed7b245558dd956f3822a0d9fb78bf401143fddc3dc3997fb59e59145eeb",
+      "startedAt": "2026-11-16T09:56:30.965487363Z",
+      "running": true,
+      "health": null,
+      "jarSha256": null
+    },
+    {
+      "name": "wx-iot-kafka148",
+      "id": "9464d809ff29821b0ff886d1608ef7b26d520e61d768e6f080c29bef6e1c3282",
+      "startedAt": "2026-11-16T08:58:53.361501767Z",
+      "running": true,
+      "health": null,
+      "jarSha256": null
+    }
+  ],
+  "siteSha256": "c41d7400f759adec56012e38178d9e0a062a7e5541779f57be1653c4f6374a72",
+  "webRoots": [
+    {
+      "path": "/opt/wx/editor-web148/site",
+      "indexSha256": null
+    },
+    {
+      "path": "/home/wx-editor-web148/releases/iot-handshake-20261117/site",
+      "indexSha256": null
+    },
+    {
+      "path": "/home/wx-editor-web148/releases/iot-handshake-20261117/site",
+      "indexSha256": null
+    }
+  ]
+}
