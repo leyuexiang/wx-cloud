@@ -1,0 +1,21 @@
+{
+  "sourceCommit": "7fae601e09458409f35e7670862523691d899b35",
+  "baselineJarSha256": "0aae9cbad7d4e8f2c0cec44cbccecf272eef272af316bd2974b64d57aff3df2e",
+  "classes": {
+    "BOOT-INF/classes/cn/iocoder/wx/module/system/service/auth/AdminAuthServiceImpl.class": {
+      "before": "f216f08924755ba093f900d4ba6268b1e2c90253d4082f6b91b80a21053ace78",
+      "after": "19e9cda1d607cb510f0651a23b53c58c6db8a84922eef45106fc6f976eb8e2b8"
+    },
+    "BOOT-INF/classes/cn/iocoder/wx/module/system/controller/admin/auth/vo/AuthLoginReqVO.class": {
+      "before": "8577b4117e4525792ccf1d87ec538d8540f82509aefd7f4980f1477357ac4556",
+      "after": "aeba232b02eb39938900fd549c6284e050590b6952dd98bd650cc4f8049a3b8a"
+    }
+  },
+  "jarSha256": "0ee98ff319dbb1f92f70d7e258a81a1a4b23825baca3d19779b3fbc85dda1e90",
+  "changedEntries": [
+    "BOOT-INF/classes/cn/iocoder/wx/module/system/controller/admin/auth/vo/AuthLoginReqVO.class",
+    "BOOT-INF/classes/cn/iocoder/wx/module/system/service/auth/AdminAuthServiceImpl.class"
+  ],
+  "allOtherEntryContentsIdentical": true,
+  "dependencyUpgrade": false
+}

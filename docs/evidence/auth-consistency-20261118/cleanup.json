@@ -1,0 +1,15 @@
+{
+  "temporaryTenantId": 1276676,
+  "testUsersDeleted": 13,
+  "temporaryRoleRemoved": true,
+  "tenantAndPackageRemoved": true,
+  "temporaryMenusRemoved": 7,
+  "originalTenant2MenusPackagesAndRoleGrantsUnchanged": true,
+  "activeUsers": 0,
+  "activeAccessTokens": 0,
+  "activeRefreshTokens": 0,
+  "protectedSystemRoleRetained": true,
+  "effectiveProtectedRoleMenus": 0,
+  "selfDeletedAdminLogoutCode": 0,
+  "auditRetained": true
+}

@@ -1,0 +1,78 @@
+{
+  "phase": "formal",
+  "tenantId": 1276676,
+  "adminUsernameLength": 30,
+  "accounts": [
+    {
+      "usernameLength": 4,
+      "userId": 1276837,
+      "loginMatchesCreatedId": true,
+      "deletedBeforeLogout": false,
+      "logoutCode": 0,
+      "identityServiceOldTokenCode": 401,
+      "gatewayOldTokenCode": 200,
+      "gatewayOldTokenImmediatelyRejected": false,
+      "repeatLogoutAuditUnchanged": true,
+      "auditCount": 1,
+      "usernameMatches": true,
+      "result": 0,
+      "userType": 2
+    },
+    {
+      "usernameLength": 16,
+      "userId": 1276838,
+      "loginMatchesCreatedId": true,
+      "deletedBeforeLogout": false,
+      "logoutCode": 0,
+      "identityServiceOldTokenCode": 401,
+      "gatewayOldTokenCode": 200,
+      "gatewayOldTokenImmediatelyRejected": false,
+      "repeatLogoutAuditUnchanged": true,
+      "auditCount": 1,
+      "usernameMatches": true,
+      "result": 0,
+      "userType": 2
+    },
+    {
+      "usernameLength": 17,
+      "userId": 1276839,
+      "loginMatchesCreatedId": true,
+      "deletedBeforeLogout": true,
+      "logoutCode": 0,
+      "identityServiceOldTokenCode": 401,
+      "gatewayOldTokenCode": 200,
+      "gatewayOldTokenImmediatelyRejected": false,
+      "repeatLogoutAuditUnchanged": true,
+      "auditCount": 1,
+      "usernameMatches": true,
+      "result": 0,
+      "userType": 2
+    },
+    {
+      "usernameLength": 30,
+      "userId": 1276840,
+      "loginMatchesCreatedId": true,
+      "deletedBeforeLogout": false,
+      "logoutCode": 0,
+      "identityServiceOldTokenCode": 401,
+      "gatewayOldTokenCode": 200,
+      "gatewayOldTokenImmediatelyRejected": false,
+      "repeatLogoutAuditUnchanged": true,
+      "auditCount": 1,
+      "usernameMatches": true,
+      "result": 0,
+      "userType": 2
+    }
+  ],
+  "selfDelete": {
+    "userId": 1276841,
+    "auditCount": 1,
+    "usernameMatches": true,
+    "result": 0,
+    "userType": 2,
+    "logoutCode": 0,
+    "wrongTenantRejected": true
+  },
+  "invalidLengthCharactersAndPasswordRejected": true,
+  "longTenantAdminLoggedIn": true
+}

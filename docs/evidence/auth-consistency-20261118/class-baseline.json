@@ -1,0 +1,10 @@
+{
+  "cn/iocoder/wx/module/system/service/auth/AdminAuthServiceImpl.class": {
+    "deployed": "f216f08924755ba093f900d4ba6268b1e2c90253d4082f6b91b80a21053ace78",
+    "baselineCompiled": "f216f08924755ba093f900d4ba6268b1e2c90253d4082f6b91b80a21053ace78"
+  },
+  "cn/iocoder/wx/module/system/controller/admin/auth/vo/AuthLoginReqVO.class": {
+    "deployed": "8577b4117e4525792ccf1d87ec538d8540f82509aefd7f4980f1477357ac4556",
+    "baselineCompiled": "8577b4117e4525792ccf1d87ec538d8540f82509aefd7f4980f1477357ac4556"
+  }
+}
