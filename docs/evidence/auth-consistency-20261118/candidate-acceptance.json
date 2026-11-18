@@ -1,0 +1,71 @@
+{
+  "phase": "candidate",
+  "tenantId": 1276676,
+  "adminUsernameLength": 30,
+  "accounts": [
+    {
+      "usernameLength": 4,
+      "userId": 1276830,
+      "loginMatchesCreatedId": true,
+      "deletedBeforeLogout": false,
+      "logoutCode": 0,
+      "oldTokenRejected": true,
+      "repeatLogoutAuditUnchanged": true,
+      "auditCount": 1,
+      "usernameMatches": true,
+      "result": 0,
+      "userType": 2
+    },
+    {
+      "usernameLength": 16,
+      "userId": 1276831,
+      "loginMatchesCreatedId": true,
+      "deletedBeforeLogout": false,
+      "logoutCode": 0,
+      "oldTokenRejected": true,
+      "repeatLogoutAuditUnchanged": true,
+      "auditCount": 1,
+      "usernameMatches": true,
+      "result": 0,
+      "userType": 2
+    },
+    {
+      "usernameLength": 17,
+      "userId": 1276832,
+      "loginMatchesCreatedId": true,
+      "deletedBeforeLogout": true,
+      "logoutCode": 0,
+      "oldTokenRejected": true,
+      "repeatLogoutAuditUnchanged": true,
+      "auditCount": 1,
+      "usernameMatches": true,
+      "result": 0,
+      "userType": 2
+    },
+    {
+      "usernameLength": 30,
+      "userId": 1276833,
+      "loginMatchesCreatedId": true,
+      "deletedBeforeLogout": false,
+      "logoutCode": 0,
+      "oldTokenRejected": true,
+      "repeatLogoutAuditUnchanged": true,
+      "auditCount": 1,
+      "usernameMatches": true,
+      "result": 0,
+      "userType": 2
+    }
+  ],
+  "baselineLongLoginCode": 400,
+  "selfDelete": {
+    "userId": 1276834,
+    "auditCount": 1,
+    "usernameMatches": true,
+    "result": 0,
+    "userType": 2,
+    "logoutCode": 0,
+    "wrongTenantRejected": true
+  },
+  "invalidLengthCharactersAndPasswordRejected": true,
+  "longTenantAdminLoggedIn": true
+}

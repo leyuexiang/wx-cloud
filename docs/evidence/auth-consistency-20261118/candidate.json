@@ -1,0 +1,7 @@
+{
+  "candidate": "wx-auth-consistency-check-1118",
+  "port": 49581,
+  "health": "UP",
+  "originalContainerUnchanged": true,
+  "jarSha256": "0ee98ff319dbb1f92f70d7e258a81a1a4b23825baca3d19779b3fbc85dda1e90"
+}

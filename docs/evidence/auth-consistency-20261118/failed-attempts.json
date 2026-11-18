@@ -1,0 +1,27 @@
+{
+  "formalAttemptsBeforeCompletedRun": [
+    {
+      "attempt": 1,
+      "createdAccounts": 1,
+      "type": "AssertionError",
+      "checkpointRecorded": false,
+      "accountRetainedAndCleaned": true
+    },
+    {
+      "attempt": 2,
+      "createdAccounts": 1,
+      "type": "AssertionError",
+      "function": "accept",
+      "line": 116,
+      "assertion": "gateway old token expected 401",
+      "accountRetainedAndCleaned": true
+    }
+  ],
+  "finalFormalReportSeparatesIdentityAndGateway": true,
+  "gatewayRevocationGapResolved": false,
+  "hostFinalizationChecksAdjusted": [
+    "Docker Config.Image reference was intentionally pinned to unchanged image ID; all other Config values match",
+    "Independent model13 release detected; recorded current dimensions package without overwriting it"
+  ],
+  "hostFinalizationFailuresBeforeCleanupMutation": true
+}

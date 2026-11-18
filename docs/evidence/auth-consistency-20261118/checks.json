@@ -1,0 +1,32 @@
+{
+  "red": {
+    "summaries": [
+      "[ERROR] Tests run: 6, Failures: 3, Errors: 0, Skipped: 0, Time elapsed: 2.697 s <<< FAILURE! -- in cn.iocoder.wx.module.system.service.auth.AdminAuthLogoutConsistencyTest",
+      "[ERROR] Tests run: 3, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.784 s <<< FAILURE! -- in cn.iocoder.wx.module.system.service.auth.AuthAccountValidationTest",
+      "[ERROR] Tests run: 9, Failures: 4, Errors: 0, Skipped: 0"
+    ],
+    "buildSuccess": false,
+    "logSha256": "da7e1745fa4a7c25e3ef02559aacd5f65d3da64c556ed0d9054baf83dc723151",
+    "nonexistentProfileWarning": true
+  },
+  "green": {
+    "summaries": [
+      "[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.087 s -- in cn.iocoder.wx.module.system.service.auth.AdminAuthLogoutConsistencyTest",
+      "[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.973 s -- in cn.iocoder.wx.module.system.service.auth.AdminAuthServiceImplTest",
+      "[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.078 s -- in cn.iocoder.wx.module.system.service.auth.AuthAccountValidationTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.360 s -- in cn.iocoder.wx.module.system.service.logger.LoginLogServiceImplTest",
+      "[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.117 s -- in cn.iocoder.wx.module.system.service.oauth2.OAuth2GrantServiceImplTest",
+      "[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.806 s -- in cn.iocoder.wx.module.system.service.oauth2.OAuth2TokenServiceImplTest",
+      "[INFO] Tests run: 47, Failures: 0, Errors: 0, Skipped: 0"
+    ],
+    "buildSuccess": true,
+    "logSha256": "853895221f6929e018a5773417014608d528797539c383918ecfb1b8b0a799e7",
+    "nonexistentProfileWarning": false
+  },
+  "pythonSyntaxChecked": [
+    "deploy/test148/auth-consistency-deploy.py",
+    "deploy/test148/verify-auth-consistency.py",
+    "docs/evidence/auth-consistency-20261118/package-patch.py",
+    "docs/evidence/auth-consistency-20261118/finalize-auth.py"
+  ]
+}
