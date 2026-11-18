@@ -92,3 +92,12 @@
 2026-11-11 实际接口核对确认 `9000` 返回对象存储 XML 协议响应，`9001` 返回管理控制台网页。提供的 MinIO 账号可在 `9000` 完成签名认证。对象存储客户端配置使用 `9000` 或其有效代理地址，凭据仅通过受控部署配置读取。
 
 合同路径、字段、鉴权、文件编号命名空间、文件可见性状态、错误/幂等边界、迁移与失败恢复均进入本文件及差异清单；网关、存储环境、数据脚本和真实部署尚不因此完成。实现逐片采用“失败测试 → 最小代码 → 真实依赖验证”，先完成上传身份及读取授权切片，再完成图标绑定/列表和页面验收。
+
+## 图标目录接口
+
+管理端前缀为 `/admin-api/dim3d/icon`。图标六类路径及权限见[接口矩阵](interface-matrix.md)。
+
+- 分页及详情记录共用 `id/iconName/iconDesc/category/secondaryCategory/resourceBelong/iconFileId/status/createBy/createByName/createTime/updateBy/updateByName/updateTime`。详情记录位于 `data`；编号以字符串返回，审计时间为 `yyyy-MM-dd HH:mm:ss`，操作人名称通过系统用户批量查询，查无名称时返回空值。
+- 分页默认编号倒序，单页最多 200 条。`orderByColumn` 可为 `id/iconName/category/secondaryCategory/resourceBelong/status/createTime/updateTime`；`isAsc` 接受 `asc/desc`，忽略大小写。同值记录按编号倒序，非法排序返回业务码 `400`。
+- 新增及编辑提交`iconName/category/resourceBelong/iconFileId`，可附 `iconDesc` 和 `secondaryCategory`。新增按图片上传专项合同返回字符串目录编号，编辑、删除及上下线成功返回 `code=200`、`data=null`。上下线仅接受 `ONLINE/OFFLINE`，使用图标编辑权限，重复同状态保留原更新时间与操作人。
+- 文件预览按 `iconFileId` 调用本合同的普通文件查询，复用已冻结的文件归属、租户范围和授权。部署状态及验收见 [IMG-07](../../docs/03_近期执行任务.md#img-07-图标目录接口契约对齐2026-11-18)。

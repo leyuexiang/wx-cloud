@@ -20,7 +20,10 @@ public interface Dim3dResourceCatalogService {
     Long createIcon(Dim3dIcon icon);
     void updateIcon(Long id, Dim3dIcon icon);
     Dim3dIcon getIcon(Long id);
-    PageResult<Dim3dIcon> getIconPage(String iconName, String category, String secondaryCategory, String resourceBelong, String status, Integer pageNum, Integer pageSize);
+    /** 图标目录分页支持文档排序，沿用普通图片可见范围。 */
+    PageResult<Dim3dIcon> getIconPage(String iconName, String category, String secondaryCategory,
+                                     String resourceBelong, String status, Integer pageNum, Integer pageSize,
+                                     String orderByColumn, String isAsc);
     Long createTemplate(Dim3dTemplate template);
     void updateTemplate(Long id, Dim3dTemplate template);
     Dim3dTemplate getTemplate(Long id);

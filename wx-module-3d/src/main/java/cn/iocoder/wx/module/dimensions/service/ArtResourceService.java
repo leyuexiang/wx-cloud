@@ -295,6 +295,11 @@ public class ArtResourceService {
     }
     /** 旧写入只允许未纳入新流程的资源，查询不返回跨租户数据。 */
     public void guardLegacyResource(Long id) {
+        guardLegacyResource(jdbc, id);
+    }
+
+    /** 普通图标写入持有目录锁后复核同一规则，避免再次读取目录。 */
+    static void guardLegacyResource(JdbcTemplate jdbc, Long id) {
         if(id != null && jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_resource WHERE id=? AND (resource_scope IS NOT NULL OR content_state<>'LEGACY')",Long.class,id)>0)
             throw ServiceException.of(NOT_VISIBLE);
     }

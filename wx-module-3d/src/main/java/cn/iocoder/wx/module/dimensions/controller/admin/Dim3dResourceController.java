@@ -4,14 +4,16 @@ import cn.iocoder.wx.framework.common.pojo.CommonResult;
 import cn.iocoder.wx.framework.common.pojo.PageResult;
 import cn.iocoder.wx.framework.common.util.validation.ValidationUtils;
 import cn.iocoder.wx.module.dimensions.service.ModelImportService;
+import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dIconForm;
+import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dIconPageResponse;
+import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dIconResponse;
 import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dModelPageResponse;
 import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dModelResponse;
-import cn.iocoder.wx.module.dimensions.service.Dim3dModelResponseAssembler;
+import cn.iocoder.wx.module.dimensions.service.Dim3dCatalogResponseAssembler;
 import cn.iocoder.wx.framework.common.exception.ServiceException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
-import cn.iocoder.wx.module.dimensions.entity.Dim3dIcon;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dModel;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dTemplate;
 import cn.iocoder.wx.module.dimensions.service.Dim3dResourceCatalogService;
@@ -43,7 +45,7 @@ public class Dim3dResourceController {
     @Resource private ObjectMapper json;
     @Resource private Validator validator;
     /** 目录响应使用明确字段投影，操作人名称按一页去重合批补充。 */
-    @Resource private Dim3dModelResponseAssembler modelResponses;
+    @Resource private Dim3dCatalogResponseAssembler catalogResponses;
 
     @PostMapping("/model/add")
     @Operation(summary = "新增模型", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -70,7 +72,7 @@ public class Dim3dResourceController {
     }
     @GetMapping("/model/info/{id}") @Operation(summary = "查询模型详情") @PreAuthorize("@ss.hasPermission('dim3d:model:query')")
     public CommonResult<Dim3dModelResponse> modelInfo(@PathVariable Long id) {
-        return CommonResult.success(modelResponses.single(service.getModel(id)));
+        return CommonResult.success(catalogResponses.single(service.getModel(id)));
     }
     @GetMapping("/model/page") @Operation(summary = "分页查询模型") @PreAuthorize("@ss.hasPermission('dim3d:model:query')")
     public Dim3dModelPageResponse modelPage(String modelName, String resourceBelong, String status, String isPaid,
@@ -79,7 +81,7 @@ public class Dim3dResourceController {
         // 模型分页直接返回契约根级字段，避免重复序列化同一记录集合。
         var page = service.getModelPage(modelName, resourceBelong, status, isPaid,
                 category, pageNum, pageSize, orderByColumn, isAsc);
-        return new Dim3dModelPageResponse(new PageResult<>(modelResponses.multiple(page.getList()), page.getTotal()));
+        return new Dim3dModelPageResponse(new PageResult<>(catalogResponses.multiple(page.getList()), page.getTotal()));
     }
     /** 上下线沿用文档路径和模型编辑权限，成功仅返回统一空数据响应。 */
     @PutMapping("/model/{status}/{id}") @Operation(summary = "模型上线或下线") @PreAuthorize("@ss.hasPermission('dim3d:model:edit')")
@@ -115,19 +117,40 @@ public class Dim3dResourceController {
         return model;
     }
 
+    /** 目录和文件绑定提交成功后，按图片上传合同返回字符串编号。 */
     @PostMapping("/icon/add") @Operation(summary = "新增图标") @PreAuthorize("@ss.hasPermission('dim3d:icon:add')")
-    // 新图片编号可能超过浏览器安全整数范围，新增回执也按字符串投影。
-    public CommonResult<String> addIcon(@Valid @RequestBody Dim3dIcon body) { return CommonResult.success(String.valueOf(service.createIcon(body))); }
+    public CommonResult<String> addIcon(@Valid @RequestBody Dim3dIconForm body) {
+        return CommonResult.success(String.valueOf(service.createIcon(body.toIcon())));
+    }
     @PutMapping("/icon/edit/{id}") @Operation(summary = "编辑图标") @PreAuthorize("@ss.hasPermission('dim3d:icon:edit')")
-    public CommonResult<Boolean> editIcon(@PathVariable Long id, @Valid @RequestBody Dim3dIcon body) { service.updateIcon(id, body); return CommonResult.success(true); }
+    public CommonResult<Void> editIcon(@PathVariable Long id, @Valid @RequestBody Dim3dIconForm body) {
+        service.updateIcon(id, body.toIcon());
+        return CommonResult.success(null);
+    }
     @GetMapping("/icon/info/{id}") @Operation(summary = "查询图标详情") @PreAuthorize("@ss.hasPermission('dim3d:icon:query')")
-    public CommonResult<Dim3dIcon> iconInfo(@PathVariable Long id) { return CommonResult.success(service.getIcon(id)); }
+    public CommonResult<Dim3dIconResponse> iconInfo(@PathVariable Long id) {
+        // 目录查询按现有可见范围授权，响应只使用业务投影。
+        return CommonResult.success(catalogResponses.icon(service.getIcon(id)));
+    }
     @GetMapping("/icon/page") @Operation(summary = "分页查询图标") @PreAuthorize("@ss.hasPermission('dim3d:icon:query')")
-    public CommonResult<PageResult<Dim3dIcon>> iconPage(String iconName, String category, String secondaryCategory, String resourceBelong, String status, Integer pageNum, Integer pageSize) { return CommonResult.success(service.getIconPage(iconName, category, secondaryCategory, resourceBelong, status, pageNum, pageSize)); }
+    public Dim3dIconPageResponse iconPage(String iconName, String category, String secondaryCategory,
+                                         String resourceBelong, String status, Integer pageNum, Integer pageSize,
+                                         String orderByColumn, String isAsc) {
+        // 使用根级分页，所有筛选和排序在数据库完成，操作人信息按当前页批量补齐。
+        var page = service.getIconPage(iconName, category, secondaryCategory, resourceBelong, status, pageNum,
+                pageSize, orderByColumn, isAsc);
+        return new Dim3dIconPageResponse(page.getTotal(), catalogResponses.icons(page.getList()));
+    }
     @PutMapping("/icon/{status}/{id}") @Operation(summary = "图标上线或下线") @PreAuthorize("@ss.hasPermission('dim3d:icon:edit')")
-    public CommonResult<Boolean> iconStatus(@PathVariable String status, @PathVariable Long id) { service.changeIconStatus(id, status); return CommonResult.success(true); }
+    public CommonResult<Void> iconStatus(@PathVariable String status, @PathVariable Long id) {
+        service.changeIconStatus(id, status);
+        return CommonResult.success(null);
+    }
     @DeleteMapping("/icon/remove/{id}") @Operation(summary = "删除图标") @PreAuthorize("@ss.hasPermission('dim3d:icon:delete')")
-    public CommonResult<Boolean> removeIcon(@PathVariable Long id) { service.deleteIcon(id); return CommonResult.success(true); }
+    public CommonResult<Void> removeIcon(@PathVariable Long id) {
+        service.deleteIcon(id);
+        return CommonResult.success(null);
+    }
 
     @PostMapping("/template/add") @Operation(summary = "新增模板") @PreAuthorize("@ss.hasPermission('dim3d:template:add')")
     public CommonResult<Long> addTemplate(@Valid @RequestBody Dim3dTemplate body) { return CommonResult.success(service.createTemplate(body)); }

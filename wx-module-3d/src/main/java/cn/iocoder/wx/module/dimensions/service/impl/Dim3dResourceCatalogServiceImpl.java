@@ -12,6 +12,7 @@ import cn.iocoder.wx.module.dimensions.entity.Dim3dResourceBaseEntity;
 import cn.iocoder.wx.module.dimensions.exception.ErrorCodeConstants;
 import cn.iocoder.wx.module.dimensions.mapper.Dim3dConvertedResourceMapper;
 import cn.iocoder.wx.module.dimensions.mapper.Dim3dTemplateMapper;
+import cn.iocoder.wx.module.dimensions.service.Dim3dCatalogOrder;
 import cn.iocoder.wx.module.dimensions.service.Dim3dResourceCatalogService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -28,10 +29,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Locale;
 import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /** 新资源目录实现，查询只返回分页所需记录，避免加载大字段。 */
@@ -125,7 +126,7 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
     /** 计数和分页复用相同范围，单页只执行两次数据库查询，不循环签发模型地址。 */
     @Override public PageResult<Dim3dModel> getModelPage(String name, String belong, String status, String paid, String category,
                                                       Integer num, Integer size, String orderByColumn, String isAsc) {
-        String order = modelOrder(orderByColumn, isAsc);
+        String order = Dim3dCatalogOrder.sql(MODEL_SORT_COLUMNS, orderByColumn, isAsc, "模型排序字段或方向无效");
         var actor = access.actor();
         StringBuilder where = new StringBuilder(" FROM wx_3d_model WHERE ").append(MODEL_VISIBLE);
         List<Object> args = new ArrayList<>();
@@ -143,22 +144,12 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
         return new PageResult<>(rows, total == null ? 0 : total);
     }
 
-    /** 默认按编号倒序；其他列追加编号作为同值排序键，避免跨页顺序不稳定。 */
-    private static String modelOrder(String requestedColumn, String requestedDirection) {
-        String column = StringUtils.hasText(requestedColumn) ? MODEL_SORT_COLUMNS.get(requestedColumn) : "id";
-        String direction = StringUtils.hasText(requestedDirection) ? requestedDirection.toLowerCase(Locale.ROOT) : "desc";
-        if (column == null || !List.of("asc", "desc").contains(direction)) {
-            throw new ServiceException(400, "模型排序字段或方向无效");
-        }
-        String order = " ORDER BY " + column + " " + direction;
-        return "id".equals(column) ? order : order + ", id DESC";
-    }
-
     @Override public Long createIcon(Dim3dIcon icon) { return images.create(icon); }
-    @Override public void updateIcon(Long id, Dim3dIcon icon) { legacy(getIcon(id)); images.update(id, icon); }
+    @Override public void updateIcon(Long id, Dim3dIcon icon) { images.update(id, icon); }
     @Override public Dim3dIcon getIcon(Long id) { return images.get(id); }
-    @Override public PageResult<Dim3dIcon> getIconPage(String name, String category, String secondary, String belong, String status, Integer num, Integer size) {
-        return images.page(name, category, secondary, belong, status, num, size);
+    @Override public PageResult<Dim3dIcon> getIconPage(String name, String category, String secondary, String belong,
+                                                      String status, Integer num, Integer size, String orderByColumn, String isAsc) {
+        return images.page(name, category, secondary, belong, status, num, size, orderByColumn, isAsc);
     }
 
     @Override public Long createTemplate(Dim3dTemplate template) { applyTenant(template); templateMapper.insert(template); return template.getId(); }
@@ -174,10 +165,10 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
 
     /** 统一处理历史及受管模型的状态写入，复用编辑权限、目录归属和短事务。 */
     @Override public void changeModelStatus(Long id, String status) { models.changeStatus(id, status); }
-    @Override public void changeIconStatus(Long id, String status) { legacy(getIcon(id)); images.changeStatus(id, status); }
+    @Override public void changeIconStatus(Long id, String status) { images.changeStatus(id, status); }
     @Override public void changeTemplateStatus(Long id, String status) { legacy(getTemplate(id)); checkStatus(status); Dim3dTemplate e = new Dim3dTemplate(); e.setId(id); e.setStatus(status); require(templateMapper.updateById(e)); }
     @Override public void deleteModel(Long id) { models.delete(id); }
-    @Override public void deleteIcon(Long id) { legacy(getIcon(id)); images.delete(id); }
+    @Override public void deleteIcon(Long id) { images.delete(id); }
     @Override public void deleteTemplate(Long id) { legacy(getTemplate(id)); require(templateMapper.deleteById(id)); }
 
     /** 将单个 ZIP 原样转发给转换服务，并仅在转换成功后落库。 */

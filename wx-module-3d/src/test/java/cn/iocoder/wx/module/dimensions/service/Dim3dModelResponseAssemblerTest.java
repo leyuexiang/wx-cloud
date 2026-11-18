@@ -23,13 +23,13 @@ import static org.mockito.Mockito.*;
 
 /** 精确验证字段投影、参考格式及用户批量查询边界，避免再次泄露实体字段或逐行查询。 */
 class Dim3dModelResponseAssemblerTest {
-    private Dim3dModelResponseAssembler assembler;
+    private Dim3dCatalogResponseAssembler assembler;
     private AdminUserApi users;
 
     @BeforeEach
     void setup() {
         users = mock(AdminUserApi.class);
-        assembler = new Dim3dModelResponseAssembler();
+        assembler = new Dim3dCatalogResponseAssembler();
         ReflectionTestUtils.setField(assembler, "users", users);
     }
 

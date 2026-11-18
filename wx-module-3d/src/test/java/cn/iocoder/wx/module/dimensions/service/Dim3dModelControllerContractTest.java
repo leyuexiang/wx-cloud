@@ -39,14 +39,14 @@ class Dim3dModelControllerContractTest {
         ReflectionTestUtils.setField(controller, "service", catalog);
         ReflectionTestUtils.setField(controller, "json", json);
         ReflectionTestUtils.setField(controller, "validator", validator);
-        var responses = new Dim3dModelResponseAssembler();
+        var responses = new Dim3dCatalogResponseAssembler();
         var users = mock(cn.iocoder.wx.module.system.api.user.AdminUserApi.class);
         var administrator = new cn.iocoder.wx.module.system.api.user.dto.AdminUserRespDTO();
         administrator.setId(1L);
         administrator.setNickname("超级管理员");
         when(users.getUserMap(anyCollection())).thenReturn(java.util.Map.of(1L, administrator));
         ReflectionTestUtils.setField(responses, "users", users);
-        ReflectionTestUtils.setField(controller, "modelResponses", responses);
+        ReflectionTestUtils.setField(controller, "catalogResponses", responses);
         mvc = MockMvcBuilders.standaloneSetup(controller).setValidator(validator).build();
     }
 

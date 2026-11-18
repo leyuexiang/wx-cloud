@@ -29,6 +29,10 @@ public class Dim3dImageResourceService {
     private static final String VISIBLE = "del_flag='0' AND ((resource_belong='SYSTEM' AND tenant_id='0')"
             + " OR (resource_belong='MINE' AND tenant_id=?))";
     private static final BeanPropertyRowMapper<Dim3dIcon> ROW = new BeanPropertyRowMapper<>(Dim3dIcon.class);
+    /** 仅允许按图标目录的公开业务列排序。 */
+    private static final Map<String, String> SORT_COLUMNS = Map.of(
+            "id", "id", "iconName", "icon_name", "category", "category", "secondaryCategory", "secondary_category",
+            "resourceBelong", "resource_belong", "status", "status", "createTime", "create_time", "updateTime", "update_time");
 
     @Resource private JdbcTemplate jdbc;
     @Resource private PlatformTransactionManager transactions;
@@ -40,7 +44,8 @@ public class Dim3dImageResourceService {
     public Long create(Dim3dIcon body) {
         var actor = access.actor();
         requirePermission("dim3d:icon:add");
-        validate(body, null);
+        validate(body);
+        validateDescription(body.getIconDesc(), null);
         requireScope(actor, body.getResourceBelong());
         long id = IdWorker.getId();
         return new TransactionTemplate(transactions).execute(status -> {
@@ -61,12 +66,11 @@ public class Dim3dImageResourceService {
     public void update(Long id, Dim3dIcon body) {
         var actor = access.actor();
         requirePermission("dim3d:icon:edit");
-        Dim3dIcon previous = find(id, actor, false);
-        validate(body, previous);
+        validate(body);
         requireScope(actor, body.getResourceBelong());
         new TransactionTemplate(transactions).executeWithoutResult(status -> {
-            Dim3dIcon current = find(id, actor, true);
-            requireWrite(actor, current);
+            Dim3dIcon current = lockWritable(id, actor);
+            validateDescription(body.getIconDesc(), current.getIconDesc());
             boolean retainedFile = Objects.equals(current.getIconFileId(), body.getIconFileId());
             bindFile(body.getIconFileId(), actor, body.getResourceBelong(), retainedFile);
             jdbc.update("""
@@ -83,10 +87,12 @@ public class Dim3dImageResourceService {
 
     /** 查询和总数共用完全相同的范围及筛选条件，系统目录可跨租户读取，个人目录限制当前租户。 */
     public PageResult<Dim3dIcon> page(String name, String category, String secondary, String belong,
-                                     String status, Integer number, Integer size) {
+                                     String status, Integer number, Integer size, String orderByColumn, String isAsc) {
         var actor = access.actor();
+        String order = Dim3dCatalogOrder.sql(SORT_COLUMNS, orderByColumn, isAsc, "图标排序字段或方向无效");
         int page = number == null || number < 1 ? 1 : number;
         int limit = size == null || size < 1 ? 10 : Math.min(size, 200);
+        long offset = ((long) page - 1) * limit;
         StringBuilder where = new StringBuilder(" FROM wx_3d_icon WHERE ").append(VISIBLE);
         List<Object> args = new ArrayList<>();
         args.add(Long.toString(actor.tenant()));
@@ -101,19 +107,23 @@ public class Dim3dImageResourceService {
             requireStatus(status);
             where.append(" AND status=?"); args.add(status);
         }
-        Long total = jdbc.queryForObject("SELECT COUNT(*)" + where, Long.class, args.toArray());
+        long total = jdbc.queryForObject("SELECT COUNT(*)" + where, Long.class, args.toArray());
+        // 空页直接返回总数，避免额外查询及操作人批量调用。
+        if (offset >= total) return new PageResult<>(List.of(), total);
         args.add(limit);
-        args.add(((long) page - 1) * limit);
-        List<Dim3dIcon> rows = jdbc.query("SELECT *" + where + " ORDER BY id DESC LIMIT ? OFFSET ?", ROW, args.toArray());
-        return new PageResult<>(rows, total == null ? 0 : total);
+        args.add(offset);
+        List<Dim3dIcon> rows = jdbc.query("SELECT *" + where + order + " LIMIT ? OFFSET ?", ROW, args.toArray());
+        return new PageResult<>(rows, total);
     }
 
+    /** 同一目录的维护操作串行化，重复状态在权限校验后返回并保留原审计。 */
     public void changeStatus(Long id, String state) {
         var actor = access.actor();
         requirePermission("dim3d:icon:edit");
         requireStatus(state);
         new TransactionTemplate(transactions).executeWithoutResult(status -> {
-            requireWrite(actor, find(id, actor, true));
+            Dim3dIcon current = lockWritable(id, actor);
+            if (state.equals(current.getStatus())) return;
             jdbc.update("UPDATE wx_3d_icon SET status=?,update_by=?,update_time=CURRENT_TIMESTAMP WHERE id=?",
                     state, actor.user(), id);
         });
@@ -124,7 +134,7 @@ public class Dim3dImageResourceService {
         var actor = access.actor();
         requirePermission("dim3d:icon:delete");
         new TransactionTemplate(transactions).executeWithoutResult(status -> {
-            requireWrite(actor, find(id, actor, true));
+            lockWritable(id, actor);
             jdbc.update("UPDATE wx_3d_icon SET del_flag='1',update_by=?,update_time=CURRENT_TIMESTAMP WHERE id=?",
                     actor.user(), id);
         });
@@ -138,19 +148,30 @@ public class Dim3dImageResourceService {
         return rows.get(0);
     }
 
-    private void validate(Dim3dIcon body, Dim3dIcon previous) {
+    /** 锁定有效记录后统一校验受管关联和维护权限，供编辑、状态及删除共用。 */
+    private Dim3dIcon lockWritable(Long id, ArtResourceAccess.Actor actor) {
+        Dim3dIcon current = find(id, actor, true);
+        ArtResourceService.guardLegacyResource(jdbc, current.getResourceId());
+        requireWrite(actor, current);
+        return current;
+    }
+
+    private void validate(Dim3dIcon body) {
         if (body == null || !StringUtils.hasText(body.getIconName())) throw invalid("图片名称不能为空");
         body.setIconName(body.getIconName().trim());
         if (body.getIconName().length() > 50) throw invalid("图片名称最多 50 个字符");
-        String description = body.getIconDesc();
-        // 既有长描述在未修改时保留，新增或修改描述遵循当前页面的 200 字符限制。
-        if (description != null && description.length() > 200
-                && (previous == null || !description.equals(previous.getIconDesc()))) throw invalid("图片描述最多 200 个字符");
         if (body.getIconFileId() == null || body.getIconFileId() <= 0) throw invalid("请先上传图片");
         if (!Set.of("SYSTEM", "MINE").contains(Objects.toString(body.getResourceBelong(), ""))) throw invalid("资源归属无效");
         if (!StringUtils.hasText(body.getCategory()) || !Boolean.TRUE.equals(dictionaries
                 .validateDictDataList("dim3d_icon_category", List.of(body.getCategory())).getCheckedData())) {
             throw invalid("图片分类不存在或已停用");
+        }
+    }
+
+    /** 编辑用已锁定记录比对，历史长描述未改变时仍可保存其他业务字段。 */
+    private static void validateDescription(String description, String previous) {
+        if (description != null && description.length() > 200 && !description.equals(previous)) {
+            throw invalid("图片描述最多 200 个字符");
         }
     }
 
@@ -227,7 +248,7 @@ public class Dim3dImageResourceService {
     }
 
     private static void requireStatus(String status) {
-        if (!Set.of("ONLINE", "OFFLINE").contains(status)) throw invalid("图片状态无效");
+        if (!"ONLINE".equals(status) && !"OFFLINE".equals(status)) throw invalid("图片状态无效");
     }
 
     private static ServiceException invalid(String message) { return new ServiceException(400, message); }
