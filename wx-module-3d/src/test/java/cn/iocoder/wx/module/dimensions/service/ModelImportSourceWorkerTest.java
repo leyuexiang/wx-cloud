@@ -67,6 +67,28 @@ class ModelImportSourceWorkerTest {
         assertEquals(prefix, snapshot.path("resource").path("storage_prefix").asText());
     }
 
+    /** 真正的后台校验和发布复用同一固定 ZIP，中文原成员按安全入口名写入且模型字节保持一致。 */
+    @Test void localizedArchiveEntryPublishesWithVerifiedBytes() throws Exception {
+        byte[] binary = ModelImportArtifactVerifierTest.glb(
+                ModelImportArtifactVerifierTest.json("\"buffers\":[{\"byteLength\":4}]"), 4);
+        preparePublication(modelZip("叉车.glb", binary));
+        var json = new com.fasterxml.jackson.databind.ObjectMapper();
+        var plan = json.readTree(db.queryForObject("SELECT artifact_descriptor FROM wx_3d_resource_import", String.class))
+                .path("validated");
+        assertEquals("model.glb", plan.path("modelPath").asText());
+        assertEquals("叉车.glb", plan.path("archiveModelPath").asText());
+        doAnswer(invocation -> {
+            assertArrayEquals(binary, ((java.io.InputStream) invocation.getArgument(1)).readAllBytes());
+            return null;
+        }).when(store).write(endsWith("/model.glb"), any(), eq((long) binary.length));
+        assertTrue(worker.publishOperation(op));
+        assertEquals("COMMITTED", status());
+        String prefix = db.queryForObject("SELECT storage_prefix FROM wx_3d_resource", String.class);
+        verify(store).write(eq(prefix + "model.glb"), any(), eq((long) binary.length));
+        verify(store).write(eq(prefix + "manifest.json"), any(), anyLong());
+        verify(store, never()).write(endsWith("/叉车.glb"), any(), anyLong());
+    }
+
     @Test void redirectsNewFileIntoExistingDirectoryAtomically() throws Exception {
         preparePublication();
         redirectToLegacyDirectory();
@@ -364,8 +386,12 @@ class ModelImportSourceWorkerTest {
         assertEquals(0L,db.queryForObject("SELECT current_revision FROM wx_3d_resource",Long.class));
     }
     private void preparePublication() throws Exception {
+        preparePublication(validZip());
+    }
+
+    private void preparePublication(byte[] convertedZip) throws Exception {
         mockConversion();
-        fixedArtifact(validZip());
+        fixedArtifact(convertedZip);
         assertTrue(worker.runNext());assertEquals("PUBLISHING",status());
         db.update("UPDATE wx_3d_resource_import SET publish_descriptor=?","{\"modelName\":\"样本模型\",\"category\":\"sample\"}");
         var publication=new ModelImportPublication(store,new ModelImportArtifactValidation(store,new ModelImportArtifactVerifier()),
@@ -531,9 +557,14 @@ class ModelImportSourceWorkerTest {
 
     private static byte[] validZip() throws Exception {
         byte[] model=ModelImportArtifactVerifierTest.glb(ModelImportArtifactVerifierTest.json("\"buffers\":[{\"byteLength\":4}]"),4);
+        return modelZip("scene.glb", model);
+    }
+
+    /** 按给定原成员名组装真实 ZIP，以同一格式走后台固定产物和发布流程。 */
+    private static byte[] modelZip(String archiveName, byte[] model) throws Exception {
         var bytes=new java.io.ByteArrayOutputStream();
         try(var output=new java.util.zip.ZipOutputStream(bytes)){
-            output.putNextEntry(new java.util.zip.ZipEntry("scene.glb"));output.write(model);output.closeEntry();
+            output.putNextEntry(new java.util.zip.ZipEntry(archiveName));output.write(model);output.closeEntry();
         }
         return bytes.toByteArray();
     }

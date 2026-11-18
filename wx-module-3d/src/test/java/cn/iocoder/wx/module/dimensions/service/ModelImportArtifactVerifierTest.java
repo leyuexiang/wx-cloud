@@ -44,6 +44,33 @@ class ModelImportArtifactVerifierTest {
         assertThrows(ServiceException.class,()->verifier.verify(zip(Map.of("scene.glb",glb(model,8))),"glb",()->true));
     }
 
+    /** 中文入口发布为安全名称，文本模型的同目录依赖仍按原文件名校验。 */
+    @Test void localizedModelBasenameIsNormalizedWithoutChangingItsDirectory() throws IOException {
+        byte[] binary = glb(json("\"buffers\":[{\"byteLength\":4}]"), 4);
+        for (String name : List.of("叉车.glb", "²æ³µ.glb")) {
+            var glb = verifier.verify(zip(Map.of(name, binary)), "glb", () -> true);
+            assertEquals("model.glb", glb.modelPath());
+            assertEquals(name, glb.archiveModelPath());
+            assertEquals(ArtResourceManifestVerifier.sha256(binary), glb.files().get(0).sha256());
+        }
+
+        var gltf = verifier.verify(zip(Map.of("dir/叉车 (3).gltf", json("\"buffers\":[{\"uri\":\"mesh.bin\",\"byteLength\":4}]"),
+                "dir/mesh.bin", new byte[]{1,2,3,4})), "gltf", () -> true);
+        assertEquals("dir/model.gltf", gltf.modelPath());
+        assertEquals(List.of("dir/mesh.bin", "dir/model.gltf"), gltf.files().stream()
+                .map(ArtResourceManifestVerifier.FileSpec::path).toList());
+    }
+
+    /** 入口别名同样经过路径及同名冲突校验，避免归一化隐藏越界或第二个模型。 */
+    @Test void localizedEntryCannotBypassPathAndCollisionChecks() throws IOException {
+        byte[] binary = glb(json("\"buffers\":[{\"byteLength\":4}]"), 4);
+        for (String name : List.of("../叉车.glb", "/叉车.glb", "dir/叉车%2f.glb", "dir/叉车\\a.glb", "叉车/scene.glb")) {
+            assertThrows(ServiceException.class, () -> verifier.verify(zip(Map.of(name, binary)), "glb", () -> true), name);
+        }
+        assertThrows(ServiceException.class,
+                () -> verifier.verify(zip(Map.of("叉车.glb", binary, "model.glb", binary)), "glb", () -> true));
+    }
+
     @Test void rejectsMissingRemoteEncodedAndTraversalReferences() throws IOException {
         for(String ref:List.of("missing.bin","https://assets.invalid/mesh.bin","//host/mesh.bin","../mesh.bin","%2e%2e/mesh.bin","mesh.bin?download=1")){
             var entries=Map.of("dir/scene.gltf",json("\"buffers\":[{\"uri\":\""+ref+"\",\"byteLength\":4}]"),"dir/mesh.bin",new byte[]{1,2,3,4});

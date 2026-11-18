@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.function.BooleanSupplier;
 import java.util.zip.ZipFile;
@@ -55,7 +54,7 @@ class ModelImportPublication {
             byte[] bytes=json.writeValueAsBytes(manifest);
             var checked=verifier.verify(bytes,resourceId,sha256(bytes),MANIFEST);
             return archive.withArchive(operation,format,descriptor,active,file->{
-                writeFiles(file,prefix,checked.files(),active);
+                writeFiles(file,prefix,checked,plan.path("archiveModelPath").asText(checked.modelPath()),active);
                 try(var input=new ByteArrayInputStream(bytes)) {
                     save(prefix,new FileSpec(MANIFEST,bytes.length,checked.manifestSha256()),input);
                 } catch(Exception unavailable){throw new ModelImportArtifactValidation.Failure(ARTIFACT_STORAGE_UNAVAILABLE);}
@@ -65,11 +64,14 @@ class ModelImportPublication {
         catch(Exception invalid){throw new ModelImportArtifactValidation.Failure(INVALID_MODEL);}
     }
 
-    private void writeFiles(Path archive,String prefix,List<FileSpec> files,BooleanSupplier active) {
+    /** 固定计划可指定入口的原 ZIP 成员名，正式对象名和摘要仍从已校验的清单读取。 */
+    private void writeFiles(Path archive,String prefix,ModelResourceManifestVerifier.Verified manifest,
+                            String archiveModelPath,BooleanSupplier active) {
         try(var zip=new ZipFile(archive.toFile())) {
-            for(var file:files) {
+            for(var file:manifest.files()) {
                 ModelImportArtifactVerifier.checkActive(active);
-                var entry=zip.getEntry(file.path());
+                String archivePath=file.path().equals(manifest.modelPath())?archiveModelPath:file.path();
+                var entry=zip.getEntry(archivePath);
                 if(entry==null || entry.getSize()!=file.size() || entry.isDirectory())
                     throw new ModelImportArtifactValidation.Failure(ARTIFACT_UNAVAILABLE);
                 try(var input=zip.getInputStream(entry)) {save(prefix,file,input);}

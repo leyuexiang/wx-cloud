@@ -222,6 +222,10 @@ public class ModelImportSourceWorker implements AutoCloseable {
             var result=input.descriptor().deepCopy();
             var validated=result.putObject("validated");
             validated.put("modelPath",checked.modelPath());
+            // 仅归一过的入口需要原成员名，其余文件及既有发布计划继续使用同名读取。
+            if(!checked.modelPath().equals(checked.archiveModelPath())) {
+                validated.put("archiveModelPath",checked.archiveModelPath());
+            }
             var files=validated.putArray("files");
             for(var file:checked.files()) {
                 files.addObject().put("path",file.path()).put("size",Long.toString(file.size())).put("sha256",file.sha256());

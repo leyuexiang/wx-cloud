@@ -1,5 +1,6 @@
 """使用真实登录、转换器及私有对象存储验证模型五类接口，结果仅保留断言和清理状态。"""
 import argparse
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -36,7 +37,7 @@ def sql(statement):
     return result.stdout.decode().strip()
 
 
-def verify(target, formal):
+def verify(target, formal, source_archive=None):
     """正式验收经两个各自网关，候选直接连接回环服务；每次登录和样例均独立回收。"""
     stage = json.loads((RELEASE / 'prepared.json').read_text())['targets'][target]
     database = stage['database'] if formal else stage['clone']
@@ -87,8 +88,13 @@ def verify(target, formal):
             time.sleep(1)
         raise RuntimeError('模型转换等待超时')
 
-    def upload(actor, belong):
-        payload, _ = load('model09_source', 'verify-model-import-source.py').source_payload('obj')
+    def upload(actor, belong, archive=None):
+        # 首个样例可使用本轮受限源包，其余场景继续复用小型 OBJ，兼顾实样与写入回归。
+        if archive is None:
+            payload, _ = load('model09_source', 'verify-model-import-source.py').source_payload('obj')
+        else:
+            payload = archive.read_bytes()
+            result['sourceArchive'] = {'bytes': len(payload), 'sha256': hashlib.sha256(payload).hexdigest()}
         boundary = 'model09' + uuid.uuid4().hex
         body = ('--' + boundary + '\r\nContent-Disposition: form-data; name="resourceBelong"\r\n\r\n'
                 + belong + '\r\n--' + boundary + '\r\nContent-Disposition: form-data; name="file"; '
@@ -131,7 +137,7 @@ def verify(target, formal):
         category = sql("SELECT value FROM wx_editor.wx_system_dict_data WHERE dict_type='dim3d_model_category'"
                        " AND status=0 AND deleted=0 ORDER BY sort,id LIMIT 1;")
         check('使用现有启用模型分类', bool(re.fullmatch(r'[A-Za-z0-9_-]{1,32}', category)))
-        operation, resource = upload(actor, 'MINE')
+        operation, resource = upload(actor, 'MINE', source_archive)
         body = {'modelName': marker, 'category': category, 'modelDesc': '真实发布接口验收',
                 'resourceBelong': 'MINE', 'isPaid': 'PAID', 'price': 1299, 'modelFileId': resource}
         invalid = request('/admin-api/dim3d/model/add', {**body, 'price': 12.99}, 'POST', actor)
@@ -173,6 +179,9 @@ def verify(target, formal):
         original_binding = binding.copy()
         check('文件相对路径属于真实冻结前缀', isinstance(relative, str) and relative.startswith(prefix)
               and relative.endswith('.glb') and '://' not in relative and '?' not in relative)
+        if source_archive is not None:
+            # 本地化入口的对象名由服务端统一，详情回读应指向实际写入的标准文件名。
+            check('中文模型正式入口已归一', relative.rsplit('/', 1)[-1] == 'model.glb')
         # 相对路径接口只查询元信息，实际私有下载继续走原修订与摘要约束的受控文件接口。
         signed = request('/admin-api/dim3d/resources/' + resource + '/file?' + urllib.parse.urlencode({
             'revision': str(binding['revision']), 'contentHash': binding['hash'], 'path': relative[len(prefix):]}), actor=actor)
@@ -181,6 +190,9 @@ def verify(target, formal):
         with SECURE.open(signed['data']['fileUrl'], timeout=30) as response:
             model = response.read(8 * 1024 * 1024)
             check('私有预览真实回读为模型', response.status == 200 and model[:4] == b'glTF')
+            if source_archive is not None:
+                result['sourceArchive']['modelBytes'] = len(model)
+                result['sourceArchive']['modelSha256'] = hashlib.sha256(model).hexdigest()
         if not formal:
             # 仅在空副本将本次独占样例投影为旧布局，真实复制对象并走原授权接口，随后恢复新指针。
             s3 = load('model13_legacy_s3', 'art-s3-test-support.py')
@@ -354,9 +366,10 @@ if __name__ == '__main__':
     parser.add_argument('--target', choices=('main', 'data08'), required=True)
     parser.add_argument('--formal', action='store_true')
     parser.add_argument('--batch', default='model09-20261117')
+    parser.add_argument('--source-archive', type=Path, help='以指定源包作为首个上传样例并核对归一后的入口')
     args = parser.parse_args()
     if not re.fullmatch(r'model[0-9]{2}-[0-9]{8}', args.batch):
         parser.error('批次应为模型编号及八位日期')
     prefix, stamp = args.batch.split('-')
     RELEASE = Path('/home/wx-' + prefix + '-release-' + stamp)
-    raise SystemExit(verify(args.target, args.formal))
+    raise SystemExit(verify(args.target, args.formal, args.source_archive))

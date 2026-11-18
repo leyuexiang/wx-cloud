@@ -11,6 +11,7 @@ import java.security.*;
 import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.function.BooleanSupplier;
+import java.util.regex.Pattern;
 import java.util.zip.*;
 
 import static cn.iocoder.wx.module.dimensions.exception.ArtResourceErrorCode.INVALID_CLOSURE;
@@ -25,9 +26,12 @@ class ModelImportArtifactVerifier {
     private static final int BIN_CHUNK=0x004e4942;
     private static final Set<String> BUFFER_DATA_TYPES=Set.of("application/octet-stream","application/gltf-buffer");
     private static final Set<String> IMAGE_TYPES=Set.of("image/png","image/jpeg","image/webp","image/ktx2");
+    private static final Pattern ASCII_BASENAME = Pattern.compile("[A-Za-z0-9_.-]+");
+    private static final Pattern LOCALIZED_MODEL_STEM = Pattern.compile("[\\p{L}\\p{M}\\p{N}._ ()-]+");
     private final ArtResourceManifestVerifier json=new ArtResourceManifestVerifier();
 
-    record Verified(String modelPath,List<FileSpec> files) {}
+    /** 分别保留正式入口路径与原 ZIP 成员名，发布读取原成员并沿用已校验的字节身份。 */
+    record Verified(String modelPath, String archiveModelPath, List<FileSpec> files) {}
     private record Model(JsonNode root,long binaryLength) {}
 
     Verified verify(Path path,String format,BooleanSupplier active) {
@@ -72,6 +76,8 @@ class ModelImportArtifactVerifier {
         Set<String> paths=new HashSet<>();
         Set<String> foldedFiles=new HashSet<>();
         ZipEntry model=null;
+        String modelPath=null;
+        String extension="."+format;
         long total=0;
         byte[] buffer=new byte[64*1024];
         for(var entries=zip.entries();entries.hasMoreElements();) {
@@ -79,6 +85,7 @@ class ModelImportArtifactVerifier {
             ZipEntry entry=entries.nextElement();
             String path=entry.getName();
             if(entry.isDirectory())path=path.substring(0,path.length()-1);
+            else path=normalizedModelPath(path,extension);
             requirePath(path);
             String folded=path.toLowerCase(Locale.ROOT);
             require(paths.add(folded));
@@ -90,8 +97,9 @@ class ModelImportArtifactVerifier {
             total+=size;
             require(size>0 && size<=MAX_FILE_BYTES && total<=MAX_CLOSURE_BYTES);
             if(folded.endsWith(".gltf") || folded.endsWith(".glb")) {
-                require(model==null && path.endsWith("."+format));
+                require(model==null && path.endsWith(extension));
                 model=entry;
+                modelPath=path;
             }
             foldedFiles.add(folded);
             files.put(path,new FileSpec(path,size,hash(zip,entry,buffer,active)));
@@ -104,8 +112,22 @@ class ModelImportArtifactVerifier {
         }
         require(model!=null);
         Model decoded=readModel(zip,model,format);
-        verifyReferences(decoded,model.getName(),files);
-        return new Verified(model.getName(),List.copyOf(files.values()));
+        verifyReferences(decoded,modelPath,files);
+        return new Verified(modelPath,model.getName(),List.copyOf(files.values()));
+    }
+
+    /**
+     * 转换器可能沿用输入的中文名称。只替换入口的文件名，保留父目录以维持相对依赖语义。
+     * 原名称只能含字母、数字、组合记号及限定标点，最终路径仍经过原有路径和冲突门禁。
+     */
+    private static String normalizedModelPath(String path,String extension) {
+        if(!path.endsWith(extension))return path;
+        int basenameStart=path.lastIndexOf('/')+1;
+        String basename=path.substring(basenameStart);
+        if(ASCII_BASENAME.matcher(basename).matches())return path;
+        String stem=basename.substring(0,basename.length()-extension.length());
+        require(path.length()<=512 && !stem.isBlank() && LOCALIZED_MODEL_STEM.matcher(stem).matches());
+        return path.substring(0,basenameStart)+"model"+extension;
     }
 
     private static String hash(ZipFile zip,ZipEntry entry,byte[] buffer,BooleanSupplier active) throws IOException {
