@@ -1,0 +1,7 @@
+{
+  "sourceCommit": "e40d0209309ae69aa7f85df56debe7162249f305",
+  "baselineJarSha256": "e0db01be7cfaec55fb1235a9b504161f574fa8cf5979d46ac3e79fbf59e5c2d5",
+  "classBefore": "513135be1af0c37f770c5dbcd8d127e79b5c2f984c7fb834122e5fc760bcbd29",
+  "baselineCompiledClassMatchesDeployed": true,
+  "classAfter": "5f736bd2afa1602547ee2438a7b13d84d9d11abe0c9ccaf2709491fc67228ffe"
+}

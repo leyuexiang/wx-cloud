@@ -1,0 +1,30 @@
+{
+  "red": {
+    "summaries": [
+      "[ERROR] Tests run: 12, Failures: 6, Errors: 5, Skipped: 0, Time elapsed: 8.067 s <<< FAILURE! -- in cn.iocoder.wx.gateway.filter.security.TokenRevocationConsistencyTest",
+      "[ERROR] Tests run: 12, Failures: 6, Errors: 5, Skipped: 0"
+    ],
+    "buildSuccess": false,
+    "logSha256": "365ec9b3d8f2746d3a833ed3377ee81b21486e5330299e4c9d1db9f93332ed65"
+  },
+  "green": {
+    "summaries": [
+      "[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.885 s -- in cn.iocoder.wx.gateway.filter.DictionaryRouteTest",
+      "[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.216 s -- in cn.iocoder.wx.gateway.filter.ImageResourceRouteTest",
+      "[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.479 s -- in cn.iocoder.wx.gateway.filter.security.TokenAuthenticationFilterTest",
+      "[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.386 s -- in cn.iocoder.wx.gateway.filter.security.TokenRevocationConsistencyTest",
+      "[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0"
+    ],
+    "buildSuccess": true,
+    "logSha256": "f326d1ce8b8d7a5153d80ddc5d5eaac9608a46c97bb4ff8c5d1f6e89375c19f9"
+  },
+  "syntaxChecked": [
+    "deploy/test148/gateway-auth-deploy.py",
+    "deploy/test148/verify-gateway-auth.py",
+    "docs/evidence/gateway-auth-20261118/auth-fixture.py",
+    "docs/evidence/gateway-auth-20261118/check-connections.py",
+    "docs/evidence/gateway-auth-20261118/finalize-gateways.py"
+  ],
+  "realAuthorityFailureInjected": false,
+  "realRollbackExercised": false
+}

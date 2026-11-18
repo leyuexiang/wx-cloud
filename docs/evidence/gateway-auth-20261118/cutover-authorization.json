@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-18",
+  "priorConstraint": "保留 Unity 使用中的 12525 网关，不重启",
+  "reviewableResultReadyBeforeQuestion": true,
+  "questionScope": "依次短暂切换 12522、12525，原活动连接会断开，失败自动回退",
+  "userAnswer": "允许短暂切换两个正式网关",
+  "performedOrder": [
+    12522,
+    12525
+  ]
+}

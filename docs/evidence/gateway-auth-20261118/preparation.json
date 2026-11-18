@@ -1,0 +1,10 @@
+{
+  "initialPreparationStopped": true,
+  "exception": "AssertionError",
+  "reason": "original data08 probe points at main 12522; main probe uses environment variable",
+  "candidateCreatedAtFailure": false,
+  "businessResourcesCreatedAtFailure": false,
+  "packageAndPrivateSnapshotRetainedAndVerifiedBeforeContinue": true,
+  "candidateProbesChangedToOwnLoopbackPorts": true,
+  "formalProbesChangedToOwnPorts": true
+}

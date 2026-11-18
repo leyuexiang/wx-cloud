@@ -1,0 +1,50 @@
+{
+  "tenantId": 1276677,
+  "candidatePorts": [
+    49525,
+    49522
+  ],
+  "formalGatewaysChanged": false,
+  "cases": [
+    {
+      "action": "logout",
+      "createdUserId": 1276843,
+      "bothNodesWarmed": true,
+      "postRevocationCodes": [
+        401,
+        401
+      ],
+      "wrongTenantRejected": true,
+      "oldRefreshRejected": true,
+      "refreshBusinessCode": 400,
+      "repeatLogoutSucceeded": true,
+      "unchangedFormalGatewayOldTokenCode": 200
+    },
+    {
+      "action": "administratorRevoke",
+      "createdUserId": 1276844,
+      "bothNodesWarmed": true,
+      "postRevocationCodes": [
+        401,
+        401
+      ],
+      "wrongTenantRejected": true,
+      "oldRefreshRejected": true,
+      "refreshBusinessCode": 400,
+      "repeatLogoutSucceeded": true,
+      "unchangedFormalGatewayOldTokenCode": 200
+    }
+  ],
+  "latencySmoke": {
+    "location": "test server loopback",
+    "requests": 100,
+    "concurrency": 4,
+    "wallSeconds": 0.348,
+    "p50Ms": 13.096,
+    "p95Ms": 17.605,
+    "maxMs": 19.628,
+    "failed": 0,
+    "productionCapacityClaim": false
+  },
+  "passed": true
+}
