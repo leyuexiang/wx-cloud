@@ -1,0 +1,174 @@
+{
+  "target": "main",
+  "formal": true,
+  "port": 12522,
+  "database": "wx_editor",
+  "checks": [
+    {
+      "name": "super_admin真实登录",
+      "passed": true
+    },
+    {
+      "name": "tenant_admin真实登录",
+      "passed": true
+    },
+    {
+      "name": "viewer真实登录",
+      "passed": true
+    },
+    {
+      "name": "匿名模型分页拒绝",
+      "passed": true
+    },
+    {
+      "name": "只读角色新增拒绝",
+      "passed": true
+    },
+    {
+      "name": "使用现有启用模型分类",
+      "passed": true
+    },
+    {
+      "name": "真实模型上传受理",
+      "passed": true
+    },
+    {
+      "name": "小数分金额拒绝",
+      "passed": true
+    },
+    {
+      "name": "文档新增成功且数据为空",
+      "passed": true
+    },
+    {
+      "name": "新增实际落库且编号有效",
+      "passed": true
+    },
+    {
+      "name": "相同模型表单可重试",
+      "passed": true
+    },
+    {
+      "name": "根级分页及全部筛选有效",
+      "passed": true
+    },
+    {
+      "name": "详情编号及元值符合契约",
+      "passed": true
+    },
+    {
+      "name": "详情与分页采用十六字段白名单",
+      "passed": true
+    },
+    {
+      "name": "操作编号和时间使用参考字符串格式",
+      "passed": true
+    },
+    {
+      "name": "操作人名称来自真实系统账号",
+      "passed": true
+    },
+    {
+      "name": "文件详情仅含五个业务字段",
+      "passed": true
+    },
+    {
+      "name": "文件相对路径属于真实冻结前缀",
+      "passed": true
+    },
+    {
+      "name": "原受控下载接口继续签发有效地址",
+      "passed": true
+    },
+    {
+      "name": "私有预览真实回读为模型",
+      "passed": true
+    },
+    {
+      "name": "资源详情投影可回读",
+      "passed": true
+    },
+    {
+      "name": "同租户其他账号不可读个人模型",
+      "passed": true
+    },
+    {
+      "name": "其他租户不可读个人模型",
+      "passed": true
+    },
+    {
+      "name": "受管模型下线返回空数据",
+      "passed": true
+    },
+    {
+      "name": "同状态重试保留审计",
+      "passed": true
+    },
+    {
+      "name": "只读角色无法修改个人状态",
+      "passed": true
+    },
+    {
+      "name": "其他租户无法修改个人状态",
+      "passed": true
+    },
+    {
+      "name": "非法状态拒绝",
+      "passed": true
+    },
+    {
+      "name": "编辑成功且数据为空",
+      "passed": true
+    },
+    {
+      "name": "编辑字段及下线状态真实回读",
+      "passed": true
+    },
+    {
+      "name": "真实模型上传受理",
+      "passed": true
+    },
+    {
+      "name": "新文件编辑保持目录编号及下线状态",
+      "passed": true
+    },
+    {
+      "name": "受管模型重新上线",
+      "passed": true
+    },
+    {
+      "name": "删除成功且数据为空",
+      "passed": true
+    },
+    {
+      "name": "删除后详情不可读",
+      "passed": true
+    },
+    {
+      "name": "已删除模型无法上线",
+      "passed": true
+    },
+    {
+      "name": "真实模型上传受理",
+      "passed": true
+    },
+    {
+      "name": "既有网页保存返回导入回执",
+      "passed": true
+    },
+    {
+      "name": "系统模型跨租户可读",
+      "passed": true
+    },
+    {
+      "name": "租户账号无法上下线系统目录",
+      "passed": true
+    },
+    {
+      "name": "平台账号可下线系统目录",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "cleaned": true
+}

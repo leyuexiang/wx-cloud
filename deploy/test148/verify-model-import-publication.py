@@ -228,8 +228,16 @@ def run(stage_path, role, output, simple_upload=False, resource_belong=None):
             prefixes.add('resources/model-imports/' + operation + '/')
         try:
             if resource_id:
-                saved = json.loads(sql("SELECT JSON_OBJECT('revision',current_revision,'state',content_state,'deleted',del_flag) FROM `"
+                saved = json.loads(sql("SELECT JSON_OBJECT('revision',current_revision,'state',content_state,'deleted',del_flag,"
+                                       "'scope',resource_scope,'owner',tenant_id) FROM `"
                                        + clone + "`.wx_3d_resource WHERE id=" + resource_id + ';'))
+                # 资源由本轮独占创建，核对归属后回收整个资源前缀，覆盖新旧正式路径及失败尝试。
+                scope, owner = saved['scope'], str(saved['owner'])
+                if (not re.fullmatch(r'[1-9][0-9]{0,18}', resource_id)
+                        or not ((scope == 'GLOBAL_SYSTEM' and owner == '0')
+                                or (scope == 'TENANT_SHARED' and owner == str(actor['tenantId'])))):
+                    raise RuntimeError('测试模型资源归属无法核实')
+                prefixes.add('resources/' + scope + '/' + owner + '/' + resource_id + '/')
                 if saved['state'] == 'READY' and saved['deleted'] == '0':
                     deletion = str(uuid.uuid4())
                     accepted = request('/admin-api/dim3d/resource-operations', {'operationId': deletion, 'operationType': 'DELETE',

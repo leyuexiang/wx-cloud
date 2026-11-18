@@ -69,7 +69,9 @@ POST /model-imports/{operationId}/publish 在 PUBLISHING 固定一次目录输�
 
 新建目录上线，替换保留目录编号及上下线状态。封面归属变更、计费、目录、修订及回执共同提交。旧请求省略新增字段时继续适用原行为，旧受管目录的省略描述也保全。
 
-受控工作线程要求配置与目标应用版本一致的 appCompatibility，重新核验固定 ZIP，并按已校验文件计划保存模型文件和主清单。每次尝试使用独立冻结前缀。最终数据库事务按资源、操作、任务顺序加锁，校验租约、取消、权限及预期修订。写入资源修订、目录 resource_id、原提交回执和任务状态后同时提交。临时存储故障等待租约到期复用固定产物；固定产物损坏停止。受管目录的 model_file_id 为空，历史目录继续保留原文件编号。
+受控工作线程要求配置与目标应用版本一致的 appCompatibility，重新核验固定 ZIP，并按已校验文件计划保存模型文件和主清单。每次尝试使用独立内容版本前缀。最终数据库事务按资源、操作、任务顺序加锁，校验租约、取消、权限及预期修订。写入资源修订、目录 resource_id、原提交回执和任务状态后同时提交。临时存储故障等待租约到期复用固定产物；固定产物损坏停止。受管目录的 model_file_id 为空，历史目录继续保留原文件编号。
+
+2026-11-18 MODEL-13 简化普通模型新发布内容前缀为 `resources/{resourceScope}/{tenantId}/{resourceId}/{内容版本标识}/`，版本标识复用服务端当前发布尝试编号。主清单、模型入口及依赖成员共同位于该目录，路径按可信操作归属生成。重试重新领取的版本标识与原尝试隔离，操作记录与内容修订继续由数据库关联。历史已提交路径按原指针及快照读取；正式路径简化的本次验证及发布状态见 MODEL-13 台账。
 
 内部轮询要求 dim3d.model-import.enabled 和 dim3d.model-import.worker-enabled 同时开启，两个开关默认关闭。部署配置提供目标应用版本对应的 dim3d.model-import.app-compatibility 与内部转换地址。新增上线先验收实际存储、转换、账号与归属记录和目录保存，运行端加载按 MODEL-07 独立验收。
 
@@ -98,7 +100,7 @@ POST /model-imports/{operationId}/publish 在 PUBLISHING 固定一次目录输�
 
 | 接口 | 本地调整及核对结果 | 与参考合同的剩余差异 |
 | --- | --- | --- |
-| `GET /admin-api/dim3d/model/info/{id}` | MODEL-10 响应采用参考的 16 个目录字段，统一使用字符串 `modelFileId`；补充操作人名称及格式化时间 | 受管文件编号为接口投影，数据库仍通过独立 `resource_id` 关联；路径与签名地址从文件资源详情获取；本次收敛已部署并通过接口验收 |
+| `GET /admin-api/dim3d/model/info/{id}` | MODEL-10 响应采用参考的 16 个目录字段，统一使用字符串 `modelFileId`；补充操作人名称及格式化时间 | 受管文件编号为接口投影，数据库仍通过独立 `resource_id` 关联；路径从文件资源详情获取，私有下载沿用资源合同；MODEL-10 收敛已部署并通过接口验收 |
 | `GET /admin-api/dim3d/model/page` | 返回根级 `code/msg/rows/total`，支持文档筛选、排序、字符串文件编号及 `priceYuan` | 排序使用固定单列白名单及 `asc/desc`，沿用单页 200 条上限，列表不读取模型清单 |
 | `POST /admin-api/dim3d/model/add` | 必填 `modelName/category/resourceBelong/isPaid/modelFileId`；历史文件归属与目录共同提交，受管文件沿用原上传发布事务；成功 `data=null` | 归属与付费状态缺失即拒绝；系统落公共租户 0，个人落当前账号；相同受管文件及表单重复保存返回原提交结果 |
 | `PUT /admin-api/dim3d/model/edit/{id}` | 使用相同必填表单，支持受管元数据编辑及新文件替换；目录编号和原上下线状态保留；成功 `data=null` | 描述或封面省略时保留锁定现值，显式空值清空；新受管文件的最终发布与目录改绑同事务，原资源及发布快照保留 |
@@ -107,9 +109,9 @@ POST /model-imports/{operationId}/publish 在 PUBLISHING 固定一次目录输�
 
 用户最新要求已将前轮核对发现的五类接口差异收口。MODEL-10 详情和列表采用独立响应对象，字段固定为 `id/modelName/modelDesc/category/resourceBelong/isPaid/priceYuan/coverImageId/modelFileId/status/createBy/createByName/createTime/updateBy/updateByName/updateTime`。编号和元价格均以字符串返回，价格保留两位小数，时间采用 `yyyy-MM-dd HH:mm:ss`，名称复用系统用户批量查询，缺失或当前范围未返回时保留空值。写入 `price` 使用整数分，FREE 允许零或省略并归零，PAID 必须为 1～2147483647 的整数分，系统和个人遵循同一规则。文件预览签名沿用当前 300 秒有效期，完整签名地址不写入业务记录或验收日志。
 
-单次受管文件资源详情按需读取并校验一份清单，签发模型入口，文件固定在提交快照对应的前缀。目录详情只读取已授权元数据，文件签发复用已有快照校验。当前新增输出为二进制模型格式（GLB）；文本模型格式（glTF）的外部贴图和缓冲依赖仍通过既有成员签发读取，入口地址验证不等于完整浏览器加载验收。
+单次受管文件资源详情按需读取并校验一份清单，提取模型入口相对路径，文件固定在提交快照对应的前缀。目录详情只读取已授权元数据，文件签发复用已有快照校验。当前新增输出为二进制模型格式（GLB）；文本模型格式（glTF）的外部贴图和缓冲依赖仍通过既有成员签发读取，入口地址验证不等于完整浏览器加载验收。
 
-参考文档第 5.4 节的 `GET /admin-api/dim3d/resource/info/{id}` 已补充控制器，复用当前账号的目录可见范围，返回 `id/resourceName/resourceType/assetName/resourceRelativePath`，私有文件同时返回 `modelFileUrl/downloadExpiresAt`。受管地址的相对路径来自真实冻结前缀与清单入口，前端应优先读取签名地址；历史 `/amm/` 根地址仍需与实际部署映射一致，完整页面及真实存储验收另记。
+参考文档第 5.4 节的 `GET /admin-api/dim3d/resource/info/{id}` 复用当前账号的目录可见范围。MODEL-12 固定返回 `id/resourceName/resourceType/assetName/resourceRelativePath`，唯一的模型路径字段为相对路径，移除 `modelFileUrl/downloadExpiresAt` 并跳过下载签名。受管相对路径来自真实冻结前缀与已校验清单入口，历史路径来自同归属有效模型文件。私有下载继续使用既有资源当前修订及固定修订文件接口；历史 `/amm/` 根地址需与实际部署映射一致，页面加载另行验收。本次文件详情收敛已部署并通过接口验收，MODEL-10/11 已部署事实保留。
 
 文档模型表单成功返回空数据。发布兼容保留当前网页明确携带 `operationId/resourceId` 且不含 `modelFileId` 的原异步保存形态，此分支继续返回原导入状态并通过原接口查询最终提交，沿用原操作者和资源关联校验。两种形态以实际输入区分，后续页面可迁移到完整模型表单。完整表单遇到其他执行器正在发布时返回可重试 `503`，未转换完成返回 `409`，成功只在目录和原提交完成后返回。受管上传原开关仍生效。
 

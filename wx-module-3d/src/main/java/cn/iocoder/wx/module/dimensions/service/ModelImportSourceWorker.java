@@ -270,7 +270,10 @@ public class ModelImportSourceWorker implements AutoCloseable {
                 if(rows==null)return null;
                 var op=rows.get(0);var task=rows.get(1);
                 String assetName=jdbc.queryForObject("SELECT asset_name FROM wx_3d_resource WHERE id=?",String.class,lease.resourceId());
-                String prefix=op.get("storage_prefix")+"frozen/"+lease.attemptId()+"/";
+                // 正式内容按可信归属直接落入资源下的一层版本目录，发布尝试编号保证重试与迟到写入隔离。
+                // 操作及租约关联仍由数据库记录，历史前缀继续按已提交快照读取。
+                String prefix = "resources/" + op.get("resource_scope") + "/" + op.get("tenant_id") + "/"
+                        + lease.resourceId() + "/" + lease.attemptId() + "/";
                 return new PublicationInput((String)task.get("target_format"),prefix,
                         readObject(task.get("artifact_descriptor")),readObject(task.get("publish_descriptor")),assetName,operator(op));
             });

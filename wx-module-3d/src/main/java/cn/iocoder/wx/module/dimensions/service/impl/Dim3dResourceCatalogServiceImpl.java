@@ -66,54 +66,46 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
 
     @Override public Long createModel(Dim3dModel model) { return models.create(model); }
     @Override public void updateModel(Long id, Dim3dModel model) { models.update(id, model); }
-    /** 目录详情只读取授权元数据；模型路径与签名由文件资源详情按需查询。 */
+    /** 目录详情只读取授权元数据；文件资源详情按需提供模型相对路径。 */
     @Override public Dim3dModel getModel(Long id) {
         return findModel(id);
     }
 
-    /** 在完成目录授权的对象上补充文件投影，内部数据库关联不受响应字段影响。 */
-    private Dim3dModel modelDetails(Dim3dModel model) {
-        if (model.getResourceId() != null) {
-            var preview = artResources.modelPreview(model.getResourceId().toString());
-            model.setModelFileUrl(preview.get("modelFileUrl"));
-            model.setDownloadExpiresAt(preview.get("downloadExpiresAt"));
-            model.setResourceRelativePath(preview.get("resourceRelativePath"));
-            model.setModelFileId(model.getResourceId());
-        } else if (model.getModelFileId() != null) {
-            // 历史文件编号只关联同归属租户的模型转换记录，不能用兄弟资源或任意文件地址补全。
-            var paths = jdbc.queryForList("SELECT resource_relative_path FROM wx_3d_resource"
-                    + " WHERE id=? AND tenant_id=? AND resource_type='MODEL' AND del_flag='0' AND resource_scope IS NULL",
-                    String.class, model.getModelFileId(), model.getTenantId());
-            if (paths.size() != 1 || !StringUtils.hasText(paths.get(0))) {
-                throw new ServiceException(400, "模型关联资源缺少有效预览路径");
-            }
-            model.setResourceRelativePath(paths.get(0));
-        }
-        return model;
-    }
-
-    /** 同一文件可出现在多个历史目录，授权命中任一当前可见目录后仅读取一份元信息。 */
+    /**
+     * 同一文件可出现在多个历史目录，授权命中当前可见目录后仅读取一份同归属模型文件元信息。
+     * 对外仅保留相对路径，历史文件直接取库内路径，受管文件复用快照校验并跳过下载签名。
+     */
     @Override public Map<String, Object> getModelResource(Long id) {
         var actor = access.actor();
         var rows = jdbc.query("SELECT * FROM wx_3d_model WHERE (model_file_id=? OR resource_id=?) AND "
                         + MODEL_VISIBLE + " ORDER BY id LIMIT 1", MODEL_ROW,
                 id, id, Long.toString(actor.tenant()), actor.user());
         if (rows.isEmpty()) throw ServiceException.of(ErrorCodeConstants.DATA_NOT_EXIST);
-        var model = modelDetails(rows.get(0));
-        var resources = jdbc.queryForList("SELECT resource_name,resource_type,asset_name FROM wx_3d_resource"
+        var model = rows.get(0);
+        var resources = jdbc.queryForList("SELECT resource_name,resource_type,asset_name,resource_relative_path,"
+                + "resource_scope,tenant_id FROM wx_3d_resource"
                 + " WHERE id=? AND del_flag='0'", id);
-        if (resources.size() != 1 || !"MODEL".equals(resources.get(0).get("resource_type"))) {
+        if (resources.size() != 1 || !"MODEL".equals(resources.get(0).get("resource_type"))
+                || !Objects.equals(model.getTenantId(), resources.get(0).get("tenant_id"))) {
             throw ServiceException.of(ErrorCodeConstants.DATA_NOT_EXIST);
         }
         var resource = resources.get(0);
+        String relativePath;
+        if (model.getResourceId() != null) {
+            relativePath = artResources.modelRelativePath(id.toString());
+        } else {
+            // 历史编号不能关联受管资源，也不能借空路径退回任意下载地址；两类路径均来自真实文件记录。
+            relativePath = (String) resource.get("resource_relative_path");
+            if (resource.get("resource_scope") != null || !StringUtils.hasText(relativePath)) {
+                throw new ServiceException(400, "模型关联资源缺少有效预览路径");
+            }
+        }
         Map<String, Object> result = new java.util.LinkedHashMap<>();
         result.put("id", id.toString());
         result.put("resourceName", resource.get("resource_name"));
         result.put("resourceType", resource.get("resource_type"));
         result.put("assetName", resource.get("asset_name"));
-        result.put("resourceRelativePath", model.getResourceRelativePath());
-        result.put("modelFileUrl", model.getModelFileUrl());
-        result.put("downloadExpiresAt", model.getDownloadExpiresAt());
+        result.put("resourceRelativePath", relativePath);
         return result;
     }
 

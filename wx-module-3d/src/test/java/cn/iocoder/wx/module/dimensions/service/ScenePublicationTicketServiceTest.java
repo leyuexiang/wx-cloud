@@ -109,10 +109,8 @@ class ScenePublicationTicketServiceTest {
     @Test void expiredRevokedAndUnknownTicketsCannotConsume() {
         var issued = service.issue("PUB-1", 300);
         String token = issued.get("token").toString();
-        // 明确早于数据库时钟，避免秒精度列舍入把当前时刻变成短暂的未来而造成偶发失败。
-        var expired = jdbc.queryForObject("SELECT CURRENT_TIMESTAMP", java.sql.Timestamp.class)
-                .toLocalDateTime().minusMinutes(1);
-        jdbc.update("UPDATE wx_3d_scene_publication_ticket SET expires_time=?", java.sql.Timestamp.valueOf(expired));
+        // 使用明确的过去时间，避免秒级日期列将当前时间舍入到未来一秒，造成过期断言偶发失败。
+        jdbc.update("UPDATE wx_3d_scene_publication_ticket SET expires_time='2000-01-01 00:00:00'");
         assertEquals(401, assertThrows(ServiceException.class, () -> service.consumeSnapshot(token)).getCode());
         jdbc.update("UPDATE wx_3d_scene_publication_ticket SET expires_time='2099-01-01 00:00:00',status='REVOKED'");
         assertEquals(401, assertThrows(ServiceException.class, () -> service.consumeSnapshot(token)).getCode());

@@ -106,6 +106,17 @@ def verify(target, formal):
         wait(operation, 'PUBLISHING', actor)
         return operation, resource
 
+    def compact_binding(resource, operation, scope, owner):
+        """以数据库可信归属及当前发布尝试核对新布局，不从客户端拼接可信身份。"""
+        value = json.loads(sql("SELECT JSON_OBJECT('prefix',r.storage_prefix,'attempt',i.attempt_id,"
+            "'scope',r.resource_scope,'owner',r.tenant_id) FROM `" + database
+            + "`.wx_3d_resource r JOIN `" + database + "`.wx_3d_resource_import i ON i.resource_id=r.id"
+            + " WHERE r.id=" + resource + " AND i.operation_id='" + operation + "';"))
+        expected = 'resources/' + scope + '/' + str(owner) + '/' + resource + '/' + value['attempt'] + '/'
+        check('正式内容使用可信归属和单层唯一版本目录', value['prefix'] == expected
+              and value['scope'] == scope and str(value['owner']) == str(owner))
+        return expected
+
     try:
         for role in ('super_admin', 'tenant_admin', 'viewer'):
             actor = actors[role]
@@ -153,11 +164,52 @@ def verify(target, formal):
         check('操作人名称来自真实系统账号', bool(nickname)
               and detail['createByName'] == nickname and detail['updateByName'] == nickname)
         preview = request('/admin-api/dim3d/resource/info/' + resource, actor=actor)
-        check('文件详情包含预览签名和到期时间', preview.get('code') == 200
-              and bool(preview['data'].get('modelFileUrl')) and bool(preview['data'].get('downloadExpiresAt')))
-        with SECURE.open(preview['data']['modelFileUrl'], timeout=30) as response:
+        check('文件详情仅含五个业务字段', preview.get('code') == 200 and set(preview['data']) == {
+            'id', 'resourceName', 'resourceType', 'assetName', 'resourceRelativePath'})
+        relative = preview['data']['resourceRelativePath']
+        binding = json.loads(sql("SELECT JSON_OBJECT('prefix',storage_prefix,'revision',current_revision,'hash',content_hash) "
+                                 'FROM `' + database + '`.wx_3d_resource WHERE id=' + resource + ';'))
+        prefix = compact_binding(resource, operation, 'TENANT_SHARED', actor['tenantId'])
+        original_binding = binding.copy()
+        check('文件相对路径属于真实冻结前缀', isinstance(relative, str) and relative.startswith(prefix)
+              and relative.endswith('.glb') and '://' not in relative and '?' not in relative)
+        # 相对路径接口只查询元信息，实际私有下载继续走原修订与摘要约束的受控文件接口。
+        signed = request('/admin-api/dim3d/resources/' + resource + '/file?' + urllib.parse.urlencode({
+            'revision': str(binding['revision']), 'contentHash': binding['hash'], 'path': relative[len(prefix):]}), actor=actor)
+        check('原受控下载接口继续签发有效地址', signed.get('code') == 200
+              and bool(signed['data'].get('fileUrl')) and bool(signed['data'].get('downloadExpiresAt')))
+        with SECURE.open(signed['data']['fileUrl'], timeout=30) as response:
             model = response.read(8 * 1024 * 1024)
             check('私有预览真实回读为模型', response.status == 200 and model[:4] == b'glTF')
+        if not formal:
+            # 仅在空副本将本次独占样例投影为旧布局，真实复制对象并走原授权接口，随后恢复新指针。
+            s3 = load('model13_legacy_s3', 'art-s3-test-support.py')
+            legacy_prefix = 'resources/model-imports/' + operation + '/frozen/' + prefix.rstrip('/').split('/')[-1] + '/'
+            status, listing = s3.request('GET', '/wx-art-test148', query=urllib.parse.urlencode({'list-type': '2', 'prefix': prefix}))
+            tree = ET.fromstring(listing)
+            keys = [node.text for node in tree.findall('{*}Contents/{*}Key')]
+            check('旧布局样例来源仅限本次新版本', status == 200 and 0 < len(keys) <= 128
+                  and tree.findtext('{*}IsTruncated') == 'false' and all(key.startswith(prefix) for key in keys))
+            for key in keys:
+                status, content = s3.request('GET', '/wx-art-test148/' + key)
+                if status != 200 or s3.request('PUT', '/wx-art-test148/' + legacy_prefix + key[len(prefix):], content)[0] != 200:
+                    raise RuntimeError('旧布局样例对象准备失败')
+            def set_prefix(value):
+                sql("UPDATE `" + database + "`.wx_3d_resource SET storage_prefix='" + value + "' WHERE id=" + resource + ";"
+                    "UPDATE `" + database + "`.wx_3d_resource_operation SET after_snapshot=JSON_SET(after_snapshot,"
+                    "'$.resource.storage_prefix','" + value + "') WHERE id='" + operation + "' AND status='COMMITTED';")
+            try:
+                set_prefix(legacy_prefix)
+                old = request('/admin-api/dim3d/resource/info/' + resource, actor=actor)
+                check('历史冻结路径按原指针回读', old.get('code') == 200
+                      and old['data']['resourceRelativePath'] == legacy_prefix + relative[len(prefix):])
+                old_file = request('/admin-api/dim3d/resources/' + resource + '/file?' + urllib.parse.urlencode({
+                    'revision': str(binding['revision']), 'contentHash': binding['hash'], 'path': relative[len(prefix):]}), actor=actor)
+                check('历史布局固定修订通过原授权签发', old_file.get('code') == 200)
+                with SECURE.open(old_file['data']['fileUrl'], timeout=30) as response:
+                    check('历史布局真实模型仍可下载', response.read(4) == b'glTF')
+            finally:
+                set_prefix(prefix)
         check('资源详情投影可回读', request('/admin-api/dim3d/resource/info/' + resource, actor=actor).get('code') == 200)
         denied = request('/admin-api/dim3d/model/info/' + directory, actor=actors['viewer'])
         check('同租户其他账号不可读个人模型', denied.get('code') != 200)
@@ -187,6 +239,14 @@ def verify(target, formal):
         check('新文件编辑保持目录编号及下线状态', response.get('code') == 200
               and replaced['modelFileId'] == new_resource and replaced['status'] == 'OFFLINE')
         wait(new_operation, 'COMMITTED', actor)
+        compact_binding(new_resource, new_operation, 'TENANT_SHARED', actor['tenantId'])
+        # 目录改绑后原资源及其固定修订仍可读，避免路径简化破坏旧引用。
+        pinned = request('/admin-api/dim3d/resources/' + resource + '/file?' + urllib.parse.urlencode({
+            'revision': str(original_binding['revision']), 'contentHash': original_binding['hash'],
+            'path': relative[len(prefix):]}), actor=actor)
+        check('目录换文件后原固定修订仍可签发', pinned.get('code') == 200)
+        with SECURE.open(pinned['data']['fileUrl'], timeout=30) as response:
+            check('原固定修订模型仍真实可读', response.read(4) == b'glTF')
         response = request('/admin-api/dim3d/model/ONLINE/' + directory, method='PUT', actor=actor)
         check('受管模型重新上线', response.get('code') == 200 and response.get('data') is None
               and request('/admin-api/dim3d/model/info/' + directory, actor=actor)['data']['status'] == 'ONLINE')
@@ -212,6 +272,7 @@ def verify(target, formal):
         check('既有网页保存返回导入回执', response.get('code') == 200
               and isinstance(response.get('data'), dict) and response['data'].get('operationId') == operation)
         wait(operation, 'COMMITTED', administrator)
+        compact_binding(resource, operation, 'GLOBAL_SYSTEM', 0)
         legacy_id = sql('SELECT id FROM `' + database + '`.wx_3d_model WHERE resource_id=' + resource + " AND del_flag='0';")
         directories.append((legacy_id, administrator))
         check('系统模型跨租户可读', request('/admin-api/dim3d/model/info/' + legacy_id, actor=actor).get('code') == 200)
@@ -230,15 +291,30 @@ def verify(target, formal):
                 response = request('/admin-api/dim3d/model/remove/' + directory, method='DELETE', actor=actor)
                 cleaned = response.get('code') == 200 and cleaned
             for resource, actor in resources:
-                value = sql('SELECT CONCAT(current_revision,\':\',content_state,\':\',del_flag) FROM `'
-                            + database + '`.wx_3d_resource WHERE id=' + resource + ';')
-                revision, state, deleted = value.split(':')
-                if state == 'READY' and deleted == '0':
+                # 只清理本次上传返回的独占资源；先核对可信归属，再确认业务删除或取消已完成。
+                saved = json.loads(sql("SELECT JSON_OBJECT('revision',current_revision,'state',content_state,"
+                    "'deleted',del_flag,'scope',resource_scope,'owner',tenant_id) FROM `"
+                    + database + "`.wx_3d_resource WHERE id=" + resource + ';'))
+                scope, owner = saved['scope'], str(saved['owner'])
+                if (not re.fullmatch(r'[1-9][0-9]{0,18}', resource)
+                        or not ((scope == 'GLOBAL_SYSTEM' and owner == '0')
+                                or (scope == 'TENANT_SHARED' and owner == str(actor['tenantId'])))):
+                    raise RuntimeError('测试资源归属无法核实')
+                if saved['state'] == 'READY' and saved['deleted'] == '0':
                     deletion = str(uuid.uuid4())
                     request('/admin-api/dim3d/resource-operations', {'operationId': deletion,
-                        'operationType': 'DELETE', 'resourceId': resource, 'expectedRevision': revision}, 'POST', actor)
+                        'operationType': 'DELETE', 'resourceId': resource,
+                        'expectedRevision': str(saved['revision'])}, 'POST', actor)
                     response = request('/admin-api/dim3d/resource-operations/' + deletion + '/commit', {}, 'POST', actor)
-                    cleaned = response.get('code') == 200 and cleaned
+                    if response.get('code') != 200:
+                        raise RuntimeError('测试资源业务删除失败')
+                for operation, identity in operations:
+                    if identity is actor:
+                        request('/admin-api/dim3d/resource-operations/' + operation + '/cancel', {}, 'POST', actor)
+                deleted = sql('SELECT del_flag FROM `' + database + '`.wx_3d_resource WHERE id=' + resource + ';')
+                if deleted != '1':
+                    raise RuntimeError('测试资源未完成业务删除')
+                prefixes.add('resources/' + scope + '/' + owner + '/' + resource + '/')
             for operation, actor in operations:
                 request('/admin-api/dim3d/resource-operations/' + operation + '/cancel', {}, 'POST', actor)
                 rows = sql('SELECT storage_prefix FROM `' + database + "`.wx_3d_resource_operation WHERE id='" + operation + "';")
@@ -254,6 +330,10 @@ def verify(target, formal):
                     raise RuntimeError('测试对象清理范围无效')
                 for key in keys:
                     cleaned = s3.request('DELETE', '/wx-art-test148/' + key)[0] in (200, 204) and cleaned
+                # 删除后重新列举，明确证明新目录及旧操作目录均无对象残留。
+                status, data = s3.request('GET', '/wx-art-test148', query=urllib.parse.urlencode({'list-type': '2', 'prefix': prefix}))
+                remaining = ET.fromstring(data)
+                cleaned = status == 200 and not remaining.findall('{*}Contents') and cleaned
             result['cleaned'] = cleaned
         except Exception:
             result['cleanupFailed'] = True
