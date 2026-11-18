@@ -19,6 +19,7 @@ class Data08RetentionAuditTest(unittest.TestCase):
             "wx_3d_scene": [["10", "2", "2", "0", "NULL"], ["20", "2", "1", "1", "NULL"]],
             "wx_3d_scene_revision": [["2", "10", "1", "req-1"], ["2", "10", "2", "req-2"], ["2", "20", "1", "req-3"]],
             "wx_3d_scene_template": [["2", "20", "ONLINE", "0"]],
+            "wx_3d_scene_publication": [["2", "10", "1"]],
         }
 
         def fake_mysql(_args, sql):
@@ -28,6 +29,8 @@ class Data08RetentionAuditTest(unittest.TestCase):
                 return responses["wx_3d_scene_revision"]
             if "FROM wx_3d_scene_template" in sql:
                 return responses["wx_3d_scene_template"]
+            if "FROM wx_3d_scene_publication" in sql:
+                return responses["wx_3d_scene_publication"]
             if "FROM wx_3d_scene" in sql:
                 return responses["wx_3d_scene"]
             return [["0"]]
@@ -40,6 +43,8 @@ class Data08RetentionAuditTest(unittest.TestCase):
         self.assertIn("template_first_revision", report["rows"][2]["reasons"])
         self.assertIn("deleted_scene_audit_window", report["rows"][2]["reasons"])
         self.assertIn("request_id_expiry_unmodeled", report["rows"][0]["reasons"])
+        self.assertIn("publication_reference", report["rows"][0]["reasons"])
+        self.assertIn("publication_reference_checked_none", report["rows"][1]["reasons"])
 
 
 if __name__ == "__main__":

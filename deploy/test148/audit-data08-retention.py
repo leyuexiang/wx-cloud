@@ -49,6 +49,11 @@ def audit(args: argparse.Namespace) -> dict:
                 template_first_revisions.add((int(tenant_id), int(scene_id), 1))
 
     publication_table_available = tables["wx_3d_scene_publication"]
+    publication_refs = set()
+    if publication_table_available:
+        # 发布历史本身仍是不可变审计依据；无论当前指针是否撤销，都不能回收对应场景修订。
+        publication_rows = VERIFY.mysql(args, "SELECT tenant_id,scene_id,revision_no FROM wx_3d_scene_publication")
+        publication_refs = {(int(tenant_id), int(scene_id), int(revision_no)) for tenant_id, scene_id, revision_no in publication_rows}
     bookmark_table_available = tables["wx_3d_scene_bookmark"]
     rows = []
     reason_counts = {}
@@ -65,7 +70,10 @@ def audit(args: argparse.Namespace) -> dict:
         if state["deleted"]:
             reasons.append("deleted_scene_audit_window")
         if publication_table_available:
-            reasons.append("publication_reference_requires_query")
+            if (int(tenant_id), int(scene_id), int(revision_no)) in publication_refs:
+                reasons.append("publication_reference")
+            else:
+                reasons.append("publication_reference_checked_none")
         else:
             reasons.append("publication_reference_table_absent")
         if bookmark_table_available:
@@ -85,6 +93,7 @@ def audit(args: argparse.Namespace) -> dict:
         "revisionCount": len(revisions),
         "tables": tables,
         "reasonCounts": reason_counts,
+        "publicationReferenceCount": len(publication_refs),
         "reclaimCandidateCount": 0,
         "rows": rows,
         "decision": "当前仅输出引用审计，不允许据此直接删除修订或共享正文",

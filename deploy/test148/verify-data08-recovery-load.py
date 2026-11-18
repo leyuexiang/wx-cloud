@@ -92,7 +92,12 @@ def main():
             "隔离数据库或开关门禁未通过")
     require(VERIFY.mysql(DB_ARGS, "SELECT COUNT(*) FROM wx_3d_scene WHERE deleted=0 AND lock_expire>CURRENT_TIMESTAMP")[0][0] == "0",
             "隔离库存在活动编辑租约")
-    require(ROUNDTRIP.check(DB_ARGS)["passed"], "演练前全量回读不一致")
+    preflight = ROUNDTRIP.check(DB_ARGS)
+    require(preflight["passed"], "演练前全量回读不一致：" + json.dumps(
+        {key: preflight.get(key) for key in (
+            "revisionCount", "contentRowCount", "missingReferences", "tenantIsolationViolations",
+            "schemaMismatches", "hashMismatches", "byteMismatches", "packageMismatches", "errorIdentities"
+        )}, ensure_ascii=False))
     run_id = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
     folder = Path("/opt/wx/editor-test148/backups") / ("data08-recovery-" + run_id)
     folder.mkdir(mode=0o700)
