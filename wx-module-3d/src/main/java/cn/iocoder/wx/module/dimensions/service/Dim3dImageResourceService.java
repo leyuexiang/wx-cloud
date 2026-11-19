@@ -191,6 +191,28 @@ public class Dim3dImageResourceService {
         updateFileBinding(id, actor, belong);
     }
 
+    /** 原封面随目录迁移前核对旧范围。拒绝改动其他模型、图标及模板仍在使用的封面。 */
+    void bindModelCover(long id, ArtResourceAccess.Actor actor, String belong, String previousBelong, Long directoryId) {
+        if (previousBelong == null || previousBelong.equals(belong)) {
+            bindModelCover(id, actor, belong, previousBelong != null);
+            return;
+        }
+        requireModelCover(fileForBinding(id, actor, previousBelong, true, true));
+        String previousTenant = owner(actor, previousBelong);
+        // 使用当前锁定读，避免发布事务在等待封面行锁前建立的旧快照漏掉并发提交的关联。
+        // 模型和图标的文件归属与目录租户一致。文件型模板可引用公共封面，需跨租户检查。
+        boolean shared = !jdbc.queryForList("SELECT id FROM wx_3d_model WHERE tenant_id=? AND cover_image_id=?"
+                        + " AND id<>? AND del_flag='0' LIMIT 1 FOR UPDATE", previousTenant, id, directoryId).isEmpty()
+                || !jdbc.queryForList("SELECT id FROM wx_3d_icon WHERE tenant_id=? AND icon_file_id=?"
+                        + " AND del_flag='0' LIMIT 1 FOR UPDATE", previousTenant, id).isEmpty()
+                || !jdbc.queryForList("SELECT id FROM wx_3d_template WHERE cover_image_id=?"
+                        + " AND del_flag='0' LIMIT 1 FOR UPDATE", id).isEmpty();
+        if (shared) {
+            throw new ServiceException(409, "模型封面仍被其他目录使用，请更换或移除封面");
+        }
+        updateFileBinding(id, actor, belong);
+    }
+
     /** 图片目录和模型封面共用上传者、租户及保留引用判断，各读取只访问一条文件记录。 */
     private Map<String, Object> fileForBinding(long id, ArtResourceAccess.Actor actor, String belong,
                                              boolean retainedReference, boolean lock) {

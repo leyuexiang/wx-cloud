@@ -37,7 +37,7 @@ def sql(statement):
     return result.stdout.decode().strip()
 
 
-def verify(target, formal, source_archive=None):
+def verify(target, formal, source_archive=None, verify_ownership=False):
     """正式验收经两个各自网关，候选直接连接回环服务；每次登录和样例均独立回收。"""
     stage = json.loads((RELEASE / 'prepared.json').read_text())['targets'][target]
     database = stage['database'] if formal else stage['clone']
@@ -292,6 +292,44 @@ def verify(target, formal, source_archive=None):
             method='PUT', actor=actor).get('code') != 200)
         response = request('/admin-api/dim3d/model/OFFLINE/' + legacy_id, method='PUT', actor=administrator)
         check('平台账号可下线系统目录', response.get('code') == 200 and response.get('data') is None)
+        if verify_ownership:
+            # 使用本轮独占的新资源。归属往返后同时核对目录、文件指针与固定内容。
+            operation, file_id = upload(administrator, 'MINE')
+            check('上传阶段只进入认证租户暂存', sql("SELECT resource_scope FROM `" + database
+                  + "`.wx_3d_resource WHERE id=" + file_id + ";") == 'TENANT_SHARED')
+            form = {'modelName': marker + '-归属', 'category': category, 'resourceBelong': 'SYSTEM',
+                    'isPaid': 'FREE', 'modelFileId': file_id}
+            response = request('/admin-api/dim3d/model/add', form, 'POST', administrator)
+            check('上传后可按保存值发布到系统目录', response.get('code') == 200 and response.get('data') is None)
+            wait(operation, 'COMMITTED', administrator)
+            public_prefix = compact_binding(file_id, operation, 'GLOBAL_SYSTEM', 0)
+            prefixes.add(public_prefix)
+            model_id = sql("SELECT id FROM `" + database + "`.wx_3d_model WHERE resource_id=" + file_id
+                           + " AND del_flag='0';")
+            check('保存返回可回读目录', bool(re.fullmatch(r'[1-9][0-9]{0,18}', model_id)))
+            directories.append((model_id, administrator))
+            detail_path = '/admin-api/dim3d/model/info/' + model_id
+            edit_path = '/admin-api/dim3d/model/edit/' + model_id
+            access_path = '/admin-api/dim3d/model/file-access/' + file_id
+            check('受管访问方式基于稳定文件编号', request(access_path, actor=administrator).get('data')
+                  == {'id': file_id, 'accessMode': 'MANAGED'})
+            private_form = {**form, 'resourceBelong': 'MINE'}
+            check('普通租户无权收回系统模型', request(edit_path, private_form, 'PUT', actor).get('code') != 200)
+            for belong, resolved_form, scope, owner, revision in (
+                    ('MINE', private_form, 'TENANT_SHARED', str(administrator['tenantId']), 2),
+                    ('SYSTEM', form, 'GLOBAL_SYSTEM', '0', 3)):
+                changed = request(edit_path, resolved_form, 'PUT', administrator)
+                check('同目录原文件保存为 ' + belong, changed.get('code') == 200 and changed.get('data') is None)
+                detail = request(detail_path, actor=administrator)['data']
+                check('归属与原编号回读一致 ' + belong, detail['resourceBelong'] == belong
+                      and detail['modelFileId'] == file_id and detail['id'] == model_id)
+                effective = json.loads(sql("SELECT JSON_OBJECT('scope',resource_scope,'owner',tenant_id,"
+                    "'revision',current_revision,'prefix',storage_prefix) FROM `" + database
+                    + "`.wx_3d_resource WHERE id=" + file_id + ";"))
+                check('资源同步归属且复用已提交对象 ' + belong, effective == {
+                    'scope': scope, 'owner': owner, 'revision': revision, 'prefix': public_prefix})
+                check('跨租户目录可见性匹配归属 ' + belong,
+                      (request(detail_path, actor=actor).get('code') == 200) == (belong == 'SYSTEM'))
         result['passed'] = True
     except Exception as error:
         result['errorType'] = type(error).__name__
@@ -366,10 +404,11 @@ if __name__ == '__main__':
     parser.add_argument('--target', choices=('main', 'data08'), required=True)
     parser.add_argument('--formal', action='store_true')
     parser.add_argument('--batch', default='model09-20261117')
+    parser.add_argument('--verify-ownership', action='store_true', help='核对保存归属及同文件双向切换')
     parser.add_argument('--source-archive', type=Path, help='以指定源包作为首个上传样例并核对归一后的入口')
     args = parser.parse_args()
     if not re.fullmatch(r'model[0-9]{2}-[0-9]{8}', args.batch):
         parser.error('批次应为模型编号及八位日期')
     prefix, stamp = args.batch.split('-')
     RELEASE = Path('/home/wx-' + prefix + '-release-' + stamp)
-    raise SystemExit(verify(args.target, args.formal, args.source_archive))
+    raise SystemExit(verify(args.target, args.formal, args.source_archive, args.verify_ownership))

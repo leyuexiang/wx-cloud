@@ -179,8 +179,7 @@ public class ArtResourceTransactionService {
         boolean creating="CREATE".equals(type);
         if(!(creating?"PENDING":"READY").equals(resource.get("content_state")))throw ServiceException.of(INVALID_OPERATION_STATE);
         var linked=jdbc.queryForList("SELECT * FROM wx_3d_model WHERE resource_id=? AND del_flag='0' FOR UPDATE",resourceId);
-        Object owner=resource.get("tenant_id");
-        if(creating?!linked.isEmpty():linked.size()!=1 || !Objects.equals(owner,linked.get(0).get("tenant_id")))
+        if(creating?!linked.isEmpty():linked.size()!=1 || !Objects.equals(resource.get("tenant_id"),linked.get(0).get("tenant_id")))
             throw ServiceException.of(INVALID_OPERATION_STATE);
         var before=snapshot(resource);
         long operator=((Number)op.get("operator_id")).longValue();
@@ -218,12 +217,17 @@ public class ArtResourceTransactionService {
             cover = null;
             if (directory.hasNonNull("coverImageId")) cover = Long.valueOf(directory.path("coverImageId").asText());
         }
-        String belong = "GLOBAL_SYSTEM".equals(resource.get("resource_scope")) ? "SYSTEM" : "MINE";
-        if (cover != null && (directory.hasNonNull("coverImageId") || redirect)) {
-            // 改绑目标保留的封面也复核目标归属，归属变更不能沿用无权公开的旧私有封面。
+        String belong = ModelImportService.targetBelong(op, directory);
+        String scope = Dim3dModelWriteService.scope(belong);
+        String owner = Dim3dModelWriteService.owner(actor, belong);
+        boolean scopeChanged = !scope.equals(resource.get("resource_scope")) || !owner.equals(resource.get("tenant_id"));
+        if (cover != null && (directory.hasNonNull("coverImageId") || redirect || scopeChanged)) {
+            // 只迁移仍由当前目录独占的原封面，新封面沿用已有上传者与范围校验。
             long coverId = ((Number) cover).longValue();
             boolean retained = previous.get("cover_image_id") instanceof Number id && id.longValue() == coverId;
-            images.bindModelCover(coverId, actor, belong, retained);
+            images.bindModelCover(coverId, actor, belong,
+                    retained ? previous.get("resource_belong").toString() : null,
+                    previous.get("id") instanceof Number id ? id.longValue() : null);
         }
         if(creating && !redirect) {
             // 目录的主键单独生成，受管模型通过资源主键关联，旧文件编号为空。
@@ -239,17 +243,53 @@ public class ArtResourceTransactionService {
                         update_time=CURRENT_TIMESTAMP WHERE id=?
                     """, resourceId, owner, belong, operator, name, category, description, paid, price, cover, operator,
                     previous.get("id"));
+        } else if (scopeChanged) {
+            jdbc.update("""
+                    UPDATE wx_3d_model SET tenant_id=?,resource_belong=?,data_user_id=?,model_name=?,category=?,
+                        model_desc=?,is_paid=?,price=?,cover_image_id=?,update_by=?,update_time=CURRENT_TIMESTAMP WHERE id=?
+                    """, owner, belong, operator, name, category, description, paid, price, cover, operator, previous.get("id"));
         } else {
             jdbc.update("UPDATE wx_3d_model SET model_name=?,category=?,model_desc=?,is_paid=?,price=?,cover_image_id=?,update_by=? WHERE id=?",
                     name,category,description,paid,price,cover,operator,linked.get(0).get("id"));
         }
         var checked=ready.manifest();
+        if (scopeChanged) {
+            // 旧范围只用于上传、转换及身份复核，正式归属与文件指针、快照和回执原子提交。
+            jdbc.update("UPDATE wx_3d_resource SET resource_scope=?,tenant_id=?,data_user_id=? WHERE id=?",
+                    scope, owner, operator, resourceId);
+            jdbc.update("UPDATE wx_3d_resource_operation SET resource_scope=?,tenant_id=?,storage_prefix=? WHERE id=?",
+                    scope, owner, ready.prefix(), operation);
+        }
         writePointer(resourceId,operation,operator,revision+1,Map.of("storage_prefix",ready.prefix(),
                 "manifest_path",ready.manifestPath(),"manifest_sha256",checked.manifestSha256(),
                 "content_hash",checked.contentHash(),"content_format",checked.contentFormat(),
                 "platform","WebGL","app_compatibility",checked.compatibility()));
         writeReceipt(resourceId,operation,revision+1,before);
         return true;
+    }
+
+    /** 同内容修订保留原对象键与快照。修订递增使尚未提交的旧归属操作失效。 */
+    void moveModelScope(Map<String, Object> resource, String scope, String owner, ArtResourceAccess.Actor actor,
+                        Runnable writeDirectory) {
+        long revision = ((Number) resource.get("current_revision")).longValue();
+        if (revision < 1 || revision == Long.MAX_VALUE) throw ServiceException.of(REVISION_CONFLICT);
+        Object id = resource.get("id");
+        String operation = UUID.randomUUID().toString();
+        var before = snapshot(resource);
+        String hash = resources.hash(json.createObjectNode().put("resourceId", id.toString())
+                .put("resourceScope", scope).put("tenantId", owner).put("expectedRevision", Long.toString(revision)));
+        // 沿用受管操作表和替换型同内容回执，先建立操作行以满足当前指针的复合外键。
+        jdbc.update("""
+                INSERT INTO wx_3d_resource_operation(id,resource_id,operation_type,resource_scope,tenant_id,operator_id,
+                    request_hash,expected_revision,storage_prefix,expires_at)
+                VALUES(?,?,'REPLACE',?,?,?,?,?,?,CURRENT_TIMESTAMP)
+                """, operation, id, scope, owner, actor.user(), hash, revision, resource.get("storage_prefix"));
+        jdbc.update("""
+                UPDATE wx_3d_resource SET resource_scope=?,tenant_id=?,data_user_id=?,current_revision=?,
+                    current_operation_id=?,update_by=? WHERE id=?
+                """, scope, owner, actor.user(), revision + 1, operation, actor.user(), id);
+        writeDirectory.run();
+        writeReceipt(id, operation, revision + 1, before);
     }
 
     private void writePointer(Object resourceId,String operation,long operator,long revision,Map<String,Object> pointer) {

@@ -63,6 +63,9 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
 
     @Override public Long createModel(Dim3dModel model) { return models.create(model); }
     @Override public void updateModel(Long id, Dim3dModel model) { models.update(id, model); }
+    @Override public void replaceManagedModel(Long id, Dim3dModel model, String operationId) {
+        models.replaceManaged(id, model, operationId);
+    }
     /** 目录详情只读取授权元数据；文件资源详情按需提供模型相对路径。 */
     @Override public Dim3dModel getModel(Long id) {
         return findModel(id);
@@ -73,6 +76,27 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
      * 对外仅保留相对路径，历史文件直接取库内路径，受管文件复用快照校验并跳过下载签名。
      */
     @Override public Map<String, Object> getModelResource(Long id) {
+        var file = modelFile(id);
+        String relativePath = file.managed() ? artResources.modelRelativePath(id.toString()) : legacyPath(file.row());
+        Map<String, Object> result = new java.util.LinkedHashMap<>();
+        result.put("id", id.toString());
+        result.put("resourceName", file.row().get("resource_name"));
+        result.put("resourceType", file.row().get("resource_type"));
+        result.put("assetName", file.row().get("asset_name"));
+        result.put("resourceRelativePath", relativePath);
+        return result;
+    }
+
+    @Override public Map<String, Object> getModelFileAccess(Long id) {
+        var file = modelFile(id);
+        return file.managed() ? Map.of("id", id.toString(), "accessMode", "MANAGED")
+                : Map.of("id", id.toString(), "accessMode", "LEGACY", "resourceRelativePath", legacyPath(file.row()));
+    }
+
+    private record ModelFile(Map<String, Object> row, boolean managed) { }
+
+    /** 共用目录授权及文件归属检查，访问方式不因对象存储或签名失败而降级。 */
+    private ModelFile modelFile(Long id) {
         var actor = access.actor();
         var rows = jdbc.query("SELECT * FROM wx_3d_model WHERE (model_file_id=? OR resource_id=?) AND "
                         + MODEL_VISIBLE + " ORDER BY id LIMIT 1", MODEL_ROW,
@@ -87,23 +111,15 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
             throw ServiceException.of(ErrorCodeConstants.DATA_NOT_EXIST);
         }
         var resource = resources.get(0);
-        String relativePath;
-        if (model.getResourceId() != null) {
-            relativePath = artResources.modelRelativePath(id.toString());
-        } else {
-            // 历史编号不能关联受管资源，也不能借空路径退回任意下载地址；两类路径均来自真实文件记录。
-            relativePath = (String) resource.get("resource_relative_path");
-            if (resource.get("resource_scope") != null || !StringUtils.hasText(relativePath)) {
-                throw new ServiceException(400, "模型关联资源缺少有效预览路径");
-            }
+        return new ModelFile(resource, model.getResourceId() != null);
+    }
+
+    private static String legacyPath(Map<String, Object> resource) {
+        String path = (String) resource.get("resource_relative_path");
+        if (resource.get("resource_scope") != null || !StringUtils.hasText(path)) {
+            throw new ServiceException(400, "模型关联资源缺少有效预览路径");
         }
-        Map<String, Object> result = new java.util.LinkedHashMap<>();
-        result.put("id", id.toString());
-        result.put("resourceName", resource.get("resource_name"));
-        result.put("resourceType", resource.get("resource_type"));
-        result.put("assetName", resource.get("asset_name"));
-        result.put("resourceRelativePath", relativePath);
-        return result;
+        return path;
     }
 
     /** 详情及写入预检共用可见范围，历史空上传账号回退创建人，未知所有者保持不可见。 */

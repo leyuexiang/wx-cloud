@@ -38,7 +38,7 @@ public class ModelImportService {
     private static final Set<String> DIRECTORY_FIELDS = Set.of("modelName", "category", "modelDesc", "coverImageId", "isPaid", "price");
 
     /**
-     * 图片式新增入口。原包按固定缓冲计算摘要，再流式写入既有暂存键。
+     * 原包按固定缓冲计算摘要，再流式写入既有暂存键。旧归属参数仅用于兼容上传调用。
      * 文件处理均在数据库事务之外，转换继续由现有持久化队列承接。
      */
     public ModelImportStatusView upload(MultipartFile file, String belong) {
@@ -65,7 +65,7 @@ public class ModelImportService {
         } catch (ServiceException error) { throw error; }
         catch (Exception error) { throw new ServiceException(400, "模型文件读取失败，请重新选择"); }
         var body = json.createObjectNode().put("operationId", UUID.randomUUID().toString()).put("operationType", "CREATE")
-                .put("resourceScope", "SYSTEM".equals(belong) ? "GLOBAL_SYSTEM" : "TENANT_SHARED").put("targetFormat", "glb");
+                .put("resourceScope", "TENANT_SHARED").put("targetFormat", "glb");
         // 名称在保存时填写，上传阶段使用固定合法元数据，文件名不能参与路径或可信身份。
         body.putObject("metadata").put("resourceName", "待保存模型").put("assetName", "model");
         body.putObject("source").put("size", Long.toString(file.getSize())).put("sha256", hash);
@@ -76,8 +76,15 @@ public class ModelImportService {
             discardUpload(created.operationId());
             throw new ServiceException(503, "模型文件存储失败，请重新上传");
         }
-        try { return submit(created.operationId()); }
-        catch (RuntimeException error) {
+        try {
+            // 旧网页的保存表单不带归属，只记录兼容偏好，暂存范围仍为认证租户。
+            if ("SYSTEM".equals(belong)) {
+                jdbc.update("UPDATE wx_3d_resource_operation SET candidate_descriptor=? WHERE id=?",
+                        json.createObjectNode().put("modelImport", true).put("legacyBelong", belong).toString(),
+                        created.operationId());
+            }
+            return submit(created.operationId());
+        } catch (RuntimeException error) {
             discardUpload(created.operationId());
             throw error;
         }
@@ -102,8 +109,13 @@ public class ModelImportService {
             throw ServiceException.of(IDEMPOTENCY_CONFLICT);
         }
         var directory = ((ObjectNode) body).deepCopy();
-        directory.remove(List.of("operationId", "resourceId"));
-        return requestPublish(id, directory);
+        // 显式保存值优先，沿用旧网页时才读取上传偏好。发布阶段仍复核目标维护权限。
+        String belong = directory.has("resourceBelong") ? text(directory, "resourceBelong", 16) : null;
+        if (belong == null && operation.get("candidate_descriptor") != null) {
+            belong = publishDescriptor(operation.get("candidate_descriptor")).path("legacyBelong").asText(null);
+        }
+        directory.remove(List.of("operationId", "resourceId", "resourceBelong"));
+        return belong == null ? requestPublish(id, directory) : requestPublishForSave(id, directory, belong);
     }
 
     /** 简化入口共用既有开关，未部署工作线程时及时返回可理解的服务状态。 */
@@ -181,19 +193,43 @@ public class ModelImportService {
         });
     }
     public ModelImportStatusView requestPublish(String id,JsonNode body) {
-        return requestPublish(id, body, null);
+        return requestPublish(id, body, null, null, null);
+    }
+
+    /** 目录保存的新归属作为发布确认的一部分固定，转换阶段继续使用原上传身份。 */
+    ModelImportStatusView requestPublishForSave(String id, JsonNode body, String belong) {
+        return requestPublish(id, body, null, null, belong);
     }
 
     /** 编辑目录复用新文件的原上传操作，目标关联由服务端授权后写入内部描述。 */
     public ModelImportStatusView requestPublishForDirectory(String id, JsonNode body, Long directoryId) {
-        if (directoryId == null || directoryId <= 0) bad();
-        return requestPublish(id, body, directoryId);
+        return requestPublishForDirectory(id, body, directoryId, null);
     }
 
-    private ModelImportStatusView requestPublish(String id, JsonNode body, Long directoryId) {
+    ModelImportStatusView requestPublishForDirectory(String id, JsonNode body, Long directoryId, String belong) {
+        if (directoryId == null || directoryId <= 0) bad();
+        return requestPublish(id, body, directoryId, null, belong);
+    }
+
+    /** 目录编辑复用原替换任务，操作类型及资源绑定在每次确认时核验。 */
+    public ModelImportStatusView requestReplaceForResource(String id, long resourceId, JsonNode body) {
+        return requestReplaceForResource(id, resourceId, body, null);
+    }
+
+    ModelImportStatusView requestReplaceForResource(String id, long resourceId, JsonNode body, String belong) {
+        return requestPublish(id, body, null, resourceId, belong);
+    }
+
+    private ModelImportStatusView requestPublish(String id, JsonNode body, Long directoryId, Long replaceResourceId, String belong) {
         // 目录表单适配复用原导入开关，关闭导入后不能通过目录保存继续发布待处理上传。
         requireEnabled();
         ObjectNode directory = directoryInput(body);
+        if (belong != null) {
+            if (!Set.of("SYSTEM", "MINE").contains(belong)) bad();
+            var actor = access.actor();
+            access.maintain(actor, Dim3dModelWriteService.scope(belong), Dim3dModelWriteService.owner(actor, belong));
+            directory.put("targetBelong", belong);
+        }
         if (directoryId != null) {
             requireWritePermission("REPLACE");
             var actor = access.actor();
@@ -212,13 +248,13 @@ public class ModelImportService {
                     .put("resourceBelong", target.get("resource_belong").toString());
         }
         var template = new TransactionTemplate(transactions);
-        var checked = template.execute(status -> checkPublication(id, directory));
+        var checked = template.execute(status -> checkPublication(id, directory, replaceResourceId));
         if (checked.confirmed()) return view(checked.operation(), checked.task());
         // 远程字典及文件预验均在释放操作锁后进行，已确认的重放不依赖字典服务可用性。
         validateCategory(directory.path("category").asText());
         validateDirectory(checked.operation(), directory);
         return template.execute(status -> {
-            var current = checkPublication(id, directory);
+            var current = checkPublication(id, directory, replaceResourceId);
             if (!current.confirmed()) {
                 jdbc.update("UPDATE wx_3d_resource_import SET publish_descriptor=?,row_version=row_version+1 WHERE operation_id=?",
                         directory.toString(), id);
@@ -230,12 +266,25 @@ public class ModelImportService {
     private record PublicationCheck(Map<String, Object> operation, Map<String, Object> task, boolean confirmed) {}
 
     /** 两次短事务执行相同阶段及权限检查，避免预验期间取消、到期或并发确认被覆盖。 */
-    private PublicationCheck checkPublication(String id, ObjectNode directory) {
+    private PublicationCheck checkPublication(String id, ObjectNode directory, Long replaceResourceId) {
         var op = lockOperation(id);
+        if (replaceResourceId != null && (!"REPLACE".equals(op.get("operation_type"))
+                || ((Number) op.get("resource_id")).longValue() != replaceResourceId)) {
+            throw ServiceException.of(IDEMPOTENCY_CONFLICT);
+        }
         requireWritePermission((String) op.get("operation_type"));
         var task = task(id);
         var previous = task.get("publish_descriptor");
-        if (previous != null && !directory.equals(publishDescriptor(previous))) throw ServiceException.of(IDEMPOTENCY_CONFLICT);
+        if (previous != null) {
+            var saved = publishDescriptor(previous);
+            // 兼容升级前已确认的同归属请求，已固定的不同目标仍视为幂等冲突。
+            var replay = directory;
+            if (!saved.has("targetBelong") && targetBelong(op, saved).equals(directory.path("targetBelong").asText())) {
+                replay = directory.deepCopy();
+                replay.remove("targetBelong");
+            }
+            if (!replay.equals(saved)) throw ServiceException.of(IDEMPOTENCY_CONFLICT);
+        }
         if ("COMMITTED".equals(op.get("status")) && previous != null) return new PublicationCheck(op, task, true);
         live(op);
         if (!"UPLOADING".equals(op.get("status")) || !"PUBLISHING".equals(task.get("status")) || cancelled(task)) {
@@ -252,19 +301,26 @@ public class ModelImportService {
     }
 
     private void validateDirectory(Map<String, Object> operation, ObjectNode directory) {
-        boolean system = "GLOBAL_SYSTEM".equals(operation.get("resource_scope"));
+        String belong = targetBelong(operation, directory);
         boolean redirect = directory.has("catalogTarget");
-        if (directory.hasNonNull("coverImageId") || redirect && !directory.has("coverImageId")) {
+        boolean movesScope = !Dim3dModelWriteService.scope(belong).equals(operation.get("resource_scope"));
+        boolean checksRetainedCover = redirect || movesScope && "REPLACE".equals(operation.get("operation_type"));
+        if (directory.hasNonNull("coverImageId") || checksRetainedCover && !directory.has("coverImageId")) {
             var previous = jdbc.queryForList("SELECT cover_image_id,resource_belong FROM wx_3d_model WHERE "
                             + (redirect ? "id=?" : "resource_id=?") + " AND del_flag='0'",
                     redirect ? directory.path("catalogTarget").path("id").asText() : operation.get("resource_id"));
             Object oldCover = previous.size() == 1 ? previous.get(0).get("cover_image_id") : null;
             if (!directory.hasNonNull("coverImageId") && !(oldCover instanceof Number)) return;
             long cover = directory.hasNonNull("coverImageId") ? directory.path("coverImageId").asLong() : ((Number) oldCover).longValue();
-            boolean retained = oldCover instanceof Number id && id.longValue() == cover
-                    && (!redirect || Objects.equals(previous.get(0).get("resource_belong"), system ? "SYSTEM" : "MINE"));
-            images.validateModelCover(cover, access.actor(), system ? "SYSTEM" : "MINE", retained);
+            boolean retained = oldCover instanceof Number id && id.longValue() == cover;
+            images.validateModelCover(cover, access.actor(),
+                    retained ? Objects.toString(previous.get(0).get("resource_belong"), belong) : belong, retained);
         }
+    }
+
+    /** 旧确认描述无目标字段时，继续按原操作的可信范围发布。 */
+    static String targetBelong(Map<String, Object> operation, JsonNode directory) {
+        return directory.path("targetBelong").asText("GLOBAL_SYSTEM".equals(operation.get("resource_scope")) ? "SYSTEM" : "MINE");
     }
 
     private ObjectNode directoryInput(JsonNode body) {

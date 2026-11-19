@@ -274,12 +274,15 @@ public class ModelImportSourceWorker implements AutoCloseable {
                 if(rows==null)return null;
                 var op=rows.get(0);var task=rows.get(1);
                 String assetName=jdbc.queryForObject("SELECT asset_name FROM wx_3d_resource WHERE id=?",String.class,lease.resourceId());
-                // 正式内容按可信归属直接落入资源下的一层版本目录，发布尝试编号保证重试与迟到写入隔离。
-                // 操作及租约关联仍由数据库记录，历史前缀继续按已提交快照读取。
-                String prefix = "resources/" + op.get("resource_scope") + "/" + op.get("tenant_id") + "/"
+                var directory = readObject(task.get("publish_descriptor"));
+                var actor = operator(op);
+                String belong = ModelImportService.targetBelong(op, directory);
+                // 目标归属在目录确认时固定，公开前仍需通过最终权限及租约复核。
+                String prefix = "resources/" + Dim3dModelWriteService.scope(belong) + "/"
+                        + Dim3dModelWriteService.owner(actor, belong) + "/"
                         + lease.resourceId() + "/" + lease.attemptId() + "/";
                 return new PublicationInput((String)task.get("target_format"),prefix,
-                        readObject(task.get("artifact_descriptor")),readObject(task.get("publish_descriptor")),assetName,operator(op));
+                        readObject(task.get("artifact_descriptor")),directory,assetName,actor);
             });
             if(input==null)return false;
             // 分类可能在确认后停用。调用既有字典接口时已释放资源、操作和任务锁。
@@ -331,9 +334,15 @@ public class ModelImportSourceWorker implements AutoCloseable {
 
     /** 新上传改绑旧目录同时需要编辑权限，后台发布前及最终事务均复核撤销结果。 */
     private void checkCatalogEdit(PublicationInput input) {
-        if (input.directory().has("catalogTarget")) {
+        if (input.directory().has("catalogTarget") || input.directory().has("targetBelong")) {
             withOperatorTenant(input.actor(), () -> {
-                if (!Boolean.TRUE.equals(permissions.hasAnyPermissions(input.actor().user(), "dim3d:model:edit").getCheckedData())) {
+                if (input.directory().has("targetBelong")) {
+                    String belong = input.directory().path("targetBelong").asText();
+                    access.maintain(input.actor(), Dim3dModelWriteService.scope(belong),
+                            Dim3dModelWriteService.owner(input.actor(), belong));
+                }
+                if (input.directory().has("catalogTarget")
+                        && !Boolean.TRUE.equals(permissions.hasAnyPermissions(input.actor().user(), "dim3d:model:edit").getCheckedData())) {
                     throw new ServiceException(403, "无权编辑目标模型目录");
                 }
             });

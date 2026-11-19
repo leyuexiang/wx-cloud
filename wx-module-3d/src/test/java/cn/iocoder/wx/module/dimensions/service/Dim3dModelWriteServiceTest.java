@@ -66,6 +66,8 @@ class Dim3dModelWriteServiceTest {
         for (String table : List.of("wx_3d_icon", "wx_3d_template")) {
             jdbc.execute("CREATE TABLE " + table + "(id BIGINT,resource_id BIGINT,tenant_id VARCHAR(20),del_flag CHAR,status VARCHAR(16))");
         }
+        jdbc.execute("ALTER TABLE wx_3d_icon ADD icon_file_id BIGINT");
+        jdbc.execute("ALTER TABLE wx_3d_template ADD cover_image_id BIGINT");
         jdbc.execute("CREATE TABLE wx_infra_file(id BIGINT PRIMARY KEY,tenant_id BIGINT,uploader_id BIGINT,"
                 + "visibility_scope VARCHAR(20),type VARCHAR(40),size INT,deleted INT DEFAULT 0,update_time TIMESTAMP)");
         jdbc.update("INSERT INTO wx_infra_file(id,tenant_id,uploader_id,visibility_scope,type,size) VALUES(5,2,10,'PRIVATE_UPLOAD','image/png',100)");
@@ -292,6 +294,96 @@ class Dim3dModelWriteServiceTest {
         verifyNoInteractions(store);
     }
 
+    /** 保留已上传的受管文件，按编辑表单将个人目录发布到系统，再收回到个人。 */
+    @Test
+    void managedModelCanChangeOwnershipWithoutUploadingAgain() {
+        jdbc.update("UPDATE wx_3d_resource SET storage_prefix='resources/old/' WHERE id=201");
+        var initial = form(201L);
+        initial.setCoverImageId(5L);
+        long id = service.create(initial);
+        var system = form(201L);
+        system.setResourceBelong("SYSTEM");
+        service.update(id, system);
+        assertEquals("SYSTEM", row(id).get("resource_belong"));
+        assertEquals("GLOBAL", coverScope());
+        assertEquals("GLOBAL_SYSTEM", jdbc.queryForObject("SELECT resource_scope FROM wx_3d_resource WHERE id=201", String.class));
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_resource_operation"
+                + " WHERE status='COMMITTED' AND resource_scope='GLOBAL_SYSTEM' AND committed_revision=2", Integer.class));
+        service.update(id, form(201L));
+        assertEquals("MINE", row(id).get("resource_belong"));
+        assertEquals("TENANT", coverScope());
+        assertEquals("TENANT_SHARED", jdbc.queryForObject("SELECT resource_scope FROM wx_3d_resource WHERE id=201", String.class));
+        assertEquals("resources/old/", jdbc.queryForObject("SELECT storage_prefix FROM wx_3d_resource WHERE id=201", String.class));
+        assertEquals(201L, row(id).get("resource_id"));
+        assertEquals(3L, jdbc.queryForObject("SELECT current_revision FROM wx_3d_resource WHERE id=201", Long.class));
+        verifyNoInteractions(store, imports, worker);
+    }
+
+    /** 原文件改归属仍须具备系统维护权限，也不能借别的目录认领该文件。 */
+    @Test
+    void managedOwnershipChangeChecksAuthorizationAndCurrentBinding() {
+        long id = service.create(form(201L));
+        long other = service.create(form(101L));
+        var system = form(201L);
+        system.setResourceBelong("SYSTEM");
+        assertEquals(403, assertThrows(ServiceException.class, () -> service.update(other, system)).getCode());
+        var actor = access.actor();
+        doThrow(new ServiceException(403, "无系统资源维护权限"))
+                .when(access).maintain(actor, "GLOBAL_SYSTEM", "0");
+        assertEquals(403, assertThrows(ServiceException.class, () -> service.update(id, system)).getCode());
+        assertEquals("MINE", row(id).get("resource_belong"));
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_resource_operation", Integer.class));
+    }
+
+    /** 目录保存失败时，原归属、封面和版本记录必须一起回滚。 */
+    @Test
+    void ownershipChangeRollsBackOnDirectoryFailure() {
+        var initial = form(201L);
+        initial.setCoverImageId(5L);
+        long id = service.create(initial);
+        jdbc.execute("ALTER TABLE wx_3d_model ADD CONSTRAINT reject_system CHECK(resource_belong<>'SYSTEM')");
+        var system = form(201L);
+        system.setResourceBelong("SYSTEM");
+        assertThrows(org.springframework.dao.DataIntegrityViolationException.class, () -> service.update(id, system));
+        assertEquals("MINE", row(id).get("resource_belong"));
+        assertEquals("TENANT", coverScope());
+        assertEquals("TENANT_SHARED", jdbc.queryForObject("SELECT resource_scope FROM wx_3d_resource WHERE id=201", String.class));
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_resource_operation", Integer.class));
+    }
+
+    /** 旧上传回执的文件可以选择系统归属保存，再沿用同一编号切回我的资源。 */
+    @Test
+    void legacyUploadUsesScopeAtSaveAndSupportsEditingIt() {
+        var system = form(101L);
+        system.setResourceBelong("SYSTEM");
+        long id = service.create(system);
+        assertEquals("0", jdbc.queryForObject("SELECT tenant_id FROM wx_3d_resource WHERE id=101", String.class));
+        service.update(id, form(101L));
+        assertEquals("MINE", row(id).get("resource_belong"));
+        assertEquals(101L, row(id).get("model_file_id"));
+        assertEquals("2", jdbc.queryForObject("SELECT tenant_id FROM wx_3d_resource WHERE id=101", String.class));
+    }
+
+    /** 共用封面保留在原范围，调用方可显式清除当前模型的封面并保存归属。 */
+    @Test
+    void changingOwnershipKeepsCoverUsedByAnotherModel() {
+        var first = form(201L);
+        first.setCoverImageId(5L);
+        long id = service.create(first);
+        var second = form(101L);
+        second.setCoverImageId(5L);
+        long other = service.create(second);
+        var system = form(201L);
+        system.setResourceBelong("SYSTEM");
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.update(id, system)).getCode());
+        assertEquals("MINE", row(id).get("resource_belong"));
+        system.setCoverImageId(null);
+        service.update(id, system);
+        assertNull(row(id).get("cover_image_id"));
+        assertEquals(5L, row(other).get("cover_image_id"));
+        assertEquals("TENANT", coverScope());
+    }
+
     @Test
     void omittedOptionalFieldsArePreservedAndExplicitNullClearsThem() throws Exception {
         var initial = form(201L);
@@ -427,7 +519,7 @@ class Dim3dModelWriteServiceTest {
         jdbc.update("INSERT INTO wx_3d_resource_operation(id,resource_id,operation_type,operator_id,status) VALUES('op',201,'CREATE',10,'UPLOADING')");
         jdbc.update("INSERT INTO wx_3d_resource_import VALUES('op','PUBLISHING',FALSE)");
         var state = ModelImportStatusView.from("op", "201", "PUBLISHING", "UPLOADING", "glb", null, null, null, false);
-        when(imports.requestPublish(eq("op"), any())).thenReturn(state);
+        when(imports.requestPublishForSave(eq("op"), any(), eq("MINE"))).thenReturn(state);
         when(imports.get("op")).thenReturn(state);
         assertEquals(503, assertThrows(ServiceException.class, () -> service.create(form(201L))).getCode());
         verify(worker).publishOperation("op");

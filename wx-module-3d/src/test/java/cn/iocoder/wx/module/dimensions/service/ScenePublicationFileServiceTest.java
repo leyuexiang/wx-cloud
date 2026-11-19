@@ -27,7 +27,7 @@ class ScenePublicationFileServiceTest {
     @BeforeEach void setup() throws Exception {
         jdbc = new JdbcTemplate(new DriverManagerDataSource("jdbc:h2:mem:" + UUID.randomUUID() + ";MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", ""));
         jdbc.execute("CREATE TABLE wx_3d_scene_publication_resource(publication_id VARCHAR(64),tenant_id BIGINT,resource_key VARCHAR(160),resource_id BIGINT,resource_revision BIGINT,content_hash VARCHAR(64),manifest_sha256 VARCHAR(64),operation_id VARCHAR(36),resource_scope VARCHAR(32),resource_tenant_id VARCHAR(20),snapshot_json CLOB)");
-        jdbc.execute("CREATE TABLE wx_3d_resource(id BIGINT,resource_scope VARCHAR(32),tenant_id VARCHAR(20),del_flag CHAR,content_state VARCHAR(16),current_revision BIGINT)");
+        jdbc.execute("CREATE TABLE wx_3d_resource(id BIGINT,resource_scope VARCHAR(32),tenant_id VARCHAR(20),del_flag CHAR,content_state VARCHAR(16),current_revision BIGINT,resource_type VARCHAR(16) DEFAULT 'MODEL')");
         jdbc.execute("CREATE TABLE wx_3d_resource_operation(id VARCHAR(36),resource_id BIGINT,committed_revision BIGINT,resource_scope VARCHAR(32),tenant_id VARCHAR(20),status VARCHAR(16),after_snapshot CLOB)");
         var parser = new ArtResourceManifestVerifier();
         var json = new ObjectMapper();
@@ -48,7 +48,7 @@ class ScenePublicationFileServiceTest {
                 .put("content_format", "unity.assetbundle.v1").put("platform", "WebGL").put("app_compatibility", "test")
                 .put("storage_prefix", "resources/old/").put("manifest_path", "manifest.json");
         jdbc.update("INSERT INTO wx_3d_scene_publication_resource VALUES('PUB-1',2,'model',21,1,?,?,'operation','TENANT_SHARED','2',?)", hash, manifestHash, snapshot.toString());
-        jdbc.update("INSERT INTO wx_3d_resource VALUES(21,'TENANT_SHARED','2','0','READY',2)");
+        jdbc.update("INSERT INTO wx_3d_resource(id,resource_scope,tenant_id,del_flag,content_state,current_revision) VALUES(21,'TENANT_SHARED','2','0','READY',2)");
         jdbc.update("INSERT INTO wx_3d_resource_operation VALUES('operation',21,1,'TENANT_SHARED','2','COMMITTED',?)", snapshot.toString());
         tickets = mock(ScenePublicationTicketService.class);
         grant = new ScenePublicationTicketService.ResourceGrant("PUB-1", 2, Instant.now().plusSeconds(60));
@@ -100,6 +100,16 @@ class ScenePublicationFileServiceTest {
         jdbc.update("UPDATE wx_3d_resource_operation SET after_snapshot='{}'");
         assertThrows(ServiceException.class, () -> service.file("ticket", "model", "manifest.json"));
         verifyNoInteractions(signer);
+    }
+
+    /** 模型改归属后，既有票据仍限原已发布快照和授权租户。 */
+    @Test void modelScopeChangeKeepsFrozenPublicationVersion() {
+        jdbc.update("UPDATE wx_3d_resource SET resource_scope='GLOBAL_SYSTEM',tenant_id='0',current_revision=3");
+        service.file("ticket", "model", "manifest.json");
+        verify(signer).signUntil("resources/old/", "manifest.json", grant.expiresAt());
+        when(tickets.authorizeResources("ticket")).thenReturn(
+                new ScenePublicationTicketService.ResourceGrant("PUB-1", 3, grant.expiresAt()));
+        assertThrows(ServiceException.class, () -> service.file("ticket", "model", "manifest.json"));
     }
 
     @Test void wrongTenantGrantCannotReachAnotherPublicationBindings() {

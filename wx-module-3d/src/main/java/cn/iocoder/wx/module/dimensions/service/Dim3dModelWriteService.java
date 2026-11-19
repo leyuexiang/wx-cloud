@@ -61,7 +61,7 @@ public class Dim3dModelWriteService {
                     throw conflict("模型文件已关联其他目录");
                 }
             }
-            bindFile(currentFile, body, actor, false, null);
+            bindFile(currentFile, body, actor, false, null, Map.of());
             long id = IdWorker.getId();
             jdbc.update("""
                     INSERT INTO wx_3d_model(id,resource_id,model_file_id,model_name,model_desc,category,
@@ -82,7 +82,7 @@ public class Dim3dModelWriteService {
         requireScope(actor, previous.get("resource_belong").toString());
         requireScope(actor, body.getResourceBelong());
         var file = file(body.getModelFileId());
-        requireFile(file, body, actor, Objects.equals(fileId(previous), body.getModelFileId()));
+        requireFile(file, body, actor, retainedFile(previous, file, body.getModelFileId()));
         if (pending(file)) {
             publish(body, id, file, actor);
             return;
@@ -98,23 +98,28 @@ public class Dim3dModelWriteService {
             if (!body.isCoverImageSpecified()) body.setCoverImageId(number(current.get("cover_image_id")));
             var selected = files.stream().filter(row -> Objects.equals(row.get("id"), body.getModelFileId()))
                     .findFirst().orElseThrow(() -> invalid("模型文件不存在"));
-            requireFile(selected, body, actor, Objects.equals(fileId(current), body.getModelFileId()));
+            requireFile(selected, body, actor, retainedFile(current, selected, body.getModelFileId()));
             if (pending(selected)) throw conflict("模型文件尚未完成发布，请重试");
             if (managed(selected) && !jdbc.queryForList("SELECT id FROM wx_3d_model WHERE resource_id=?"
                     + " AND del_flag='0' AND id<>? LIMIT 1 FOR UPDATE", body.getModelFileId(), id).isEmpty()) {
                 throw conflict("模型文件已关联其他目录");
             }
-            boolean retainedCover = Objects.equals(number(current.get("cover_image_id")), body.getCoverImageId())
-                    && Objects.equals(current.get("resource_belong"), body.getResourceBelong());
-            bindFile(selected, body, actor, retainedCover, id);
-            // 只改目录关联与元数据，旧资源及已发布引用保留，可选字段使用已授权的原值或本次显式值。
-            jdbc.update("""
+            boolean retainedCover = Objects.equals(number(current.get("cover_image_id")), body.getCoverImageId());
+            bindFile(selected, body, actor, retainedCover, id, current);
+            Runnable writeDirectory = () -> jdbc.update("""
                     UPDATE wx_3d_model SET resource_id=?,model_file_id=?,model_name=?,model_desc=?,category=?,
                         resource_belong=?,is_paid=?,price=?,cover_image_id=?,tenant_id=?,data_user_id=?,
                         update_by=?,update_time=CURRENT_TIMESTAMP WHERE id=?
                     """, managed(selected) ? body.getModelFileId() : null, managed(selected) ? null : body.getModelFileId(),
                     body.getModelName(), body.getModelDesc(), body.getCategory(), body.getResourceBelong(), body.getIsPaid(),
                     body.getPrice(), body.getCoverImageId(), owner(actor, body.getResourceBelong()), actor.user(), actor.user(), id);
+            // 已提交文件仅允许由当前绑定目录迁移，资源与新范围回执、目录变动一起提交。
+            if (managed(selected) && !sameScope(selected, body.getResourceBelong(), actor)) {
+                resourceTransactions.moveModelScope(selected, scope(body.getResourceBelong()),
+                        owner(actor, body.getResourceBelong()), actor, writeDirectory);
+            } else {
+                writeDirectory.run();
+            }
         });
     }
 
@@ -178,29 +183,52 @@ public class Dim3dModelWriteService {
             throw conflict("模型文件尚未转换完成或上传操作不可用");
         }
         String operation = operations.get(0);
-        ObjectNode directory = json.createObjectNode().put("modelName", body.getModelName())
-                .put("category", body.getCategory())
-                .put("isPaid", body.getIsPaid()).put("price", body.getPrice());
-        // 目标目录的省略字段由最终发布事务取锁定现值，显式空值才固定清空意图。
-        if (target == null || body.isModelDescSpecified()) directory.put("modelDesc", Objects.toString(body.getModelDesc(), ""));
-        if (target == null || body.isCoverImageSpecified()) {
-            if (body.getCoverImageId() == null) directory.putNull("coverImageId");
-            else directory.put("coverImageId", body.getCoverImageId().toString());
-        }
-        if (target == null) imports.requestPublish(operation, directory);
-        else imports.requestPublishForDirectory(operation, directory, target);
-        worker.publishOperation(operation);
-        var state = imports.get(operation);
-        if (!"COMMITTED".equals(state.operationStatus())) {
-            if (state.errorNumber() != null) throw new ServiceException(state.errorNumber(), state.errorMessage());
-            throw new ServiceException(503, "模型保存正在处理，请使用相同参数重试");
-        }
+        ObjectNode directory = directoryInput(body, target);
+        if (target == null) imports.requestPublishForSave(operation, directory, body.getResourceBelong());
+        else imports.requestPublishForDirectory(operation, directory, target, body.getResourceBelong());
+        completePublication(operation);
         var ids = jdbc.queryForList("SELECT id FROM wx_3d_model WHERE resource_id=? AND del_flag='0'", Long.class,
                 body.getModelFileId());
         if (ids.size() != 1 || target != null && !target.equals(ids.get(0))) {
             throw conflict("模型发布结果与目录关联不一致");
         }
         return ids.get(0);
+    }
+
+    /** 受管替换沿用原资源和版本竞争检查，目录编辑只接受本目录的替换操作。 */
+    public void replaceManaged(Long id, Dim3dModel body, String operationId) {
+        var actor = actorWithPermission("dim3d:model:edit");
+        validate(body);
+        var target = directory(id, actor, false, false);
+        requireScope(actor, target.get("resource_belong").toString());
+        requireScope(actor, body.getResourceBelong());
+        if (!body.getModelFileId().equals(number(target.get("resource_id")))) {
+            throw conflict("替换操作必须与当前模型资源一致");
+        }
+        imports.requestReplaceForResource(operationId, body.getModelFileId(), directoryInput(body, id), body.getResourceBelong());
+        completePublication(operationId);
+    }
+
+    private ObjectNode directoryInput(Dim3dModel body, Long target) {
+        ObjectNode directory = json.createObjectNode().put("modelName", body.getModelName())
+                .put("category", body.getCategory())
+                .put("isPaid", body.getIsPaid()).put("price", body.getPrice());
+        // 省略字段由最终发布事务保留，显式空值固定清空意图。
+        if (target == null || body.isModelDescSpecified()) directory.put("modelDesc", Objects.toString(body.getModelDesc(), ""));
+        if (target == null || body.isCoverImageSpecified()) {
+            if (body.getCoverImageId() == null) directory.putNull("coverImageId");
+            else directory.put("coverImageId", body.getCoverImageId().toString());
+        }
+        return directory;
+    }
+
+    private void completePublication(String operationId) {
+        worker.publishOperation(operationId);
+        var state = imports.get(operationId);
+        if (!"COMMITTED".equals(state.operationStatus())) {
+            if (state.errorNumber() != null) throw new ServiceException(state.errorNumber(), state.errorMessage());
+            throw new ServiceException(503, "模型保存正在处理，请使用相同参数重试");
+        }
     }
 
     /** 服务层仍验证表单，内部调用不能绕开控制器必填及金额规则。 */
@@ -229,7 +257,7 @@ public class Dim3dModelWriteService {
     }
 
     private void bindFile(Map<String, Object> file, Dim3dModel body, ArtResourceAccess.Actor actor,
-                          boolean retainedCover, Long directoryId) {
+                          boolean retainedCover, Long directoryId, Map<String, Object> previous) {
         if (!managed(file)) {
             // 已被其他目录复用的历史文件不能原地改变租户，避免破坏它们的可见范围和预览。
             if (!owner(actor, body.getResourceBelong()).equals(Objects.toString(file.get("tenant_id"), ""))
@@ -241,7 +269,8 @@ public class Dim3dModelWriteService {
                     owner(actor, body.getResourceBelong()), actor.user(), body.getModelFileId());
         }
         if (body.getCoverImageId() != null) {
-            images.bindModelCover(body.getCoverImageId(), actor, body.getResourceBelong(), retainedCover);
+            images.bindModelCover(body.getCoverImageId(), actor, body.getResourceBelong(),
+                    retainedCover ? previous.get("resource_belong").toString() : null, directoryId);
         }
     }
 
@@ -259,20 +288,24 @@ public class Dim3dModelWriteService {
     private void requireFile(Map<String, Object> file, Dim3dModel body, ArtResourceAccess.Actor actor, boolean retained) {
         if (!"MODEL".equals(file.get("resource_type")) || !"0".equals(file.get("del_flag"))) throw invalid("模型文件不可用");
         String tenant = Objects.toString(file.get("tenant_id"), "");
+        boolean global = "0".equals(tenant);
         if (managed(file)) {
-            String scope = "SYSTEM".equals(body.getResourceBelong()) ? "GLOBAL_SYSTEM" : "TENANT_SHARED";
-            if (!scope.equals(file.get("resource_scope")) || !owner(actor, body.getResourceBelong()).equals(tenant)) {
-                throw new ServiceException(403, "模型文件与所选归属不一致");
-            }
             if (!Set.of("READY", "PENDING").contains(Objects.toString(file.get("content_state"), ""))) {
                 throw invalid("模型文件不可用");
+            }
+            // 未发布文件仍须由原操作的上传者认领。已发布文件跨范围变更只允许沿用当前目录的绑定。
+            if (!sameScope(file, body.getResourceBelong(), actor) && !pending(file) && !retained) {
+                throw new ServiceException(403, "只有当前目录关联的模型文件可以调整归属");
+            }
+            if (!scope(global ? "SYSTEM" : "MINE").equals(file.get("resource_scope"))) {
+                throw invalid("模型文件归属数据无效");
             }
         } else if (!StringUtils.hasText(Objects.toString(file.get("resource_relative_path"), ""))) {
             throw invalid("模型文件缺少预览路径");
         }
         boolean personalOwner = Long.toString(actor.user()).equals(Objects.toString(
                 file.get("data_user_id") == null ? file.get("create_by") : file.get("data_user_id"), ""));
-        boolean globalFile = "SYSTEM".equals(body.getResourceBelong()) && "0".equals(tenant);
+        boolean globalFile = global && (retained || (pending(file) ? personalOwner : "SYSTEM".equals(body.getResourceBelong())));
         if (!(globalFile || Long.toString(actor.tenant()).equals(tenant) && (personalOwner || retained))) {
             throw new ServiceException(403, "无权关联此模型文件");
         }
@@ -302,11 +335,23 @@ public class Dim3dModelWriteService {
     }
 
     private void requireScope(ArtResourceAccess.Actor actor, String belong) {
-        access.maintain(actor, "SYSTEM".equals(belong) ? "GLOBAL_SYSTEM" : "TENANT_SHARED", owner(actor, belong));
+        access.maintain(actor, scope(belong), owner(actor, belong));
     }
 
-    private static String owner(ArtResourceAccess.Actor actor, String belong) {
+    static String scope(String belong) { return "SYSTEM".equals(belong) ? "GLOBAL_SYSTEM" : "TENANT_SHARED"; }
+
+    static String owner(ArtResourceAccess.Actor actor, String belong) {
         return "SYSTEM".equals(belong) ? "0" : Long.toString(actor.tenant());
+    }
+
+    private static boolean sameScope(Map<String, Object> file, String belong, ArtResourceAccess.Actor actor) {
+        return scope(belong).equals(file.get("resource_scope")) && owner(actor, belong).equals(file.get("tenant_id"));
+    }
+
+    /** 只对归属与目录吻合的原文件授予保留关联权限。 */
+    private static boolean retainedFile(Map<String, Object> directory, Map<String, Object> file, Long id) {
+        return Objects.equals(fileId(directory), id) && Objects.equals(directory.get("tenant_id"), file.get("tenant_id"))
+                && (!managed(file) || scope(directory.get("resource_belong").toString()).equals(file.get("resource_scope")));
     }
 
     private static boolean managed(Map<String, Object> file) { return file.get("resource_scope") != null; }

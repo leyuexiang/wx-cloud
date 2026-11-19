@@ -74,6 +74,19 @@ class Dim3dModelPreviewTest {
         verifyNoMoreInteractions(resources);
     }
 
+    /** 区分访问方式的轻量接口复用目录授权，受管响应不读取清单或生成签名。 */
+    @Test
+    void accessTypeUsesTrustedDirectoryBindingWithoutInspectingObjectStorage() {
+        assertEquals(java.util.Map.of("id", "101", "accessMode", "LEGACY", "resourceRelativePath", "models/tree.glb"),
+                service.getModelFileAccess(101L));
+        jdbc.update("UPDATE wx_3d_model SET resource_id=201,model_file_id=NULL WHERE id=1");
+        jdbc.update("INSERT INTO wx_3d_resource(id,tenant_id,resource_type,resource_scope) VALUES(201,'41','MODEL','TENANT_SHARED')");
+        assertEquals(java.util.Map.of("id", "201", "accessMode", "MANAGED"), service.getModelFileAccess(201L));
+        jdbc.update("UPDATE wx_3d_model SET data_user_id=7002 WHERE id=1");
+        assertEquals(404, assertThrows(ServiceException.class, () -> service.getModelFileAccess(201L)).getCode());
+        verifyNoInteractions(resources);
+    }
+
     @Test
     void hiddenDirectoryCannotTriggerSigning() {
         jdbc.update("UPDATE wx_3d_model SET resource_id=201,data_user_id=7002 WHERE id=1");

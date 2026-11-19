@@ -81,6 +81,15 @@ class Dim3dModelControllerContractTest {
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
+    /** 替换仍走目录编辑，查询参数仅用于绑定本次上传操作。 */
+    @Test
+    void replacementUsesDirectoryEditWithOperationAndEmptyReceipt() throws Exception {
+        mvc.perform(put("/dim3d/model/edit/7").param("operationId", "replacement")
+                        .contentType("application/json").content(BODY))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(200)).andExpect(jsonPath("$.data").isEmpty());
+        verify(catalog).replaceManagedModel(eq(7L), argThat(model -> model.getModelFileId().equals(101L)), eq("replacement"));
+    }
+
     @Test
     void detailEditAndRemoveUseContractMethodsAndPathIds() throws Exception {
         var model = new Dim3dModel();
@@ -111,7 +120,7 @@ class Dim3dModelControllerContractTest {
         for (String amount : List.of("1.01", "2147483648", "-1")) {
             var body = json.readTree(BODY.replace("}", ",\"price\":" + amount + "}"));
             assertThrows(cn.iocoder.wx.framework.common.exception.ServiceException.class,
-                    () -> controller.editModel(7L, body));
+                    () -> controller.editModel(7L, body, null));
         }
         verifyNoInteractions(catalog);
     }
@@ -130,7 +139,7 @@ class Dim3dModelControllerContractTest {
             var body = (com.fasterxml.jackson.databind.node.ObjectNode) json.readTree(BODY);
             body.remove(field);
             assertThrows(jakarta.validation.ConstraintViolationException.class, () -> controller.addModel(body));
-            assertThrows(jakarta.validation.ConstraintViolationException.class, () -> controller.editModel(7L, body));
+            assertThrows(jakarta.validation.ConstraintViolationException.class, () -> controller.editModel(7L, body, null));
         }
         verifyNoInteractions(catalog);
     }

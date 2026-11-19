@@ -33,6 +33,7 @@ class ModelImportSourceWorkerTest {
         when(permissions.hasAnyPermissions(anyLong(),any(String[].class))).thenReturn(CommonResult.success(true));
         var data=new DriverManagerDataSource("jdbc:h2:mem:"+UUID.randomUUID()+";MODE=MySQL;DB_CLOSE_DELAY=-1","sa","");db=new JdbcTemplate(data);
         db.execute("CREATE TABLE wx_3d_resource(id BIGINT PRIMARY KEY,resource_scope VARCHAR(20),tenant_id VARCHAR(20),upload_source VARCHAR(20),del_flag CHAR,current_revision BIGINT,resource_type VARCHAR(16) DEFAULT 'MODEL',asset_name VARCHAR(150) DEFAULT 'sample',content_state VARCHAR(16) DEFAULT 'PENDING',current_operation_id VARCHAR(36),storage_prefix VARCHAR(512),manifest_path VARCHAR(512),manifest_sha256 VARCHAR(64),content_hash VARCHAR(64),content_format VARCHAR(32),platform VARCHAR(20),app_compatibility VARCHAR(128),update_by BIGINT)");
+        db.execute("ALTER TABLE wx_3d_resource ADD data_user_id BIGINT");
         db.execute("CREATE TABLE wx_3d_resource_operation(id VARCHAR(36) PRIMARY KEY,resource_id BIGINT,resource_scope VARCHAR(20),tenant_id VARCHAR(20),operator_id BIGINT,status VARCHAR(16),expires_at TIMESTAMP,candidate_descriptor CLOB,operation_type VARCHAR(16) DEFAULT 'CREATE',expected_revision BIGINT DEFAULT 0,storage_prefix VARCHAR(512) DEFAULT 'resources/test/operations/',committed_revision BIGINT,before_snapshot CLOB,after_snapshot CLOB,error_code VARCHAR(64))");
         db.execute("CREATE TABLE wx_3d_resource_import(operation_id VARCHAR(36) PRIMARY KEY,resource_id BIGINT,status VARCHAR(24),source_size BIGINT,source_sha256 VARCHAR(64),frozen_source_key VARCHAR(512),attempt_id VARCHAR(36),lease_until TIMESTAMP,available_at TIMESTAMP,cancel_requested BOOLEAN DEFAULT FALSE,error_code VARCHAR(64),row_version BIGINT DEFAULT 0,target_format VARCHAR(4),artifact_descriptor CLOB,publish_descriptor CLOB)");
         db.update("INSERT INTO wx_3d_resource(id,resource_scope,tenant_id,upload_source,del_flag,current_revision) VALUES(101,'TENANT_SHARED','2','WEB_UPLOAD','0',0)");
@@ -46,6 +47,8 @@ class ModelImportSourceWorkerTest {
         db.update("INSERT INTO wx_infra_file VALUES(5,2,10,'PRIVATE_UPLOAD','image/png',50,FALSE,NULL)");
         for(String table:List.of("wx_3d_icon","wx_3d_template"))
             db.execute("CREATE TABLE "+table+"(id BIGINT PRIMARY KEY,resource_id BIGINT,tenant_id VARCHAR(20),del_flag CHAR,status VARCHAR(16))");
+        db.execute("ALTER TABLE wx_3d_icon ADD icon_file_id BIGINT");
+        db.execute("ALTER TABLE wx_3d_template ADD cover_image_id BIGINT");
         store=mock(ArtResourceObjectStore.class);access=mock(ArtResourceAccess.class);
         ReflectionTestUtils.setField(worker,"jdbc",db);ReflectionTestUtils.setField(worker,"transactions",new DataSourceTransactionManager(data));
         ReflectionTestUtils.setField(worker,"store",store);ReflectionTestUtils.setField(worker,"access",access);
@@ -138,7 +141,9 @@ class ModelImportSourceWorkerTest {
         db.update("INSERT INTO wx_3d_model(id,model_file_id,tenant_id,resource_belong,data_user_id,create_by,status,model_name,model_desc,cover_image_id)"
                 + " VALUES(44,301,'2','MINE',10,10,'OFFLINE','旧模型','保留描述',5)");
         db.update("UPDATE wx_infra_file SET visibility_scope='TENANT',uploader_id=11 WHERE id=5");
-        catalog.update(44L, catalogForm());
+        var system = catalogForm();
+        system.setResourceBelong("SYSTEM");
+        catalog.update(44L, system);
         assertEquals("COMMITTED", status());
         assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM wx_3d_model", Integer.class));
         assertEquals(101L, db.queryForObject("SELECT resource_id FROM wx_3d_model WHERE id=44", Long.class));
@@ -146,6 +151,39 @@ class ModelImportSourceWorkerTest {
         assertEquals("OFFLINE", db.queryForObject("SELECT status FROM wx_3d_model WHERE id=44", String.class));
         assertEquals("保留描述", db.queryForObject("SELECT model_desc FROM wx_3d_model WHERE id=44", String.class));
         assertEquals(5L, db.queryForObject("SELECT cover_image_id FROM wx_3d_model WHERE id=44", Long.class));
+        assertEquals("SYSTEM", db.queryForObject("SELECT resource_belong FROM wx_3d_model WHERE id=44", String.class));
+        assertEquals("GLOBAL", db.queryForObject("SELECT visibility_scope FROM wx_infra_file WHERE id=5", String.class));
+    }
+
+    /** 暂存文件可在新增时选择系统归属，同一文件和表单重试只产生一条系统目录。 */
+    @Test void canonicalCreateUsesScopeSelectedAtSave() throws Exception {
+        var catalog = catalogWriter();
+        assertEquals("TENANT_SHARED", db.queryForObject("SELECT resource_scope FROM wx_3d_resource", String.class));
+        var system = catalogForm();
+        system.setResourceBelong("SYSTEM");
+        long id = catalog.create(system);
+        assertEquals(id, catalog.create(system));
+        assertEquals("GLOBAL_SYSTEM", db.queryForObject("SELECT resource_scope FROM wx_3d_resource_operation", String.class));
+        assertEquals("0", db.queryForObject("SELECT tenant_id FROM wx_3d_resource", String.class));
+        assertEquals("SYSTEM", db.queryForObject("SELECT resource_belong FROM wx_3d_model", String.class));
+        String prefix = db.queryForObject("SELECT storage_prefix FROM wx_3d_resource", String.class);
+        assertTrue(prefix.startsWith("resources/GLOBAL_SYSTEM/0/101/"));
+    }
+
+    /** 原位替换可随保存调整归属，并保留目录编号、文件编号与当前上下线状态。 */
+    @Test void canonicalReplacementCanSaveAnotherScope() throws Exception {
+        var catalog = catalogWriter();
+        db.update("UPDATE wx_3d_resource SET current_revision=1,content_state='READY'");
+        db.update("UPDATE wx_3d_resource_operation SET operation_type='REPLACE',expected_revision=1");
+        db.update("INSERT INTO wx_3d_model(id,resource_id,tenant_id,resource_belong,data_user_id,status,model_name)"
+                + " VALUES(44,101,'2','MINE',10,'OFFLINE','旧模型')");
+        var system = catalogForm();
+        system.setResourceBelong("SYSTEM");
+        catalog.replaceManaged(44L, system, op);
+        catalog.replaceManaged(44L, system, op);
+        assertEquals("SYSTEM", db.queryForObject("SELECT resource_belong FROM wx_3d_model WHERE id=44 AND resource_id=101", String.class));
+        assertEquals("OFFLINE", db.queryForObject("SELECT status FROM wx_3d_model WHERE id=44", String.class));
+        assertEquals(2L, db.queryForObject("SELECT current_revision FROM wx_3d_resource", Long.class));
     }
 
     private cn.iocoder.wx.module.dimensions.entity.Dim3dModel catalogForm() {

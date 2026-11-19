@@ -67,9 +67,12 @@ public class Dim3dResourceController {
     @Operation(summary = "编辑模型", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             required = true, content = @Content(schema = @Schema(implementation = Dim3dModel.class))))
     @PreAuthorize("@ss.hasPermission('dim3d:model:edit')")
-    public CommonResult<Void> editModel(@PathVariable Long id, @RequestBody JsonNode body) {
+    public CommonResult<Void> editModel(@PathVariable Long id, @RequestBody JsonNode body,
+                                        @RequestParam(required = false) String operationId) {
         // 新增与编辑共用原始金额检查和实体校验，确保编辑也不会截断小数金额。
-        service.updateModel(id, modelInput(body));
+        var model = modelInput(body);
+        if (operationId == null) service.updateModel(id, model);
+        else service.replaceManagedModel(id, model, operationId);
         return CommonResult.success(null);
     }
     @GetMapping("/model/info/{id}") @Operation(summary = "查询模型详情") @PreAuthorize("@ss.hasPermission('dim3d:model:query')")
@@ -97,6 +100,14 @@ public class Dim3dResourceController {
     @PreAuthorize("@ss.hasPermission('dim3d:model:query')")
     public CommonResult<?> modelResourceInfo(@PathVariable Long id) {
         return CommonResult.success(service.getModelResource(id));
+    }
+
+    /** 轻量读取文件访问方式，受管模型由播放器依据稳定编号执行原受控下载。 */
+    @GetMapping("/model/file-access/{id}")
+    @Operation(summary = "查询模型文件访问方式")
+    @PreAuthorize("@ss.hasPermission('dim3d:model:query')")
+    public CommonResult<?> modelFileAccess(@PathVariable Long id) {
+        return CommonResult.success(service.getModelFileAccess(id));
     }
 
     /**
@@ -194,7 +205,7 @@ public class Dim3dResourceController {
         return CommonResult.success(null);
     }
 
-    /** 接收单个ZIP。归属参数启用受管上传，历史调用继续兼容旧回执。 */
+    /** 接收单个ZIP。旧归属参数仍用于选择受管回执，最终归属以目录保存表单为准。 */
     @PostMapping(value = "/resource/uploadConvert", consumes = "multipart/form-data")
     @Operation(summary = "上传ZIP并转换资源")
     // 转换会上传文件并写入资源表，权限必须与模型新增保持一致。

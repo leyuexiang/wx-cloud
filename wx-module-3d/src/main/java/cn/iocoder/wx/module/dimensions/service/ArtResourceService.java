@@ -308,7 +308,7 @@ public class ArtResourceService {
         for(char c:value.toCharArray()){if(c=='_')upper=true;else{out.append(upper?Character.toUpperCase(c):c);upper=false;}}
         return out.toString();
     }
-    private String hash(JsonNode body) {
+    String hash(JsonNode body) {
         try {
             var map=new TreeMap<String,Object>();body.fields().forEachRemaining(e->{
                 if(e.getValue().isObject()) { var child=new TreeMap<String,String>();e.getValue().fields().forEachRemaining(v->child.put(v.getKey(),v.getValue().asText()));map.put(e.getKey(),child); }

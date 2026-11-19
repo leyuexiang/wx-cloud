@@ -77,15 +77,34 @@ class ModelImportServiceTest {
         verifyNoInteractions(signer);
     }
 
-    @Test void multipartUploadFixesSystemScopeAndAuthenticatedUploader() {
+    /** 旧客户端传系统归属时仍先暂存于当前租户，最终范围留到保存。 */
+    @Test void multipartUploadKeepsAuthenticatedTenantUntilSave() {
         ReflectionTestUtils.setField(service, "objects", mock(ArtResourceObjectStore.class));
         var file = new org.springframework.mock.web.MockMultipartFile("file", "模型.zip", "application/zip", new byte[]{80,75,3,4});
         var state = service.upload(file, "SYSTEM");
         assertEquals("QUEUED", state.importStatus());
-        assertEquals("GLOBAL_SYSTEM", db.queryForObject("SELECT resource_scope FROM wx_3d_resource_operation", String.class));
-        assertEquals("0", db.queryForObject("SELECT tenant_id FROM wx_3d_resource", String.class));
+        assertEquals("TENANT_SHARED", db.queryForObject("SELECT resource_scope FROM wx_3d_resource_operation", String.class));
+        assertEquals("2", db.queryForObject("SELECT tenant_id FROM wx_3d_resource", String.class));
+        verify(access, never()).maintain(any(), eq("GLOBAL_SYSTEM"), anyString());
         assertEquals(10L, db.queryForObject("SELECT create_by FROM wx_3d_resource", Long.class));
         assertEquals(10L, db.queryForObject("SELECT operator_id FROM wx_3d_resource_operation", Long.class));
+    }
+
+    /** 兼容旧保存表单，也允许显式选择覆盖上传偏好。 */
+    @Test void compatibilitySaveUsesUploadPreferenceOnlyWhenBelongIsOmitted() throws Exception {
+        ReflectionTestUtils.setField(service, "objects", mock(ArtResourceObjectStore.class));
+        var file = new org.springframework.mock.web.MockMultipartFile("file", "模型.zip", "application/zip", new byte[]{80,75,3,4});
+        for (String chosen : List.of("SYSTEM", "MINE")) {
+            var upload = service.upload(file, "SYSTEM");
+            db.update("UPDATE wx_3d_resource_import SET status='PUBLISHING' WHERE operation_id=?", upload.operationId());
+            var body = json.createObjectNode().put("operationId", upload.operationId()).put("resourceId", upload.resourceId())
+                    .put("modelName", "兼容模型").put("category", "sample");
+            if ("MINE".equals(chosen)) body.put("resourceBelong", chosen);
+            assertEquals("PUBLISHING", service.saveUploadedModel(body).importStatus());
+            String saved = db.queryForObject("SELECT publish_descriptor FROM wx_3d_resource_import WHERE operation_id=?",
+                    String.class, upload.operationId());
+            assertEquals(chosen, json.readTree(saved).path("targetBelong").asText());
+        }
     }
 
     @Test void simpleSaveBindsOriginalResourceAndPreservesUnifiedDictionaryError() {
@@ -252,6 +271,21 @@ class ModelImportServiceTest {
         var directory = json.createObjectNode().put("modelName", "替换模型").put("category", "sample");
         assertThrows(ServiceException.class, () -> service.requestPublishForDirectory(op(), directory, 44L));
         assertNull(db.queryForObject("SELECT publish_descriptor FROM wx_3d_resource_import", String.class));
+    }
+
+    /** 目录原位替换只接受同一资源的原替换操作，普通上传或其他资源不得借道。 */
+    @Test void directoryReplacementConfirmsOnlyMatchingReplacementOperation() {
+        var created = service.create(request);
+        long resourceId = Long.parseLong(created.resourceId());
+        db.update("UPDATE wx_3d_resource_import SET status='PUBLISHING'");
+        var directory = json.createObjectNode().put("modelName", "替换模型").put("category", "sample");
+        assertThrows(ServiceException.class, () -> service.requestReplaceForResource(op(), resourceId, directory));
+        db.update("UPDATE wx_3d_resource_operation SET operation_type='REPLACE'");
+        assertThrows(ServiceException.class, () -> service.requestReplaceForResource(op(), resourceId + 1, directory));
+        assertNull(db.queryForObject("SELECT publish_descriptor FROM wx_3d_resource_import", String.class));
+        assertEquals("PUBLISHING", service.requestReplaceForResource(op(), resourceId, directory).importStatus());
+        assertEquals("PUBLISHING", service.requestReplaceForResource(op(), resourceId, directory).importStatus());
+        assertEquals(1L, db.queryForObject("SELECT row_version FROM wx_3d_resource_import", Long.class));
     }
 
     @Test void disabledImportCannotBePublishedThroughCatalogAdapter() {
