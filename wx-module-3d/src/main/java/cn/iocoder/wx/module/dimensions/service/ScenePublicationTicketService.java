@@ -25,6 +25,17 @@ import java.util.Set;
 /** 发布读取票据服务。数据库只保存摘要，票据失效由状态、过期时间和发布状态共同决定。 */
 @Service
 public class ScenePublicationTicketService {
+    public static final int MIN_SECONDS = 60;
+    public static final int MAX_SECONDS = 3600;
+    public static final int DEFAULT_SECONDS = 300;
+    /** 授权凭证每次消费均验证原授权批次及当前发布，普通票据沿用原读取范围。 */
+    private static final String READABLE_TICKET = """
+            t.token_hash=? AND t.scope='READ' AND t.status='ACTIVE' AND t.expires_time>? AND p.status='PUBLISHED'
+            AND (t.scene_grant_id IS NULL OR (p.current_flag=1 AND EXISTS (
+                SELECT 1 FROM wx_3d_scene_grant g
+                WHERE g.id=t.scene_grant_id AND g.scene_id=p.scene_id AND g.tenant_id=p.tenant_id AND g.status=1
+            )))
+            """;
     private static final SecureRandom RANDOM = new SecureRandom();
     @Resource private JdbcTemplate jdbc;
     @Resource private ArtResourceAccess access;
@@ -33,16 +44,26 @@ public class ScenePublicationTicketService {
     @Transactional
     public Map<String, Object> issue(String publicationId, int expiresInSeconds) {
         var actor = access.actor();
-        if (expiresInSeconds < 60 || expiresInSeconds > 3600) throw new ServiceException(400, "票据有效期必须在60到3600秒之间");
-        var publications = jdbc.queryForList("SELECT publication_id FROM wx_3d_scene_publication WHERE publication_id=? AND tenant_id=? AND status='PUBLISHED'",
+        if (expiresInSeconds < MIN_SECONDS || expiresInSeconds > MAX_SECONDS) throw new ServiceException(400, "票据有效期必须在60到3600秒之间");
+        var publications = jdbc.queryForList("SELECT tenant_id,NULL grant_id FROM wx_3d_scene_publication WHERE publication_id=? AND tenant_id=? AND status='PUBLISHED'",
                 publicationId, actor.tenant());
+        if (publications.isEmpty()) {
+            // 目标租户只能签发授权场景当前版本票据，发布与资源仍使用源租户身份。
+            publications = jdbc.queryForList("""
+                    SELECT p.tenant_id,g.id grant_id FROM wx_3d_scene_publication p
+                    JOIN wx_3d_scene_grant g ON g.scene_id=p.scene_id AND g.tenant_id=p.tenant_id
+                    WHERE p.publication_id=? AND p.current_flag=1 AND p.status='PUBLISHED' AND g.status=1 AND g.grant_tenant_id=?
+                    """, publicationId, actor.tenant());
+        }
         if (publications.size() != 1) throw new ServiceException(404, "发布记录不存在或已撤销");
+        var publication = publications.get(0);
+        long owner = ((Number) publication.get("tenant_id")).longValue();
         String raw = randomToken();
         String ticketId = "TKT-" + IdWorker.getId();
-        jdbc.update("INSERT INTO wx_3d_scene_publication_ticket(id,ticket_id,publication_id,tenant_id,token_hash,scope,status,expires_time,created_by) VALUES(?,?,?,?,?,?,?,?,?)",
-                IdWorker.getId(), ticketId, publicationId, actor.tenant(), sha256(raw), "READ", "ACTIVE",
-                Timestamp.from(Instant.now().plusSeconds(expiresInSeconds)), actor.user());
-        audit(actor, publicationId, ticketId, "TICKET_ISSUE", "");
+        jdbc.update("INSERT INTO wx_3d_scene_publication_ticket(id,ticket_id,publication_id,tenant_id,token_hash,scope,status,expires_time,created_by,scene_grant_id) VALUES(?,?,?,?,?,?,?,?,?,?)",
+                IdWorker.getId(), ticketId, publicationId, owner, sha256(raw), "READ", "ACTIVE",
+                Timestamp.from(Instant.now().plusSeconds(expiresInSeconds)), actor.user(), publication.get("grant_id"));
+        audit(new ArtResourceAccess.Actor(actor.user(), owner), publicationId, ticketId, "TICKET_ISSUE", "");
         return Map.of("ticketId", ticketId, "token", raw, "publicationId", publicationId,
                 "expiresInSeconds", expiresInSeconds, "scope", "READ");
     }
@@ -78,7 +99,7 @@ public class ScenePublicationTicketService {
 
     /** 校验票据并返回固定发布摘要。票据不接受客户端提交租户或发布编号覆盖。 */
     public Map<String, Object> verify(String token) {
-        var rows = jdbc.queryForList("SELECT p.publication_id,p.scene_id,p.revision_no,p.source_hash FROM wx_3d_scene_publication_ticket t JOIN wx_3d_scene_publication p ON p.publication_id=t.publication_id AND p.tenant_id=t.tenant_id WHERE t.token_hash=? AND t.scope='READ' AND t.status='ACTIVE' AND t.expires_time>? AND p.status='PUBLISHED'",
+        var rows = jdbc.queryForList("SELECT p.publication_id,p.scene_id,p.revision_no,p.source_hash FROM wx_3d_scene_publication_ticket t JOIN wx_3d_scene_publication p ON p.publication_id=t.publication_id AND p.tenant_id=t.tenant_id WHERE " + READABLE_TICKET,
                 tokenHash(token), Timestamp.from(Instant.now()));
         if (rows.size() != 1) throw new ServiceException(401, "访问票据已失效");
         var row = rows.get(0);
@@ -93,7 +114,7 @@ public class ScenePublicationTicketService {
 
     public record LiveSnapshot(String ticketId, Map<String, Object> snapshot) {}
 
-    /** 实时读取同时绑定认证租户和指定发布，匿名读取入口仍只使用票据。 */
+    /** 实时读取同时绑定认证租户和指定发布；场景授权票据只可访问固定快照及文件。 */
     public LiveSnapshot consumeLiveSnapshot(String token, String publicationId, long tenant) {
         if (publicationId == null || !publicationId.matches("PUB-[1-9][0-9]{0,18}")) {
             throw new ServiceException(401, "访问票据无效");
@@ -106,11 +127,11 @@ public class ScenePublicationTicketService {
                         + "r.schema_version,r.scene_json,r.three_d_json,r.two_d_json,r.dependencies_json "
                         + "FROM wx_3d_scene_publication_ticket t JOIN wx_3d_scene_publication p ON p.publication_id=t.publication_id AND p.tenant_id=t.tenant_id "
                         + "LEFT JOIN wx_3d_scene_revision r ON r.tenant_id=p.tenant_id AND r.scene_id=p.scene_id AND r.revision_no=p.revision_no "
-                        + "WHERE t.token_hash=? AND t.scope='READ' AND t.status='ACTIVE' AND t.expires_time>? AND p.status='PUBLISHED'";
+                        + "WHERE " + READABLE_TICKET;
         String hash = tokenHash(token);
         Timestamp now = Timestamp.from(Instant.now());
         var rows = tenant == null ? jdbc.queryForList(sql, hash, now)
-                : jdbc.queryForList(sql + " AND p.tenant_id=? AND p.publication_id=?", hash, now, tenant, publicationId);
+                : jdbc.queryForList(sql + " AND t.scene_grant_id IS NULL AND p.tenant_id=? AND p.publication_id=?", hash, now, tenant, publicationId);
         if (rows.size() != 1) throw new ServiceException(401, "访问票据已失效");
         var row = rows.get(0);
         if (!(row.get("schema_version") instanceof Number schema) || schema.intValue() < 1
@@ -148,7 +169,7 @@ public class ScenePublicationTicketService {
             active.addAll(query.queryForList("SELECT t.ticket_id FROM wx_3d_scene_publication_ticket t "
                             + "JOIN wx_3d_scene_publication p ON p.publication_id=t.publication_id AND p.tenant_id=t.tenant_id "
                             + "WHERE t.tenant_id=:tenant AND t.ticket_id IN (:tickets) AND t.scope='READ' "
-                            + "AND t.status='ACTIVE' AND t.expires_time>:now AND p.status='PUBLISHED'",
+                            + "AND t.scene_grant_id IS NULL AND t.status='ACTIVE' AND t.expires_time>:now AND p.status='PUBLISHED'",
                     Map.of("tenant", tenant, "tickets", batches.subList(start, Math.min(start + 100, batches.size())),
                             "now", now), String.class));
         }
@@ -166,7 +187,7 @@ public class ScenePublicationTicketService {
     public ResourceGrant authorizeResources(String token) {
         var rows = jdbc.query("SELECT p.publication_id,p.tenant_id,p.index_version,t.expires_time FROM wx_3d_scene_publication_ticket t "
                 + "JOIN wx_3d_scene_publication p ON p.publication_id=t.publication_id AND p.tenant_id=t.tenant_id "
-                + "WHERE t.token_hash=? AND t.scope='READ' AND t.status='ACTIVE' AND t.expires_time>? AND p.status='PUBLISHED'",
+                + "WHERE " + READABLE_TICKET,
                 (result, number) -> {
                     if (result.getInt("index_version") != 2) throw new ServiceException(409, "发布缺少固定资源索引");
                     // 通过 JDBC 时间读取器兼容不同驱动对 DATETIME 的对象类型选择。

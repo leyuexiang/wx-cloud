@@ -2,9 +2,11 @@ package cn.iocoder.wx.module.dimensions.service;
 
 import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dIconResponse;
 import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dModelResponse;
+import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dTemplateResponse;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dIcon;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dModel;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dResourceBaseEntity;
+import cn.iocoder.wx.module.dimensions.entity.Dim3dTemplate;
 import cn.iocoder.wx.module.system.api.user.AdminUserApi;
 import cn.iocoder.wx.module.system.api.user.dto.AdminUserRespDTO;
 import jakarta.annotation.Resource;
@@ -32,6 +34,13 @@ public class Dim3dCatalogResponseAssembler {
 
     public List<Dim3dIconResponse> icons(List<Dim3dIcon> icons) {
         return project(icons, Dim3dIconResponse::from);
+    }
+
+    public Dim3dTemplateResponse template(Dim3dTemplate template) { return templates(List.of(template)).get(0); }
+
+    /** 文件型模板沿用目录操作人批量查询和缺值约定。 */
+    public List<Dim3dTemplateResponse> templates(List<Dim3dTemplate> templates) {
+        return project(templates, Dim3dTemplateResponse::from);
     }
 
     @FunctionalInterface

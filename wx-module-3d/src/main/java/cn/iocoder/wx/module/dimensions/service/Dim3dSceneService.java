@@ -37,11 +37,24 @@ public class Dim3dSceneService {
     /** 灰度租户白名单，逗号分隔；为空时沿用全局开关覆盖所有租户。 */
     @Value("${dim3d.scene-content.dual-write-tenants:}")
     private String sceneContentDualWriteTenants;
-    private static final String SUMMARY = "id,tenant_id,name,scene_desc,scene_category,scene_type,cover_asset_id,current_revision,update_time";
-    /** 当前指针按租户及场景定位，列表、详情和筛选共用同一条件，避免逐场景补查。 */
-    private static final String CURRENT_PUBLICATION = "SELECT p.publication_id FROM wx_3d_scene_publication p "
-            + "WHERE p.tenant_id=wx_3d_scene.tenant_id AND p.scene_id=wx_3d_scene.id AND p.current_flag=1 AND p.status='PUBLISHED'";
-    private static final String PUBLICATION_PROJECTION = ", (" + CURRENT_PUBLICATION + " LIMIT 1) AS published_publication_id";
+    /** 列表与管理详情只从真实当前发布及快照目录取状态，不读取四包正文。 */
+    private static final String SCENE_DIRECTORY = """
+             FROM wx_3d_scene s
+             LEFT JOIN wx_3d_scene_template t ON t.tenant_id=s.tenant_id AND t.template_scene_id=s.id AND t.deleted=0
+             LEFT JOIN wx_3d_scene_publication p ON p.tenant_id=s.tenant_id AND p.scene_id=s.id
+                 AND p.current_flag=1 AND p.status='PUBLISHED'
+             WHERE s.tenant_id=? AND s.deleted=0
+            """;
+    private static final String SUMMARY = """
+            SELECT s.id,s.tenant_id,s.name,s.scene_desc,s.scene_category,s.scene_type,s.cover_asset_id,
+                s.current_revision,s.create_by,s.create_time,s.update_time,t.save_scope,
+                CASE WHEN t.id IS NULL THEN 'INSTANCE' ELSE 'TEMPLATE' END scene_kind,
+                p.publication_id,p.revision_no published_revision_no
+            """;
+    private static final Map<String, String> SORT_COLUMNS = Map.of(
+            "id", "s.id", "sceneId", "s.id", "name", "s.name", "sceneName", "s.name",
+            "sceneCategory", "s.scene_category", "sceneType", "s.scene_type", "sceneKind", "scene_kind",
+            "publishStatus", "p.publication_id IS NOT NULL", "createTime", "s.create_time", "updateTime", "s.update_time");
     private static final List<String> PACKAGE_KEYS = List.of("sceneJson", "threeDJson", "twoDJson", "dependenciesJson");
     // 只映射已定义的场景引用字段，资源编号和未知扩展中的普通 id 保持原值。
     private static final Set<String> TEMPLATE_REFERENCE_FIELDS = Set.of("instanceId", "parentInstanceId", "parentId",
@@ -54,24 +67,30 @@ public class Dim3dSceneService {
                     WHERE t.tenant_id=wx_3d_scene.tenant_id AND t.template_scene_id=wx_3d_scene.id)
             """;
 
-    public Map<String, Object> page(String name, String type, String category, String kind, Integer published, String tenant, int number, int size) {
+    public PageResult<Map<String, Object>> page(String name, String type, String category, String kind, Integer published,
+                                               String tenant, int number, int size, String sort, String direction) {
         var actor = access.actor();
         if (number < 1 || number > 10000 || size < 1 || size > 100) throw bad("分页范围无效");
-        // 普通场景列表仍不混入模板；发布状态由有效的固定发布指针派生。
-        if ((kind != null && !"INSTANCE".equals(kind)) ||
-                (tenant != null && !tenant.isBlank() && !Long.toString(actor.tenant()).equals(tenant)))
-            return Map.of("rows", List.of(), "total", 0);
+        long owner = tenant == null || tenant.isBlank() ? actor.tenant() : requireId(tenant);
+        if (owner != actor.tenant() && !access.isPlatformAdministrator(actor)) throw new ServiceException(403, "无权查询该租户场景");
+        String sceneKind = kind == null || kind.isBlank() ? "INSTANCE" : kind;
+        if (!Set.of("INSTANCE", "TEMPLATE").contains(sceneKind)) throw bad("场景种类无效");
         if (published != null && published != 0 && published != 1) throw bad("发布状态无效");
-        StringBuilder where = new StringBuilder(" FROM wx_3d_scene WHERE tenant_id=? AND deleted=0 AND NOT " + TEMPLATE_SCENE);
-        List<Object> parameters = new ArrayList<>(); parameters.add(actor.tenant());
-        if (published != null) where.append(published == 1 ? " AND EXISTS (" : " AND NOT EXISTS (").append(CURRENT_PUBLICATION).append(")");
-        if (name != null && !name.isBlank()) { where.append(" AND name LIKE ?"); parameters.add("%" + name + "%"); }
-        if (type != null && !type.isBlank()) { where.append(" AND scene_type=?"); parameters.add(type); }
-        if (category != null && !category.isBlank()) { where.append(" AND scene_category=?"); parameters.add(category); }
-        Long total = jdbc.queryForObject("SELECT COUNT(*)" + where, Long.class, parameters.toArray());
-        parameters.add(size); parameters.add((number - 1) * size);
-        var rows = jdbc.queryForList("SELECT " + SUMMARY + PUBLICATION_PROJECTION + where + " ORDER BY update_time DESC,id DESC LIMIT ? OFFSET ?", parameters.toArray());
-        return Map.of("rows", rows.stream().map(this::summary).toList(), "total", total == null ? 0 : total);
+        String order = Dim3dCatalogOrder.sql(SORT_COLUMNS, sort == null || sort.isBlank() ? "updateTime" : sort,
+                direction, "场景排序字段或方向无效", "s.id");
+        var where = new StringBuilder(SCENE_DIRECTORY);
+        where.append("TEMPLATE".equals(sceneKind) ? " AND t.id IS NOT NULL" : " AND t.id IS NULL");
+        if (published != null) where.append(published == 1 ? " AND p.publication_id IS NOT NULL" : " AND p.publication_id IS NULL");
+        List<Object> parameters = new ArrayList<>(); parameters.add(owner);
+        if (name != null && !name.isBlank()) { where.append(" AND s.name LIKE ?"); parameters.add("%" + name + "%"); }
+        if (type != null && !type.isBlank()) { where.append(" AND s.scene_type=?"); parameters.add(type); }
+        if (category != null && !category.isBlank()) { where.append(" AND s.scene_category=?"); parameters.add(category); }
+        long total = jdbc.queryForObject("SELECT COUNT(*)" + where, Long.class, parameters.toArray());
+        long offset = (number - 1L) * size;
+        if (offset >= total) return new PageResult<>(List.of(), total);
+        parameters.add(size); parameters.add(offset);
+        var rows = jdbc.queryForList(SUMMARY + where + order + " LIMIT ? OFFSET ?", parameters.toArray());
+        return new PageResult<>(rows.stream().map(this::summary).toList(), total);
     }
 
     @Transactional
@@ -98,17 +117,59 @@ public class Dim3dSceneService {
         ObjectNode dependencies = json.createObjectNode();
         for (String key : List.of("resources", "dataBindings", "behaviors", "deviceBindings")) dependencies.putArray(key);
         insertRevision(actor, id, 1, 1, List.of(scene.toString(), threeD.toString(), twoD.toString(), dependencies.toString()), "initial", "0".repeat(64));
-        return Map.of("sceneId", Long.toString(id), "sceneType", type, "revisionNo", 1);
+        return summary(directoryScene(id, actor));
     }
 
     public Map<String, Object> info(String id) {
         var actor = access.actor();
-        var row = scene(id, actor, false);
+        long sceneId = requireId(id);
+        var row = directoryScene(sceneId, actor);
         var result = summary(row);
-        var revisions = jdbc.queryForList("SELECT * FROM wx_3d_scene_revision WHERE tenant_id=? AND scene_id=? AND revision_no=?", actor.tenant(), requireId(id), row.get("current_revision"));
-        if (revisions.size() != 1) throw new ServiceException(500, "场景修订不完整");
-        result.put("currentRevision", revision(actor, revisions.get(0)));
+        Object current = row.get("current_revision");
+        Object published = row.get("published_revision_no");
+        var revisions = jdbc.queryForList("SELECT * FROM wx_3d_scene_revision WHERE tenant_id=? AND scene_id=? AND revision_no IN (?,?)",
+                actor.tenant(), sceneId, current, published == null ? current : published);
+        Map<String, Object> currentView = null, publishedView = null;
+        for (var entry : revisions) {
+            var view = revision(actor, entry);
+            if (Objects.equals(entry.get("revision_no"), current)) currentView = view;
+            if (Objects.equals(entry.get("revision_no"), published)) publishedView = view;
+        }
+        if (currentView == null || (published != null && publishedView == null)) throw new ServiceException(500, "场景修订不完整");
+        result.put("currentRevision", currentView);
+        result.put("publishedRevision", publishedView);
+        result.put("accessMode", published == null ? null : "TICKET");
+        result.put("needPassword", false);
         return result;
+    }
+
+    private Map<String, Object> directoryScene(long id, ArtResourceAccess.Actor actor) {
+        var rows = jdbc.queryForList(SUMMARY + SCENE_DIRECTORY + " AND s.id=?", actor.tenant(), id);
+        if (rows.size() != 1) throw new ServiceException(404, "场景不存在或当前身份不可见");
+        return rows.get(0);
+    }
+
+    /** 独立复制最新已保存四包和元数据，沿用模板实例化的内部引用映射。 */
+    @Transactional
+    public Map<String, Object> copy(String id) {
+        var actor = access.actor();
+        long source = requireId(id);
+        var original = scene(id, actor, true);
+        var revisions = jdbc.queryForList("SELECT * FROM wx_3d_scene_revision WHERE tenant_id=? AND scene_id=? AND revision_no=?",
+                actor.tenant(), source, original.get("current_revision"));
+        if (revisions.size() != 1) throw new ServiceException(500, "场景修订不完整");
+        var revision = revisionRowWithContent(actor, revisions.get(0));
+        String suffix = "（副本）";
+        String originalName = original.get("name").toString();
+        int length = Math.min(100 - suffix.length(), originalName.codePointCount(0, originalName.length()));
+        String name = originalName.substring(0, originalName.offsetByCodePoints(0, length)) + suffix;
+        long copied = IdWorker.getId();
+        List<String> packages = instantiatePackages(revision, id, id, Long.toString(copied), name);
+        jdbc.update("INSERT INTO wx_3d_scene(id,tenant_id,name,scene_desc,scene_category,scene_type,cover_asset_id,create_by) VALUES(?,?,?,?,?,?,?,?)",
+                copied, actor.tenant(), name, original.get("scene_desc"), original.get("scene_category"),
+                original.get("scene_type"), original.get("cover_asset_id"), actor.user());
+        insertRevision(actor, copied, 1, ((Number) revision.get("schema_version")).intValue(), packages, "initial", "0".repeat(64));
+        return summary(directoryScene(copied, actor));
     }
 
     /**
@@ -201,6 +262,9 @@ public class Dim3dSceneService {
     public void remove(String id) {
         var actor = access.actor(); var row = scene(id, actor, true);
         if (liveLock(row)) throw new ServiceException(409, "场景正在编辑，请退出编辑器后删除");
+        // 发布与删除按同一场景行锁串行，明确撤销后才隐藏场景目录。
+        if (!jdbc.queryForList("SELECT id FROM wx_3d_scene_publication WHERE tenant_id=? AND scene_id=? AND current_flag=1 AND status='PUBLISHED' FOR UPDATE",
+                actor.tenant(), requireId(id)).isEmpty()) throw new ServiceException(409, "请先撤销当前发布");
         jdbc.update("UPDATE wx_3d_scene SET deleted=1,update_time=CURRENT_TIMESTAMP WHERE id=? AND tenant_id=?", requireId(id), actor.tenant());
     }
 
@@ -213,7 +277,8 @@ public class Dim3dSceneService {
         Timestamp expiry = Timestamp.from(Instant.now().plusSeconds(1200));
         jdbc.update("UPDATE wx_3d_scene SET lock_user=?,lock_client=?,lock_token=?,lock_expire=? WHERE id=? AND tenant_id=?",
                 actor.user(), client, token, expiry, requireId(id), actor.tenant());
-        return Map.of("sceneId", id, "lockToken", token, "locked", true, "baseRevisionNo", row.get("current_revision"), "expireTime", expiry.toInstant().toString());
+        return Map.of("sceneId", id, "lockToken", token, "locked", true, "lockedMap", Map.of(id, true),
+                "baseRevisionNo", row.get("current_revision"), "expireTime", expiry.toInstant().toString());
     }
 
     @Transactional
@@ -435,21 +500,24 @@ public class Dim3dSceneService {
 
     /** 兼容旧 /dim3d/template/page：在同一分页中投影旧文件型模板和场景快照模板。 */
     public PageResult<Map<String, Object>> templatePageCombined(String name, String type, String category, String resourceBelong,
-                                                                  String status, Integer number, Integer size) {
+                                                                String status, Integer number, Integer size,
+                                                                String orderByColumn, String isAsc) {
         var actor = access.actor();
         number = number == null ? 1 : number; size = size == null ? 10 : size;
         if (number < 1 || size < 1 || size > 100) throw bad("分页范围无效");
         String normalizedType = normalizeTemplateType(type);
+        String order = Dim3dFileTemplateService.orderBy(
+                orderByColumn == null || orderByColumn.isBlank() ? "updateTime" : orderByColumn, isAsc);
         // 数据库按数值编号排序，仅在返回时转字符串。旧目录继续按认证租户隔离。
         String old = """
                 SELECT id,template_name,template_desc,template_type,category,resource_belong,
                        CONCAT('',cover_image_id) cover_image_id,template_file_id,status,NULL template_scene_id,
-                       update_time,'LEGACY' record_kind
+                       create_time,update_time,'LEGACY' record_kind
                 FROM wx_3d_template WHERE del_flag='0' AND tenant_id=?
                 """;
         String snapshot = """
                 SELECT id,template_name,template_desc,template_type,category,resource_belong,
-                       cover_asset_id,NULL,status,template_scene_id,update_time,'SNAPSHOT'
+                       cover_asset_id,NULL,status,template_scene_id,create_time,update_time,'SNAPSHOT'
                 FROM wx_3d_scene_template WHERE deleted=0 AND tenant_id=?
                 """;
         StringBuilder where = new StringBuilder(" FROM (" + old + " UNION ALL " + snapshot + ") t WHERE 1=1");
@@ -459,10 +527,14 @@ public class Dim3dSceneService {
         if (category != null && !category.isBlank()) { where.append(" AND category=?"); parameters.add(category); }
         if (resourceBelong != null && !resourceBelong.isBlank()) { where.append(" AND resource_belong=?"); parameters.add(resourceBelong); }
         if (status != null && !status.isBlank()) { where.append(" AND status=?"); parameters.add(status); }
-        Long total = jdbc.queryForObject("SELECT COUNT(*)" + where, Long.class, parameters.toArray());
-        List<Object> pageParameters = new ArrayList<>(parameters); pageParameters.add(size); pageParameters.add((number - 1L) * size);
-        var rows = jdbc.queryForList("SELECT id,template_name,template_desc,template_type,category,resource_belong,cover_image_id,template_file_id,status,template_scene_id,update_time,record_kind" + where + " ORDER BY update_time DESC,id DESC,record_kind LIMIT ? OFFSET ?", pageParameters.toArray());
-        return new PageResult<>(rows.stream().map(this::combinedTemplateSummary).toList(), total == null ? 0L : total);
+        long total = jdbc.queryForObject("SELECT COUNT(*)" + where, Long.class, parameters.toArray());
+        long offset = (number - 1L) * size;
+        if (offset >= total) return new PageResult<>(List.of(), total);
+        parameters.add(size); parameters.add(offset);
+        // 两张表的目录编号可能相同，用来源标记稳定分页边界。
+        var rows = jdbc.queryForList("SELECT id,template_name,template_desc,template_type,category,resource_belong,cover_image_id,template_file_id,status,template_scene_id,update_time,record_kind"
+                + where + order + ", record_kind LIMIT ? OFFSET ?", parameters.toArray());
+        return new PageResult<>(rows.stream().map(this::combinedTemplateSummary).toList(), total);
     }
 
     /** 查询快照模板详情并回读独立四包；来源场景只返回身份，不暴露其当前正文。 */
@@ -727,7 +799,7 @@ public class Dim3dSceneService {
             remapWidgetLayerTree(twoD.path("layerTree"), references);
             return List.of(scene.toString(), threeD.toString(), twoD.toString(), dependencies.toString());
         } catch (java.io.IOException error) {
-            throw new ServiceException(500, "模板四包无法解析");
+            throw new ServiceException(500, "来源场景四包无法解析");
         }
     }
 
@@ -838,14 +910,15 @@ public class Dim3dSceneService {
         return rows.get(0);
     }
 
-    private static String normalizeTemplateType(String type) {
+    /** 两类目录统一将现有网页字典编码转换为数据库及接口使用的模板类型。 */
+    static String normalizeTemplateType(String type) {
         if (type == null || type.isBlank()) return type;
         String value = type.trim();
         return value.startsWith("dim3d_template_") ? value.substring("dim3d_template_".length()).toUpperCase(Locale.ROOT) : value;
     }
 
     private Map<String, Object> scene(String id, ArtResourceAccess.Actor actor, boolean lock) {
-        String projection = lock ? "*" : "*, CASE WHEN " + TEMPLATE_SCENE + " THEN 'TEMPLATE' ELSE 'INSTANCE' END scene_kind" + PUBLICATION_PROJECTION;
+        String projection = lock ? "*" : "*, CASE WHEN " + TEMPLATE_SCENE + " THEN 'TEMPLATE' ELSE 'INSTANCE' END scene_kind";
         String guard = lock ? " AND NOT " + TEMPLATE_SCENE + " FOR UPDATE" : "";
         var rows = jdbc.queryForList("SELECT " + projection + " FROM wx_3d_scene WHERE id=? AND tenant_id=? AND deleted=0" + guard, requireId(id), actor.tenant());
         if (rows.isEmpty()) throw new ServiceException(404, "场景不存在或当前身份不可见");
@@ -856,11 +929,12 @@ public class Dim3dSceneService {
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("sceneId", row.get("id").toString()); out.put("tenantId", row.get("tenant_id").toString()); out.put("name", row.get("name"));
         out.put("sceneDesc", row.get("scene_desc")); out.put("sceneCategory", row.get("scene_category")); out.put("sceneType", row.get("scene_type"));
-        out.put("coverAssetId", row.get("cover_asset_id")); out.put("sceneKind", row.getOrDefault("scene_kind", "INSTANCE"));
-        Object publication = row.get("published_publication_id");
-        out.put("publishStatus", publication == null ? 0 : 1);
-        if (publication != null) out.put("publishedPublicationId", publication.toString());
-        out.put("updateTime", row.get("update_time").toString());
+        out.put("ownerType", access.isPlatformTenant(((Number) row.get("tenant_id")).longValue()) ? "PLATFORM" : "TENANT");
+        out.put("coverAssetId", row.get("cover_asset_id")); out.put("sceneKind", row.get("scene_kind")); out.put("saveScope", row.get("save_scope"));
+        out.put("revisionNo", row.get("current_revision")); out.put("createBy", Objects.toString(row.get("create_by"), null));
+        out.put("createTime", Objects.toString(row.get("create_time"), null)); out.put("updateTime", Objects.toString(row.get("update_time"), null));
+        out.put("publishStatus", row.get("publication_id") == null ? 0 : 1);
+        out.put("publishedPublicationId", row.get("publication_id"));
         return out;
     }
 

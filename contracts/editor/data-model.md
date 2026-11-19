@@ -147,6 +147,8 @@
 
 场景授权关系：`scene_id`、`grant_tenant_id`、`granted_by`、`status`、`granted_at`、`revoked_at`。唯一键 `(scene_id, grant_tenant_id)`；有效授权为 `status=1`。授权只扩展读取范围，不转移场景所有权或资源维护权。
 
+SCENE-02 增量落点为 `wx_3d_scene_grant`，记录可信源租户和撤回人。重新授权生成新的授权编号。授权票据通过可空 `scene_grant_id` 保存其生效批次，正文与资源读取同时检查该批授权、当前发布状态和票据到期时间。旧普通票据该字段为空。迁移及回退见[场景授权增量](../../deploy/test148/migrations/scene02/README.md)。
+
 ## 5. 事务时序
 
 ### 5.1 保存

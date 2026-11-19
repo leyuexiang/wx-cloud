@@ -27,7 +27,10 @@ public interface Dim3dResourceCatalogService {
     Long createTemplate(Dim3dTemplate template);
     void updateTemplate(Long id, Dim3dTemplate template);
     Dim3dTemplate getTemplate(Long id);
-    PageResult<Dim3dTemplate> getTemplatePage(String templateName, String templateType, String category, String resourceBelong, String status, Integer pageNum, Integer pageSize);
+    /** 文件型模板分页在授权范围内按契约字段筛选和排序。 */
+    PageResult<Dim3dTemplate> getTemplatePage(String templateName, String templateType, String category,
+                                             String resourceBelong, String status, Integer pageNum, Integer pageSize,
+                                             String orderByColumn, String isAsc);
     void changeModelStatus(Long id, String status);
     void changeIconStatus(Long id, String status);
     void changeTemplateStatus(Long id, String status);

@@ -12,11 +12,17 @@ public final class Dim3dCatalogOrder {
 
     public static String sql(Map<String, String> allowedColumns, String requestedColumn, String requestedDirection,
                              String invalidMessage) {
-        String column = StringUtils.hasText(requestedColumn) ? allowedColumns.get(requestedColumn) : "id";
+        return sql(allowedColumns, requestedColumn, requestedDirection, invalidMessage, "id");
+    }
+
+    /** 联表场景分页明确主表身份列，避免同名编号产生排序歧义。 */
+    static String sql(Map<String, String> allowedColumns, String requestedColumn, String requestedDirection,
+                      String invalidMessage, String identityColumn) {
+        String column = StringUtils.hasText(requestedColumn) ? allowedColumns.get(requestedColumn) : identityColumn;
         String direction = StringUtils.hasText(requestedDirection) ? requestedDirection.toLowerCase(Locale.ROOT) : "desc";
         if (column == null || !(direction.equals("asc") || direction.equals("desc"))) {
             throw new ServiceException(400, invalidMessage);
         }
-        return " ORDER BY " + column + " " + direction + ("id".equals(column) ? "" : ", id DESC");
+        return " ORDER BY " + column + " " + direction + (identityColumn.equals(column) ? "" : ", " + identityColumn + " DESC");
     }
 }

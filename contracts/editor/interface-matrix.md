@@ -41,12 +41,12 @@ BASE-01 涉及模型、图片、场景、访问模式、行业模板和展厅模
 
 | 编号 | 方法及路径 | 页面/业务消费者 | 请求及响应差异 | 分类/责任 |
 | --- | --- | --- | --- | --- |
-| SCN-01 | GET `P/dim3d/scene/page` | `views/SceneManage/index.vue` | 名称/分类/类型/用途/分页等 → 根级或 `data` 包装 `rows,total`，不接受仅 `data.list` | 新增/三维 |
+| SCN-01 | GET `P/dim3d/scene/page` | `views/SceneManage/index.vue` | SCENE-02 根级 `rows,total`，支持场景种类、真实发布状态、排序和平台管理员租户筛选 | 适配/三维 |
 | SCN-02 | GET `P/dim3d/scene/info/{id}` | 编辑器、F11、场景导入导出 | 字符串 id → 基本视图、完整当前四包修订及发布引用；旧整数工程详情不可直接代替 | 新增/三维 |
 | SCN-03 | POST `P/dim3d/scene/add` | `views/SceneManage/AddDialog.vue` | `name,sceneType` 等 → 新场景基本视图；不能返回无编号空成功 | 新增/三维 |
 | SCN-04 | PUT `P/dim3d/scene/edit/{id}` | 同上 | 场景表单；归属由身份决定 → E | 新增/三维 |
 | SCN-05 | DELETE `P/dim3d/scene/remove/{id}` | 场景列表 | 删除权限/引用/锁边界须冻结 → E | 新增/三维 |
-| SCN-06 | POST `P/dim3d/scene/copy/{id}` | 场景列表 | 无正文 → 新身份场景；不得复用旧锁/发布票据 | 新增/三维 |
+| SCN-06 | POST `P/dim3d/scene/copy/{id}` | 场景列表 | 已保存的四包 → 独立场景和首版修订，重建内部编号及引用 | SCENE-02/三维 |
 | LOCK-01 | POST `P/dim3d/scene/lock/{id}?clientKey=...` | `views/sceneEdit/index.vue` | 页签编号 → `lockToken,baseRevisionNo,expireTime,locked,lockedMap`；`locked=false` 且有令牌才获得编辑权 | 新增/三维 |
 | LOCK-02 | POST `P/dim3d/scene/heartbeat/{id}` | 编辑页心跳 | 正文 `{lockToken}`，不传 clientKey；合同租约 20 分钟 | 新增/三维 |
 | LOCK-03 | DELETE `P/dim3d/scene/unlock/{id}?clientKey=...` | 编辑页正常退出及卸载 keepalive | A + 页签身份；不能只凭 id 清除他人锁 | 新增/三维 |
@@ -61,7 +61,7 @@ BASE-01 涉及模型、图片、场景、访问模式、行业模板和展厅模
 | CAT-01 | GET `P/dim3d/model/page`、`/model/info/{id}` | F05；模型管理、编辑资源面板 | B04 同名后缀 `/admin-api/dim3d` | MODEL-10 已使用独立 16 字段目录投影、统一 `modelFileId`、两位小数字符串价格及日期文本，根级分页和排序保留；预览由资源详情获取，本次字段收敛已部署并通过接口验收 | 适配/三维 |
 | CAT-02 | POST `/model/add`；PUT `/model/edit/{id}`；DELETE `/model/remove/{id}`；PUT `/model/{status}/{id}`，均加 `P/dim3d` | F05；模型管理/弹窗 | MODEL-09 五类接口表单收口，MODEL-11 上下线调整 | 新增、编辑要求完整文档表单，受管模型支持元数据编辑及文件替换，删除复用资源事务及引用保护，成功 `data=null`；上下线已统一历史及受管目录、编辑及归属权限，只接受 `ONLINE/OFFLINE`，成功 `data=null`；本次上下线调整已部署并通过接口验收 | 适配/三维 |
 | CAT-03 | GET `/icon/page`、`/icon/info/{id}`；POST `/icon/add`；PUT `/icon/edit/{id}`、`/icon/{status}/{id}`；DELETE `/icon/remove/{id}`，均加 `P/dim3d` | F06；图片管理、图像选择及部件素材 | B04 已有对应后缀 | IMG-07 使用根级分页和排序白名单，详情与列表共用目录字段；新增返回字符串目录编号，编辑、删除及上下线成功 `data=null`；沿用 `dim3d:icon:*` 权限及普通文件编号，真实网关另验 | 适配/三维 |
-| CAT-04 | GET `/template/page`、`/template/info/{id}`；PUT `/template/edit/{id}`、`/template/{status}/{id}`；DELETE `/template/remove/{id}`，均加 `P/dim3d` | F07；模板管理和编辑器资源面板 | B04 已有对应后缀，另有 `/template/add` | 前端当前文件无独立新增模板导出，不因后端有接口就列为首批直接调用；模板新增见 TMP-01 | 适配/三维 |
+| CAT-04 | GET `/template/page`、`/template/info/{id}`；POST `/template/add`；PUT `/template/edit/{id}`、`/template/{status}/{id}`；DELETE `/template/remove/{id}`，均加 `P/dim3d` | F07；模板管理和编辑器资源面板 | B04 已有对应后缀 | TPL-08 对齐分页、排序及空写入回执，保留合并分页来源标记；文件型新增已在后端接入，网页另存快照见 TMP-01 | 适配/三维 |
 | FILE-01 | POST `/api/resource/oss/upload` → `/admin-api/infra/file/resource/oss/upload` | F08；图片、模型封面、模板封面 | B05 `/admin-api/infra/file/upload` 返回地址字符串；本地新增独立候选控制器/Service，有归属 schema 迁移未现场验证 | 只接受单字段 `file`；返回 `ossId,url,originalName,fileSuffix`，`ossId` 为 `wx_infra_file.id` 且按字符串传输；不得把可选兼容字段 `fileName,ext1,service` 猜成必需身份 | 适配/基础设施；合同见 [IMG-01](image-upload-contract.md) |
 | FILE-02 | GET `/api/resource/oss/listByIds/{ids}` → `/admin-api/infra/file/resource/oss/listByIds/{ids}` | F08；`sceneAssetUrlResolver.ts` 和图片部件 | 本地已有显式范围 Mapper 与签名候选；数据库字段/签名 Host 及真实读取未验 | 首期只接受一个正十进制本地文件编号；legacy 不可见，当前仅 private uploader 可读；每次按编号签发 S3 GET 短时地址；批量语法不在首期 | 新增读取适配/基础设施 |
 | RES-01 | POST `/api/dim3d/resource/uploadConvert` | F09；模型新增弹窗 | B04 有 `/admin-api/dim3d/resource/uploadConvert`；B07 代理转换 | 前端 file ZIP → `id,resourceName,resourceType,assetName,resourceRelativePath`；代理仍依赖参考服务，不能声称本地转换齐备 | 适配+外部/三维 |
@@ -75,10 +75,10 @@ B04 三类目录的删除/状态服务存在不等于已满足运营/租户双�
 | 编号 | 方法及路径 | 来源和调用层级 | 请求/响应要点 | 后端差异/责任 |
 | --- | --- | --- | --- | --- |
 | TMP-01 | POST `P/dim3d/scene/saveAsTemplateFromSnapshot` | F02；编辑器模板服务注入，非简单目录新增 | 当前内存四包、`templateType,category,saveScope,schemaVersion` → 新模板场景 | 新增/三维；目录 add 不能替代域裁剪和快照 |
-| PUB-01 | POST `P/dim3d/scene/publish/{id}` | F02；场景列表和编辑器活跃 | `accessMode,accessPassword?,changeSummary?` → `publishedPublicationId,revisionNo,alreadyPublished` 等 | 新增/三维；旧 set-publish 布尔不等于不可变快照 |
-| PUB-02 | PUT `P/dim3d/scene/cancel/{id}` | F02；场景列表活跃 | 无正文；撤销对后续票据/读取生效 | 新增/三维 |
-| PUB-03 | POST `P/dim3d/scene/grant` | F02；场景列表活跃 | `{sceneId,grantTenantId}` → E | 新增/三维；跨租户授权是明确关系，不改变资源所有者 |
-| PUB-04 | POST `P/dim3d/scene/revoke`；GET `P/dim3d/scene/authorizedTenants/{id}` | F02 已声明，本次未确认非测试页面调用；合同保留 | 授权关系撤回/记录，状态和历史语义待冻结 | 新增/三维；不把仅声明标为活跃使用 |
+| PUB-01 | GET `P/dim3d/scene/publication/capabilities`；POST `P/dim3d/scene/publication/publish-current` | 管理页固定发布弹窗 | `sceneId,revisionNo,requestId` → 固定发布号；首次确认书签并复用发布事务 | SCENE-02/三维 |
+| PUB-02 | POST `P/dim3d/scene/publication/{publicationId}/revoke` | 管理页 | 按实际发布编号撤销，对后续票据读取生效 | 复用/三维 |
+| PUB-03 | POST `P/dim3d/scene/grant` | F02；场景列表 | `{sceneId,grantTenantId}` → E；给目标租户开放当前发布的只读票据 | SCENE-02/三维 |
+| PUB-04 | POST `P/dim3d/scene/revoke`；GET `P/dim3d/scene/authorizedTenants/{id}` | 管理接口 | 授权撤回使该批票据失效；列表响应按状态标记有效及已撤关系 | SCENE-02/三维 |
 
 ## 7. 发布读取的两套路径：需要显式冻结
 

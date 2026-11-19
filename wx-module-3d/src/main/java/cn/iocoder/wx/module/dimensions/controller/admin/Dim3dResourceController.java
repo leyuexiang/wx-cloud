@@ -9,13 +9,15 @@ import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dIconPageResponse;
 import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dIconResponse;
 import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dModelPageResponse;
 import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dModelResponse;
+import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dTemplateForm;
+import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dTemplatePageResponse;
+import cn.iocoder.wx.module.dimensions.domain.vo.Dim3dTemplateResponse;
 import cn.iocoder.wx.module.dimensions.service.Dim3dCatalogResponseAssembler;
 import cn.iocoder.wx.framework.common.exception.ServiceException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dModel;
-import cn.iocoder.wx.module.dimensions.entity.Dim3dTemplate;
 import cn.iocoder.wx.module.dimensions.service.Dim3dResourceCatalogService;
 import cn.iocoder.wx.module.dimensions.service.Dim3dSceneService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -153,24 +155,44 @@ public class Dim3dResourceController {
     }
 
     @PostMapping("/template/add") @Operation(summary = "新增模板") @PreAuthorize("@ss.hasPermission('dim3d:template:add')")
-    public CommonResult<Long> addTemplate(@Valid @RequestBody Dim3dTemplate body) { return CommonResult.success(service.createTemplate(body)); }
+    public CommonResult<Void> addTemplate(@Valid @RequestBody Dim3dTemplateForm body) {
+        service.createTemplate(body.toTemplate());
+        return CommonResult.success(null);
+    }
     @PutMapping("/template/edit/{id}") @Operation(summary = "编辑模板") @PreAuthorize("@ss.hasPermission('dim3d:template:edit')")
-    public CommonResult<Boolean> editTemplate(@PathVariable Long id, @Valid @RequestBody Dim3dTemplate body) { service.updateTemplate(id, body); return CommonResult.success(true); }
+    public CommonResult<Void> editTemplate(@PathVariable Long id, @Valid @RequestBody Dim3dTemplateForm body) {
+        service.updateTemplate(id, body.toTemplate());
+        return CommonResult.success(null);
+    }
     @GetMapping("/template/info/{id}") @Operation(summary = "查询模板详情") @PreAuthorize("@ss.hasPermission('dim3d:template:query')")
-    public CommonResult<Dim3dTemplate> templateInfo(@PathVariable Long id) { return CommonResult.success(service.getTemplate(id)); }
+    public CommonResult<Dim3dTemplateResponse> templateInfo(@PathVariable Long id) {
+        return CommonResult.success(catalogResponses.template(service.getTemplate(id)));
+    }
     @GetMapping("/template/page") @Operation(summary = "分页查询模板") @PreAuthorize("@ss.hasPermission('dim3d:template:query')")
-    public CommonResult<?> templatePage(String templateName, String templateType, String category, String resourceBelong,
-                                        String status, Integer pageNum, Integer pageSize,
-                                        @RequestParam(defaultValue = "false") boolean includeSnapshots) {
-        // 只有管理页显式请求合并目录，既有消费者继续沿用原分页及权限过滤。
-        if (includeSnapshots)
-            return CommonResult.success(sceneService.templatePageCombined(templateName, templateType, category, resourceBelong, status, pageNum, pageSize));
-        return CommonResult.success(service.getTemplatePage(templateName, templateType, category, resourceBelong, status, pageNum, pageSize));
+    public Dim3dTemplatePageResponse<?> templatePage(String templateName, String templateType, String category,
+                                                     String resourceBelong, String status, Integer pageNum, Integer pageSize,
+                                                     String orderByColumn, String isAsc,
+                                                     @RequestParam(defaultValue = "false") boolean includeSnapshots) {
+        // 管理页显式请求合并时保留记录来源，编辑及治理可以定位各自的业务目录。
+        if (includeSnapshots) {
+            var page = sceneService.templatePageCombined(templateName, templateType, category, resourceBelong,
+                    status, pageNum, pageSize, orderByColumn, isAsc);
+            return new Dim3dTemplatePageResponse<>(page.getTotal(), page.getList());
+        }
+        var page = service.getTemplatePage(templateName, templateType, category, resourceBelong,
+                status, pageNum, pageSize, orderByColumn, isAsc);
+        return new Dim3dTemplatePageResponse<>(page.getTotal(), catalogResponses.templates(page.getList()));
     }
     @PutMapping("/template/{status}/{id}") @Operation(summary = "模板上线或下线") @PreAuthorize("@ss.hasPermission('dim3d:template:edit')")
-    public CommonResult<Boolean> templateStatus(@PathVariable String status, @PathVariable Long id) { service.changeTemplateStatus(id, status); return CommonResult.success(true); }
+    public CommonResult<Void> templateStatus(@PathVariable String status, @PathVariable Long id) {
+        service.changeTemplateStatus(id, status);
+        return CommonResult.success(null);
+    }
     @DeleteMapping("/template/remove/{id}") @Operation(summary = "删除模板") @PreAuthorize("@ss.hasPermission('dim3d:template:delete')")
-    public CommonResult<Boolean> removeTemplate(@PathVariable Long id) { service.deleteTemplate(id); return CommonResult.success(true); }
+    public CommonResult<Void> removeTemplate(@PathVariable Long id) {
+        service.deleteTemplate(id);
+        return CommonResult.success(null);
+    }
 
     /** 接收单个ZIP。归属参数启用受管上传，历史调用继续兼容旧回执。 */
     @PostMapping(value = "/resource/uploadConvert", consumes = "multipart/form-data")

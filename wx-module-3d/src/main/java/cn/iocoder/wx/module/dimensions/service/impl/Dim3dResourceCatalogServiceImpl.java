@@ -3,19 +3,15 @@ package cn.iocoder.wx.module.dimensions.service.impl;
 import cn.iocoder.wx.framework.common.exception.ServiceException;
 import cn.iocoder.wx.framework.common.pojo.CommonResult;
 import cn.iocoder.wx.framework.common.pojo.PageResult;
-import cn.iocoder.wx.framework.tenant.core.context.TenantContextHolder;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dConvertedResource;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dIcon;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dModel;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dTemplate;
-import cn.iocoder.wx.module.dimensions.entity.Dim3dResourceBaseEntity;
 import cn.iocoder.wx.module.dimensions.exception.ErrorCodeConstants;
 import cn.iocoder.wx.module.dimensions.mapper.Dim3dConvertedResourceMapper;
-import cn.iocoder.wx.module.dimensions.mapper.Dim3dTemplateMapper;
 import cn.iocoder.wx.module.dimensions.service.Dim3dCatalogOrder;
+import cn.iocoder.wx.module.dimensions.service.Dim3dFileTemplateService;
 import cn.iocoder.wx.module.dimensions.service.Dim3dResourceCatalogService;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,7 +49,7 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
     /** 模型写入集中处理归属、文件关系、发布和删除，复用既有基础事务。 */
     @Resource private cn.iocoder.wx.module.dimensions.service.Dim3dModelWriteService models;
 
-    @Resource private Dim3dTemplateMapper templateMapper;
+    @Resource private Dim3dFileTemplateService fileTemplates;
     @Resource private Dim3dConvertedResourceMapper convertedResourceMapper;
     @Resource private RestTemplate restTemplate;
     @Resource private ObjectMapper objectMapper;
@@ -152,24 +148,21 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
         return images.page(name, category, secondary, belong, status, num, size, orderByColumn, isAsc);
     }
 
-    @Override public Long createTemplate(Dim3dTemplate template) { applyTenant(template); templateMapper.insert(template); return template.getId(); }
-    @Override public void updateTemplate(Long id, Dim3dTemplate template) { legacy(getTemplate(id)); applyTenant(template); template.setId(id); require(templateMapper.updateById(template)); }
-    @Override public Dim3dTemplate getTemplate(Long id) { return require(templateMapper.selectById(id)); }
-    @Override public PageResult<Dim3dTemplate> getTemplatePage(String name, String type, String category, String belong, String status, Integer num, Integer size) {
-        Page<Dim3dTemplate> page = templateMapper.selectPage(new Page<>(pageNum(num), pageSize(size)), new LambdaQueryWrapper<Dim3dTemplate>()
-                .like(StringUtils.hasText(name), Dim3dTemplate::getTemplateName, name).eq(StringUtils.hasText(type), Dim3dTemplate::getTemplateType, type)
-                .eq(StringUtils.hasText(category), Dim3dTemplate::getCategory, category).eq(StringUtils.hasText(belong), Dim3dTemplate::getResourceBelong, belong)
-                .eq(StringUtils.hasText(status), Dim3dTemplate::getStatus, status).orderByDesc(Dim3dTemplate::getId));
-        return new PageResult<>(page.getRecords(), page.getTotal());
+    @Override public Long createTemplate(Dim3dTemplate template) { return fileTemplates.create(template); }
+    @Override public void updateTemplate(Long id, Dim3dTemplate template) { fileTemplates.update(id, template); }
+    @Override public Dim3dTemplate getTemplate(Long id) { return fileTemplates.get(id); }
+    @Override public PageResult<Dim3dTemplate> getTemplatePage(String name, String type, String category, String belong,
+                                                               String status, Integer num, Integer size, String orderByColumn, String isAsc) {
+        return fileTemplates.page(name, type, category, belong, status, num, size, orderByColumn, isAsc);
     }
 
     /** 统一处理历史及受管模型的状态写入，复用编辑权限、目录归属和短事务。 */
     @Override public void changeModelStatus(Long id, String status) { models.changeStatus(id, status); }
     @Override public void changeIconStatus(Long id, String status) { images.changeStatus(id, status); }
-    @Override public void changeTemplateStatus(Long id, String status) { legacy(getTemplate(id)); checkStatus(status); Dim3dTemplate e = new Dim3dTemplate(); e.setId(id); e.setStatus(status); require(templateMapper.updateById(e)); }
+    @Override public void changeTemplateStatus(Long id, String status) { fileTemplates.changeStatus(id, status); }
     @Override public void deleteModel(Long id) { models.delete(id); }
     @Override public void deleteIcon(Long id) { images.delete(id); }
-    @Override public void deleteTemplate(Long id) { legacy(getTemplate(id)); require(templateMapper.deleteById(id)); }
+    @Override public void deleteTemplate(Long id) { fileTemplates.delete(id); }
 
     /** 将单个 ZIP 原样转发给转换服务，并仅在转换成功后落库。 */
     @Override public Dim3dConvertedResource convertAndSave(MultipartFile file, String authorization, String clientId) {
@@ -215,19 +208,6 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
         }
     }
 
-    /** 目录和模型文件的受管关联只能从新资源事务维护。 */
-    private void legacy(Dim3dResourceBaseEntity entity) {
-        artResources.guardLegacyResource(entity.getResourceId());
-        if(entity instanceof Dim3dModel model) artResources.guardLegacyResource(model.getModelFileId());
-    }
-
-    /** 客户端传入的租户字段不能参与归属决策；租户过滤继续约束读取和按主键更新。 */
-    private static void applyTenant(Dim3dResourceBaseEntity resource) {
-        resource.setTenantId(String.valueOf(TenantContextHolder.getRequiredTenantId()));
-    }
-
     private static int pageNum(Integer value) { return value == null || value < 1 ? 1 : value; }
     private static int pageSize(Integer value) { return value == null || value < 1 ? 10 : Math.min(value, 200); }
-    private static void checkStatus(String status) { if (!Objects.equals("ONLINE", status) && !Objects.equals("OFFLINE", status)) throw new ServiceException(400, "状态只能是ONLINE或OFFLINE"); }
-    private static <T> T require(T entity) { if (entity == null || (entity instanceof Integer && (Integer) entity == 0)) throw ServiceException.of(ErrorCodeConstants.DATA_NOT_EXIST); return entity; }
 }

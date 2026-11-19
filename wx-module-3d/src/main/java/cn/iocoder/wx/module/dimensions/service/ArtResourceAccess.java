@@ -27,11 +27,18 @@ public class ArtResourceAccess {
     }
     public void maintain(Actor actor, String scope, String owner) {
         // 复用既有运营身份修复，平台管理员在当前登录租户同样可维护个人模型。
-        boolean platformAdministrator = platformTenant > 0 && actor.tenant() == platformTenant
-            && Boolean.TRUE.equals(permissions.hasAnyRoles(actor.user(), "super_admin").getCheckedData());
+        boolean platformAdministrator = isPlatformAdministrator(actor);
         boolean allowed = "GLOBAL_SYSTEM".equals(scope) && "0".equals(owner) && platformAdministrator;
         if (!allowed && "TENANT_SHARED".equals(scope) && Long.toString(actor.tenant()).equals(owner))
             allowed = platformAdministrator || Boolean.TRUE.equals(permissions.hasAnyRoles(actor.user(), "tenant_admin").getCheckedData());
         if (!allowed) throw ServiceException.of(ADMIN_REQUIRED);
     }
+
+    /** 跨租户目录及授权复用平台租户与超级管理员角色的双重检查。 */
+    boolean isPlatformAdministrator(Actor actor) {
+        return isPlatformTenant(actor.tenant())
+                && Boolean.TRUE.equals(permissions.hasAnyRoles(actor.user(), "super_admin").getCheckedData());
+    }
+
+    boolean isPlatformTenant(long tenant) { return platformTenant > 0 && tenant == platformTenant; }
 }

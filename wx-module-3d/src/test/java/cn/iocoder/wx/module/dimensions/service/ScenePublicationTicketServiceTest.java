@@ -1,6 +1,8 @@
 package cn.iocoder.wx.module.dimensions.service;
 
 import cn.iocoder.wx.framework.common.exception.ServiceException;
+import cn.iocoder.wx.framework.common.pojo.CommonResult;
+import cn.iocoder.wx.module.system.api.tenant.TenantApi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.aop.framework.ProxyFactory;
@@ -23,6 +25,7 @@ class ScenePublicationTicketServiceTest {
     private ScenePublicationTicketService service;
     private JdbcTemplate jdbc;
     private ArtResourceAccess access;
+    private SceneTenantGrantService grants;
 
     @BeforeEach void setup() throws Exception {
         var data = new DriverManagerDataSource("jdbc:h2:mem:" + UUID.randomUUID() + ";MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "");
@@ -33,6 +36,12 @@ class ScenePublicationTicketServiceTest {
                 .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
         for (String sql : publicationSchema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
         for (String sql : ticketSchema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
+        jdbc.execute(Files.readString(Path.of("../deploy/test148/migrations/scene02/001-scene-grant.up.sql"))
+                .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", ""));
+        jdbc.execute(Files.readString(Path.of("../deploy/test148/migrations/scene02/002-ticket-grant.up.sql")));
+        jdbc.execute("CREATE TABLE wx_3d_scene(id BIGINT PRIMARY KEY,tenant_id BIGINT,deleted TINYINT DEFAULT 0)");
+        jdbc.execute("CREATE TABLE wx_3d_scene_template(tenant_id BIGINT,template_scene_id BIGINT)");
+        jdbc.update("INSERT INTO wx_3d_scene(id,tenant_id) VALUES(101,2)");
         String auditSchema = Files.readString(Path.of("../deploy/test148/migrations/data09/003-publication-audit.up.sql"))
                 .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
         for (String sql : auditSchema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
@@ -42,6 +51,14 @@ class ScenePublicationTicketServiceTest {
         jdbc.update("UPDATE wx_3d_scene_publication SET source_hash=?", SceneRevisionContentHasher.sha256(1, "{}", "{}", "{}", "{\"resources\":[]}"));
         access = mock(ArtResourceAccess.class);
         when(access.actor()).thenReturn(new ArtResourceAccess.Actor(2, 2));
+        when(access.isPlatformAdministrator(new ArtResourceAccess.Actor(2, 2))).thenReturn(true);
+        var tenants = mock(TenantApi.class);
+        when(tenants.validTenant(3L)).thenReturn(CommonResult.success(true));
+        grants = new SceneTenantGrantService();
+        ReflectionTestUtils.setField(grants, "jdbc", jdbc);
+        ReflectionTestUtils.setField(grants, "access", access);
+        ReflectionTestUtils.setField(grants, "tenants", tenants);
+        ReflectionTestUtils.setField(grants, "transactions", new DataSourceTransactionManager(data));
         var target = new ScenePublicationTicketService();
         ReflectionTestUtils.setField(target, "jdbc", jdbc);
         ReflectionTestUtils.setField(target, "access", access);
@@ -50,12 +67,62 @@ class ScenePublicationTicketServiceTest {
         service = (ScenePublicationTicketService) factory.getProxy();
     }
 
+    /** 撤回覆盖正文和资源读取；重新授权也不能恢复上一批票据。 */
+    @Test void tenantGrantsOnlyCurrentPublicationAndRevocationInvalidatesIssuedTickets() {
+        jdbc.update("UPDATE wx_3d_scene_publication SET index_version=2 WHERE publication_id='PUB-1'");
+        var owner = new ArtResourceAccess.Actor(2, 2);
+        var target = new ArtResourceAccess.Actor(3, 3);
+        String ownerToken = service.issue("PUB-1", 300).get("token").toString();
+        when(access.actor()).thenReturn(target);
+        assertEquals(404, assertThrows(ServiceException.class, () -> service.issue("PUB-1", 300)).getCode());
+        assertEquals(403, assertThrows(ServiceException.class, () -> grants.grant("101", "2")).getCode());
+        when(access.actor()).thenReturn(owner);
+        grants.grant("101", "3");
+        grants.grant("101", "3");
+        assertEquals(1, grants.list("101").size());
+        assertEquals("3", grants.list("101").get(0).get("grantTenantId"));
+        when(access.actor()).thenReturn(target);
+        String token = service.issue("PUB-1", 300).get("token").toString();
+        assertEquals("101", service.consumeSnapshot(token).get("sceneId"));
+        assertEquals(2, service.authorizeResources(token).tenant());
+        jdbc.update("UPDATE wx_3d_scene_publication SET current_flag=0 WHERE publication_id='PUB-1'");
+        assertEquals(404, assertThrows(ServiceException.class, () -> service.issue("PUB-1", 300)).getCode());
+        assertEquals(401, assertThrows(ServiceException.class, () -> service.verify(token)).getCode());
+        jdbc.update("UPDATE wx_3d_scene_publication SET current_flag=1 WHERE publication_id='PUB-1'");
+        when(access.actor()).thenReturn(owner);
+        grants.revoke("101", "3");
+        assertEquals(0, grants.list("101").get(0).get("status"));
+        assertEquals(401, assertThrows(ServiceException.class, () -> service.consumeSnapshot(token)).getCode());
+        assertEquals(401, assertThrows(ServiceException.class, () -> service.authorizeResources(token)).getCode());
+        assertEquals("101", service.verify(ownerToken).get("sceneId"));
+        grants.grant("101", "3");
+        assertEquals(401, assertThrows(ServiceException.class, () -> service.verify(token)).getCode());
+        when(access.actor()).thenReturn(target);
+        assertNotNull(service.issue("PUB-1", 300).get("ticketId"));
+    }
+
     @Test void issueVerifyAndRevokeTicket() {
         var issued = service.issue("PUB-1", 300);
         assertTrue(issued.get("token").toString().length() > 40);
         assertEquals("101", service.verify(issued.get("token").toString()).get("sceneId"));
         service.revoke(issued.get("ticketId").toString());
         assertThrows(ServiceException.class, () -> service.verify(issued.get("token").toString()));
+    }
+
+    /** 回退脚本先封禁授权票据，普通存量票据继续保持原状态。 */
+    @Test void grantMigrationRollbackKeepsOnlyOrdinaryTicketsActive() throws Exception {
+        String ownerTicket = service.issue("PUB-1", 300).get("ticketId").toString();
+        grants.grant("101", "3");
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(3, 3));
+        String grantedTicket = service.issue("PUB-1", 300).get("ticketId").toString();
+        for (String filename : java.util.List.of("002-ticket-grant.down.sql", "001-scene-grant.down.sql")) {
+            for (String sql : Files.readString(Path.of("../deploy/test148/migrations/scene02", filename)).split(";")) {
+                if (!sql.isBlank()) jdbc.execute(sql);
+            }
+        }
+        String status = "SELECT status FROM wx_3d_scene_publication_ticket WHERE ticket_id=?";
+        assertEquals("ACTIVE", jdbc.queryForObject(status, String.class, ownerTicket));
+        assertEquals("REVOKED", jdbc.queryForObject(status, String.class, grantedTicket));
     }
 
     @Test void revokedPublicationInvalidatesExistingTicket() {
@@ -132,6 +199,14 @@ class ScenePublicationTicketServiceTest {
         assertEquals(409, assertThrows(ServiceException.class, () -> service.consumeSnapshot(token)).getCode());
     }
 
+    @Test void cleanupExpiredMarksTicketAndWritesAudit() {
+        var issued = service.issue("PUB-1", 300);
+        jdbc.update("UPDATE wx_3d_scene_publication_ticket SET expires_time='2000-01-01 00:00:00' WHERE ticket_id=?", issued.get("ticketId"));
+        assertEquals(1, service.cleanupExpired(10));
+        assertEquals("EXPIRED", jdbc.queryForObject("SELECT status FROM wx_3d_scene_publication_ticket WHERE ticket_id=?", String.class, issued.get("ticketId")));
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_publication_audit WHERE action='TICKET_EXPIRE'", Integer.class));
+    }
+
     @Test void liveGrantUsesFixedSnapshotAndStopsAfterTicketOrPublicationRevocation() {
         var issue = service.issue("PUB-1", 300);
         String token = issue.get("token").toString();
@@ -155,11 +230,5 @@ class ScenePublicationTicketServiceTest {
                 () -> service.consumeLiveSnapshot(current.get("token").toString(), "PUB-1", 2)).getCode());
     }
 
-    @Test void cleanupExpiredMarksTicketAndWritesAudit() {
-        var issued = service.issue("PUB-1", 300);
-        jdbc.update("UPDATE wx_3d_scene_publication_ticket SET expires_time='2000-01-01 00:00:00' WHERE ticket_id=?", issued.get("ticketId"));
-        assertEquals(1, service.cleanupExpired(10));
-        assertEquals("EXPIRED", jdbc.queryForObject("SELECT status FROM wx_3d_scene_publication_ticket WHERE ticket_id=?", String.class, issued.get("ticketId")));
-        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_publication_audit WHERE action='TICKET_EXPIRE'", Integer.class));
-    }
+
 }
