@@ -120,6 +120,18 @@ class Dim3dSceneServiceTest {
         return body;
     }
 
+    @Test void retentionRequestRowsAreWrittenOnlyWhenTheFeatureIsEnabled() {
+        jdbc.execute("CREATE TABLE wx_3d_scene_request(id BIGINT PRIMARY KEY,tenant_id BIGINT NOT NULL,scene_id BIGINT NOT NULL,request_id VARCHAR(128) NOT NULL,request_hash CHAR(64) NOT NULL,revision_no INT NOT NULL,expires_time TIMESTAMP NOT NULL,created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,updated_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,UNIQUE(tenant_id,scene_id,request_id))");
+        ReflectionTestUtils.setField(service, "sceneRetentionEnabled", true);
+        ReflectionTestUtils.setField(service, "sceneRequestRetentionDays", 30);
+        String id = create();
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_request WHERE tenant_id=2 AND scene_id=?", Integer.class, Long.parseLong(id)));
+        String token = service.lock(id, "retention").get("lockToken").toString();
+        service.save(saveBody(id, token));
+        assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_request WHERE tenant_id=2 AND scene_id=?", Integer.class, Long.parseLong(id)));
+        assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_request WHERE tenant_id=2 AND scene_id=? AND expires_time>CURRENT_TIMESTAMP", Integer.class, Long.parseLong(id)));
+    }
+
     @Test void invalidNodeTreesCannotCreateRevision() throws Exception {
         String id = create(); String token = (String) service.lock(id, "nodes").get("lockToken");
         // 直接调用真实保存事务，证明非法树在写修订前被拒绝。

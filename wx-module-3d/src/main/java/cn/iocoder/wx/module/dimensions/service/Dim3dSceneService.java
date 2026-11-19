@@ -37,6 +37,12 @@ public class Dim3dSceneService {
     /** 灰度租户白名单，逗号分隔；为空时沿用全局开关覆盖所有租户。 */
     @Value("${dim3d.scene-content.dual-write-tenants:}")
     private String sceneContentDualWriteTenants;
+    /** 保留引用结构开关，迁移和保存链路验收完成前保持关闭，避免旧库访问不存在的新表。 */
+    @Value("${dim3d.scene-retention.enabled:false}")
+    private boolean sceneRetentionEnabled;
+    /** 请求幂等记录的保留窗口；只影响请求记录，不代表修订正文可直接删除。 */
+    @Value("${dim3d.scene-retention.request-retention-days:30}")
+    private int sceneRequestRetentionDays;
     /** 列表与管理详情只从真实当前发布及快照目录取状态，不读取四包正文。 */
     private static final String SCENE_DIRECTORY = """
              FROM wx_3d_scene s
@@ -660,7 +666,31 @@ public class Dim3dSceneService {
                     revision, actor.tenant(), id, number, schema, packages.get(0), packages.get(1), packages.get(2), packages.get(3), request, hash, actor.user(),
                     content.id(), content.contentHash(), content.contentBytes());
         }
+        recordSceneRequest(actor.tenant(), id, request, number, hash);
         return revision;
+    }
+
+    /**
+     * 记录请求幂等的保留窗口。该表只在结构层和服务开关同时启用时访问，
+     * 这样旧版本回退或尚未迁移的数据库仍沿用修订表内的原有幂等字段。
+     */
+    private void recordSceneRequest(long tenantId, long sceneId, String requestId, int revisionNo, String requestHash) {
+        if (!sceneRetentionEnabled || requestId == null || requestId.isBlank()) return;
+        long retentionDays = Math.max(1, sceneRequestRetentionDays);
+        Timestamp expires = Timestamp.from(Instant.now().plusSeconds(retentionDays * 24L * 60L * 60L));
+        int updated = jdbc.update("UPDATE wx_3d_scene_request SET request_hash=?,revision_no=?,expires_time=?,updated_time=CURRENT_TIMESTAMP "
+                        + "WHERE tenant_id=? AND scene_id=? AND request_id=?",
+                requestHash, revisionNo, expires, tenantId, sceneId, requestId);
+        if (updated > 0) return;
+        try {
+            jdbc.update("INSERT INTO wx_3d_scene_request(id,tenant_id,scene_id,request_id,request_hash,revision_no,expires_time) VALUES(?,?,?,?,?,?,?)",
+                    IdWorker.getId(), tenantId, sceneId, requestId, requestHash, revisionNo, expires);
+        } catch (DuplicateKeyException ignored) {
+            // 并发请求可能同时创建同一请求记录；回读后更新为同一摘要和保留期限。
+            jdbc.update("UPDATE wx_3d_scene_request SET request_hash=?,revision_no=?,expires_time=?,updated_time=CURRENT_TIMESTAMP "
+                            + "WHERE tenant_id=? AND scene_id=? AND request_id=?",
+                    requestHash, revisionNo, expires, tenantId, sceneId, requestId);
+        }
     }
 
     /** 在保存事务内确保共享正文存在，并在重复正文时复用同一内容行。 */
