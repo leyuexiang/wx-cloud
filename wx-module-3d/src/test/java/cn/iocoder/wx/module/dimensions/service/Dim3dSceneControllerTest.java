@@ -18,6 +18,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** 验证发布路由只负责参数投影，真实租户鉴权由服务和安全链路继续负责。 */
 class Dim3dSceneControllerTest {
+    /** 书签入口保留管理员角色门禁，编号始终按字符串响应。 */
+    @Test void bookmarkRoutesPreserveRoleGuardsAndStringIdentifiers() throws Exception {
+        var scene = mock(Dim3dSceneService.class);
+        var controller = new Dim3dSceneController();
+        ReflectionTestUtils.setField(controller, "service", scene);
+        var mvc = MockMvcBuilders.standaloneSetup(controller).build();
+        when(scene.createBookmark(eq("101"), any())).thenReturn(Map.of("bookmarkId", "9007199254740993", "revisionNo", 1));
+        mvc.perform(post("/dim3d/scene/bookmark/101").contentType("application/json")
+                        .content("{\"revisionNo\":1,\"bookmarkType\":\"EDITOR\",\"bookmarkKey\":\"unit\",\"expiresInSeconds\":300}"))
+                .andExpect(jsonPath("$.data.bookmarkId").value("9007199254740993"));
+        mvc.perform(delete("/dim3d/scene/bookmark/101/9007199254740993")).andExpect(jsonPath("$.code").value(200));
+        verify(scene).revokeBookmark("101", "9007199254740993");
+        String roles = "@ss.hasAnyRoles('super_admin','tenant_admin')";
+        assertEquals(roles, Dim3dSceneController.class.getDeclaredMethod("createBookmark", String.class, com.fasterxml.jackson.databind.JsonNode.class)
+                .getAnnotation(PreAuthorize.class).value());
+        assertEquals(roles, Dim3dSceneController.class.getDeclaredMethod("revokeBookmark", String.class, String.class)
+                .getAnnotation(PreAuthorize.class).value());
+    }
     /** 场景管理根级返回列表和记录总数，避免再拆解数据包装。 */
     @Test void scenePageReturnsRootRows() throws Exception {
         var scene = mock(Dim3dSceneService.class);

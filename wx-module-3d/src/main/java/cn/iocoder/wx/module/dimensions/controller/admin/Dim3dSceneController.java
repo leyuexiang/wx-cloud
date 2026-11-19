@@ -85,6 +85,18 @@ public class Dim3dSceneController {
     @PutMapping("/saveAll") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
     public CommonResult<Map<String, Object>> save(@RequestBody JsonNode body) { return CommonResult.success(service.save(body)); }
 
+    /** 固定修订的显式保留引用，身份和期限均在服务层验证。 */
+    @PostMapping("/bookmark/{sceneId}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Map<String, Object>> createBookmark(@PathVariable String sceneId, @RequestBody JsonNode body) {
+        return CommonResult.success(service.createBookmark(sceneId, body));
+    }
+
+    /** 仅撤销当前用户自己的书签，历史行保留用于审计。 */
+    @DeleteMapping("/bookmark/{sceneId}/{bookmarkId}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Void> revokeBookmark(@PathVariable String sceneId, @PathVariable String bookmarkId) {
+        service.revokeBookmark(sceneId, bookmarkId); return CommonResult.success(null);
+    }
+
     /** 发布接口只固定已有修订，查询和撤销均受当前租户身份约束。 */
     @PostMapping("/publication/publish") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
     public CommonResult<Map<String, Object>> publish(@RequestParam String sceneId, @RequestParam int revisionNo, @RequestParam String requestId) {

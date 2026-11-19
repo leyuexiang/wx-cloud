@@ -326,6 +326,7 @@ public class Dim3dSceneService {
         if (!replay.isEmpty()) {
             var previous = replay.get(0);
             if (!hash.equals(previous.get("request_hash")) || !Objects.equals(previous.get("create_by"), actor.user())) throw new ServiceException(409, "保存请求号已绑定其他内容");
+            requireReplayRetention(actor.tenant(), requireId(id), request, previous);
             return bookmark(id, previous);
         }
         requireLock(row, actor, token);
@@ -676,21 +677,86 @@ public class Dim3dSceneService {
      */
     private void recordSceneRequest(long tenantId, long sceneId, String requestId, int revisionNo, String requestHash) {
         if (!sceneRetentionEnabled || requestId == null || requestId.isBlank()) return;
-        long retentionDays = Math.max(1, sceneRequestRetentionDays);
-        Timestamp expires = Timestamp.from(Instant.now().plusSeconds(retentionDays * 24L * 60L * 60L));
-        int updated = jdbc.update("UPDATE wx_3d_scene_request SET request_hash=?,revision_no=?,expires_time=?,updated_time=CURRENT_TIMESTAMP "
-                        + "WHERE tenant_id=? AND scene_id=? AND request_id=?",
-                requestHash, revisionNo, expires, tenantId, sceneId, requestId);
-        if (updated > 0) return;
-        try {
-            jdbc.update("INSERT INTO wx_3d_scene_request(id,tenant_id,scene_id,request_id,request_hash,revision_no,expires_time) VALUES(?,?,?,?,?,?,?)",
-                    IdWorker.getId(), tenantId, sceneId, requestId, requestHash, revisionNo, expires);
-        } catch (DuplicateKeyException ignored) {
-            // 并发请求可能同时创建同一请求记录；回读后更新为同一摘要和保留期限。
-            jdbc.update("UPDATE wx_3d_scene_request SET request_hash=?,revision_no=?,expires_time=?,updated_time=CURRENT_TIMESTAMP "
-                            + "WHERE tenant_id=? AND scene_id=? AND request_id=?",
-                    requestHash, revisionNo, expires, tenantId, sceneId, requestId);
+        if (sceneRequestRetentionDays < 1 || sceneRequestRetentionDays > 365)
+            throw new ServiceException(500, "请求保留天数必须在1到365之间");
+        // 场景行锁已串行化同场景写入；重复键意味着数据异常，必须连同修订回滚，不能覆盖原记录。
+        jdbc.update("INSERT INTO wx_3d_scene_request(id,tenant_id,scene_id,request_id,request_hash,revision_no,expires_time) "
+                        + "VALUES(?,?,?,?,?,?,TIMESTAMPADD(DAY,?,CURRENT_TIMESTAMP))",
+                IdWorker.getId(), tenantId, sceneId, requestId, requestHash, revisionNo, sceneRequestRetentionDays);
+    }
+
+    /** 已记录的期限由数据库时钟判定；旧修订无记录时保留原重放行为，并由审计继续阻止清理。 */
+    private void requireReplayRetention(long tenantId, long sceneId, String request, Map<String, Object> revision) {
+        if (!sceneRetentionEnabled) return;
+        var rows = jdbc.queryForList("SELECT request_hash,revision_no,CASE WHEN expires_time>CURRENT_TIMESTAMP THEN 1 ELSE 0 END live "
+                + "FROM wx_3d_scene_request WHERE tenant_id=? AND scene_id=? AND request_id=?", tenantId, sceneId, request);
+        if (rows.isEmpty()) return;
+        var retained = rows.get(0);
+        if (!Objects.equals(retained.get("request_hash"), revision.get("request_hash"))
+                || !Objects.equals(retained.get("revision_no"), revision.get("revision_no")))
+            throw new ServiceException(500, "请求保留记录与修订不一致");
+        if (((Number) retained.get("live")).intValue() == 0)
+            throw new ServiceException(409, "保存请求号已过期，请使用新请求号");
+    }
+
+    /** 显式保留固定修订。同键重试不续期、不换版，避免迟到请求复活已撤销书签。 */
+    @Transactional
+    public Map<String, Object> createBookmark(String id, JsonNode body) {
+        requireSceneRetention();
+        var actor = access.actor();
+        int number = requiredInt(body, "revisionNo"), seconds = requiredInt(body, "expiresInSeconds");
+        String type = text(body, "bookmarkType", 32), key = text(body, "bookmarkKey", 128);
+        if (number < 1 || seconds < 60 || seconds > 86400 || !Set.of("EDITOR", "PREVIEW").contains(type))
+            throw bad("书签修订、类型或有效期无效");
+        scene(id, actor, true);
+        var revisions = jdbc.queryForList("SELECT id FROM wx_3d_scene_revision WHERE tenant_id=? AND scene_id=? AND revision_no=?",
+                actor.tenant(), requireId(id), number);
+        if (revisions.size() != 1) throw new ServiceException(404, "场景修订不存在或当前身份不可见");
+        var previous = jdbc.queryForList("SELECT *,CASE WHEN expires_time IS NULL OR expires_time>CURRENT_TIMESTAMP THEN 1 ELSE 0 END live "
+                + "FROM wx_3d_scene_bookmark WHERE tenant_id=? AND bookmark_type=? AND bookmark_key=?", actor.tenant(), type, key);
+        if (!previous.isEmpty()) {
+            var row = previous.get(0);
+            if (!Objects.equals(row.get("scene_id"), requireId(id)) || !Objects.equals(row.get("revision_no"), number)
+                    || !Objects.equals(row.get("created_by"), actor.user()) || !Objects.equals(row.get("bookmark_key"), key)
+                    || !"ACTIVE".equals(row.get("status")) || ((Number) row.get("live")).intValue() == 0)
+                throw new ServiceException(409, "书签键已使用，请使用新书签键");
+            return bookmarkResult(row);
         }
+        long bookmarkId = IdWorker.getId();
+        // 到期时间和创建时间均使用数据库时钟，不接受客户端提供的可信身份或绝对时刻。
+        jdbc.update("INSERT INTO wx_3d_scene_bookmark(id,tenant_id,scene_id,revision_no,bookmark_type,bookmark_key,created_by,expires_time) "
+                        + "VALUES(?,?,?,?,?,?,?,TIMESTAMPADD(SECOND,?,CURRENT_TIMESTAMP))",
+                bookmarkId, actor.tenant(), requireId(id), number, type, key, actor.user(), seconds);
+        return bookmarkResult(jdbc.queryForMap("SELECT * FROM wx_3d_scene_bookmark WHERE id=? AND tenant_id=?", bookmarkId, actor.tenant()));
+    }
+
+    /** 撤销只改状态并保留原审计。允许在场景软删除后释放自己的书签。 */
+    @Transactional
+    public void revokeBookmark(String id, String bookmarkId) {
+        requireSceneRetention();
+        var actor = access.actor();
+        var scenes = jdbc.queryForList("SELECT id FROM wx_3d_scene WHERE tenant_id=? AND id=? FOR UPDATE", actor.tenant(), requireId(id));
+        if (scenes.isEmpty()) throw new ServiceException(404, "场景不存在或当前身份不可见");
+        var rows = jdbc.queryForList("SELECT * FROM wx_3d_scene_bookmark WHERE tenant_id=? AND scene_id=? AND id=?",
+                actor.tenant(), requireId(id), requireId(bookmarkId));
+        if (rows.size() != 1) throw new ServiceException(404, "书签不存在或当前身份不可见");
+        if (!Objects.equals(rows.get(0).get("created_by"), actor.user())) throw new ServiceException(403, "仅创建者可撤销书签");
+        jdbc.update("UPDATE wx_3d_scene_bookmark SET status='REVOKED',revoked_by=?,revoked_time=CURRENT_TIMESTAMP "
+                        + "WHERE tenant_id=? AND scene_id=? AND id=? AND status='ACTIVE'",
+                actor.user(), actor.tenant(), requireId(id), requireId(bookmarkId));
+    }
+
+    private void requireSceneRetention() {
+        if (!sceneRetentionEnabled) throw new ServiceException(503, "场景保留引用尚未启用");
+    }
+
+    private Map<String, Object> bookmarkResult(Map<String, Object> row) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("bookmarkId", row.get("id").toString()); result.put("sceneId", row.get("scene_id").toString());
+        result.put("revisionNo", row.get("revision_no")); result.put("bookmarkType", row.get("bookmark_type"));
+        result.put("status", row.get("status"));
+        result.put("expiresTime", row.get("expires_time") instanceof Timestamp timestamp ? timestamp.toInstant().toString() : null);
+        return result;
     }
 
     /** 在保存事务内确保共享正文存在，并在重复正文时复用同一内容行。 */

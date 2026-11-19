@@ -132,6 +132,112 @@ class Dim3dSceneServiceTest {
         assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_request WHERE tenant_id=2 AND scene_id=? AND expires_time>CURRENT_TIMESTAMP", Integer.class, Long.parseLong(id)));
     }
 
+    /** 重放必须固定到期时间；过期后换请求号，不能覆盖旧回执或追加修订。 */
+    @Test void retentionRejectsExpiredReplayWithoutRenewingTheOriginalReceipt() {
+        enableRetention();
+        String id = create();
+        String token = service.lock(id, "retention-replay").get("lockToken").toString();
+        ObjectNode body = saveBody(id, token);
+        var saved = service.save(body);
+        var expiry = jdbc.queryForObject("SELECT expires_time FROM wx_3d_scene_request WHERE request_id=?", java.sql.Timestamp.class, body.path("requestId").asText());
+        assertEquals(saved.get("revisionNo"), service.save(body).get("revisionNo"));
+        assertEquals(expiry, jdbc.queryForObject("SELECT expires_time FROM wx_3d_scene_request WHERE request_id=?", java.sql.Timestamp.class, body.path("requestId").asText()));
+        jdbc.update("UPDATE wx_3d_scene_request SET expires_time='2000-01-01 00:00:00' WHERE request_id=?", body.path("requestId").asText());
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.save(body)).getCode());
+        assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_revision", Integer.class));
+        assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_request", Integer.class));
+    }
+
+    /** 请求记录写入失败必须撤销同事务新增修订和场景主表。 */
+    @Test void retentionRecordFailureRollsBackTheWholeCreateTransaction() {
+        enableRetention();
+        jdbc.execute("DROP TABLE wx_3d_scene_request");
+        assertThrows(org.springframework.dao.DataAccessException.class, this::create);
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene", Integer.class));
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_revision", Integer.class));
+    }
+
+    /** 被污染的请求摘要不能重放；历史未回填请求仍沿用原幂等且不冒充已过期。 */
+    @Test void retentionRejectsMismatchedHashAndPreservesLegacyReplay() {
+        String id = create();
+        String token = service.lock(id, "legacy").get("lockToken").toString();
+        ObjectNode legacy = saveBody(id, token);
+        service.save(legacy);
+        enableRetention();
+        assertEquals(2, service.save(legacy).get("revisionNo"));
+        ObjectNode fresh = saveBody(id, token);
+        service.save(fresh);
+        jdbc.update("UPDATE wx_3d_scene_request SET request_hash=? WHERE request_id=?", "f".repeat(64), fresh.path("requestId").asText());
+        assertEquals(500, assertThrows(ServiceException.class, () -> service.save(fresh)).getCode());
+        assertEquals(3, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_revision", Integer.class));
+    }
+
+    /** 固定旧修订的书签不能因新保存或同键重试而改变身份、修订及到期时间。 */
+    @Test void persistentBookmarkIsFixedIdempotentAndRevocableAfterSceneDeletion() {
+        enableRetention();
+        String id = create();
+        ObjectNode body = bookmarkBody("same-key");
+        var mark = service.createBookmark(id, body);
+        assertEquals(mark, service.createBookmark(id, body));
+        String token = service.lock(id, "bookmark-save").get("lockToken").toString();
+        service.save(saveBody(id, token));
+        assertEquals(1, mark.get("revisionNo"));
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.createBookmark(id, body.deepCopy().put("revisionNo", 2))).getCode());
+        service.unlock(id, "bookmark-save");
+        service.remove(id);
+        service.revokeBookmark(id, mark.get("bookmarkId").toString());
+        var audit = jdbc.queryForMap("SELECT status,revoked_by,revoked_time FROM wx_3d_scene_bookmark");
+        service.revokeBookmark(id, mark.get("bookmarkId").toString());
+        assertEquals(audit, jdbc.queryForMap("SELECT status,revoked_by,revoked_time FROM wx_3d_scene_bookmark"));
+        assertEquals("REVOKED", audit.get("status"));
+        assertEquals(2L, audit.get("revoked_by"));
+    }
+
+    /** 书签隔离覆盖错租户、同租户其他用户和同键换场景，不依赖控制器角色注解。 */
+    @Test void bookmarkOwnershipAndTenantGuardsCannotBeOverriddenByTheBody() {
+        enableRetention();
+        String id = create(), other = create();
+        var body = bookmarkBody("owned").put("tenantId", "3").put("createdBy", "99");
+        String bookmarkId = service.createBookmark(id, body).get("bookmarkId").toString();
+        assertEquals(2L, jdbc.queryForObject("SELECT tenant_id FROM wx_3d_scene_bookmark", Long.class));
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.createBookmark(other, body)).getCode());
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(9, 2));
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.createBookmark(id, body)).getCode());
+        assertEquals(403, assertThrows(ServiceException.class, () -> service.revokeBookmark(id, bookmarkId)).getCode());
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(3, 3));
+        assertEquals(404, assertThrows(ServiceException.class, () -> service.createBookmark(id, body)).getCode());
+        assertEquals(404, assertThrows(ServiceException.class, () -> service.revokeBookmark(id, bookmarkId)).getCode());
+    }
+
+    @Test void bookmarkExpiryRevocationAndFeatureGateRejectLateRetries() {
+        assertEquals(503, assertThrows(ServiceException.class, () -> service.createBookmark("1", bookmarkBody("off"))).getCode());
+        enableRetention();
+        String id = create();
+        assertEquals(400, assertThrows(ServiceException.class, () -> service.createBookmark(id, bookmarkBody("bad").put("expiresInSeconds", 59))).getCode());
+        assertEquals(404, assertThrows(ServiceException.class, () -> service.createBookmark(id, bookmarkBody("bad-rev").put("revisionNo", 99))).getCode());
+        var mark = service.createBookmark(id, bookmarkBody("expired"));
+        jdbc.update("UPDATE wx_3d_scene_bookmark SET expires_time='2000-01-01 00:00:00'");
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.createBookmark(id, bookmarkBody("expired"))).getCode());
+        service.revokeBookmark(id, mark.get("bookmarkId").toString());
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.createBookmark(id, bookmarkBody("expired"))).getCode());
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_bookmark", Integer.class));
+    }
+
+    private ObjectNode bookmarkBody(String key) {
+        return json.createObjectNode().put("revisionNo", 1).put("bookmarkType", "EDITOR")
+                .put("bookmarkKey", key).put("expiresInSeconds", 300);
+    }
+
+    private void enableRetention() {
+        try {
+            String schema = Files.readString(Path.of("../deploy/test148/migrations/data08/003-retention-references.up.sql"))
+                    .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
+            for (String sql : schema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
+        } catch (java.io.IOException error) { throw new IllegalStateException(error); }
+        ReflectionTestUtils.setField(service, "sceneRetentionEnabled", true);
+        ReflectionTestUtils.setField(service, "sceneRequestRetentionDays", 30);
+    }
+
     @Test void invalidNodeTreesCannotCreateRevision() throws Exception {
         String id = create(); String token = (String) service.lock(id, "nodes").get("lockToken");
         // 直接调用真实保存事务，证明非法树在写修订前被拒绝。
