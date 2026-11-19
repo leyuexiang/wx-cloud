@@ -34,16 +34,19 @@ class IotWebReleaseTest(unittest.TestCase):
         self.assertNotIn('iot/**', result)
         self.assertNotIn('telemetry', result)
 
-    def test_model_platform_paths_are_whitelisted_without_opening_other_services(self):
+    def test_platform_paths_are_whitelisted_without_opening_other_services(self):
         result = render_config(BEFORE, SITE, CERT)
         pattern = re.search(r'location ~ "(\^/dts-api/[^"]+)"', result).group(1)
         for platform in ('operation', 'tenant/web'):
-            prefix = f'/dts-api/api/{platform}/dim3d'
+            prefix = f'/dts-api/api/{platform}'
             for path in ('model/page', 'model-imports', 'model-imports/key/submit',
-                         'resource/uploadConvert', 'resource/info/123'):
-                self.assertRegex(f'{prefix}/{path}', pattern)
-            self.assertNotRegex(f'{prefix}/icon/page', pattern)
-            self.assertNotRegex(f'{prefix}/resource/info/123/extra', pattern)
+                         'resource/uploadConvert', 'resource/info/123', 'icon/page', 'scene/saveAll',
+                         'scene/publication/preview'):
+                self.assertRegex(f'{prefix}/dim3d/{path}', pattern)
+            self.assertRegex(f'{prefix}/resource/oss/upload', pattern)
+            self.assertRegex(f'{prefix}/resource/oss/listByIds/123', pattern)
+            self.assertNotRegex(f'{prefix}/resource/oss/delete', pattern)
+            self.assertNotRegex(f'{prefix}/dim3d/resource/info/123/extra', pattern)
 
     def test_hash_assets_never_fall_back_to_html(self):
         result = render_config(BEFORE, SITE, CERT)

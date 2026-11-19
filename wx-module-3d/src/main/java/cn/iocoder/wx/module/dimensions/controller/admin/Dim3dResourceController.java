@@ -31,12 +31,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import static cn.iocoder.wx.module.dimensions.config.ModelPlatformConfiguration.PLATFORM_SEGMENT;
+import static cn.iocoder.wx.module.dimensions.config.Dim3dPlatformConfiguration.PLATFORM_SEGMENT;
 
 
 /**
  * 新资源管理接口。
- * 模型提供两端平台路径和旧管理路径，多个入口复用同一表单、响应及受控业务。
+ * 模型与图标提供两端平台路径和旧管理路径，复用同一表单、响应及受控业务。
  */
 @Validated
 @RestController
@@ -133,21 +133,21 @@ public class Dim3dResourceController {
     }
 
     /** 目录和文件绑定提交成功后，按图片上传合同返回字符串编号。 */
-    @PostMapping("/icon/add") @Operation(summary = "新增图标") @PreAuthorize("@ss.hasPermission('dim3d:icon:add')")
+    @PostMapping({"/icon/add", PLATFORM_SEGMENT + "/icon/add"}) @Operation(summary = "新增图标") @PreAuthorize("@ss.hasPermission('dim3d:icon:add')")
     public CommonResult<String> addIcon(@Valid @RequestBody Dim3dIconForm body) {
         return CommonResult.success(String.valueOf(service.createIcon(body.toIcon())));
     }
-    @PutMapping("/icon/edit/{id}") @Operation(summary = "编辑图标") @PreAuthorize("@ss.hasPermission('dim3d:icon:edit')")
+    @PutMapping({"/icon/edit/{id}", PLATFORM_SEGMENT + "/icon/edit/{id}"}) @Operation(summary = "编辑图标") @PreAuthorize("@ss.hasPermission('dim3d:icon:edit')")
     public CommonResult<Void> editIcon(@PathVariable Long id, @Valid @RequestBody Dim3dIconForm body) {
         service.updateIcon(id, body.toIcon());
         return CommonResult.success(null);
     }
-    @GetMapping("/icon/info/{id}") @Operation(summary = "查询图标详情") @PreAuthorize("@ss.hasPermission('dim3d:icon:query')")
+    @GetMapping({"/icon/info/{id}", PLATFORM_SEGMENT + "/icon/info/{id}"}) @Operation(summary = "查询图标详情") @PreAuthorize("@ss.hasPermission('dim3d:icon:query')")
     public CommonResult<Dim3dIconResponse> iconInfo(@PathVariable Long id) {
         // 目录查询按现有可见范围授权，响应只使用业务投影。
         return CommonResult.success(catalogResponses.icon(service.getIcon(id)));
     }
-    @GetMapping("/icon/page") @Operation(summary = "分页查询图标") @PreAuthorize("@ss.hasPermission('dim3d:icon:query')")
+    @GetMapping({"/icon/page", PLATFORM_SEGMENT + "/icon/page"}) @Operation(summary = "分页查询图标") @PreAuthorize("@ss.hasPermission('dim3d:icon:query')")
     public Dim3dIconPageResponse iconPage(String iconName, String category, String secondaryCategory,
                                          String resourceBelong, String status, Integer pageNum, Integer pageSize,
                                          String orderByColumn, String isAsc) {
@@ -156,12 +156,12 @@ public class Dim3dResourceController {
                 pageSize, orderByColumn, isAsc);
         return new Dim3dIconPageResponse(page.getTotal(), catalogResponses.icons(page.getList()));
     }
-    @PutMapping("/icon/{status}/{id}") @Operation(summary = "图标上线或下线") @PreAuthorize("@ss.hasPermission('dim3d:icon:edit')")
+    @PutMapping({"/icon/{status}/{id}", PLATFORM_SEGMENT + "/icon/{status}/{id}"}) @Operation(summary = "图标上线或下线") @PreAuthorize("@ss.hasPermission('dim3d:icon:edit')")
     public CommonResult<Void> iconStatus(@PathVariable String status, @PathVariable Long id) {
         service.changeIconStatus(id, status);
         return CommonResult.success(null);
     }
-    @DeleteMapping("/icon/remove/{id}") @Operation(summary = "删除图标") @PreAuthorize("@ss.hasPermission('dim3d:icon:delete')")
+    @DeleteMapping({"/icon/remove/{id}", PLATFORM_SEGMENT + "/icon/remove/{id}"}) @Operation(summary = "删除图标") @PreAuthorize("@ss.hasPermission('dim3d:icon:delete')")
     public CommonResult<Void> removeIcon(@PathVariable Long id) {
         service.deleteIcon(id);
         return CommonResult.success(null);

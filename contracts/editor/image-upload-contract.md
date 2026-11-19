@@ -4,7 +4,7 @@
 
 ## 1. 范围及兼容边界
 
-- 浏览器现有公共文件入口保持 `/api/resource/oss/...`，文件接口不插入 `operation` 或 `tenant/web`。网关只为已列明的精确路径改写到基础设施服务，不开放通配写入。
+- IMG-08 的网页调用使用 `P/resource/oss/...`，其中 `P` 为运营端 `/api/operation` 或租户端 `/api/tenant/web`。旧公共及管理路径继续兼容。网关只转发已列明的上传、单编号读取路径。
 - 运营/租户平台身份仍由 `Authorization`、`ClientId` 和现有租户一致性规则认证。客户端不声明可信用户、租户或平台角色；服务端从已认证登录上下文取得 `tenantId`、`userId`。
 - `ossId` 精确映射本地 `wx_infra_file.id`，响应、路径与请求均使用十进制字符串。它与旧外部 OSS 编号、`wx_3d_icon.id`、ART `resourceId` 均不自动等同；遇到历史编号须有单独审计映射。
 - 既有 `/admin-api/infra/file/upload` 和 RPC `FileApi.createFile` 的地址字符串响应不变；新接口走独立的有归属上传方法。
@@ -14,17 +14,15 @@
 
 | 方法/路径 | 请求 | 成功数据 | 用途 |
 | --- | --- | --- | --- |
-| `POST /api/resource/oss/upload` | `multipart/form-data`，字段 `file`，恰好一个文件 | `OssFile` 对象 | 按当前认证身份上传并创建私有待绑定文件记录 |
-| `GET /api/resource/oss/listByIds/{ids}` | `{ids}` 必须是单个正十进制本地文件编号 | `OssFile[]`，找到时一项，未找到/不可见时空数组 | 为已有消费者按编号重取可短期使用的读取地址 |
+| `POST P/resource/oss/upload` | `multipart/form-data`，字段 `file`，恰好一个文件 | `OssFile` 对象 | 按当前认证身份上传并创建私有待绑定文件记录 |
+| `GET P/resource/oss/listByIds/{ids}` | `{ids}` 必须是单个正十进制本地文件编号 | `OssFile[]`，找到时一项，未找到/不可见时空数组 | 为已有消费者按编号重取可短期使用的读取地址 |
 | `POST /api/operation/dim3d/icon/add`、`POST /api/tenant/web/dim3d/icon/add` | 既有图标 JSON 字段；`iconFileId` 是本地文件编号 | 真实图标目录编号按字符串返回 | 新增图片目录；服务端另行验证分类、文件、归属及权限 |
 
 网关精确规则：
 
-- `/api/resource/oss/upload` → `/admin-api/infra/file/resource/oss/upload`。
-- 当前前端 admin 模式的 `/admin-api/resource/oss/upload` 和 `/admin-api/resource/oss/listByIds/{ids}` 转发至相同基础设施适配。直接管理路径也清除外部伪造身份头。
-- `/api/resource/oss/listByIds/{ids}` → `/admin-api/infra/file/resource/oss/listByIds/{ids}`。路由不校验编号 Regex；基础设施控制器只接受正十进制单编号并验证 `Long` 上限。
-- 三维控制器应用项目管理端的路径前缀规则，类级 `/dim3d` 与 `/admin-api` 组合，运营及租户别名转发至 `/admin-api/dim3d/...`，实际运行映射由部署后联验确认。
-- `/api/operation/dim3d/icon/add` → `/admin-api/dim3d/icon/add`；`/api/tenant/web/dim3d/icon/add` → `/admin-api/dim3d/icon/add`，租户服务依可信认证上下文区分归属。若核查现有网关/控制器基路径与本表不一致，应先修正合同及测试，不新增宽泛代理。
+- `P/resource/oss/...` 转入 `/admin-api/infra/file/{platform}/resource/oss/...`，内部端别取 `operation` 或 `tenant`。基础设施控制器按可信登录租户核对端别，按正十进制单编号校验读取请求。
+- 此前的 `/api/resource/oss/...` 和 `/admin-api/resource/oss/...` 继续转发到旧直接路径 `/admin-api/infra/file/resource/oss/...`。各入口均保留原业务授权。
+- `P/dim3d/icon/...` 进入 `/admin-api/dim3d/{platform}/icon/...`，由三维服务核对端别、目录范围和文件绑定。
 
 认证、`ClientId` 和可选 `tenant-id` 校验沿用现有系统。三条写路径均不得匿名访问。查询虽返回空数组以避免文件编号枚举，也要求已认证身份。
 
@@ -53,7 +51,7 @@
 - `iconName` trim 后 1～50 字符；`iconDesc` 最多 200 字符；`category` 必须是启用的 `dim3d_icon_category` 字典 `dictValue`；`resourceBelong` 只能为 `SYSTEM` 或 `MINE`。
 - `iconFileId` 必须引用存在、上传完成且在认证身份可绑定范围内的本地普通文件。客户端提交的租户/上传者字段一律忽略或拒绝。
 - `SYSTEM` 资源只允许经服务端验证的运营平台管理员维护；租户账号只能新增 `MINE` 且归属当前认证租户。只读身份不可写入。
-- 同租户上传用户可在文件未绑定期间读取和重试绑定。绑定后文件可见范围按目录归属收敛：`MINE` 为当前租户可读；`SYSTEM` 为所有已认证租户可读，写入仍受平台角色限制。越权/不可枚举文件编号返回统一空结果或权限错误，不回显目标归属。
+- 同租户上传用户可在文件未绑定期间读取和重试绑定。绑定后文件可见范围按目录归属收敛：`MINE` 为当前租户可读；`SYSTEM` 为所有已认证租户可读，写入受平台角色限制。系统图标下线影响租户目录的分页和详情，已有场景引用继续按文件自身授权读取。越权文件编号返回空结果或权限错误。
 
 ## 4. 文件归属及生命周期数据
 
@@ -69,6 +67,7 @@
 - 缺失身份 `401`；已认证但无写/读权限 `403`，对象不可枚举时允许按具体读取合同返回 `data: []`；格式、媒体类型、超限、分类或文件引用校验失败为 `400/422`，存储不可用为 `503`，数据库提交失败为服务错误。错误不含路径、签名地址、桶配置和秘密。
 - 当前 Web 客户端没有传请求幂等键。首次合同不承诺同请求重放返回同文件编号；每次被服务端接受的上传生成新对象和新文件编号。前端必须阻止并发重复提交，响应丢失后的重复上传可能产生未绑定文件，由 `PRIVATE_UPLOAD` 清理策略处理。
 - 图片目录新增当前没有操作编号字段，不能伪造幂等回执。失败重试复用上传得到的 `iconFileId`；同一图标重复新增可能生成两条目录，后续如需重放幂等需先为消费者增加操作号及唯一约束，不能靠名称去重。
+- IMG-07 延续上述新增回执和文件读取合同。目录分页、详情及维护响应见[真实接口契约第 3.4 节](../../docs/真实接口契约维护文档.md#34-图标目录响应与维护)。编辑、删除及上下线采用空成功响应，重复切换到当前状态不更新审计。
 - 查询按编号每次重签读取 URL；签名有效期最长 10 分钟，签名不得写入持久数据或审计。撤销/移除范围阻止新签发，已签签名在自身到期前可能继续可用。
 
 ## 6. 需要在实现前/集成时验证的环境差异
@@ -95,7 +94,7 @@
 
 ## 图标目录接口
 
-管理端前缀为 `/admin-api/dim3d/icon`。图标六类路径及权限见[接口矩阵](interface-matrix.md)。
+管理端前缀为 `P/dim3d/icon`。图标六类路径及权限见[接口矩阵](interface-matrix.md)。
 
 - 分页及详情记录共用 `id/iconName/iconDesc/category/secondaryCategory/resourceBelong/iconFileId/status/createBy/createByName/createTime/updateBy/updateByName/updateTime`。详情记录位于 `data`；编号以字符串返回，审计时间为 `yyyy-MM-dd HH:mm:ss`，操作人名称通过系统用户批量查询，查无名称时返回空值。
 - 分页默认编号倒序，单页最多 200 条。`orderByColumn` 可为 `id/iconName/category/secondaryCategory/resourceBelong/status/createTime/updateTime`；`isAsc` 接受 `asc/desc`，忽略大小写。同值记录按编号倒序，非法排序返回业务码 `400`。

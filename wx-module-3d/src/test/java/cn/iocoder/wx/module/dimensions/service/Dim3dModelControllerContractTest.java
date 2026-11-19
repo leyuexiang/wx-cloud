@@ -16,7 +16,7 @@ import cn.iocoder.wx.framework.security.core.LoginUser;
 import cn.iocoder.wx.framework.tenant.core.context.TenantContextHolder;
 import cn.iocoder.wx.framework.web.config.WebProperties;
 import cn.iocoder.wx.framework.web.core.handler.GlobalExceptionHandler;
-import cn.iocoder.wx.module.dimensions.config.ModelPlatformConfiguration;
+import cn.iocoder.wx.module.dimensions.config.Dim3dPlatformConfiguration;
 import cn.iocoder.wx.module.dimensions.controller.admin.ModelImportController;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -74,7 +74,7 @@ class Dim3dModelControllerContractTest {
         var access = new ArtResourceAccess();
         ReflectionTestUtils.setField(access, "platformTenant", 1L);
         var web = new WebProperties();
-        var interceptor = new ModelPlatformConfiguration().modelPlatformAccess(web, access);
+        var interceptor = new Dim3dPlatformConfiguration().dim3dPlatformAccess(web, access);
         var imports = new ModelImportController();
         var platformMvc = MockMvcBuilders.standaloneSetup(controller, imports)
                 .setCustomHandlerMapping(() -> {

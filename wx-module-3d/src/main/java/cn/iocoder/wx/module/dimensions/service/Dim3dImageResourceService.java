@@ -26,8 +26,10 @@ import java.util.Set;
  */
 @Service
 public class Dim3dImageResourceService {
-    private static final String VISIBLE = "del_flag='0' AND ((resource_belong='SYSTEM' AND tenant_id='0')"
+    private static final String VISIBLE = "del_flag='0' AND ((resource_belong='SYSTEM' AND tenant_id='0'%s)"
             + " OR (resource_belong='MINE' AND tenant_id=?))";
+    private static final String PLATFORM_VISIBLE = VISIBLE.formatted("");
+    private static final String TENANT_VISIBLE = VISIBLE.formatted(" AND status='ONLINE'");
     private static final BeanPropertyRowMapper<Dim3dIcon> ROW = new BeanPropertyRowMapper<>(Dim3dIcon.class);
     /** 仅允许按图标目录的公开业务列排序。 */
     private static final Map<String, String> SORT_COLUMNS = Map.of(
@@ -85,7 +87,7 @@ public class Dim3dImageResourceService {
         return find(id, access.actor(), false);
     }
 
-    /** 查询和总数共用完全相同的范围及筛选条件，系统目录可跨租户读取，个人目录限制当前租户。 */
+    /** 计数和分页共享归属及状态条件；租户只能看到已上线的系统目录。 */
     public PageResult<Dim3dIcon> page(String name, String category, String secondary, String belong,
                                      String status, Integer number, Integer size, String orderByColumn, String isAsc) {
         var actor = access.actor();
@@ -93,7 +95,10 @@ public class Dim3dImageResourceService {
         int page = number == null || number < 1 ? 1 : number;
         int limit = size == null || size < 1 ? 10 : Math.min(size, 200);
         long offset = ((long) page - 1) * limit;
-        StringBuilder where = new StringBuilder(" FROM wx_3d_icon WHERE ").append(VISIBLE);
+        // 已限定上线或本租户资源时，现有筛选已满足范围要求，跳过运营角色查询。
+        String visibility = "ONLINE".equals(status) || "MINE".equals(belong)
+                ? PLATFORM_VISIBLE : readVisibility(actor);
+        StringBuilder where = new StringBuilder(" FROM wx_3d_icon WHERE ").append(visibility);
         List<Object> args = new ArrayList<>();
         args.add(Long.toString(actor.tenant()));
         if (StringUtils.hasText(name)) { where.append(" AND icon_name LIKE ?"); args.add("%" + name.trim() + "%"); }
@@ -142,10 +147,17 @@ public class Dim3dImageResourceService {
 
     private Dim3dIcon find(Long id, ArtResourceAccess.Actor actor, boolean lock) {
         if (id == null || id <= 0) throw invalid("图片编号无效");
-        List<Dim3dIcon> rows = jdbc.query("SELECT * FROM wx_3d_icon WHERE id=? AND " + VISIBLE
+        // 锁定维护仍需找到已下线记录，写权限由锁内校验；普通详情沿用分页可见规则。
+        List<Dim3dIcon> rows = jdbc.query("SELECT * FROM wx_3d_icon WHERE id=? AND "
+                + (lock ? PLATFORM_VISIBLE : readVisibility(actor))
                 + (lock ? " FOR UPDATE" : ""), ROW, id, Long.toString(actor.tenant()));
         if (rows.isEmpty()) throw new ServiceException(404, "图片不存在或无权访问");
         return rows.get(0);
+    }
+
+    /** 运营维护权限允许查看系统下线记录，租户图片的读取仍只比较租户。 */
+    private String readVisibility(ArtResourceAccess.Actor actor) {
+        return access.isPlatformAdministrator(actor) ? PLATFORM_VISIBLE : TENANT_VISIBLE;
     }
 
     /** 锁定有效记录后统一校验受管关联和维护权限，供编辑、状态及删除共用。 */

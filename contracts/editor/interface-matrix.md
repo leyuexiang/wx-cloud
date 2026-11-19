@@ -41,7 +41,7 @@ BASE-01 涉及模型、图片、场景、访问模式、行业模板和展厅模
 
 | 编号 | 方法及路径 | 页面/业务消费者 | 请求及响应差异 | 分类/责任 |
 | --- | --- | --- | --- | --- |
-| SCN-01 | GET `P/dim3d/scene/page` | `views/SceneManage/index.vue` | SCENE-02 根级 `rows,total`，支持场景种类、真实发布状态、排序和平台管理员租户筛选 | 适配/三维 |
+| SCN-01 | GET `P/dim3d/scene/page` | `views/SceneManage/index.vue` | SCENE-03 按登录端校验；根级 `rows,total`，平台管理员可筛选其他租户 | 适配/三维 |
 | SCN-02 | GET `P/dim3d/scene/info/{id}` | 编辑器、F11、场景导入导出 | 字符串 id → 基本视图、完整当前四包修订及发布引用；旧整数工程详情不可直接代替 | 新增/三维 |
 | SCN-03 | POST `P/dim3d/scene/add` | `views/SceneManage/AddDialog.vue` | `name,sceneType` 等 → 新场景基本视图；不能返回无编号空成功 | 新增/三维 |
 | SCN-04 | PUT `P/dim3d/scene/edit/{id}` | 同上 | 场景表单；归属由身份决定 → E | 新增/三维 |
@@ -60,10 +60,10 @@ BASE-01 涉及模型、图片、场景、访问模式、行业模板和展厅模
 | --- | --- | --- | --- | --- | --- |
 | CAT-01 | GET `P/dim3d/model/page`、`/model/info/{id}` | F05；模型管理、编辑资源面板 | B04 同名后缀 `/admin-api/dim3d` | MODEL-10 已使用独立 16 字段目录投影、统一 `modelFileId`、两位小数字符串价格及日期文本，根级分页和排序保留；预览由资源详情获取，本次字段收敛已部署并通过接口验收 | 适配/三维 |
 | CAT-02 | POST `/model/add`；PUT `/model/edit/{id}`；DELETE `/model/remove/{id}`；PUT `/model/{status}/{id}`，均加 `P/dim3d` | F05；模型管理/弹窗 | MODEL-09 五类接口表单收口，MODEL-11 上下线调整 | 新增、编辑要求完整文档表单，受管模型支持元数据编辑及文件替换，删除复用资源事务及引用保护，成功 `data=null`；上下线已统一历史及受管目录、编辑及归属权限，只接受 `ONLINE/OFFLINE`，成功 `data=null`；本次上下线调整已部署并通过接口验收 | 适配/三维 |
-| CAT-03 | GET `/icon/page`、`/icon/info/{id}`；POST `/icon/add`；PUT `/icon/edit/{id}`、`/icon/{status}/{id}`；DELETE `/icon/remove/{id}`，均加 `P/dim3d` | F06；图片管理、图像选择及部件素材 | B04 已有对应后缀 | IMG-07 使用根级分页和排序白名单，详情与列表共用目录字段；新增返回字符串目录编号，编辑、删除及上下线成功 `data=null`；沿用 `dim3d:icon:*` 权限及普通文件编号，真实网关另验 | 适配/三维 |
+| CAT-03 | GET `/icon/page`、`/icon/info/{id}`；POST `/icon/add`；PUT `/icon/edit/{id}`、`/icon/{status}/{id}`；DELETE `/icon/remove/{id}`，均加 `P/dim3d` | F06；图片管理、图像选择及部件素材 | IMG-08 校验双端身份，租户只读上线系统目录及当前租户目录 | 保留根级分页、排序、字符串新增编号和 `dim3d:icon:*` 写入权限；真实网关另验 | 适配/三维 |
 | CAT-04 | GET `/template/page`、`/template/info/{id}`；POST `/template/add`；PUT `/template/edit/{id}`、`/template/{status}/{id}`；DELETE `/template/remove/{id}`，均加 `P/dim3d` | F07；模板管理和编辑器资源面板 | B04 已有对应后缀 | TPL-08 对齐分页、排序及空写入回执，保留合并分页来源标记；文件型新增已在后端接入，网页另存快照见 TMP-01 | 适配/三维 |
-| FILE-01 | POST `/api/resource/oss/upload` → `/admin-api/infra/file/resource/oss/upload` | F08；图片、模型封面、模板封面 | B05 `/admin-api/infra/file/upload` 返回地址字符串；本地新增独立候选控制器/Service，有归属 schema 迁移未现场验证 | 只接受单字段 `file`；返回 `ossId,url,originalName,fileSuffix`，`ossId` 为 `wx_infra_file.id` 且按字符串传输；不得把可选兼容字段 `fileName,ext1,service` 猜成必需身份 | 适配/基础设施；合同见 [IMG-01](image-upload-contract.md) |
-| FILE-02 | GET `/api/resource/oss/listByIds/{ids}` → `/admin-api/infra/file/resource/oss/listByIds/{ids}` | F08；`sceneAssetUrlResolver.ts` 和图片部件 | 本地已有显式范围 Mapper 与签名候选；数据库字段/签名 Host 及真实读取未验 | 首期只接受一个正十进制本地文件编号；legacy 不可见，当前仅 private uploader 可读；每次按编号签发 S3 GET 短时地址；批量语法不在首期 | 新增读取适配/基础设施 |
+| FILE-01 | POST `P/resource/oss/upload` | F08；图片及各业务封面 | IMG-08 按端调用基础设施服务，校验上传业务权限和可信归属 | 单字段 `file`，返回 `ossId,url,originalName,fileSuffix`，编号按字符串传输 | 适配/基础设施；[图片合同](image-upload-contract.md) |
+| FILE-02 | GET `P/resource/oss/listByIds/{ids}` | F08；`sceneAssetUrlResolver.ts` 和图片部件 | IMG-08 按端核验身份并检查文件范围 | 单个正十进制文件编号，按文件范围签发短期地址；不可见时返回空数组 | 读取适配/基础设施 |
 | RES-01 | POST `/api/dim3d/resource/uploadConvert` | F09；模型新增弹窗 | B04 有 `/admin-api/dim3d/resource/uploadConvert`；B07 代理转换 | 前端 file ZIP → `id,resourceName,resourceType,assetName,resourceRelativePath`；代理仍依赖参考服务，不能声称本地转换齐备 | 适配+外部/三维 |
 | RES-02 | GET `/admin-api/dim3d/resource/info/{id}` | F09；模型管理、资源面板、场景资源解析 | MODEL-12 已收敛路径字段，复用既有目录授权与快照校验 | 按字符串 `modelFileId` 返回 `id/resourceName/resourceType/assetName/resourceRelativePath`，唯一相对路径；私有下载沿用资源当前修订及文件接口；本次收敛已部署并通过接口验收，实际页面加载另验 | 读取适配/三维 |
 | RES-03 | 静态 `{VITE_DIM3D_AMM_SERVER_URL}/amm/{resourceRelativePath}` | F09 `buildDim3dResourceUrl`，活跃资源解析 | 当前新私有桶及 ART 签名读取不是旧 `/amm/` 静态合同 | 审计资源格式/产物和访问授权；不能公开整个私有桶，也不把 GLB 路径当 Unity 包 | 外部/存储与三维 |

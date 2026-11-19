@@ -7,6 +7,17 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import cn.iocoder.wx.framework.security.core.LoginUser;
+import cn.iocoder.wx.framework.tenant.core.context.TenantContextHolder;
+import cn.iocoder.wx.framework.web.config.WebProperties;
+import cn.iocoder.wx.framework.web.core.handler.GlobalExceptionHandler;
+import cn.iocoder.wx.module.dimensions.config.Dim3dPlatformConfiguration;
+import cn.iocoder.wx.module.dimensions.controller.admin.Dim3dResourceController;
+import cn.iocoder.wx.module.dimensions.controller.admin.ScenePublicationPreviewController;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
 import java.util.Map;
 import java.util.List;
 
@@ -18,6 +29,67 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** 验证发布路由只负责参数投影，真实租户鉴权由服务和安全链路继续负责。 */
 class Dim3dSceneControllerTest {
+    /** 路由先核验端别再进入业务，匿名固定快照继续按票据读取。 */
+    @Test void sceneAndIconRoutesCheckPlatformButPreviewUsesTicket() throws Exception {
+        var scene = mock(Dim3dSceneService.class);
+        var catalog = mock(Dim3dResourceCatalogService.class);
+        var tickets = mock(ScenePublicationTicketService.class);
+        var controller = new Dim3dSceneController();
+        var icon = new Dim3dResourceController();
+        var preview = new ScenePublicationPreviewController();
+        ReflectionTestUtils.setField(controller, "service", scene);
+        ReflectionTestUtils.setField(icon, "service", catalog);
+        ReflectionTestUtils.setField(preview, "tickets", tickets);
+        var access = new ArtResourceAccess();
+        ReflectionTestUtils.setField(access, "platformTenant", 1L);
+        var web = new WebProperties();
+        var interceptor = new Dim3dPlatformConfiguration().dim3dPlatformAccess(web, access);
+        var mvc = MockMvcBuilders.standaloneSetup(controller, icon, preview)
+                .setCustomHandlerMapping(() -> {
+                    var mapping = new RequestMappingHandlerMapping();
+                    mapping.setPathPrefixes(Map.of(web.getAdminApi().getPrefix(), type -> true));
+                    return mapping;
+                })
+                .addMappedInterceptors(interceptor.getPathPatterns(), interceptor.getInterceptor())
+                .setControllerAdvice(new GlobalExceptionHandler("dimensions-test", null)).build();
+        when(scene.info("101")).thenReturn(Map.of("sceneId", "101"));
+        when(catalog.createIcon(any())).thenReturn(101L);
+        when(tickets.consumeSnapshot("test-ticket")).thenReturn(Map.of("publicationId", "PUB-1"));
+        String operation = "/admin-api/dim3d/operation";
+        String tenant = "/admin-api/dim3d/tenant";
+        try {
+            login(2L);
+            mvc.perform(get(tenant + "/scene/info/101")).andExpect(jsonPath("$.data.sceneId").value("101"));
+            mvc.perform(put(operation + "/scene/saveAll").contentType("application/json").content("{}"))
+                    .andExpect(jsonPath("$.code").value(403));
+            mvc.perform(get(operation + "/icon/info/101")).andExpect(jsonPath("$.code").value(403));
+            verify(scene, never()).save(any());
+            verify(catalog, never()).getIcon(anyLong());
+
+            login(1L);
+            mvc.perform(get(operation + "/scene/info/101")).andExpect(jsonPath("$.data.sceneId").value("101"));
+            mvc.perform(delete(tenant + "/icon/remove/101")).andExpect(jsonPath("$.code").value(403));
+            mvc.perform(post(operation + "/icon/add").contentType("application/json")
+                            .content("{\"iconName\":\"系统图标\",\"category\":\"DEVICE_ICON\",\"resourceBelong\":\"SYSTEM\",\"iconFileId\":\"11\"}"))
+                    .andExpect(jsonPath("$.data").value("101"));
+            verify(catalog, never()).deleteIcon(anyLong());
+        } finally {
+            SecurityContextHolder.clearContext();
+            TenantContextHolder.clear();
+        }
+        mvc.perform(post("/admin-api/dim3d/scene/publication/preview").header("X-Scene-Ticket", "test-ticket"))
+                .andExpect(jsonPath("$.data.publicationId").value("PUB-1"));
+    }
+
+    private static void login(long tenant) {
+        var user = new LoginUser();
+        user.setId(10L);
+        user.setTenantId(tenant);
+        TenantContextHolder.setTenantId(tenant);
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(user, null, List.of()));
+    }
+
     /** 书签入口保留管理员角色门禁，编号始终按字符串响应。 */
     @Test void bookmarkRoutesPreserveRoleGuardsAndStringIdentifiers() throws Exception {
         var scene = mock(Dim3dSceneService.class);

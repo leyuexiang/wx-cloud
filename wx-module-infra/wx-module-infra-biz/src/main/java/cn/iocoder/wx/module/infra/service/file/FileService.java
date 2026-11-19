@@ -21,6 +21,9 @@ public interface FileService {
      */
     PageResult<FileDO> getFilePage(FilePageReqVO pageReqVO);
 
+    /** 将图片请求路径的端别与可信登录租户核对，保留调用方处理文件归属的责任。 */
+    void requireOwnedImagePlatform(String platform);
+
     /**
      * 上传一份具有明确归属的图片；普通历史上传仍保持原始地址响应。
      * 文件类型与有界大小校验通过后，由服务端生成唯一对象键。

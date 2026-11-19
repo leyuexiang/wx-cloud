@@ -21,6 +21,7 @@ import cn.iocoder.wx.module.infra.framework.file.core.client.s3.FilePresignedUrl
 import cn.iocoder.wx.module.infra.framework.file.core.utils.FileTypeUtils;
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -55,9 +56,23 @@ public class FileServiceImpl implements FileService {
     @Resource
     private PlatformTransactionManager transactionManager;
 
+    /** 图片和三维目录使用同一部署约定的运营租户。 */
+    @Value("${dim3d.resource.platform-tenant-id:0}")
+    private long platformTenant;
+
     @Override
     public PageResult<FileDO> getFilePage(FilePageReqVO pageReqVO) {
         return fileMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    public void requireOwnedImagePlatform(String platform) {
+        LoginUser actor = requireOwnedImageActor();
+        String authenticatedPlatform = platformTenant > 0 && actor.getTenantId() == platformTenant
+                ? "operation" : "tenant";
+        if (!authenticatedPlatform.equals(platform)) {
+            throw new ServiceException(403, "当前登录身份无权访问该图片平台入口");
+        }
     }
 
     @Override

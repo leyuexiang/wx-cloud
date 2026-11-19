@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.List;
 
-/** 新编辑器的场景身份、四包修订和租约入口；保留旧工程接口供原消费者使用。 */
+import static cn.iocoder.wx.module.dimensions.config.Dim3dPlatformConfiguration.PLATFORM_SEGMENT;
+
+/** 登录后的场景管理、编辑及发布管理使用双端路径，旧管理路径兼容已有消费者。 */
 @RestController
-@RequestMapping("/dim3d/scene")
+@RequestMapping({"/dim3d/scene", "/dim3d" + PLATFORM_SEGMENT + "/scene"})
 public class Dim3dSceneController {
     @Resource private Dim3dSceneService service;
     @Resource private ScenePublicationService publicationService;

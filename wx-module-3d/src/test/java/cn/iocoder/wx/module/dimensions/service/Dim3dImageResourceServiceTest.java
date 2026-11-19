@@ -106,6 +106,29 @@ class Dim3dImageResourceServiceTest {
         assertEquals(0, service.page(null, null, null, null, null, 1, 10, null, null).getTotal());
     }
 
+    /** 下线系统图片不进入租户的总数、分页或详情，同租户图片仍按状态查询。 */
+    @Test
+    void tenantCatalogExcludesOfflineSystemImages() {
+        jdbc.update("""
+                INSERT INTO wx_3d_icon(id,icon_name,resource_belong,tenant_id,status)
+                VALUES (10,'系统已下线','SYSTEM','0','OFFLINE'),
+                       (20,'租户已下线','MINE','41','OFFLINE')
+                """);
+        var page = service.page(null, null, null, null, "OFFLINE", 1, 10, null, null);
+        assertEquals(1, page.getTotal());
+        assertEquals(List.of(20L), page.getList().stream().map(Dim3dIcon::getId).toList());
+        assertThrows(ServiceException.class, () -> service.get(10L));
+        // 运营能查到已下线系统图标，维护上线后租户也可再次读取。
+        var operator = new ArtResourceAccess.Actor(9001, 1);
+        when(access.actor()).thenReturn(operator);
+        when(access.isPlatformAdministrator(operator)).thenReturn(true);
+        assertEquals(1, service.page(null, null, null, "SYSTEM", "OFFLINE", 1, 10, null, null).getTotal());
+        assertEquals(10L, service.get(10L).getId());
+        service.changeStatus(10L, "ONLINE");
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(7001, 41));
+        assertEquals(10L, service.get(10L).getId());
+    }
+
     /** 同值按编号倒序，跨租户记录不进入计数或分页。 */
     @Test
     void sortsFilteredPageWithStableTiesAndRejectsUnsupportedOrdering() {

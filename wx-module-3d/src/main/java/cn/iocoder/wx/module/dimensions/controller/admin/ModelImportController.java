@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import static cn.iocoder.wx.module.dimensions.config.ModelPlatformConfiguration.PLATFORM_SEGMENT;
+import static cn.iocoder.wx.module.dimensions.config.Dim3dPlatformConfiguration.PLATFORM_SEGMENT;
 
 /**
  * 导入入口沿用场景列表的全局令牌认证和 ss 方法权限，不在此解析令牌或建立会话。
