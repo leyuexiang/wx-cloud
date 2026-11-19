@@ -64,7 +64,7 @@ public class Dim3dImageResourceService {
         });
     }
 
-    /** 未替换文件时保留原绑定。新文件绑定和目录更新共享事务，异常时恢复原关联。 */
+    /** 原文件可随目录切换归属。锁内验证来源和文件关联，文件范围与目录一起提交。 */
     public void update(Long id, Dim3dIcon body) {
         var actor = access.actor();
         requirePermission("dim3d:icon:edit");
@@ -73,8 +73,7 @@ public class Dim3dImageResourceService {
         new TransactionTemplate(transactions).executeWithoutResult(status -> {
             Dim3dIcon current = lockWritable(id, actor);
             validateDescription(body.getIconDesc(), current.getIconDesc());
-            boolean retainedFile = Objects.equals(current.getIconFileId(), body.getIconFileId());
-            bindFile(body.getIconFileId(), actor, body.getResourceBelong(), retainedFile);
+            bindEditedIconFile(current, body, actor);
             jdbc.update("""
                     UPDATE wx_3d_icon SET icon_name=?,icon_desc=?,category=?,secondary_category=?,
                     resource_belong=?,icon_file_id=?,tenant_id=?,update_by=?,update_time=CURRENT_TIMESTAMP WHERE id=?
@@ -192,6 +191,25 @@ public class Dim3dImageResourceService {
         updateFileBinding(id, actor, belong);
     }
 
+    /** 只有当前目录保留的文件可以从原范围迁移，新选文件继续按目标范围及上传者授权。 */
+    private void bindEditedIconFile(Dim3dIcon current, Dim3dIcon body, ArtResourceAccess.Actor actor) {
+        long id = body.getIconFileId();
+        String previousBelong = current.getResourceBelong();
+        String targetBelong = body.getResourceBelong();
+        boolean retained = Objects.equals(current.getIconFileId(), body.getIconFileId());
+        if (!retained || previousBelong.equals(targetBelong)) {
+            bindFile(id, actor, targetBelong, retained);
+            return;
+        }
+        fileForBinding(id, actor, previousBelong, true, true);
+        // 缩小全局范围时，外租户已有的场景和快照封面仍需要原访问权限。
+        if (hasOtherDirectoryReferences(id, current.getTenantId(), 0L, current.getId())
+                || ("SYSTEM".equals(previousBelong) && hasExternalSceneCovers(id, actor.tenant()))) {
+            throw new ServiceException(409, "图片文件仍被其他资源使用，请更换图片后再切换归属");
+        }
+        updateFileBinding(id, actor, targetBelong);
+    }
+
     /** 模型确认前仅校验文件，不提前改变私有上传的可见范围。 */
     void validateModelCover(long id, ArtResourceAccess.Actor actor, String belong, boolean retainedReference) {
         requireModelCover(fileForBinding(id, actor, belong, retainedReference, false));
@@ -210,19 +228,31 @@ public class Dim3dImageResourceService {
             return;
         }
         requireModelCover(fileForBinding(id, actor, previousBelong, true, true));
-        String previousTenant = owner(actor, previousBelong);
-        // 使用当前锁定读，避免发布事务在等待封面行锁前建立的旧快照漏掉并发提交的关联。
-        // 模型和图标的文件归属与目录租户一致。文件型模板可引用公共封面，需跨租户检查。
-        boolean shared = !jdbc.queryForList("SELECT id FROM wx_3d_model WHERE tenant_id=? AND cover_image_id=?"
-                        + " AND id<>? AND del_flag='0' LIMIT 1 FOR UPDATE", previousTenant, id, directoryId).isEmpty()
-                || !jdbc.queryForList("SELECT id FROM wx_3d_icon WHERE tenant_id=? AND icon_file_id=?"
-                        + " AND del_flag='0' LIMIT 1 FOR UPDATE", previousTenant, id).isEmpty()
-                || !jdbc.queryForList("SELECT id FROM wx_3d_template WHERE cover_image_id=?"
-                        + " AND del_flag='0' LIMIT 1 FOR UPDATE", id).isEmpty();
-        if (shared) {
+        if (hasOtherDirectoryReferences(id, owner(actor, previousBelong), directoryId, 0L)) {
             throw new ServiceException(409, "模型封面仍被其他目录使用，请更换或移除封面");
         }
         updateFileBinding(id, actor, belong);
+    }
+
+    /** 图片和模型封面使用相同的目录引用检查，各自排除当前正在编辑的记录。 */
+    private boolean hasOtherDirectoryReferences(long fileId, String previousTenant, long modelId, long iconId) {
+        // 使用当前锁定读，避免发布事务在等待封面行锁前建立的旧快照漏掉并发提交的关联。
+        // 模型和图标的文件归属与目录租户一致。文件型模板可引用公共封面，需跨租户检查。
+        return !jdbc.queryForList("SELECT id FROM wx_3d_model WHERE tenant_id=? AND cover_image_id=?"
+                        + " AND id<>? AND del_flag='0' LIMIT 1 FOR UPDATE", previousTenant, fileId, modelId).isEmpty()
+                || !jdbc.queryForList("SELECT id FROM wx_3d_icon WHERE tenant_id=? AND icon_file_id=?"
+                        + " AND id<>? AND del_flag='0' LIMIT 1 FOR UPDATE", previousTenant, fileId, iconId).isEmpty()
+                || !jdbc.queryForList("SELECT id FROM wx_3d_template WHERE cover_image_id=?"
+                        + " AND del_flag='0' LIMIT 1 FOR UPDATE", fileId).isEmpty();
+    }
+
+    /** 场景封面字段保存字符串文件号，查询时按原类型匹配，保留外租户现有绑定。 */
+    private boolean hasExternalSceneCovers(long fileId, long tenant) {
+        String coverId = Long.toString(fileId);
+        return !jdbc.queryForList("SELECT id FROM wx_3d_scene WHERE cover_asset_id=? AND tenant_id<>?"
+                        + " AND deleted=0 LIMIT 1 FOR UPDATE", coverId, tenant).isEmpty()
+                || !jdbc.queryForList("SELECT id FROM wx_3d_scene_template WHERE cover_asset_id=? AND tenant_id<>?"
+                        + " AND deleted=0 LIMIT 1 FOR UPDATE", coverId, tenant).isEmpty();
     }
 
     /** 图片目录和模型封面共用上传者、租户及保留引用判断，各读取只访问一条文件记录。 */
@@ -241,7 +271,7 @@ public class Dim3dImageResourceService {
                 && "PRIVATE_UPLOAD".equals(file.get("visibility_scope"));
         boolean ownBoundFile = sameScope && Long.toString(actor.user())
                 .equals(Objects.toString(file.get("uploader_id"), ""));
-        if (!(ownedUpload || ownBoundFile || retainedReference && sameScope)) throw new ServiceException(403, "无权绑定此图片文件，修改归属时请重新上传");
+        if (!(ownedUpload || ownBoundFile || retainedReference && sameScope)) throw new ServiceException(403, "无权绑定此图片文件，请选择当前目录的原文件或重新上传");
         if (!Objects.toString(file.get("type"), "").startsWith("image/")
                 || !(file.get("size") instanceof Number bytes) || bytes.longValue() < 1) throw invalid("文件不是有效图片");
         return file;

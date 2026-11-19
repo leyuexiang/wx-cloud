@@ -36,6 +36,11 @@ class Dim3dImageResourceServiceTest {
         jdbc.execute("CREATE TABLE wx_infra_file(id BIGINT PRIMARY KEY,tenant_id BIGINT,uploader_id BIGINT,visibility_scope VARCHAR(20),type VARCHAR(40),size INT,deleted BOOLEAN DEFAULT FALSE,update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
         jdbc.execute("CREATE TABLE wx_3d_icon(id BIGINT PRIMARY KEY,icon_name VARCHAR(50),icon_desc VARCHAR(500),category VARCHAR(32),secondary_category VARCHAR(32),resource_belong VARCHAR(16),icon_file_id BIGINT,status VARCHAR(16),data_user_id BIGINT,tenant_id VARCHAR(20),create_by BIGINT,update_by BIGINT,create_time TIMESTAMP,update_time TIMESTAMP,del_flag CHAR DEFAULT '0',resource_id BIGINT)");
         jdbc.execute("CREATE TABLE wx_3d_resource(id BIGINT PRIMARY KEY,resource_scope VARCHAR(32),content_state VARCHAR(16))");
+        // 只创建引用保护所需的业务列，覆盖目录和外租户封面的共用文件。
+        jdbc.execute("CREATE TABLE wx_3d_model(id BIGINT PRIMARY KEY,tenant_id VARCHAR(20),cover_image_id BIGINT,del_flag CHAR DEFAULT '0')");
+        jdbc.execute("CREATE TABLE wx_3d_template(id BIGINT PRIMARY KEY,cover_image_id BIGINT,del_flag CHAR DEFAULT '0')");
+        jdbc.execute("CREATE TABLE wx_3d_scene(id BIGINT PRIMARY KEY,tenant_id BIGINT,cover_asset_id VARCHAR(32),deleted INT DEFAULT 0)");
+        jdbc.execute("CREATE TABLE wx_3d_scene_template(id BIGINT PRIMARY KEY,tenant_id BIGINT,cover_asset_id VARCHAR(32),deleted INT DEFAULT 0)");
         jdbc.update("INSERT INTO wx_infra_file(id,tenant_id,uploader_id,visibility_scope,type,size,deleted) VALUES(5,41,7001,'PRIVATE_UPLOAD','image/png',50,FALSE)");
         access = mock(ArtResourceAccess.class);
         when(access.actor()).thenReturn(new ArtResourceAccess.Actor(7001, 41));
@@ -70,6 +75,106 @@ class Dim3dImageResourceServiceTest {
         assertEquals("图", saved.getIconName());
         assertEquals("TENANT", jdbc.queryForObject("SELECT visibility_scope FROM wx_infra_file WHERE id=5", String.class));
         assertEquals(1, service.page(null, null, null, null, null, 1, 10, null, null).getTotal());
+    }
+
+    /** 运营账号往返切换时沿用原目录和文件，且保留上下线状态。 */
+    @Test
+    void movesOriginalImageBetweenPersonalAndSystemUsingTheSameIds() {
+        var operator = new ArtResourceAccess.Actor(7001, 41);
+        when(access.isPlatformAdministrator(operator)).thenReturn(true);
+        long id = service.create(image());
+        service.changeStatus(id, "OFFLINE");
+        var system = image();
+        system.setResourceBelong("SYSTEM");
+        service.update(id, system);
+
+        var global = service.get(id);
+        assertEquals("SYSTEM", global.getResourceBelong());
+        assertEquals("0", global.getTenantId());
+        assertEquals(5L, global.getIconFileId());
+        assertEquals("OFFLINE", global.getStatus());
+        assertFileScope(5, "GLOBAL", 0);
+
+        service.update(id, image());
+        var personal = service.get(id);
+        assertEquals("MINE", personal.getResourceBelong());
+        assertEquals("41", personal.getTenantId());
+        assertEquals(5L, personal.getIconFileId());
+        assertEquals("OFFLINE", personal.getStatus());
+        assertEquals(7001L, personal.getCreateBy());
+        assertFileScope(5, "TENANT", 41);
+    }
+
+    /** 共享文件须保留原权限，改用本人新上传的图片后可以完成同一次归属切换。 */
+    @Test
+    void sharedImageRequiresReplacementBeforeChangingOwnership() {
+        var system = image();
+        system.setResourceBelong("SYSTEM");
+        long id = service.create(system);
+        long other = service.create(system);
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.update(id, image())).getCode());
+        assertFileScope(5, "GLOBAL", 0);
+        assertEquals("SYSTEM", jdbc.queryForObject("SELECT resource_belong FROM wx_3d_icon WHERE id=?", String.class, id));
+
+        jdbc.update("INSERT INTO wx_infra_file(id,tenant_id,uploader_id,visibility_scope,type,size)"
+                + " VALUES(6,41,7001,'PRIVATE_UPLOAD','image/png',70)");
+        var replacement = image();
+        replacement.setIconFileId(6L);
+        service.update(id, replacement);
+        assertEquals(6L, service.get(id).getIconFileId());
+        assertEquals(5L, jdbc.queryForObject("SELECT icon_file_id FROM wx_3d_icon WHERE id=?", Long.class, other));
+        assertFileScope(5, "GLOBAL", 0);
+        assertFileScope(6, "TENANT", 41);
+    }
+
+    /** 外租户已有场景封面时，原文件仍须保持系统权限。 */
+    @Test
+    void rejectsNarrowingAnImageUsedAsAnotherTenantsSceneCover() {
+        var system = image();
+        system.setResourceBelong("SYSTEM");
+        long id = service.create(system);
+        jdbc.update("INSERT INTO wx_3d_scene(id,tenant_id,cover_asset_id) VALUES(77,42,'5')");
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.update(id, image())).getCode());
+        assertFileScope(5, "GLOBAL", 0);
+    }
+
+    /** 不允许通过变更目标或沿用系统编号绕过平台维护权限。 */
+    @Test
+    void deniesChangingIntoOrOutOfSystemWithoutPlatformPermission() {
+        long personalId = service.create(image());
+        jdbc.update("INSERT INTO wx_infra_file(id,tenant_id,uploader_id,visibility_scope,type,size)"
+                + " VALUES(6,41,7001,'PRIVATE_UPLOAD','image/png',70)");
+        var system = image();
+        system.setIconFileId(6L);
+        system.setResourceBelong("SYSTEM");
+        long systemId = service.create(system);
+        doThrow(new ServiceException(403, "无权维护系统资源"))
+                .when(access).maintain(any(), eq("GLOBAL_SYSTEM"), eq("0"));
+        system.setIconFileId(5L);
+        assertEquals(403, assertThrows(ServiceException.class, () -> service.update(personalId, system)).getCode());
+        var personal = image();
+        personal.setIconFileId(6L);
+        assertEquals(403, assertThrows(ServiceException.class, () -> service.update(systemId, personal)).getCode());
+        assertFileScope(5, "TENANT", 41);
+        assertFileScope(6, "GLOBAL", 0);
+    }
+
+    /** 目录提交失败时，先前在同一事务修改的文件可见范围必须回滚。 */
+    @Test
+    void rollsBackOriginalFileOwnershipWhenDirectoryUpdateFails() {
+        long id = service.create(image());
+        jdbc.execute("ALTER TABLE wx_3d_icon ADD CONSTRAINT reject_system CHECK (resource_belong <> 'SYSTEM')");
+        var system = image();
+        system.setResourceBelong("SYSTEM");
+        assertThrows(org.springframework.dao.DataIntegrityViolationException.class, () -> service.update(id, system));
+        assertEquals("MINE", service.get(id).getResourceBelong());
+        assertFileScope(5, "TENANT", 41);
+    }
+
+    private void assertFileScope(long id, String scope, long tenant) {
+        var file = jdbc.queryForMap("SELECT visibility_scope,tenant_id FROM wx_infra_file WHERE id=?", id);
+        assertEquals(scope, file.get("visibility_scope"));
+        assertEquals(tenant, ((Number) file.get("tenant_id")).longValue());
     }
 
     @Test
