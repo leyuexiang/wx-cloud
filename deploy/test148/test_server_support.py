@@ -122,6 +122,13 @@ class GeneratedConfigTest(unittest.TestCase):
         self.assertEqual(by_id["tenant-dim3d-test148"]["uri"], "http://127.0.0.1:48192")
         self.assertIn("/admin-api/dim3d/", by_id["operation-dim3d-test148"]["filters"][-1])
         self.assertIn("/admin-api/dim3d/", by_id["tenant-dim3d-test148"]["filters"][-1])
+        # 生成后的专用模型路由先于平台兼容路由，并保留端别和精确文件路径。
+        for platform, prefix in (("operation", "/api/operation"), ("tenant", "/api/tenant/web")):
+            model_route = by_id[f"{platform}-dim3d-model-test148"]
+            self.assertEqual(model_route["order"], -1)
+            self.assertEqual(model_route["uri"], "http://127.0.0.1:48192")
+            self.assertIn(f"{prefix}/dim3d/resource/info/{{id}}", model_route["predicates"][0])
+            self.assertIn(f"/admin-api/dim3d/{platform}/", model_route["filters"][-1])
 
 
 class ResourceUploadCorsTest(unittest.TestCase):

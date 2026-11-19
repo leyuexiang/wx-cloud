@@ -137,15 +137,26 @@ for service, (module, port) in MODULES.items():
                     {"id": "dimensions-websocket-test148", "uri": f"ws://127.0.0.1:{upstream}",
                      "predicates": ["Path=/dimensions/ws,/dimensions/ws/**"],
                      "filters": ["RemoveRequestHeader=x-bot-user"]},
-                    {"id": "operation-dim3d-test148", "uri": f"http://127.0.0.1:{upstream}",
-                     "predicates": ["Path=/api/operation/dim3d/**"],
-                     "filters": ["RemoveRequestHeader=x-bot-user",
-                                 r"RewritePath=/api/operation/dim3d/(?<path>.*), /admin-api/dim3d/$\{path}"]},
-                    {"id": "tenant-dim3d-test148", "uri": f"http://127.0.0.1:{upstream}",
-                     "predicates": ["Path=/api/tenant/web/dim3d/**"],
-                     "filters": ["RemoveRequestHeader=x-bot-user",
-                                 r"RewritePath=/api/tenant/web/dim3d/(?<path>.*), /admin-api/dim3d/$\{path}"]},
                 ])
+                for platform, public_prefix in (("operation", "/api/operation"), ("tenant", "/api/tenant/web")):
+                    public_root = f"{public_prefix}/dim3d"
+                    model_paths = ("model/**", "model-imports/**", "resource/uploadConvert", "resource/info/{id}")
+                    # 模型路由应先于通用兼容路由命中，保留服务端各自的平台身份校验。
+                    routes.append({
+                        "id": f"{platform}-dim3d-model-test148", "order": -1,
+                        "uri": f"http://127.0.0.1:{upstream}",
+                        "predicates": ["Path=" + ",".join(f"{public_root}/{path}" for path in model_paths)],
+                        "filters": ["RemoveRequestHeader=x-bot-user",
+                                    f"RewritePath={public_root}/(?<path>.*), /admin-api/dim3d/{platform}/" + r"$\{path}"],
+                    })
+                    routes.append({
+                        "id": f"{platform}-dim3d-test148", "uri": f"http://127.0.0.1:{upstream}",
+                        "predicates": [f"Path={public_root}/**"],
+                        "filters": ["RemoveRequestHeader=x-bot-user",
+                                    # 禁止客户端把内部模型端别作为通用转发的业务路径。
+                                    f"RewritePath=^{public_root}/(?<path>(?!(?:operation|tenant)(?:/|$)).*), "
+                                    r"/admin-api/dim3d/$\{path}"],
+                    })
                 predicates += ",/admin-api/dim3d/**"
             if name == "infra":
                 # 新适配控制器类映射至 /admin-api/infra/file/resource/oss，验证运行网关能到达。

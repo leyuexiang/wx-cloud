@@ -9,6 +9,7 @@ import cn.iocoder.wx.module.dimensions.entity.Dim3dModel;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dTemplate;
 import cn.iocoder.wx.module.dimensions.exception.ErrorCodeConstants;
 import cn.iocoder.wx.module.dimensions.mapper.Dim3dConvertedResourceMapper;
+import cn.iocoder.wx.module.dimensions.service.ArtResourceAccess;
 import cn.iocoder.wx.module.dimensions.service.Dim3dCatalogOrder;
 import cn.iocoder.wx.module.dimensions.service.Dim3dFileTemplateService;
 import cn.iocoder.wx.module.dimensions.service.Dim3dResourceCatalogService;
@@ -35,9 +36,11 @@ import java.util.Map;
 @Service
 public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogService {
 
-    /** 复用既有目录范围修复：公共租户系统模型共享，个人模型同时匹配租户及账号。 */
-    private static final String MODEL_VISIBLE = "del_flag='0' AND ((resource_belong='SYSTEM' AND tenant_id='0')"
+    /** 系统模型从公共租户读取，个人模型同时匹配租户及账号，历史空归属回退创建人。 */
+    private static final String MODEL_VISIBLE = "del_flag='0' AND ((resource_belong='SYSTEM' AND tenant_id='0'%s)"
             + " OR (resource_belong='MINE' AND tenant_id=? AND COALESCE(data_user_id,create_by)=?))";
+    private static final String PLATFORM_MODEL_VISIBLE = MODEL_VISIBLE.formatted("");
+    private static final String TENANT_MODEL_VISIBLE = MODEL_VISIBLE.formatted(" AND status='ONLINE'");
     private static final BeanPropertyRowMapper<Dim3dModel> MODEL_ROW = new BeanPropertyRowMapper<>(Dim3dModel.class);
     /** 请求值只映射为固定数据库列，不能把外部排序文本直接拼入查询。 */
     private static final Map<String, String> MODEL_SORT_COLUMNS = Map.of(
@@ -45,7 +48,7 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
             "status", "status", "isPaid", "is_paid", "price", "price", "priceYuan", "price",
             "createTime", "create_time", "updateTime", "update_time");
     @Resource private JdbcTemplate jdbc;
-    @Resource private cn.iocoder.wx.module.dimensions.service.ArtResourceAccess access;
+    @Resource private ArtResourceAccess access;
     /** 模型写入集中处理归属、文件关系、发布和删除，复用既有基础事务。 */
     @Resource private cn.iocoder.wx.module.dimensions.service.Dim3dModelWriteService models;
 
@@ -99,7 +102,7 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
     private ModelFile modelFile(Long id) {
         var actor = access.actor();
         var rows = jdbc.query("SELECT * FROM wx_3d_model WHERE (model_file_id=? OR resource_id=?) AND "
-                        + MODEL_VISIBLE + " ORDER BY id LIMIT 1", MODEL_ROW,
+                        + modelVisibility(actor) + " ORDER BY id LIMIT 1", MODEL_ROW,
                 id, id, Long.toString(actor.tenant()), actor.user());
         if (rows.isEmpty()) throw ServiceException.of(ErrorCodeConstants.DATA_NOT_EXIST);
         var model = rows.get(0);
@@ -122,13 +125,18 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
         return path;
     }
 
-    /** 详情及写入预检共用可见范围，历史空上传账号回退创建人，未知所有者保持不可见。 */
+    /** 详情与分页应用同一归属及上线规则，按编号读取也不能跨越可见范围。 */
     private Dim3dModel findModel(Long id) {
         var actor = access.actor();
-        List<Dim3dModel> rows = jdbc.query("SELECT * FROM wx_3d_model WHERE id=? AND " + MODEL_VISIBLE,
+        List<Dim3dModel> rows = jdbc.query("SELECT * FROM wx_3d_model WHERE id=? AND " + modelVisibility(actor),
                 MODEL_ROW, id, Long.toString(actor.tenant()), actor.user());
         if (rows.isEmpty()) throw ServiceException.of(ErrorCodeConstants.DATA_NOT_EXIST);
         return rows.get(0);
+    }
+
+    /** 运营维护权限才可查全部系统状态，其他身份的上线条件只作用于系统分支。 */
+    private String modelVisibility(ArtResourceAccess.Actor actor) {
+        return access.isPlatformAdministrator(actor) ? PLATFORM_MODEL_VISIBLE : TENANT_MODEL_VISIBLE;
     }
 
     @Override public PageResult<Dim3dModel> getModelPage(String name, String belong, String status, String paid, String category, Integer num, Integer size) {
@@ -140,7 +148,10 @@ public class Dim3dResourceCatalogServiceImpl implements Dim3dResourceCatalogServ
                                                       Integer num, Integer size, String orderByColumn, String isAsc) {
         String order = Dim3dCatalogOrder.sql(MODEL_SORT_COLUMNS, orderByColumn, isAsc, "模型排序字段或方向无效");
         var actor = access.actor();
-        StringBuilder where = new StringBuilder(" FROM wx_3d_model WHERE ").append(MODEL_VISIBLE);
+        // 显式筛选已限定上线或个人目录时，归属条件已足够，无需再查运营角色或重复追加状态条件。
+        String visibility = "ONLINE".equals(status) || "MINE".equals(belong)
+                ? PLATFORM_MODEL_VISIBLE : modelVisibility(actor);
+        StringBuilder where = new StringBuilder(" FROM wx_3d_model WHERE ").append(visibility);
         List<Object> args = new ArrayList<>();
         args.add(Long.toString(actor.tenant()));
         args.add(actor.user());

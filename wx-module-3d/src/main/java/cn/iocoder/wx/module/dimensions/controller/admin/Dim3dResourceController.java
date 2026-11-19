@@ -31,10 +31,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import static cn.iocoder.wx.module.dimensions.config.ModelPlatformConfiguration.PLATFORM_SEGMENT;
+
 
 /**
  * 新资源管理接口。
- * 路径与 operation.openapi 中的模型、图标、模板协议保持一致，旧项目资源接口不受影响。
+ * 模型提供两端平台路径和旧管理路径，多个入口复用同一表单、响应及受控业务。
  */
 @Validated
 @RestController
@@ -49,7 +51,7 @@ public class Dim3dResourceController {
     /** 目录响应使用明确字段投影，操作人名称按一页去重合批补充。 */
     @Resource private Dim3dCatalogResponseAssembler catalogResponses;
 
-    @PostMapping("/model/add")
+    @PostMapping({"/model/add", PLATFORM_SEGMENT + "/model/add"})
     @Operation(summary = "新增模型", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             required = true, content = @Content(schema = @Schema(implementation = Dim3dModel.class))))
     @PreAuthorize("@ss.hasPermission('dim3d:model:add')")
@@ -62,7 +64,7 @@ public class Dim3dResourceController {
         service.createModel(modelInput(body));
         return CommonResult.success(null);
     }
-    @PutMapping("/model/edit/{id}")
+    @PutMapping({"/model/edit/{id}", PLATFORM_SEGMENT + "/model/edit/{id}"})
     // 原始节点用于严格金额校验，接口文档继续展示原模型字段及必填约束。
     @Operation(summary = "编辑模型", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             required = true, content = @Content(schema = @Schema(implementation = Dim3dModel.class))))
@@ -75,11 +77,11 @@ public class Dim3dResourceController {
         else service.replaceManagedModel(id, model, operationId);
         return CommonResult.success(null);
     }
-    @GetMapping("/model/info/{id}") @Operation(summary = "查询模型详情") @PreAuthorize("@ss.hasPermission('dim3d:model:query')")
+    @GetMapping({"/model/info/{id}", PLATFORM_SEGMENT + "/model/info/{id}"}) @Operation(summary = "查询模型详情") @PreAuthorize("@ss.hasPermission('dim3d:model:query')")
     public CommonResult<Dim3dModelResponse> modelInfo(@PathVariable Long id) {
         return CommonResult.success(catalogResponses.single(service.getModel(id)));
     }
-    @GetMapping("/model/page") @Operation(summary = "分页查询模型") @PreAuthorize("@ss.hasPermission('dim3d:model:query')")
+    @GetMapping({"/model/page", PLATFORM_SEGMENT + "/model/page"}) @Operation(summary = "分页查询模型") @PreAuthorize("@ss.hasPermission('dim3d:model:query')")
     public Dim3dModelPageResponse modelPage(String modelName, String resourceBelong, String status, String isPaid,
                                             String category, Integer pageNum, Integer pageSize,
                                             String orderByColumn, String isAsc) {
@@ -89,13 +91,13 @@ public class Dim3dResourceController {
         return new Dim3dModelPageResponse(new PageResult<>(catalogResponses.multiple(page.getList()), page.getTotal()));
     }
     /** 上下线沿用文档路径和模型编辑权限，成功仅返回统一空数据响应。 */
-    @PutMapping("/model/{status}/{id}") @Operation(summary = "模型上线或下线") @PreAuthorize("@ss.hasPermission('dim3d:model:edit')")
+    @PutMapping({"/model/{status}/{id}", PLATFORM_SEGMENT + "/model/{status}/{id}"}) @Operation(summary = "模型上线或下线") @PreAuthorize("@ss.hasPermission('dim3d:model:edit')")
     public CommonResult<Void> modelStatus(@PathVariable String status, @PathVariable Long id) { service.changeModelStatus(id, status); return CommonResult.success(null); }
-    @DeleteMapping("/model/remove/{id}") @Operation(summary = "删除模型") @PreAuthorize("@ss.hasPermission('dim3d:model:delete')")
+    @DeleteMapping({"/model/remove/{id}", PLATFORM_SEGMENT + "/model/remove/{id}"}) @Operation(summary = "删除模型") @PreAuthorize("@ss.hasPermission('dim3d:model:delete')")
     public CommonResult<Void> removeModel(@PathVariable Long id) { service.deleteModel(id); return CommonResult.success(null); }
 
     /** 文件详情按模型文件编号及目录可见范围读取，仅返回文档约定的相对路径。 */
-    @GetMapping("/resource/info/{id}")
+    @GetMapping({"/resource/info/{id}", PLATFORM_SEGMENT + "/resource/info/{id}"})
     @Operation(summary = "查询模型文件资源详情")
     @PreAuthorize("@ss.hasPermission('dim3d:model:query')")
     public CommonResult<?> modelResourceInfo(@PathVariable Long id) {
@@ -103,7 +105,7 @@ public class Dim3dResourceController {
     }
 
     /** 轻量读取文件访问方式，受管模型由播放器依据稳定编号执行原受控下载。 */
-    @GetMapping("/model/file-access/{id}")
+    @GetMapping({"/model/file-access/{id}", PLATFORM_SEGMENT + "/model/file-access/{id}"})
     @Operation(summary = "查询模型文件访问方式")
     @PreAuthorize("@ss.hasPermission('dim3d:model:query')")
     public CommonResult<?> modelFileAccess(@PathVariable Long id) {
@@ -206,7 +208,7 @@ public class Dim3dResourceController {
     }
 
     /** 接收单个ZIP。旧归属参数仍用于选择受管回执，最终归属以目录保存表单为准。 */
-    @PostMapping(value = "/resource/uploadConvert", consumes = "multipart/form-data")
+    @PostMapping(value = {"/resource/uploadConvert", PLATFORM_SEGMENT + "/resource/uploadConvert"}, consumes = "multipart/form-data")
     @Operation(summary = "上传ZIP并转换资源")
     // 转换会上传文件并写入资源表，权限必须与模型新增保持一致。
     @PreAuthorize("@ss.hasPermission('dim3d:model:add')")

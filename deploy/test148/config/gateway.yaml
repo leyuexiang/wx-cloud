@@ -81,6 +81,23 @@ spring:
         - Path=/admin-api/dimensions/**,/app-api/dimensions/**,/admin-api/dim3d/**
         filters:
         - RemoveRequestHeader=x-bot-user
+      # 模型走各自的平台入口，服务端仍逐次检查令牌所属租户。
+      - id: operation-dim3d-model-test148
+        order: -1
+        uri: http://127.0.0.1:48192
+        predicates:
+        - Path=/api/operation/dim3d/model/**,/api/operation/dim3d/model-imports/**,/api/operation/dim3d/resource/uploadConvert,/api/operation/dim3d/resource/info/{id}
+        filters:
+        - RemoveRequestHeader=x-bot-user
+        - RewritePath=/api/operation/dim3d/(?<path>.*), /admin-api/dim3d/operation/$\{path}
+      - id: tenant-dim3d-model-test148
+        order: -1
+        uri: http://127.0.0.1:48192
+        predicates:
+        - Path=/api/tenant/web/dim3d/model/**,/api/tenant/web/dim3d/model-imports/**,/api/tenant/web/dim3d/resource/uploadConvert,/api/tenant/web/dim3d/resource/info/{id}
+        filters:
+        - RemoveRequestHeader=x-bot-user
+        - RewritePath=/api/tenant/web/dim3d/(?<path>.*), /admin-api/dim3d/tenant/$\{path}
       x-forwarded:
         prefix-enabled: false
 server:

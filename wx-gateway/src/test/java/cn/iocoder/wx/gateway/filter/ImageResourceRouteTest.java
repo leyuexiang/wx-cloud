@@ -113,6 +113,36 @@ class ImageResourceRouteTest {
                 MockServerHttpRequest.post("/api/operation/dim3d/icon/add"))));
     }
 
+    /** 模型专用路径覆盖完整业务链，且优先于同端图标和场景的通用兼容转发。 */
+    @Test
+    void modelPathsKeepTheirPlatformThroughTheGateway() throws Exception {
+        for (String platform : List.of("operation", "tenant")) {
+            var model = route(platform + "-dim3d-model-api");
+            var general = route(platform + "-dim3d-api");
+            assertTrue(model.getOrder() < general.getOrder());
+            var matchesModel = predicate(model);
+            String root = "/api/" + (platform.equals("tenant") ? "tenant/web" : platform) + "/dim3d";
+            for (String path : List.of("/model/page", "/model/edit/7", "/model/file-access/7",
+                    "/resource/info/7", "/resource/uploadConvert", "/model-imports", "/model-imports/key/submit")) {
+                var exchange = MockServerWebExchange.from(MockServerHttpRequest.get(root + path)
+                        .header("Authorization", "Bearer trusted-session").header("tenant-id", "7")
+                        .header("x-bot-user", "forged-user"));
+                assertTrue(matchesModel.test(exchange), root + path);
+                var forwarded = apply(model, exchange).getRequest();
+                assertEquals("/admin-api/dim3d/" + platform + path, forwarded.getURI().getPath());
+                assertEquals("Bearer trusted-session", forwarded.getHeaders().getFirst("Authorization"));
+                assertEquals("7", forwarded.getHeaders().getFirst("tenant-id"));
+                assertNull(forwarded.getHeaders().getFirst("x-bot-user"));
+            }
+            assertFalse(matchesModel.test(MockServerWebExchange.from(MockServerHttpRequest.get(root + "/icon/page"))));
+            assertFalse(matchesModel.test(MockServerWebExchange.from(MockServerHttpRequest.get(root + "/resources/7/current"))));
+            // 兼容路由不能把外部拼接的平台段转成内部模型入口。
+            String nested = root + "/operation/model/page";
+            assertEquals(nested, apply(general, MockServerWebExchange.from(MockServerHttpRequest.get(nested)))
+                    .getRequest().getURI().getPath());
+        }
+    }
+
     private static org.springframework.cloud.gateway.route.RouteDefinition route(String id) throws Exception {
         StandardEnvironment environment = new StandardEnvironment();
         new YamlPropertySourceLoader().load("gateway", new ClassPathResource("application.yaml"))
@@ -125,7 +155,7 @@ class ImageResourceRouteTest {
     private static Predicate<org.springframework.web.server.ServerWebExchange> predicate(
             org.springframework.cloud.gateway.route.RouteDefinition route) {
         var config = new PathRoutePredicateFactory.Config();
-        config.setPatterns(List.of(route.getPredicates().get(0).getArgs().get("_genkey_0")));
+        config.setPatterns(List.copyOf(route.getPredicates().get(0).getArgs().values()));
         return new PathRoutePredicateFactory().apply(config);
     }
 

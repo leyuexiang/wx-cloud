@@ -38,7 +38,8 @@ class Dim3dModelCatalogReadTest {
                 + "(5,'已删除','TREE','SYSTEM','0',9001,9001,'ONLINE','FREE','1'),"
                 + "(6,'历史个人','BUILDING','MINE','41',NULL,7001,'OFFLINE','FREE','0'),"
                 + "(7,'未知所有者','TREE','MINE','41',NULL,NULL,'ONLINE','FREE','0'),"
-                + "(8,'非公共租户','TREE','SYSTEM','42',9001,9001,'ONLINE','FREE','0')");
+                + "(8,'非公共租户','TREE','SYSTEM','42',9001,9001,'ONLINE','FREE','0'),"
+                + "(9,'下线系统模型','TREE','SYSTEM','0',9001,9001,'OFFLINE','FREE','0')");
         access = mock(ArtResourceAccess.class);
         when(access.actor()).thenReturn(new ArtResourceAccess.Actor(7001, 41));
         service = new Dim3dResourceCatalogServiceImpl();
@@ -73,6 +74,29 @@ class Dim3dModelCatalogReadTest {
         var result = service.getModelPage("树", null, "ONLINE", "FREE", "TREE", 2, 1);
         assertEquals(2, result.getTotal());
         assertEquals(List.of(1L), result.getList().stream().map(Dim3dModel::getId).toList());
+    }
+
+    /** 租户查询下线状态时，计数和结果均排除下线系统模型并保留自己的下线模型。 */
+    @Test
+    void tenantCannotListOrReadOfflineSystemModels() {
+        var offline = service.getModelPage(null, null, "OFFLINE", null, null, 1, 10);
+        assertEquals(1, offline.getTotal());
+        assertEquals(List.of(6L), offline.getList().stream().map(Dim3dModel::getId).toList());
+        assertEquals(0, service.getModelPage(null, "SYSTEM", "OFFLINE", null, null, 1, 10).getTotal());
+        assertThrows(ServiceException.class, () -> service.getModel(9L));
+    }
+
+    /** 运营维护仍能查看系统下线记录，同时保留个人模型的租户与账号隔离。 */
+    @Test
+    void platformMaintainerCanListAndReadOfflineSystemModels() {
+        var operator = new ArtResourceAccess.Actor(9001, 1);
+        when(access.actor()).thenReturn(operator);
+        when(access.isPlatformAdministrator(operator)).thenReturn(true);
+        var offline = service.getModelPage(null, "SYSTEM", "OFFLINE", null, null, 1, 10);
+        assertEquals(1, offline.getTotal());
+        assertEquals(List.of(9L), offline.getList().stream().map(Dim3dModel::getId).toList());
+        assertEquals(9L, service.getModel(9L).getId());
+        assertThrows(ServiceException.class, () -> service.getModel(6L));
     }
 
     @Test

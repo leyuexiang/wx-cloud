@@ -30,7 +30,7 @@ class Dim3dModelPreviewTest {
         jdbc = new JdbcTemplate(source);
         jdbc.execute("CREATE TABLE wx_3d_model(id BIGINT PRIMARY KEY, model_file_id BIGINT, resource_id BIGINT,"
                 + "model_name VARCHAR(50),tenant_id VARCHAR(20),resource_belong VARCHAR(16),data_user_id BIGINT,"
-                + "create_by BIGINT,price INT,del_flag CHAR DEFAULT '0')");
+                + "create_by BIGINT,price INT,status VARCHAR(16),del_flag CHAR DEFAULT '0')");
         jdbc.execute("CREATE TABLE wx_3d_resource(id BIGINT PRIMARY KEY,resource_name VARCHAR(150),asset_name VARCHAR(150),tenant_id VARCHAR(20),resource_type VARCHAR(20),"
                 + "resource_relative_path VARCHAR(255),resource_scope VARCHAR(20),del_flag CHAR DEFAULT '0')");
         jdbc.update("INSERT INTO wx_3d_model(id,model_file_id,model_name,tenant_id,resource_belong,data_user_id,price)"
@@ -159,6 +159,17 @@ class Dim3dModelPreviewTest {
         assertEquals("models/tree.glb", result.get("resourceRelativePath"));
         jdbc.update("UPDATE wx_3d_model SET data_user_id=7002 WHERE id=1");
         assertThrows(ServiceException.class, () -> service.getModelResource(101L));
+    }
+
+    /** 下线后旧编号也不能解析到系统模型文件或访问方式。 */
+    @Test
+    void tenantReadsSystemFileOnlyWhileOnline() {
+        jdbc.update("UPDATE wx_3d_model SET tenant_id='0',resource_belong='SYSTEM',status='ONLINE' WHERE id=1");
+        jdbc.update("UPDATE wx_3d_resource SET tenant_id='0' WHERE id=101");
+        assertEquals("101", service.getModelFileAccess(101L).get("id"));
+        jdbc.update("UPDATE wx_3d_model SET status='OFFLINE' WHERE id=1");
+        assertThrows(ServiceException.class, () -> service.getModelResource(101L));
+        assertThrows(ServiceException.class, () -> service.getModelFileAccess(101L));
     }
 
     @Test

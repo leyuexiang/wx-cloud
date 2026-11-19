@@ -12,6 +12,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+import cn.iocoder.wx.framework.security.core.LoginUser;
+import cn.iocoder.wx.framework.tenant.core.context.TenantContextHolder;
+import cn.iocoder.wx.framework.web.config.WebProperties;
+import cn.iocoder.wx.framework.web.core.handler.GlobalExceptionHandler;
+import cn.iocoder.wx.module.dimensions.config.ModelPlatformConfiguration;
+import cn.iocoder.wx.module.dimensions.controller.admin.ModelImportController;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import java.util.Map;
+
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,7 +62,58 @@ class Dim3dModelControllerContractTest {
     }
 
     @AfterEach
-    void release() { validator.close(); }
+    void release() {
+        validator.close();
+        SecurityContextHolder.clearContext();
+        TenantContextHolder.clear();
+    }
+
+    /** 真实控制器与端别拦截器共同验证请求分派，伪造的请求头无法改变令牌身份。 */
+    @Test
+    void routesBothPlatformsAndRejectsCrossPlatformReadsAndWrites() throws Exception {
+        var access = new ArtResourceAccess();
+        ReflectionTestUtils.setField(access, "platformTenant", 1L);
+        var web = new WebProperties();
+        var interceptor = new ModelPlatformConfiguration().modelPlatformAccess(web, access);
+        var imports = new ModelImportController();
+        var platformMvc = MockMvcBuilders.standaloneSetup(controller, imports)
+                .setCustomHandlerMapping(() -> {
+                    var mapping = new RequestMappingHandlerMapping();
+                    mapping.setPathPrefixes(Map.of(web.getAdminApi().getPrefix(), type -> true));
+                    return mapping;
+                })
+                .addMappedInterceptors(interceptor.getPathPatterns(), interceptor.getInterceptor())
+                .setControllerAdvice(new GlobalExceptionHandler("dimensions-test", null))
+                .setValidator(validator).build();
+        when(catalog.getModelPage(null, null, null, null, null, null, null, null, null))
+                .thenReturn(new PageResult<>(List.of(), 0L));
+        String operationPath = "/admin-api/dim3d/operation";
+        String tenantPath = "/admin-api/dim3d/tenant";
+
+        login(2L);
+        platformMvc.perform(get(tenantPath + "/model/page")).andExpect(jsonPath("$.code").value(200));
+        platformMvc.perform(get(operationPath + "/model/page").header("tenant-id", "1"))
+                .andExpect(jsonPath("$.code").value(403));
+        platformMvc.perform(post(operationPath + "/model-imports").contentType("application/json").content("{}"))
+                .andExpect(jsonPath("$.code").value(403));
+        platformMvc.perform(get("/admin-api/dim3d/model/page")).andExpect(jsonPath("$.code").value(200));
+
+        login(1L);
+        platformMvc.perform(get(operationPath + "/model/page")).andExpect(jsonPath("$.code").value(200));
+        platformMvc.perform(put(tenantPath + "/model/OFFLINE/7")).andExpect(jsonPath("$.code").value(403));
+        platformMvc.perform(get(tenantPath + "/resource/info/7")).andExpect(jsonPath("$.code").value(403));
+        verify(catalog, never()).changeModelStatus(anyLong(), anyString());
+        verify(catalog, never()).getModelResource(anyLong());
+    }
+
+    private static void login(long tenant) {
+        var user = new LoginUser();
+        user.setId(10L);
+        user.setTenantId(tenant);
+        TenantContextHolder.setTenantId(tenant);
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(user, null, List.of()));
+    }
 
     @Test
     void pageProvidesContractRowsWithoutAdditionalEnvelope() throws Exception {

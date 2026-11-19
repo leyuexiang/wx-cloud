@@ -57,8 +57,8 @@ def render_config(original, site_root, certificate):
         add_header Referrer-Policy no-referrer always;
         add_header X-Content-Type-Options nosniff always;
     }
-    # URI只剥离部署前缀，可信身份与租户仍由12525网关和业务服务逐次校验。
-    location ~ "^/dts-api/admin-api/(?:system/(?:auth/(?:login|logout|get-permission-info|refresh-token)|dict-data/simple-list|dict/data/type/[A-Za-z0-9_-]{1,100})|iot/(?:connector|device-binding|message-inbox)/[A-Za-z0-9_-]+|dim3d/(?:model|icon|template|scene|resources|resource|model-imports)(?:/[A-Za-z0-9_./-]+)?|resource/oss(?:/[A-Za-z0-9_./-]+)?)$" {
+    # 在现有管理白名单内补充模型双端路径；剥离部署前缀后仍由后端校验端别和租户。
+    location ~ "^/dts-api/(?:admin-api/(?:system/(?:auth/(?:login|logout|get-permission-info|refresh-token)|dict-data/simple-list|dict/data/type/[A-Za-z0-9_-]{1,100})|iot/(?:connector|device-binding|message-inbox)/[A-Za-z0-9_-]+|dim3d/(?:model|icon|template|scene|resources|resource|model-imports)(?:/[A-Za-z0-9_./-]+)?|resource/oss(?:/[A-Za-z0-9_./-]+)?)|api/(?:operation|tenant/web)/dim3d/(?:(?:model|model-imports)(?:/[A-Za-z0-9_./-]+)?|resource/(?:uploadConvert|info/[0-9]+)))$" {
         client_max_body_size 24m;
         rewrite ^/dts-api(/.*)$ $1 break;
         proxy_pass http://127.0.0.1:12525;

@@ -35,10 +35,18 @@ public class ArtResourceAccess {
     }
 
     /** 跨租户目录及授权复用平台租户与超级管理员角色的双重检查。 */
-    boolean isPlatformAdministrator(Actor actor) {
+    public boolean isPlatformAdministrator(Actor actor) {
         return isPlatformTenant(actor.tenant())
                 && Boolean.TRUE.equals(permissions.hasAnyRoles(actor.user(), "super_admin").getCheckedData());
     }
 
     boolean isPlatformTenant(long tenant) { return platformTenant > 0 && tenant == platformTenant; }
+
+    /** 路由只声明要访问的端；权限由令牌一致的登录租户判定，公共资源租户 0 不参与登录。 */
+    public void requireModelPlatform(String platform) {
+        String authenticatedPlatform = isPlatformTenant(actor().tenant()) ? "operation" : "tenant";
+        if (!authenticatedPlatform.equals(platform)) {
+            throw new ServiceException(403, "当前登录身份无权访问该模型平台入口");
+        }
+    }
 }
