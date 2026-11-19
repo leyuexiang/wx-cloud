@@ -24,7 +24,9 @@ class Data08RetentionAuditTest(unittest.TestCase):
 
         def fake_mysql(_args, sql):
             if "information_schema.TABLES" in sql:
-                return responses["information_schema"]
+                if "TABLE_NAME='wx_3d_scene'" in sql or "TABLE_NAME='wx_3d_scene_revision'" in sql or "TABLE_NAME='wx_3d_scene_template'" in sql or "TABLE_NAME='wx_3d_scene_publication'" in sql:
+                    return responses["information_schema"]
+                return [["0"]]
             if "FROM wx_3d_scene_revision" in sql:
                 return responses["wx_3d_scene_revision"]
             if "FROM wx_3d_scene_template" in sql:
@@ -45,6 +47,32 @@ class Data08RetentionAuditTest(unittest.TestCase):
         self.assertIn("request_id_expiry_unmodeled", report["rows"][0]["reasons"])
         self.assertIn("publication_reference", report["rows"][0]["reasons"])
         self.assertIn("publication_reference_checked_none", report["rows"][1]["reasons"])
+        self.assertIn("persistent_bookmark_table_absent", report["rows"][0]["reasons"])
+
+    def test_audit_reads_active_bookmark_and_request_retention(self):
+        args = Namespace()
+        def fake_mysql(_args, sql):
+            if "information_schema.TABLES" in sql:
+                return [["1"]]
+            if "FROM wx_3d_scene_revision" in sql:
+                return [["2", "10", "1", "req-1"]]
+            if "FROM wx_3d_scene_publication" in sql:
+                return []
+            if "FROM wx_3d_scene_template" in sql:
+                return []
+            if "FROM wx_3d_scene_bookmark" in sql:
+                return [["2", "10", "1", "ACTIVE", "2099-01-01 00:00:00"]]
+            if "FROM wx_3d_scene_request" in sql:
+                return [["2", "10", "req-1", "a" * 64, "1", "2099-01-01 00:00:00"]]
+            if "FROM wx_3d_scene" in sql:
+                return [["10", "2", "1", "0", "NULL"]]
+            return []
+
+        with patch.object(MODULE.VERIFY, "mysql", side_effect=fake_mysql):
+            report = MODULE.audit(args)
+        reasons = report["rows"][0]["reasons"]
+        self.assertIn("persistent_bookmark_reference", reasons)
+        self.assertIn("request_retention_active", reasons)
 
 
 if __name__ == "__main__":
