@@ -41,6 +41,7 @@ class IotWebReleaseTest(unittest.TestCase):
             prefix = f'/dts-api/api/{platform}'
             for path in ('model/page', 'model-imports', 'model-imports/key/submit',
                          'resource/uploadConvert', 'resource/info/123', 'icon/page', 'scene/saveAll',
+                         'template/page', 'template/edit/123', 'scene/template/page', 'scene/fromTemplate',
                          'scene/publication/preview'):
                 self.assertRegex(f'{prefix}/dim3d/{path}', pattern)
             self.assertRegex(f'{prefix}/resource/oss/upload', pattern)

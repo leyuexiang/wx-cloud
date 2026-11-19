@@ -95,14 +95,14 @@ class ImageResourceRouteTest {
         var operation = route("operation-dim3d-api");
         var tenant = route("tenant-dim3d-api");
         for (var pair : List.of(
-                new RouteExchange(operation, "/api/operation/dim3d/template/add"),
-                new RouteExchange(tenant, "/api/tenant/web/dim3d/template/add"))) {
+                new RouteExchange(operation, "/api/operation/dim3d/resources/7/current"),
+                new RouteExchange(tenant, "/api/tenant/web/dim3d/resources/7/current"))) {
             var exchange = MockServerWebExchange.from(MockServerHttpRequest.post(pair.path())
                     .header("Authorization", "Bearer trusted-session")
                     .header("ClientId", "trusted-client")
                     .header("x-bot-user", "forged-user"));
             var forwarded = apply(pair.route(), exchange);
-            assertEquals("/admin-api/dim3d/template/add", forwarded.getRequest().getURI().getPath());
+            assertEquals("/admin-api/dim3d/resources/7/current", forwarded.getRequest().getURI().getPath());
             assertEquals("Bearer trusted-session", forwarded.getRequest().getHeaders().getFirst("Authorization"));
             assertEquals("trusted-client", forwarded.getRequest().getHeaders().getFirst("ClientId"));
             assertNull(forwarded.getRequest().getHeaders().getFirst("x-bot-user"));
@@ -113,7 +113,7 @@ class ImageResourceRouteTest {
                 MockServerHttpRequest.post("/api/operation/dim3d/icon/add"))));
     }
 
-    /** 登录模型、图标与场景路径都由专用路由优先转发，文件型模板保留原路径。 */
+    /** 两类模板、模型、图标和场景路径均优先转入端别校验，通用资源读取继续兼容。 */
     @Test
     void catalogAndScenePathsKeepTheirPlatformThroughTheGateway() throws Exception {
         for (String platform : List.of("operation", "tenant")) {
@@ -124,7 +124,10 @@ class ImageResourceRouteTest {
             String root = "/api/" + (platform.equals("tenant") ? "tenant/web" : platform) + "/dim3d";
             for (String path : List.of("/model/page", "/model/edit/7", "/model/file-access/7",
                     "/resource/info/7", "/resource/uploadConvert", "/model-imports", "/model-imports/key/submit",
-                    "/icon/page", "/scene/saveAll", "/scene/template/page", "/scene/publication/PUB-7/ticket")) {
+                    "/icon/page", "/scene/saveAll", "/scene/template/page", "/scene/publication/PUB-7/ticket",
+                    "/template/page", "/template/info/7", "/template/add", "/template/edit/7",
+                    "/template/OFFLINE/7", "/template/remove/7", "/scene/template/share/7",
+                    "/scene/saveAsTemplateFromSnapshot", "/scene/fromTemplate")) {
                 var exchange = MockServerWebExchange.from(MockServerHttpRequest.get(root + path)
                         .header("Authorization", "Bearer trusted-session").header("tenant-id", "7")
                         .header("x-bot-user", "forged-user"));
@@ -135,7 +138,6 @@ class ImageResourceRouteTest {
                 assertEquals("7", forwarded.getHeaders().getFirst("tenant-id"));
                 assertNull(forwarded.getHeaders().getFirst("x-bot-user"));
             }
-            assertFalse(matchesPlatform.test(MockServerWebExchange.from(MockServerHttpRequest.get(root + "/template/page"))));
             assertFalse(matchesPlatform.test(MockServerWebExchange.from(MockServerHttpRequest.get(root + "/resources/7/current"))));
             // 兼容路由不能把外部拼接的平台段转成内部专用入口。
             String nested = root + "/operation/model/page";

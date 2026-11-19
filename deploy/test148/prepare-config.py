@@ -153,7 +153,7 @@ for service, (module, port) in MODULES.items():
                 for platform, public_prefix in (("operation", "/api/operation"), ("tenant", "/api/tenant/web")):
                     public_root = f"{public_prefix}/dim3d"
                     paths = ("model/**", "model-imports/**", "resource/uploadConvert", "resource/info/{id}",
-                             "icon/**", "scene/**")
+                             "icon/**", "template/**", "scene/**")
                     # 三维平台路由先于通用兼容路由命中，登录身份由下游核验。
                     routes.append({
                         "id": f"{platform}-dim3d-platform-test148", "order": -1,

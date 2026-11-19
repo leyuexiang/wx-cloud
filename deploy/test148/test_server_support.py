@@ -128,7 +128,7 @@ class GeneratedConfigTest(unittest.TestCase):
             platform_route = by_id[f"{platform}-dim3d-platform-test148"]
             self.assertEqual(platform_route["order"], -1)
             self.assertEqual(platform_route["uri"], "http://127.0.0.1:48192")
-            for entry in ("resource/info/{id}", "icon/**", "scene/**"):
+            for entry in ("resource/info/{id}", "icon/**", "template/**", "scene/**"):
                 self.assertIn(f"{prefix}/dim3d/{entry}", platform_route["predicates"][0])
             self.assertIn(f"/admin-api/dim3d/{platform}/", platform_route["filters"][-1])
             files = by_id[f"{platform}-image-oss-platform-test148"]

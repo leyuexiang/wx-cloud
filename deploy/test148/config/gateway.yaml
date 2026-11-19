@@ -105,12 +105,12 @@ spring:
         filters:
         - RemoveRequestHeader=x-bot-user
         - RewritePath=^/api/(?:operation|tenant/web)/dim3d/(?<path>scene/publication/preview(?:/resources|/file)?)$, /admin-api/dim3d/$\{path}
-      # 模型、图标和登录场景复用三维服务的端别校验。
+      # 模型、图标、模板和登录场景复用三维服务的端别校验。
       - id: operation-dim3d-platform-test148
         order: -1
         uri: http://127.0.0.1:48192
         predicates:
-        - Path=/api/operation/dim3d/model/**,/api/operation/dim3d/model-imports/**,/api/operation/dim3d/resource/uploadConvert,/api/operation/dim3d/resource/info/{id},/api/operation/dim3d/icon/**,/api/operation/dim3d/scene/**
+        - Path=/api/operation/dim3d/model/**,/api/operation/dim3d/model-imports/**,/api/operation/dim3d/resource/uploadConvert,/api/operation/dim3d/resource/info/{id},/api/operation/dim3d/icon/**,/api/operation/dim3d/template/**,/api/operation/dim3d/scene/**
         filters:
         - RemoveRequestHeader=x-bot-user
         - RewritePath=/api/operation/dim3d/(?<path>.*), /admin-api/dim3d/operation/$\{path}
@@ -118,7 +118,7 @@ spring:
         order: -1
         uri: http://127.0.0.1:48192
         predicates:
-        - Path=/api/tenant/web/dim3d/model/**,/api/tenant/web/dim3d/model-imports/**,/api/tenant/web/dim3d/resource/uploadConvert,/api/tenant/web/dim3d/resource/info/{id},/api/tenant/web/dim3d/icon/**,/api/tenant/web/dim3d/scene/**
+        - Path=/api/tenant/web/dim3d/model/**,/api/tenant/web/dim3d/model-imports/**,/api/tenant/web/dim3d/resource/uploadConvert,/api/tenant/web/dim3d/resource/info/{id},/api/tenant/web/dim3d/icon/**,/api/tenant/web/dim3d/template/**,/api/tenant/web/dim3d/scene/**
         filters:
         - RemoveRequestHeader=x-bot-user
         - RewritePath=/api/tenant/web/dim3d/(?<path>.*), /admin-api/dim3d/tenant/$\{path}

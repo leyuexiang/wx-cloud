@@ -1,13 +1,22 @@
 package cn.iocoder.wx.module.dimensions.service;
 
 import cn.iocoder.wx.framework.common.pojo.PageResult;
+import cn.iocoder.wx.framework.security.core.LoginUser;
+import cn.iocoder.wx.framework.tenant.core.context.TenantContextHolder;
+import cn.iocoder.wx.framework.web.config.WebProperties;
+import cn.iocoder.wx.framework.web.core.handler.GlobalExceptionHandler;
+import cn.iocoder.wx.module.dimensions.config.Dim3dPlatformConfiguration;
 import cn.iocoder.wx.module.dimensions.controller.admin.Dim3dResourceController;
+import cn.iocoder.wx.module.dimensions.controller.admin.Dim3dSceneController;
 import cn.iocoder.wx.module.dimensions.entity.Dim3dTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import java.util.List;
 import java.util.Map;
@@ -25,17 +34,76 @@ class Dim3dTemplateControllerContractTest {
             """;
     private Dim3dResourceCatalogService catalog;
     private Dim3dSceneService scene;
+    private Dim3dResourceController controller;
     private MockMvc mvc;
 
     @BeforeEach
     void setup() {
         catalog = mock(Dim3dResourceCatalogService.class);
         scene = mock(Dim3dSceneService.class);
-        var controller = new Dim3dResourceController();
+        controller = new Dim3dResourceController();
         ReflectionTestUtils.setField(controller, "service", catalog);
         ReflectionTestUtils.setField(controller, "sceneService", scene);
         ReflectionTestUtils.setField(controller, "catalogResponses", new Dim3dCatalogResponseAssembler());
         mvc = MockMvcBuilders.standaloneSetup(controller).build();
+    }
+
+    /** 两端共用模板表单及状态权限，端别错误时不能调用任何模板业务。 */
+    @Test
+    void platformPathsAcceptOwnSessionAndRejectCrossPlatformAccess() throws Exception {
+        var snapshots = new Dim3dSceneController();
+        ReflectionTestUtils.setField(snapshots, "service", scene);
+        var access = new ArtResourceAccess();
+        ReflectionTestUtils.setField(access, "platformTenant", 1L);
+        var web = new WebProperties();
+        var interceptor = new Dim3dPlatformConfiguration().dim3dPlatformAccess(web, access);
+        var platformMvc = MockMvcBuilders.standaloneSetup(controller, snapshots)
+                .setCustomHandlerMapping(() -> {
+                    var mapping = new RequestMappingHandlerMapping();
+                    mapping.setPathPrefixes(Map.of(web.getAdminApi().getPrefix(), type -> true));
+                    return mapping;
+                })
+                .addMappedInterceptors(interceptor.getPathPatterns(), interceptor.getInterceptor())
+                .setControllerAdvice(new GlobalExceptionHandler("dimensions-test", null)).build();
+        when(scene.templatePageCombined(null, null, null, null, null, null, null, null, null))
+                .thenReturn(new PageResult<>(List.of(Map.of("recordKind", "SNAPSHOT")), 1L));
+        when(scene.templateInfo("42")).thenReturn(Map.of("templateSceneId", "9007199254740994"));
+        String operation = "/admin-api/dim3d/operation";
+        String tenant = "/admin-api/dim3d/tenant";
+
+        try {
+            login(2L);
+            platformMvc.perform(get(tenant + "/template/page").param("includeSnapshots", "true"))
+                    .andExpect(jsonPath("$.rows[0].recordKind").value("SNAPSHOT"));
+            platformMvc.perform(get(tenant + "/scene/template/info/42"))
+                    .andExpect(jsonPath("$.data.templateSceneId").value("9007199254740994"));
+            platformMvc.perform(put(operation + "/template/edit/42").header("tenant-id", "1")
+                            .contentType("application/json").content(BODY))
+                    .andExpect(jsonPath("$.code").value(403));
+            platformMvc.perform(post(operation + "/scene/template/publish/42").param("versionNo", "1"))
+                    .andExpect(jsonPath("$.code").value(403));
+            login(1L);
+            platformMvc.perform(post(operation + "/template/add").contentType("application/json").content(BODY))
+                    .andExpect(jsonPath("$.code").value(200)).andExpect(jsonPath("$.data").value(nullValue()));
+            platformMvc.perform(delete(tenant + "/template/remove/42")).andExpect(jsonPath("$.code").value(403));
+            platformMvc.perform(get("/admin-api/dim3d/template/page").param("includeSnapshots", "true"))
+                    .andExpect(jsonPath("$.total").value(1));
+        } finally {
+            SecurityContextHolder.clearContext();
+            TenantContextHolder.clear();
+        }
+        verify(catalog, never()).updateTemplate(anyLong(), any());
+        verify(catalog, never()).deleteTemplate(anyLong());
+        verify(scene, never()).publishTemplate(anyString(), anyInt(), any());
+    }
+
+    private static void login(long tenant) {
+        var user = new LoginUser();
+        user.setId(10L);
+        user.setTenantId(tenant);
+        TenantContextHolder.setTenantId(tenant);
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(user, null, List.of()));
     }
 
     @Test

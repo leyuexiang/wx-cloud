@@ -36,7 +36,7 @@ import static cn.iocoder.wx.module.dimensions.config.Dim3dPlatformConfiguration.
 
 /**
  * 新资源管理接口。
- * 模型与图标提供两端平台路径和旧管理路径，复用同一表单、响应及受控业务。
+ * 模型、图标和文件型模板支持双端入口及旧管理路径，复用各自的目录业务。
  */
 @Validated
 @RestController
@@ -167,21 +167,21 @@ public class Dim3dResourceController {
         return CommonResult.success(null);
     }
 
-    @PostMapping("/template/add") @Operation(summary = "新增模板") @PreAuthorize("@ss.hasPermission('dim3d:template:add')")
+    @PostMapping({"/template/add", PLATFORM_SEGMENT + "/template/add"}) @Operation(summary = "新增模板") @PreAuthorize("@ss.hasPermission('dim3d:template:add')")
     public CommonResult<Void> addTemplate(@Valid @RequestBody Dim3dTemplateForm body) {
         service.createTemplate(body.toTemplate());
         return CommonResult.success(null);
     }
-    @PutMapping("/template/edit/{id}") @Operation(summary = "编辑模板") @PreAuthorize("@ss.hasPermission('dim3d:template:edit')")
+    @PutMapping({"/template/edit/{id}", PLATFORM_SEGMENT + "/template/edit/{id}"}) @Operation(summary = "编辑模板") @PreAuthorize("@ss.hasPermission('dim3d:template:edit')")
     public CommonResult<Void> editTemplate(@PathVariable Long id, @Valid @RequestBody Dim3dTemplateForm body) {
         service.updateTemplate(id, body.toTemplate());
         return CommonResult.success(null);
     }
-    @GetMapping("/template/info/{id}") @Operation(summary = "查询模板详情") @PreAuthorize("@ss.hasPermission('dim3d:template:query')")
+    @GetMapping({"/template/info/{id}", PLATFORM_SEGMENT + "/template/info/{id}"}) @Operation(summary = "查询模板详情") @PreAuthorize("@ss.hasPermission('dim3d:template:query')")
     public CommonResult<Dim3dTemplateResponse> templateInfo(@PathVariable Long id) {
         return CommonResult.success(catalogResponses.template(service.getTemplate(id)));
     }
-    @GetMapping("/template/page") @Operation(summary = "分页查询模板") @PreAuthorize("@ss.hasPermission('dim3d:template:query')")
+    @GetMapping({"/template/page", PLATFORM_SEGMENT + "/template/page"}) @Operation(summary = "分页查询模板") @PreAuthorize("@ss.hasPermission('dim3d:template:query')")
     public Dim3dTemplatePageResponse<?> templatePage(String templateName, String templateType, String category,
                                                      String resourceBelong, String status, Integer pageNum, Integer pageSize,
                                                      String orderByColumn, String isAsc,
@@ -196,12 +196,12 @@ public class Dim3dResourceController {
                 status, pageNum, pageSize, orderByColumn, isAsc);
         return new Dim3dTemplatePageResponse<>(page.getTotal(), catalogResponses.templates(page.getList()));
     }
-    @PutMapping("/template/{status}/{id}") @Operation(summary = "模板上线或下线") @PreAuthorize("@ss.hasPermission('dim3d:template:edit')")
+    @PutMapping({"/template/{status}/{id}", PLATFORM_SEGMENT + "/template/{status}/{id}"}) @Operation(summary = "模板上线或下线") @PreAuthorize("@ss.hasPermission('dim3d:template:edit')")
     public CommonResult<Void> templateStatus(@PathVariable String status, @PathVariable Long id) {
         service.changeTemplateStatus(id, status);
         return CommonResult.success(null);
     }
-    @DeleteMapping("/template/remove/{id}") @Operation(summary = "删除模板") @PreAuthorize("@ss.hasPermission('dim3d:template:delete')")
+    @DeleteMapping({"/template/remove/{id}", PLATFORM_SEGMENT + "/template/remove/{id}"}) @Operation(summary = "删除模板") @PreAuthorize("@ss.hasPermission('dim3d:template:delete')")
     public CommonResult<Void> removeTemplate(@PathVariable Long id) {
         service.deleteTemplate(id);
         return CommonResult.success(null);

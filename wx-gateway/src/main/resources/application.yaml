@@ -76,12 +76,12 @@ spring:
           filters:
             - RemoveRequestHeader=x-bot-user
             - RewritePath=^/api/(?:operation|tenant/web)/dim3d/(?<path>scene/publication/preview(?:/resources|/file)?)$, /admin-api/dim3d/$\{path}
-        # 三维平台专用路由将登录后的模型、图标和场景请求送入各自身份边界。
+        # 三维平台专用路由将登录后的模型、图标、模板和场景请求送入各自身份边界。
         - id: operation-dim3d-platform-api
           order: -1
           uri: grayLb://dimensions-server
           predicates:
-            - Path=/api/operation/dim3d/model/**,/api/operation/dim3d/model-imports/**,/api/operation/dim3d/resource/uploadConvert,/api/operation/dim3d/resource/info/{id},/api/operation/dim3d/icon/**,/api/operation/dim3d/scene/**
+            - Path=/api/operation/dim3d/model/**,/api/operation/dim3d/model-imports/**,/api/operation/dim3d/resource/uploadConvert,/api/operation/dim3d/resource/info/{id},/api/operation/dim3d/icon/**,/api/operation/dim3d/template/**,/api/operation/dim3d/scene/**
           filters:
             - RemoveRequestHeader=x-bot-user
             - RewritePath=/api/operation/dim3d/(?<path>.*), /admin-api/dim3d/operation/$\{path}
@@ -89,11 +89,11 @@ spring:
           order: -1
           uri: grayLb://dimensions-server
           predicates:
-            - Path=/api/tenant/web/dim3d/model/**,/api/tenant/web/dim3d/model-imports/**,/api/tenant/web/dim3d/resource/uploadConvert,/api/tenant/web/dim3d/resource/info/{id},/api/tenant/web/dim3d/icon/**,/api/tenant/web/dim3d/scene/**
+            - Path=/api/tenant/web/dim3d/model/**,/api/tenant/web/dim3d/model-imports/**,/api/tenant/web/dim3d/resource/uploadConvert,/api/tenant/web/dim3d/resource/info/{id},/api/tenant/web/dim3d/icon/**,/api/tenant/web/dim3d/template/**,/api/tenant/web/dim3d/scene/**
           filters:
             - RemoveRequestHeader=x-bot-user
             - RewritePath=/api/tenant/web/dim3d/(?<path>.*), /admin-api/dim3d/tenant/$\{path}
-        # 文件型模板等其他能力继续兼容转发，内部平台段只由专用路由生成。
+        # 通用资源文件等既有能力继续兼容转发，内部平台段只由专用路由生成。
         - id: operation-dim3d-api
           uri: grayLb://dimensions-server
           predicates:
