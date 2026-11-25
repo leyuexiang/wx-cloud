@@ -26,9 +26,15 @@ import java.util.Set;
  */
 @Service
 public class Dim3dImageResourceService {
-    private static final String VISIBLE = "del_flag='0' AND ((resource_belong='SYSTEM' AND tenant_id='0')"
+    private static final String VISIBLE = "del_flag='0' AND ((resource_belong='SYSTEM' AND tenant_id='0'%s)"
             + " OR (resource_belong='MINE' AND tenant_id=?))";
+    private static final String PLATFORM_VISIBLE = VISIBLE.formatted("");
+    private static final String TENANT_VISIBLE = VISIBLE.formatted(" AND status='ONLINE'");
     private static final BeanPropertyRowMapper<Dim3dIcon> ROW = new BeanPropertyRowMapper<>(Dim3dIcon.class);
+    /** 仅允许按图标目录的公开业务列排序。 */
+    private static final Map<String, String> SORT_COLUMNS = Map.of(
+            "id", "id", "iconName", "icon_name", "category", "category", "secondaryCategory", "secondary_category",
+            "resourceBelong", "resource_belong", "status", "status", "createTime", "create_time", "updateTime", "update_time");
 
     @Resource private JdbcTemplate jdbc;
     @Resource private PlatformTransactionManager transactions;
@@ -40,7 +46,8 @@ public class Dim3dImageResourceService {
     public Long create(Dim3dIcon body) {
         var actor = access.actor();
         requirePermission("dim3d:icon:add");
-        validate(body, null);
+        validate(body);
+        validateDescription(body.getIconDesc(), null);
         requireScope(actor, body.getResourceBelong());
         long id = IdWorker.getId();
         return new TransactionTemplate(transactions).execute(status -> {
@@ -57,18 +64,16 @@ public class Dim3dImageResourceService {
         });
     }
 
-    /** 未替换文件时保留原绑定。新文件绑定和目录更新共享事务，异常时恢复原关联。 */
+    /** 原文件可随目录切换归属。锁内验证来源和文件关联，文件范围与目录一起提交。 */
     public void update(Long id, Dim3dIcon body) {
         var actor = access.actor();
         requirePermission("dim3d:icon:edit");
-        Dim3dIcon previous = find(id, actor, false);
-        validate(body, previous);
+        validate(body);
         requireScope(actor, body.getResourceBelong());
         new TransactionTemplate(transactions).executeWithoutResult(status -> {
-            Dim3dIcon current = find(id, actor, true);
-            requireWrite(actor, current);
-            boolean retainedFile = Objects.equals(current.getIconFileId(), body.getIconFileId());
-            bindFile(body.getIconFileId(), actor, body.getResourceBelong(), retainedFile);
+            Dim3dIcon current = lockWritable(id, actor);
+            validateDescription(body.getIconDesc(), current.getIconDesc());
+            bindEditedIconFile(current, body, actor);
             jdbc.update("""
                     UPDATE wx_3d_icon SET icon_name=?,icon_desc=?,category=?,secondary_category=?,
                     resource_belong=?,icon_file_id=?,tenant_id=?,update_by=?,update_time=CURRENT_TIMESTAMP WHERE id=?
@@ -81,13 +86,18 @@ public class Dim3dImageResourceService {
         return find(id, access.actor(), false);
     }
 
-    /** 查询和总数共用完全相同的范围及筛选条件，系统目录可跨租户读取，个人目录限制当前租户。 */
+    /** 计数和分页共享归属及状态条件；租户只能看到已上线的系统目录。 */
     public PageResult<Dim3dIcon> page(String name, String category, String secondary, String belong,
-                                     String status, Integer number, Integer size) {
+                                     String status, Integer number, Integer size, String orderByColumn, String isAsc) {
         var actor = access.actor();
+        String order = Dim3dCatalogOrder.sql(SORT_COLUMNS, orderByColumn, isAsc, "图标排序字段或方向无效");
         int page = number == null || number < 1 ? 1 : number;
         int limit = size == null || size < 1 ? 10 : Math.min(size, 200);
-        StringBuilder where = new StringBuilder(" FROM wx_3d_icon WHERE ").append(VISIBLE);
+        long offset = ((long) page - 1) * limit;
+        // 已限定上线或本租户资源时，现有筛选已满足范围要求，跳过运营角色查询。
+        String visibility = "ONLINE".equals(status) || "MINE".equals(belong)
+                ? PLATFORM_VISIBLE : readVisibility(actor);
+        StringBuilder where = new StringBuilder(" FROM wx_3d_icon WHERE ").append(visibility);
         List<Object> args = new ArrayList<>();
         args.add(Long.toString(actor.tenant()));
         if (StringUtils.hasText(name)) { where.append(" AND icon_name LIKE ?"); args.add("%" + name.trim() + "%"); }
@@ -101,19 +111,23 @@ public class Dim3dImageResourceService {
             requireStatus(status);
             where.append(" AND status=?"); args.add(status);
         }
-        Long total = jdbc.queryForObject("SELECT COUNT(*)" + where, Long.class, args.toArray());
+        long total = jdbc.queryForObject("SELECT COUNT(*)" + where, Long.class, args.toArray());
+        // 空页直接返回总数，避免额外查询及操作人批量调用。
+        if (offset >= total) return new PageResult<>(List.of(), total);
         args.add(limit);
-        args.add(((long) page - 1) * limit);
-        List<Dim3dIcon> rows = jdbc.query("SELECT *" + where + " ORDER BY id DESC LIMIT ? OFFSET ?", ROW, args.toArray());
-        return new PageResult<>(rows, total == null ? 0 : total);
+        args.add(offset);
+        List<Dim3dIcon> rows = jdbc.query("SELECT *" + where + order + " LIMIT ? OFFSET ?", ROW, args.toArray());
+        return new PageResult<>(rows, total);
     }
 
+    /** 同一目录的维护操作串行化，重复状态在权限校验后返回并保留原审计。 */
     public void changeStatus(Long id, String state) {
         var actor = access.actor();
         requirePermission("dim3d:icon:edit");
         requireStatus(state);
         new TransactionTemplate(transactions).executeWithoutResult(status -> {
-            requireWrite(actor, find(id, actor, true));
+            Dim3dIcon current = lockWritable(id, actor);
+            if (state.equals(current.getStatus())) return;
             jdbc.update("UPDATE wx_3d_icon SET status=?,update_by=?,update_time=CURRENT_TIMESTAMP WHERE id=?",
                     state, actor.user(), id);
         });
@@ -124,7 +138,7 @@ public class Dim3dImageResourceService {
         var actor = access.actor();
         requirePermission("dim3d:icon:delete");
         new TransactionTemplate(transactions).executeWithoutResult(status -> {
-            requireWrite(actor, find(id, actor, true));
+            lockWritable(id, actor);
             jdbc.update("UPDATE wx_3d_icon SET del_flag='1',update_by=?,update_time=CURRENT_TIMESTAMP WHERE id=?",
                     actor.user(), id);
         });
@@ -132,20 +146,31 @@ public class Dim3dImageResourceService {
 
     private Dim3dIcon find(Long id, ArtResourceAccess.Actor actor, boolean lock) {
         if (id == null || id <= 0) throw invalid("图片编号无效");
-        List<Dim3dIcon> rows = jdbc.query("SELECT * FROM wx_3d_icon WHERE id=? AND " + VISIBLE
+        // 锁定维护仍需找到已下线记录，写权限由锁内校验；普通详情沿用分页可见规则。
+        List<Dim3dIcon> rows = jdbc.query("SELECT * FROM wx_3d_icon WHERE id=? AND "
+                + (lock ? PLATFORM_VISIBLE : readVisibility(actor))
                 + (lock ? " FOR UPDATE" : ""), ROW, id, Long.toString(actor.tenant()));
         if (rows.isEmpty()) throw new ServiceException(404, "图片不存在或无权访问");
         return rows.get(0);
     }
 
-    private void validate(Dim3dIcon body, Dim3dIcon previous) {
+    /** 运营维护权限允许查看系统下线记录，租户图片的读取仍只比较租户。 */
+    private String readVisibility(ArtResourceAccess.Actor actor) {
+        return access.isPlatformAdministrator(actor) ? PLATFORM_VISIBLE : TENANT_VISIBLE;
+    }
+
+    /** 锁定有效记录后统一校验受管关联和维护权限，供编辑、状态及删除共用。 */
+    private Dim3dIcon lockWritable(Long id, ArtResourceAccess.Actor actor) {
+        Dim3dIcon current = find(id, actor, true);
+        ArtResourceService.guardLegacyResource(jdbc, current.getResourceId());
+        requireWrite(actor, current);
+        return current;
+    }
+
+    private void validate(Dim3dIcon body) {
         if (body == null || !StringUtils.hasText(body.getIconName())) throw invalid("图片名称不能为空");
         body.setIconName(body.getIconName().trim());
         if (body.getIconName().length() > 50) throw invalid("图片名称最多 50 个字符");
-        String description = body.getIconDesc();
-        // 既有长描述在未修改时保留，新增或修改描述遵循当前页面的 200 字符限制。
-        if (description != null && description.length() > 200
-                && (previous == null || !description.equals(previous.getIconDesc()))) throw invalid("图片描述最多 200 个字符");
         if (body.getIconFileId() == null || body.getIconFileId() <= 0) throw invalid("请先上传图片");
         if (!Set.of("SYSTEM", "MINE").contains(Objects.toString(body.getResourceBelong(), ""))) throw invalid("资源归属无效");
         if (!StringUtils.hasText(body.getCategory()) || !Boolean.TRUE.equals(dictionaries
@@ -154,9 +179,35 @@ public class Dim3dImageResourceService {
         }
     }
 
+    /** 编辑用已锁定记录比对，历史长描述未改变时仍可保存其他业务字段。 */
+    private static void validateDescription(String description, String previous) {
+        if (description != null && description.length() > 200 && !description.equals(previous)) {
+            throw invalid("图片描述最多 200 个字符");
+        }
+    }
+
     private void bindFile(long id, ArtResourceAccess.Actor actor, String belong, boolean retainedReference) {
         fileForBinding(id, actor, belong, retainedReference, true);
         updateFileBinding(id, actor, belong);
+    }
+
+    /** 只有当前目录保留的文件可以从原范围迁移，新选文件继续按目标范围及上传者授权。 */
+    private void bindEditedIconFile(Dim3dIcon current, Dim3dIcon body, ArtResourceAccess.Actor actor) {
+        long id = body.getIconFileId();
+        String previousBelong = current.getResourceBelong();
+        String targetBelong = body.getResourceBelong();
+        boolean retained = Objects.equals(current.getIconFileId(), body.getIconFileId());
+        if (!retained || previousBelong.equals(targetBelong)) {
+            bindFile(id, actor, targetBelong, retained);
+            return;
+        }
+        fileForBinding(id, actor, previousBelong, true, true);
+        // 缩小全局范围时，外租户已有的场景和快照封面仍需要原访问权限。
+        if (hasOtherDirectoryReferences(id, current.getTenantId(), 0L, current.getId())
+                || ("SYSTEM".equals(previousBelong) && hasExternalSceneCovers(id, actor.tenant()))) {
+            throw new ServiceException(409, "图片文件仍被其他资源使用，请更换图片后再切换归属");
+        }
+        updateFileBinding(id, actor, targetBelong);
     }
 
     /** 模型确认前仅校验文件，不提前改变私有上传的可见范围。 */
@@ -168,6 +219,40 @@ public class Dim3dImageResourceService {
     void bindModelCover(long id, ArtResourceAccess.Actor actor, String belong, boolean retainedReference) {
         requireModelCover(fileForBinding(id, actor, belong, retainedReference, true));
         updateFileBinding(id, actor, belong);
+    }
+
+    /** 原封面随目录迁移前核对旧范围。拒绝改动其他模型、图标及模板仍在使用的封面。 */
+    void bindModelCover(long id, ArtResourceAccess.Actor actor, String belong, String previousBelong, Long directoryId) {
+        if (previousBelong == null || previousBelong.equals(belong)) {
+            bindModelCover(id, actor, belong, previousBelong != null);
+            return;
+        }
+        requireModelCover(fileForBinding(id, actor, previousBelong, true, true));
+        if (hasOtherDirectoryReferences(id, owner(actor, previousBelong), directoryId, 0L)) {
+            throw new ServiceException(409, "模型封面仍被其他目录使用，请更换或移除封面");
+        }
+        updateFileBinding(id, actor, belong);
+    }
+
+    /** 图片和模型封面使用相同的目录引用检查，各自排除当前正在编辑的记录。 */
+    private boolean hasOtherDirectoryReferences(long fileId, String previousTenant, long modelId, long iconId) {
+        // 使用当前锁定读，避免发布事务在等待封面行锁前建立的旧快照漏掉并发提交的关联。
+        // 模型和图标的文件归属与目录租户一致。文件型模板可引用公共封面，需跨租户检查。
+        return !jdbc.queryForList("SELECT id FROM wx_3d_model WHERE tenant_id=? AND cover_image_id=?"
+                        + " AND id<>? AND del_flag='0' LIMIT 1 FOR UPDATE", previousTenant, fileId, modelId).isEmpty()
+                || !jdbc.queryForList("SELECT id FROM wx_3d_icon WHERE tenant_id=? AND icon_file_id=?"
+                        + " AND id<>? AND del_flag='0' LIMIT 1 FOR UPDATE", previousTenant, fileId, iconId).isEmpty()
+                || !jdbc.queryForList("SELECT id FROM wx_3d_template WHERE cover_image_id=?"
+                        + " AND del_flag='0' LIMIT 1 FOR UPDATE", fileId).isEmpty();
+    }
+
+    /** 场景封面字段保存字符串文件号，查询时按原类型匹配，保留外租户现有绑定。 */
+    private boolean hasExternalSceneCovers(long fileId, long tenant) {
+        String coverId = Long.toString(fileId);
+        return !jdbc.queryForList("SELECT id FROM wx_3d_scene WHERE cover_asset_id=? AND tenant_id<>?"
+                        + " AND deleted=0 LIMIT 1 FOR UPDATE", coverId, tenant).isEmpty()
+                || !jdbc.queryForList("SELECT id FROM wx_3d_scene_template WHERE cover_asset_id=? AND tenant_id<>?"
+                        + " AND deleted=0 LIMIT 1 FOR UPDATE", coverId, tenant).isEmpty();
     }
 
     /** 图片目录和模型封面共用上传者、租户及保留引用判断，各读取只访问一条文件记录。 */
@@ -186,7 +271,7 @@ public class Dim3dImageResourceService {
                 && "PRIVATE_UPLOAD".equals(file.get("visibility_scope"));
         boolean ownBoundFile = sameScope && Long.toString(actor.user())
                 .equals(Objects.toString(file.get("uploader_id"), ""));
-        if (!(ownedUpload || ownBoundFile || retainedReference && sameScope)) throw new ServiceException(403, "无权绑定此图片文件，修改归属时请重新上传");
+        if (!(ownedUpload || ownBoundFile || retainedReference && sameScope)) throw new ServiceException(403, "无权绑定此图片文件，请选择当前目录的原文件或重新上传");
         if (!Objects.toString(file.get("type"), "").startsWith("image/")
                 || !(file.get("size") instanceof Number bytes) || bytes.longValue() < 1) throw invalid("文件不是有效图片");
         return file;
@@ -227,7 +312,7 @@ public class Dim3dImageResourceService {
     }
 
     private static void requireStatus(String status) {
-        if (!Set.of("ONLINE", "OFFLINE").contains(status)) throw invalid("图片状态无效");
+        if (!"ONLINE".equals(status) && !"OFFLINE".equals(status)) throw invalid("图片状态无效");
     }
 
     private static ServiceException invalid(String message) { return new ServiceException(400, message); }

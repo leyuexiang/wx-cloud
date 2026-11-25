@@ -1,0 +1,302 @@
+[p1 "Unity 云渲染场景编辑器" | space "iot-05j-20261118"(1): 1 managed, 0 untracked — p1* "Unity 云渲染场景编辑器"]
+root
+  container
+    container
+      container
+        image
+        text "数据可视化生产平平台"
+      menubar
+        text "资源管理"
+        menuitem [ref=15]
+          text "模型管理"
+        menuitem [ref=16]
+          text "图片管理"
+        text "场景管理"
+        menuitem [ref=17]
+          text "场景列表"
+        text "物联网管理"
+        menuitem [ref=18]
+          svg_root
+          text "连接器管理"
+        menuitem [ref=19]
+          svg_root
+          text "设备绑定"
+        menuitem [ref=20]
+          svg_root
+          text "接收记录"
+      container
+        button "切换为暗色主题" [ref=21, loc=css:button[aria-label="切换为暗色主题"]]
+          svg_root
+        button [ref=22]
+          svg_root
+          text "测试用户"
+    container
+      container
+        container
+          text "接收记录"
+          text "物联网管理/接收记录"
+        container "物联网筛选"
+          container
+            container
+              text "连接器编号"
+              container [ref=113]
+                textbox [ref=114]
+            container
+              text "外部设备编号"
+              container [ref=115]
+                textbox [ref=116]
+            container
+              text "处理状态"
+              container [ref=117]
+                comboboxgrouping [ref=118]
+                text "全部状态"
+                svg_root
+          container
+            button [ref=119]
+              text "查询"
+            button [ref=120]
+              text "重置"
+      container "物联网记录"
+        paragraph
+          text "查看接收与投递状态。失败记录可人工重放，最终结果以刷新后的状态为准。"
+        container
+          table
+            table_row
+              table_cell
+                text "连接器编号"
+              table_cell
+                text "外部设备编号"
+              table_cell
+                text "事件编号"
+              table_cell
+                text "点位编码"
+              table_cell
+                text "状态"
+              table_cell
+                text "重试次数"
+              table_cell
+                text "接收时间"
+              table_cell
+                text "操作"
+          table
+            container [ref=121]
+              table_row
+                table_cell
+                  text "iot-resident-20261113"
+                table_cell
+                  text "virtual-temperature"
+                table_cell
+                  text "b50d0278-546f-3c6b-bc04-4dff65e0b88b"
+                table_cell
+                  text "temperature"
+                table_cell
+                  text "已发布"
+                table_cell
+                  text "0"
+                table_cell
+                  text "2026/11/18 12:28:09"
+                table_cell
+                  button [ref=122]
+                    text "详情"
+              table_row
+                table_cell
+                  text "iot-resident-20261113"
+                table_cell
+                  text "virtual-temperature"
+                table_cell
+                  text "bdeb48b6-1199-392c-97a9-e15f67cd9cde"
+                table_cell
+                  text "temperature"
+                table_cell
+                  text "已发布"
+                table_cell
+                  text "0"
+                table_cell
+                  text "2026/11/18 12:28:04"
+                table_cell
+                  button [ref=123]
+                    text "详情"
+              table_row
+                table_cell
+                  text "iot-resident-20261113"
+                table_cell
+                  text "virtual-temperature"
+                table_cell
+                  text "b6ca5815-688a-3e3c-9771-18b9b04e9634"
+                table_cell
+                  text "temperature"
+                table_cell
+                  text "已发布"
+                table_cell
+                  text "0"
+                table_cell
+                  text "2026/11/18 12:28:01"
+                table_cell
+                  button [ref=124]
+                    text "详情"
+              table_row
+                table_cell
+                  text "iot-resident-20261113"
+                table_cell
+                  text "virtual-temperature"
+                table_cell
+                  text "f18879f6-c67e-347a-965d-78b22392cb47"
+                table_cell
+                  text "temperature"
+                table_cell
+                  text "已发布"
+                table_cell
+                  text "0"
+                table_cell
+                  text "2026/11/18 12:27:56"
+                table_cell
+                  button [ref=125]
+                    text "详情"
+              table_row
+                table_cell
+                  text "iot-resident-20261113"
+                table_cell
+                  text "virtual-temperature"
+                table_cell
+                  text "29dcff00-7ba7-3f83-bb1c-21d1ac509752"
+                table_cell
+                  text "temperature"
+                table_cell
+                  text "已发布"
+                table_cell
+                  text "0"
+                table_cell
+                  text "2026/11/18 12:27:56"
+                table_cell
+                  button [ref=126]
+                    text "详情"
+              table_row
+                table_cell
+                  text "iot-resident-20261113"
+                table_cell
+                  text "virtual-temperature"
+                table_cell
+                  text "3c9ded3b-0224-307a-9613-6a4586d6c414"
+                table_cell
+                  text "temperature"
+                table_cell
+                  text "已发布"
+                table_cell
+                  text "0"
+                table_cell
+                  text "2026/11/18 12:27:49"
+                table_cell
+                  button [ref=127]
+                    text "详情"
+              table_row
+                table_cell
+                  text "iot-resident-20261113"
+                table_cell
+                  text "virtual-temperature"
+                table_cell
+                  text "9a5a6ddb-7c25-3af4-a39f-52f34ab0c035"
+                table_cell
+                  text "temperature"
+                table_cell
+                  text "已发布"
+                table_cell
+                  text "0"
+                table_cell
+                  text "2026/11/17 19:20:13"
+                table_cell
+                  button [ref=128]
+                    text "详情"
+              table_row
+                table_cell
+                  text "iot-resident-20261113"
+                table_cell
+                  text "virtual-temperature"
+                table_cell
+                  text "e34cf304-e416-30e4-9f99-c89ebc1d884d"
+                table_cell
+                  text "temperature"
+                table_cell
+                  text "已发布"
+                table_cell
+                  text "0"
+                table_cell
+                  text "2026/11/17 19:20:11"
+                table_cell
+                  button [ref=129]
+                    text "详情"
+              table_row
+                table_cell
+                  text "iot-resident-20261113"
+                table_cell
+                  text "virtual-temperature"
+                table_cell
+                  text "cb3f93a2-33f0-3ef3-b860-89f9a3bc7675"
+                table_cell
+                  text "temperature"
+                table_cell
+                  text "已发布"
+                table_cell
+                  text "0"
+                table_cell
+                  text "2026/11/17 19:15:18"
+                table_cell
+                  button [ref=130]
+                    text "详情"
+              table_row
+                table_cell
+                  text "iot-resident-20261113"
+                table_cell
+                  text "virtual-temperature"
+                table_cell
+                  text "d3b7cec7-9360-34ea-9879-c82fc08037b5"
+                table_cell
+                  text "temperature"
+                table_cell
+                  text "已发布"
+                table_cell
+                  text "0"
+                table_cell
+                  text "2026/11/17 19:15:14"
+                table_cell
+                  button [ref=131]
+                    text "详情"
+        container "列表分页"
+          text "共 446722 条记录"
+          text "© 2026 ZonSU Platfrom.All rights reseved."
+          container
+            button "上一页" [ref=132, loc=css:button[aria-label="上一页"]]
+              svg_root
+            unordered_list
+              list_item "第 1 页" [ref=133]
+                text "1"
+              list_item "第 2 页" [ref=134]
+                text "2"
+              list_item "第 3 页" [ref=135]
+                text "3"
+              list_item "第 4 页" [ref=136]
+                text "4"
+              list_item "第 5 页" [ref=137]
+                text "5"
+              list_item "第 6 页" [ref=138]
+                text "6"
+              list_item "第 7 页" [ref=139]
+                text "7"
+              list_item "第 8 页" [ref=140]
+                text "8"
+              list_item "向后 7 页" [ref=141]
+                svg_root
+              list_item "第 44673 页" [ref=142]
+                text "44673"
+            button "下一页" [ref=143, loc=css:button[aria-label="下一页"]]
+              svg_root
+            container [ref=144]
+              container
+                comboboxgrouping [ref=145]
+                text "10条/页"
+              svg_root
+            container
+              text "跳至"
+              container [ref=146]
+                spinbutton "页" [ref=147, loc=css:input[aria-label="页"]]
+                  text "1"
+              text "页"

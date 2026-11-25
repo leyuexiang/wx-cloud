@@ -45,6 +45,17 @@ public class WebFrameworkUtils {
 
     public static Long getTenantId(ServerWebExchange exchange) {
         String tenantId = exchange.getRequest().getHeaders().getFirst(HEADER_TENANT_ID);
+        // WebSocket 浏览器握手不能自定义 tenant-id 请求头，允许同名查询参数作为握手租户上下文。
+        if (tenantId == null && SecurityFrameworkUtils.isDimensionsWebSocket(exchange)) {
+            tenantId = exchange.getRequest().getQueryParams().getFirst(HEADER_TENANT_ID);
+            // 租户参数仅用于查验令牌，订阅授权使用令牌绑定的租户。
+            if (tenantId == null || !tenantId.matches("[1-9][0-9]{0,18}")) return null;
+            try {
+                return Long.valueOf(tenantId);
+            } catch (NumberFormatException ignored) {
+                return null;
+            }
+        }
         return NumberUtil.isNumber(tenantId) ? Long.valueOf(tenantId) : null;
     }
 

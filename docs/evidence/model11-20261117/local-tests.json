@@ -1,0 +1,300 @@
+{
+  "errors": 0.0,
+  "groups": 41,
+  "skipped": 3.0,
+  "sourceCommit": "28564fef4731ebc6755250d3afdd335c78b744b3",
+  "failures": 0.0,
+  "tests": 394.0,
+  "exitCode": 0,
+  "command": "mvn -o -pl wx-module-3d -am -Dtest=Dim3dModel*Test,ModelImport*Test,ArtResource*Test,ModelResourceManifestVerifierTest,Dim3dResourceConvertConfigurationTest,Dim3dImageResourceServiceTest,ScenePublication*Test,Iot*Test,KafkaWebSocket*Test,Dim3dScene*Test -Dsurefire.failIfNoSpecifiedTests=false test -q",
+  "suites": [
+    {
+      "name": "cn.iocoder.wx.module.dimensions.entity.ArtResourceLegacyWriteBoundaryTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 3
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.iot.IotStateConfigurationTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 4
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.iot.IotStateDeadLetterTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 2
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.iot.IotStateOrderingTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 4
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.iot.IotStateProjectionTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 9
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.iot.IotStateQueryTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 5
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.iot.IotStateRedisIntegrationTest",
+      "errors": 0,
+      "skipped": 3,
+      "failures": 0,
+      "tests": 3
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.iot.IotStateSubscriptionRegistryTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 3
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.iot.IotSubscriptionDeliveryBatchTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 2
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.iot.IotTelemetryContractTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 1
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.iot.IotWidgetBindingScopeTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 2
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.iot.KafkaWebSocketBackpressureTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 4
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.iot.KafkaWebSocketRoutingTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 2
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceAccessTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 9
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceClosureVerifierTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 18
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceDownloadSignerTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 2
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceManifestVerifierTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 41
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceObjectStoreTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 10
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceServiceTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 23
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ArtResourceTransactionTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 13
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.Dim3dImageResourceServiceTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 5
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.Dim3dModelCatalogReadTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 5
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.Dim3dModelControllerContractTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 10
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.Dim3dModelPreviewTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 9
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.Dim3dModelResponseAssemblerTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 6
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.Dim3dModelWriteServiceTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 23
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.Dim3dResourceConvertConfigurationTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 2
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.Dim3dSceneControllerTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 4
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.Dim3dSceneServiceTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 22
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ModelImportArtifactVerifierTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 6
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ModelImportControllerTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 5
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ModelImportConversionClientTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 12
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ModelImportServiceTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 32
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ModelImportSourceWorkerTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 44
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ModelImportStatusViewTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 6
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ModelImportUnifiedAuthorizationTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 2
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ModelResourceManifestVerifierTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 5
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ScenePublicationFileServiceTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 6
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ScenePublicationPreviewControllerTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 3
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ScenePublicationServiceTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 17
+    },
+    {
+      "name": "cn.iocoder.wx.module.dimensions.service.ScenePublicationTicketServiceTest",
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0,
+      "tests": 10
+    }
+  ],
+  "skipReason": "未设置 IOT_STATE_TEST_REDIS_PORT，缓存集成用例按条件跳过"
+}

@@ -44,7 +44,7 @@ class ManagementMenusTest(unittest.TestCase):
         self.assertEqual([n["request"]["name"] for n in self.nodes if n["request"]["type"] == 1],
                          ["资源管理", "场景管理", "物联网管理"])
         self.assertEqual(sum(n["request"]["type"] == 2 for n in self.nodes), 7)
-        self.assertEqual(len(self.nodes), 22)
+        self.assertEqual(len(self.nodes), 24)
 
     def test_created_children_use_real_returned_parent_ids(self):
         api = MemoryApi()
@@ -145,6 +145,7 @@ class ManagementMenusTest(unittest.TestCase):
         self.assertIn("88", plan["menuIds"])
         selected = {n["request"].get("permission") for n in self.nodes if ids[n["key"]] in plan["menuIds"]}
         self.assertIn("iot:connector:query", selected)
+        self.assertIn("dimensions:iot-state:query", selected)
         self.assertNotIn("iot:connector:delete", selected)
         self.assertNotIn(ids["templateManage"], plan["menuIds"])
 
@@ -165,7 +166,7 @@ class ManagementMenusTest(unittest.TestCase):
         self.assertEqual(result["status"], "ROLLED_BACK")
         self.assertEqual(next(r for r in api.rows if r["id"] == "10")["sort"], 99)
         self.assertTrue(all(r["status"] == 1 for r in api.rows if r["id"] != "10"))
-        self.assertEqual(len(api.rows), 22)
+        self.assertEqual(len(api.rows), 24)
 
     def test_rollback_rejects_changes_made_after_application(self):
         api = MemoryApi()

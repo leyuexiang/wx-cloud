@@ -1,0 +1,68 @@
+{
+  "logicalDevices": 23,
+  "intervalSeconds": 5,
+  "clients": 2,
+  "bindingsPerClient": 23,
+  "mqttConnections": 1,
+  "distinctAccounts": 1,
+  "cycles": 6,
+  "expectedMessages": 138,
+  "expectedDeliveries": 276,
+  "targetMessagesPerSecond": 4.6,
+  "clockSource": "同一负载发生器的单调时钟",
+  "renderingMeasured": false,
+  "subscriptionScope": "publication",
+  "passed": true,
+  "latencyResolutionMs": 1,
+  "latencyRounding": "ceil",
+  "minuteSamples": [],
+  "distinctTickets": 2,
+  "setupSeconds": 0.087,
+  "publishSeconds": 29.784,
+  "maximumAckBatchSeconds": 0.001,
+  "publisherCpuSeconds": 0.0,
+  "abortReason": null,
+  "messagesAcknowledged": 138,
+  "loadGeneratorCpuSeconds": 0.0,
+  "publisherIsolation": "spawn-process-shared-clock",
+  "mqttMaxInFlight": 20,
+  "uniqueDeliveries": 276,
+  "duplicateDeliveries": 0,
+  "drainSeconds": 0.0,
+  "clientErrors": [],
+  "clientResults": [
+    {
+      "client": 0,
+      "received": 138,
+      "missing": 0,
+      "renewalAcks": 2,
+      "latencyMs": {
+        "p50": 18,
+        "p95": 23,
+        "p99": 28
+      }
+    },
+    {
+      "client": 1,
+      "received": 138,
+      "missing": 0,
+      "renewalAcks": 2,
+      "latencyMs": {
+        "p50": 18,
+        "p95": 23,
+        "p99": 27
+      }
+    }
+  ],
+  "latencyMs": {
+    "p50": 18,
+    "p95": 23,
+    "p99": 28
+  },
+  "metricStorageBytes": 481410,
+  "deliveryComplete": true,
+  "latencyGateMs": 5000,
+  "ticketsRevoked": 2,
+  "ticketRevokeFailures": 0,
+  "totalSeconds": 30.321
+}

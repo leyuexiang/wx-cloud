@@ -1,0 +1,10 @@
+{
+  "name": "wx-editor-gateway",
+  "port": 12522,
+  "health": "UP",
+  "jarSha256": "96bbd634961b702df692013ed0399e10a2c0489085c6d1794c3f2518e0616131",
+  "sourceCommit": "e40d0209309ae69aa7f85df56debe7162249f305",
+  "backup": "wx-editor-gateway-before-auth-1118",
+  "schemaMigration": false,
+  "probeChecksOwnPort": true
+}

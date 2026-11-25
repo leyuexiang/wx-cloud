@@ -103,6 +103,10 @@ public class AccessLogFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        // 握手查询参数携带访问令牌，避免将其写入请求日志。
+        if (cn.iocoder.wx.gateway.util.SecurityFrameworkUtils.isDimensionsWebSocket(exchange)) {
+            return chain.filter(exchange);
+        }
         // 将 Request 中可以直接获取到的参数，设置到网关日志
         ServerHttpRequest request = exchange.getRequest();
         // TODO traceId

@@ -1,0 +1,40 @@
+{
+  "commit": "86ef19ba08e476eedd74e479874485e29e4596cb",
+  "bytes": 194807099,
+  "sha256": "d21b05208b16dd329e72f2134632074e6da6e7920b6e3a9155696d183ba14337",
+  "instances": {
+    "main": {
+      "startedAt": "2026-11-19T07:12:32.904011166Z",
+      "checks": [
+        66,
+        61
+      ],
+      "backupSha256": "6cc982c2b74d92d2ae51769c91bc30c8920ee3d60540521420208bd5194c5363",
+      "backupContainer": "wx-editor-dimensions-before-model16-20261119"
+    },
+    "data08": {
+      "startedAt": "2026-11-19T07:12:44.169974327Z",
+      "checks": [
+        66,
+        61
+      ],
+      "backupSha256": "8ef94aabdbbc3edf595e60fa92b97b9aee02e529bfb53354da78d1abeac2da8c",
+      "backupContainer": "wx-editor-dimensions-data08-before-model16-20261119"
+    }
+  },
+  "gatewaysUnchanged": true,
+  "expandedClassesMatch": true,
+  "migrations": [],
+  "workstationGatewayHealth": {
+    "12522": "UP",
+    "12525": "UP"
+  },
+  "cleanup": {
+    "temporaryContainersRemoved": 2,
+    "temporaryDatabasesRemoved": 2,
+    "temporaryGrantsRemoved": 2,
+    "candidatePortsClosed": true,
+    "testResourcesCleaned": true,
+    "testSessionsLoggedOut": true
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "before": {
+    "now": 1794906562444,
+    "timeOrigin": 1794906383853.43,
+    "text": "温度\n29.500\n°C",
+    "counts": {
+      "ticketRequests": 1,
+      "playerLoads": 1,
+      "snapshotRequests": 2
+    }
+  },
+  "updated": {
+    "now": 1794906616162,
+    "timeOrigin": 1794906383853.43,
+    "text": "温度\n28.125\n°C",
+    "counts": {
+      "ticketRequests": 1,
+      "playerLoads": 1,
+      "snapshotRequests": 2
+    }
+  },
+  "renewed": {
+    "now": 1794906780600,
+    "timeOrigin": 1794906383853.43,
+    "text": "温度\n28.125\n°C",
+    "counts": {
+      "ticketRequests": 2,
+      "playerLoads": 1,
+      "snapshotRequests": 2
+    }
+  },
+  "after": {
+    "now": 1794906816587,
+    "timeOrigin": 1794906383853.43,
+    "text": "温度\n29.500\n°C",
+    "counts": {
+      "ticketRequests": 2,
+      "playerLoads": 1,
+      "snapshotRequests": 2
+    }
+  }
+}

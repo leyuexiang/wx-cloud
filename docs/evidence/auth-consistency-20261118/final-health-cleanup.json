@@ -1,0 +1,46 @@
+{
+  "health": "UP",
+  "systemId": "db0760af5d91d69218574d3dc4926d567a9b5c142044774e715639a29eff24b1",
+  "systemStartedAt": "2026-11-18T03:02:59.969362705Z",
+  "systemConfigOnlyImageReferencePinnedToSameId": true,
+  "hostConfigOnlyJarBindChanged": true,
+  "jarSha256": "0ee98ff319dbb1f92f70d7e258a81a1a4b23825baca3d19779b3fbc85dda1e90",
+  "backupStopped": true,
+  "backupId": "19d703d19be857722c6ce3659c7dfe54702edffa977187b509e5497a1494fac5",
+  "otherServices": [
+    {
+      "name": "wx-editor-gateway",
+      "id": "298656b8d592a0463cdc060f9c5a65631cc1fae407e965e13dad45a2d239dc3c",
+      "startedAt": "2026-11-13T11:11:25.520889607Z",
+      "health": "healthy"
+    },
+    {
+      "name": "wx-editor-gateway-data08",
+      "id": "db2fa62dbe094cf24689ba9f65afebeac8c199135d7feb6261f36e3ff55005cb",
+      "startedAt": "2026-11-16T09:27:05.526685077Z",
+      "health": "healthy"
+    },
+    {
+      "name": "wx-editor-dimensions-data08",
+      "id": "0a5f9ec11d93ba3f37f2d7548757352c6dd27a98b023f21b7bb896a3162d1640",
+      "startedAt": "2026-11-18T03:08:46.455129014Z",
+      "health": "healthy",
+      "jarPath": "/home/wx-model13-release-20261118/dimensions.jar",
+      "jarSha256": "1ebbdbe94dc9ed289c9291e267bb62e9e3a61d28531055cc5b8bcba23ec9a2d2",
+      "matchesPreviousIoTRelease": false
+    }
+  ],
+  "siteSha256": "c41d7400f759adec56012e38178d9e0a062a7e5541779f57be1653c4f6374a72",
+  "sceneCount": 3,
+  "originalPublication": "PUB-2122542758537261058",
+  "publicationRevision": 5,
+  "publicationCurrentFlagAndStatus": [
+    "1",
+    "PUBLISHED"
+  ],
+  "candidateRemoved": true,
+  "temporaryPrivateStateRemoved": true,
+  "temporaryToolsRemoved": true,
+  "releaseAndRollbackConfigRetained": true,
+  "sshForwardCreated": false
+}

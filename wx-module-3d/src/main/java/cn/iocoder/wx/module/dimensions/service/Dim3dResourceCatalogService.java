@@ -11,16 +11,30 @@ import org.springframework.web.multipart.MultipartFile;
 public interface Dim3dResourceCatalogService {
     Long createModel(Dim3dModel model);
     void updateModel(Long id, Dim3dModel model);
+    /** 将已转换的受管替换操作提交到原目录及资源。 */
+    void replaceManagedModel(Long id, Dim3dModel model, String operationId);
     Dim3dModel getModel(Long id);
+    /** 按对外模型文件编号查询真实资源元信息及唯一相对路径，读取范围由关联目录授权。 */
+    java.util.Map<String, Object> getModelResource(Long id);
+    /** 仅返回访问方式，历史模型附原相对路径；受管资源不在此处签发。 */
+    java.util.Map<String, Object> getModelFileAccess(Long id);
     PageResult<Dim3dModel> getModelPage(String modelName, String resourceBelong, String status, String isPaid, String category, Integer pageNum, Integer pageSize);
+    /** 带合同排序参数的模型分页；原七参数入口继续保留供已有调用方使用。 */
+    PageResult<Dim3dModel> getModelPage(String modelName, String resourceBelong, String status, String isPaid, String category, Integer pageNum, Integer pageSize, String orderByColumn, String isAsc);
     Long createIcon(Dim3dIcon icon);
     void updateIcon(Long id, Dim3dIcon icon);
     Dim3dIcon getIcon(Long id);
-    PageResult<Dim3dIcon> getIconPage(String iconName, String category, String secondaryCategory, String resourceBelong, String status, Integer pageNum, Integer pageSize);
+    /** 图标目录分页支持文档排序，沿用普通图片可见范围。 */
+    PageResult<Dim3dIcon> getIconPage(String iconName, String category, String secondaryCategory,
+                                     String resourceBelong, String status, Integer pageNum, Integer pageSize,
+                                     String orderByColumn, String isAsc);
     Long createTemplate(Dim3dTemplate template);
     void updateTemplate(Long id, Dim3dTemplate template);
     Dim3dTemplate getTemplate(Long id);
-    PageResult<Dim3dTemplate> getTemplatePage(String templateName, String templateType, String category, String resourceBelong, String status, Integer pageNum, Integer pageSize);
+    /** 文件型模板分页在授权范围内按契约字段筛选和排序。 */
+    PageResult<Dim3dTemplate> getTemplatePage(String templateName, String templateType, String category,
+                                             String resourceBelong, String status, Integer pageNum, Integer pageSize,
+                                             String orderByColumn, String isAsc);
     void changeModelStatus(Long id, String status);
     void changeIconStatus(Long id, String status);
     void changeTemplateStatus(Long id, String status);

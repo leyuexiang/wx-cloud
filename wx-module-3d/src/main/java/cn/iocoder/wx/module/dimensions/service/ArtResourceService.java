@@ -62,8 +62,64 @@ public class ArtResourceService {
         long pinnedRevision=revision(revision);
         if(pinnedRevision==0 || !ArtResourceManifestVerifier.digest(contentHash)) bad();
         ArtResourceManifestVerifier.requirePath(path);
+        JsonNode snapshot = committedSnapshot(id, revision, contentHash, row);
+        String prefix=snapshot.path("storage_prefix").asText(), manifest=snapshot.path("manifest_path").asText();
+        var files=verifiedSnapshotFiles(snapshot,id,contentHash,prefix,manifest);
+        if(!path.equals(manifest) && files.stream().noneMatch(file->file.path().equals(path)))
+            throw ServiceException.of(NOT_VISIBLE);
+        var signed=signer.sign(prefix,path);
+        return Map.of("fileUrl",signed.get("manifestUrl"),"downloadExpiresAt",signed.get("downloadExpiresAt"));
+    }
+
+    /** 原模型预览调用仍按已校验的入口签发下载地址，单次仅校验一份清单。 */
+    public Map<String, String> modelPreview(String id) {
+        var entry = modelEntry(id);
+        var signed = signer.sign(entry.prefix(), entry.path());
+        return Map.of("modelFileUrl", signed.get("manifestUrl"), "downloadExpiresAt", signed.get("downloadExpiresAt"),
+                "resourceRelativePath", entry.relativePath());
+    }
+
+    /** 文件详情只读取可信入口的相对路径，查询元信息时无需生成临时下载签名。 */
+    public String modelRelativePath(String id) {
+        return modelEntry(id).relativePath();
+    }
+
+    /** 路径元信息与原预览共用可见性、已提交修订及完整清单校验，避免两套授权规则漂移。 */
+    private ModelEntry modelEntry(String id) {
+        var row = visible(id, access.actor(), false);
+        if (!"READY".equals(row.get("content_state")) || !"MODEL".equals(row.get("resource_type"))) {
+            throw ServiceException.of(NOT_VISIBLE);
+        }
+        String revision = Objects.toString(row.get("current_revision"), "");
+        String hash = Objects.toString(row.get("content_hash"), "");
+        if (revision(revision) == 0 || !ArtResourceManifestVerifier.digest(hash)) {
+            throw ServiceException.of(SNAPSHOT_UNAVAILABLE);
+        }
+        JsonNode snapshot = committedSnapshot(id, revision, hash, row);
+        String prefix = snapshot.path("storage_prefix").asText();
+        String manifest = snapshot.path("manifest_path").asText();
+        var checked = modelVerifier.verify(store.readManifest(prefix, manifest), id,
+                snapshot.path("manifest_sha256").asText(), manifest);
+        // 入口、格式、运行平台和兼容标识均以已提交快照为准，失配时拒绝提供路径或下载授权。
+        if (!hash.equals(checked.contentHash()) || !checked.contentFormat().equals(snapshot.path("content_format").asText())
+                || !"WebGL".equals(snapshot.path("platform").asText())
+                || !checked.compatibility().equals(snapshot.path("app_compatibility").asText())) {
+            throw ServiceException.of(CHECKSUM_MISMATCH);
+        }
+        return new ModelEntry(prefix, checked.modelPath());
+    }
+
+    /** 冻结存储前缀与清单入口分别保留，签名使用两段原值，相对路径仅补齐一处分隔符。 */
+    private record ModelEntry(String prefix, String path) {
+        private String relativePath() {
+            return prefix + (prefix.endsWith("/") ? "" : "/") + path;
+        }
+    }
+
+    /** 文件读取与目录预览共用同一提交快照检查，不能对未提交版本或失配摘要签发地址。 */
+    private JsonNode committedSnapshot(String id, String revision, String contentHash, Map<String, Object> row) {
         var snapshots=jdbc.queryForList("SELECT after_snapshot FROM wx_3d_resource_operation WHERE resource_id=? AND committed_revision=? AND status='COMMITTED' AND resource_scope=? AND tenant_id=?",
-                id(id),pinnedRevision,row.get("resource_scope"),row.get("tenant_id"));
+                id(id),revision(revision),row.get("resource_scope"),row.get("tenant_id"));
         if(snapshots.size()!=1 || snapshots.get(0).get("after_snapshot")==null) throw ServiceException.of(SNAPSHOT_UNAVAILABLE);
         Object saved=snapshots.get(0).get("after_snapshot");
         JsonNode snapshot;
@@ -76,12 +132,7 @@ public class ArtResourceService {
         if(!id.equals(snapshot.path("id").asText()) || !revision.equals(snapshot.path("current_revision").asText()) ||
             !contentHash.equals(snapshot.path("content_hash").asText()) || !"READY".equals(snapshot.path("content_state").asText()) ||
             !"0".equals(snapshot.path("del_flag").asText())) throw ServiceException.of(SNAPSHOT_UNAVAILABLE);
-        String prefix=snapshot.path("storage_prefix").asText(), manifest=snapshot.path("manifest_path").asText();
-        var files=verifiedSnapshotFiles(snapshot,id,contentHash,prefix,manifest);
-        if(!path.equals(manifest) && files.stream().noneMatch(file->file.path().equals(path)))
-            throw ServiceException.of(NOT_VISIBLE);
-        var signed=signer.sign(prefix,path);
-        return Map.of("fileUrl",signed.get("manifestUrl"),"downloadExpiresAt",signed.get("downloadExpiresAt"));
+        return snapshot;
     }
     /** 包内复用同一清单校验；匿名发布入口须先证明冻结引用及票据范围。 */
     List<ArtResourceManifestVerifier.FileSpec> verifiedSnapshotFiles(
@@ -244,6 +295,11 @@ public class ArtResourceService {
     }
     /** 旧写入只允许未纳入新流程的资源，查询不返回跨租户数据。 */
     public void guardLegacyResource(Long id) {
+        guardLegacyResource(jdbc, id);
+    }
+
+    /** 普通图标写入持有目录锁后复核同一规则，避免再次读取目录。 */
+    static void guardLegacyResource(JdbcTemplate jdbc, Long id) {
         if(id != null && jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_resource WHERE id=? AND (resource_scope IS NOT NULL OR content_state<>'LEGACY')",Long.class,id)>0)
             throw ServiceException.of(NOT_VISIBLE);
     }
@@ -252,7 +308,7 @@ public class ArtResourceService {
         for(char c:value.toCharArray()){if(c=='_')upper=true;else{out.append(upper?Character.toUpperCase(c):c);upper=false;}}
         return out.toString();
     }
-    private String hash(JsonNode body) {
+    String hash(JsonNode body) {
         try {
             var map=new TreeMap<String,Object>();body.fields().forEachRemaining(e->{
                 if(e.getValue().isObject()) { var child=new TreeMap<String,String>();e.getValue().fields().forEachRemaining(v->child.put(v.getKey(),v.getValue().asText()));map.put(e.getKey(),child); }

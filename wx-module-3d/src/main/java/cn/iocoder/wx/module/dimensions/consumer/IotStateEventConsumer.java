@@ -19,6 +19,8 @@ public class IotStateEventConsumer {
 
     @KafkaListener(topics = IotTopicsConstants.TELEMETRY_EVENT,
             groupId = "${wx.iot-state.consumer-group:dimensions-iot-state-v1}",
+            // 允许独立启用遥测消费，旧业务主题仍遵循应用级监听开关。
+            autoStartup = "${wx.iot-state.listener-auto-startup:${spring.kafka.listener.auto-startup:true}}",
             containerFactory = "iotStateKafkaListenerContainerFactory")
     public void consume(ConsumerRecord<String, String> record) {
         boolean changed = projectionService.project(record.value());

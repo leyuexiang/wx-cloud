@@ -1,0 +1,322 @@
+{
+  "reports": [
+    {
+      "name": "cold-1-first.json",
+      "generatorLocation": "workstation",
+      "distinctAccounts": 50,
+      "passed": false,
+      "acknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "abortReason": null,
+      "latencyMs": {
+        "p50": 7402,
+        "p95": 11133,
+        "p99": 11532
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "cold-1-warm.json",
+      "generatorLocation": "workstation",
+      "distinctAccounts": 50,
+      "passed": false,
+      "acknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "abortReason": null,
+      "latencyMs": {
+        "p50": 3242,
+        "p95": 7423,
+        "p99": 7667
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "cold-2-first.json",
+      "generatorLocation": "workstation",
+      "distinctAccounts": 50,
+      "passed": false,
+      "acknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "abortReason": null,
+      "latencyMs": {
+        "p50": 2843,
+        "p95": 6140,
+        "p99": 6396
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "cold-2-warm.json",
+      "generatorLocation": "workstation",
+      "distinctAccounts": 50,
+      "passed": false,
+      "acknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "abortReason": null,
+      "latencyMs": {
+        "p50": 3172,
+        "p95": 6779,
+        "p99": 6984
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "cold-3-first.json",
+      "generatorLocation": "workstation",
+      "distinctAccounts": 50,
+      "passed": false,
+      "acknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "abortReason": null,
+      "latencyMs": {
+        "p50": 2347,
+        "p95": 5828,
+        "p99": 6037
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "cold-3-warm.json",
+      "generatorLocation": "workstation",
+      "distinctAccounts": 50,
+      "passed": false,
+      "acknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "abortReason": null,
+      "latencyMs": {
+        "p50": 3222,
+        "p95": 6569,
+        "p99": 6769
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "diagnostic-formal.json",
+      "generatorLocation": "workstation",
+      "distinctAccounts": 50,
+      "passed": false,
+      "acknowledged": 4260,
+      "uniqueDeliveries": 213000,
+      "abortReason": "delivery-backlog-over-10s",
+      "latencyMs": {
+        "p50": 6694,
+        "p95": 12779,
+        "p99": 14459
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "host-10min.json",
+      "generatorLocation": "server",
+      "distinctAccounts": 50,
+      "passed": true,
+      "acknowledged": 120000,
+      "uniqueDeliveries": 6000000,
+      "abortReason": null,
+      "latencyMs": {
+        "p50": 56,
+        "p95": 112,
+        "p99": 433
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "host-cold-1-first.json",
+      "generatorLocation": "server",
+      "distinctAccounts": 50,
+      "passed": true,
+      "acknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "abortReason": null,
+      "latencyMs": {
+        "p50": 56,
+        "p95": 104,
+        "p99": 129
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "host-cold-1-warm.json",
+      "generatorLocation": "server",
+      "distinctAccounts": 50,
+      "passed": true,
+      "acknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "abortReason": null,
+      "latencyMs": {
+        "p50": 53,
+        "p95": 85,
+        "p99": 103
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "host-cold-2-first.json",
+      "generatorLocation": "server",
+      "distinctAccounts": 50,
+      "passed": true,
+      "acknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "abortReason": null,
+      "latencyMs": {
+        "p50": 53,
+        "p95": 81,
+        "p99": 95
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "host-cold-2-warm.json",
+      "generatorLocation": "server",
+      "distinctAccounts": 50,
+      "passed": true,
+      "acknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "abortReason": null,
+      "latencyMs": {
+        "p50": 53,
+        "p95": 98,
+        "p99": 167
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "host-cold-3-first.json",
+      "generatorLocation": "server",
+      "distinctAccounts": 50,
+      "passed": true,
+      "acknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "abortReason": null,
+      "latencyMs": {
+        "p50": 56,
+        "p95": 158,
+        "p99": 271
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "host-cold-3-warm.json",
+      "generatorLocation": "server",
+      "distinctAccounts": 50,
+      "passed": true,
+      "acknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "abortReason": null,
+      "latencyMs": {
+        "p50": 52,
+        "p95": 84,
+        "p99": 107
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "host-smoke-missing-helper.json",
+      "generatorLocation": "server",
+      "distinctAccounts": 50,
+      "passed": false,
+      "acknowledged": 0,
+      "uniqueDeliveries": 0,
+      "abortReason": null,
+      "latencyMs": null,
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "host-smoke.json",
+      "generatorLocation": "server",
+      "distinctAccounts": 50,
+      "passed": true,
+      "acknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "abortReason": null,
+      "latencyMs": {
+        "p50": 49,
+        "p95": 71,
+        "p99": 86
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "multiaccount-formal-10min.json",
+      "generatorLocation": "workstation",
+      "distinctAccounts": 50,
+      "passed": false,
+      "acknowledged": 4278,
+      "uniqueDeliveries": 213900,
+      "abortReason": "delivery-backlog-over-10s",
+      "latencyMs": {
+        "p50": 6739,
+        "p95": 13077,
+        "p99": 14519
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 50
+    },
+    {
+      "name": "sameaccount-formal-control.json",
+      "generatorLocation": "workstation",
+      "distinctAccounts": 1,
+      "passed": true,
+      "acknowledged": 2000,
+      "uniqueDeliveries": 100000,
+      "abortReason": null,
+      "latencyMs": {
+        "p50": 1953,
+        "p95": 4514,
+        "p99": 4798
+      },
+      "ticketsRevoked": 50,
+      "sessionsLoggedOut": 0
+    }
+  ],
+  "receivedAuditExpected": 156538,
+  "ticketsExpected": 900,
+  "resourceSampleCount": 170,
+  "resourceSummary": {
+    "mysql8": {
+      "maxCpuPercent": 94.88,
+      "lastMemory": "1.759GiB / 31.03GiB"
+    },
+    "wx-editor-dimensions-data08": {
+      "maxCpuPercent": 553.48,
+      "lastMemory": "1.471GiB / 31.03GiB"
+    },
+    "wx-editor-redis": {
+      "maxCpuPercent": 55.58,
+      "lastMemory": "21.83MiB / 256MiB"
+    },
+    "wx-iot-cold-dimensions-1117": {
+      "maxCpuPercent": 869.65,
+      "lastMemory": "0B / 0B"
+    },
+    "wx-iot-cold-ingest-1117": {
+      "maxCpuPercent": 100.48,
+      "lastMemory": "361.9MiB / 768MiB"
+    },
+    "wx-iot-cold-mqtt-1117": {
+      "maxCpuPercent": 1.81,
+      "lastMemory": "2.258MiB / 128MiB"
+    },
+    "wx-iot-kafka148": {
+      "maxCpuPercent": 55.42,
+      "lastMemory": "785.4MiB / 1.172GiB"
+    }
+  },
+  "capacityToolSha256": "1afc48240f40f1291e540ed24a65e890204b5432838b625be2ce377dfd99945e"
+}

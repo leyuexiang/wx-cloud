@@ -34,19 +34,25 @@ class ModelImportControllerTest {
         var controller = new cn.iocoder.wx.module.dimensions.controller.admin.Dim3dResourceController();
         ReflectionTestUtils.setField(controller, "modelImports", imports);
         ReflectionTestUtils.setField(controller, "service", catalog);
+        ReflectionTestUtils.setField(controller, "json", new com.fasterxml.jackson.databind.ObjectMapper());
+        var validator = new org.springframework.validation.beanvalidation.LocalValidatorFactoryBean();
+        validator.afterPropertiesSet();
+        ReflectionTestUtils.setField(controller, "validator", validator);
         var mvc = MockMvcBuilders.standaloneSetup(controller).build();
         var file = new org.springframework.mock.web.MockMultipartFile("file", "模型.zip", "application/zip", new byte[]{80,75,3,4});
         var state = ModelImportStatusView.from("op", "101", "QUEUED", "UPLOADING", "glb", null, null, null, false);
         when(imports.upload(any(), eq("MINE"))).thenReturn(state);
         mvc.perform(multipart("/dim3d/resource/uploadConvert").file(file).param("resourceBelong", "MINE"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.data.resourceId").value("101"));
-        when(imports.saveUploadedModel(any())).thenReturn(state);
-        mvc.perform(post("/dim3d/model/add").contentType("application/json")
-                .content("{\"operationId\":\"op\",\"resourceId\":\"101\",\"price\":1.01}"))
-                .andExpect(status().isOk());
-        // 保存分派保留原始金额节点，由受控服务拒绝小数，避免实体反序列化提前截断。
-        verify(imports).saveUploadedModel(argThat(body -> body.path("price").isFloatingPointNumber()));
-        verifyNoInteractions(catalog);
+        try {
+            mvc.perform(post("/dim3d/model/add").contentType("application/json")
+                    .content("{\"modelName\":\"测试模型\",\"category\":\"TREE\",\"resourceBelong\":\"MINE\","
+                            + "\"isPaid\":\"FREE\",\"modelFileId\":\"101\"}"))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.data").isEmpty());
+            // 上传异步状态独立保留，目录新增使用契约表单并交给统一写入服务完成提交。
+            verify(catalog).createModel(argThat(body -> Long.valueOf(101L).equals(body.getModelFileId())));
+            verify(imports, never()).saveUploadedModel(any());
+        } finally { validator.close(); }
     }
 
     @Test void commandBodiesCannotInjectParameters() throws Exception {
@@ -56,5 +62,23 @@ class ModelImportControllerTest {
         assertThrows(Exception.class,()->mvc.perform(post("/dim3d/model-imports/op/submit").contentType("application/json").content("{\"tenantId\":\"3\"}")));
         assertThrows(Exception.class,()->mvc.perform(post("/dim3d/model-imports/op/source-target").contentType("application/json").content("{} {}")));
         verifyNoInteractions(service);
+    }
+
+    /** 已部署网页仍提交原异步表单，发布时兼容该形态且保持原始金额交给原服务校验。 */
+    @Test void legacyAsyncSaveRemainsCompatibleAlongsideCanonicalForm() throws Exception {
+        var imports = mock(ModelImportService.class);
+        var catalog = mock(Dim3dResourceCatalogService.class);
+        var controller = new cn.iocoder.wx.module.dimensions.controller.admin.Dim3dResourceController();
+        ReflectionTestUtils.setField(controller, "modelImports", imports);
+        ReflectionTestUtils.setField(controller, "service", catalog);
+        var mvc = MockMvcBuilders.standaloneSetup(controller).build();
+        var state = ModelImportStatusView.from("op", "101", "PUBLISHING", "UPLOADING", "glb", null, null, null, false);
+        when(imports.saveUploadedModel(any())).thenReturn(state);
+        mvc.perform(post("/dim3d/model/add").contentType("application/json")
+                        .content("{\"operationId\":\"op\",\"resourceId\":\"101\",\"price\":1.01}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.operationId").value("op"))
+                .andExpect(jsonPath("$.data.resourceId").value("101"));
+        verify(imports).saveUploadedModel(argThat(body -> body.path("price").isFloatingPointNumber()));
+        verifyNoInteractions(catalog);
     }
 }

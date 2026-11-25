@@ -1,0 +1,22 @@
+[
+  {
+    "name": "wx-editor-iot-data08",
+    "health": "healthy",
+    "artifactSha256": "a84e147d36f20d80a31299f79999ab9c023ed0437490895c4995f9a9dac02954",
+    "sourceCommit": "470d2a83",
+    "startedAt": "2026-11-17T08:35:31.254657519Z",
+    "backupContainer": "wx-editor-iot-data08-before-concurrency-1117",
+    "backupStopped": true,
+    "deployedByThisBatch": false
+  },
+  {
+    "name": "wx-editor-dimensions-data08",
+    "health": "healthy",
+    "artifactSha256": "ad0c484fd1dec5cd9aafb09d0867cc3ceb3e298a5b3491db7c851f7f2f6bd031",
+    "sourceCommit": "28564fef",
+    "startedAt": "2026-11-17T10:10:32.481715666Z",
+    "backupContainer": "wx-editor-dimensions-data08-before-model11-20261117",
+    "backupStopped": true,
+    "deployedByThisBatch": false
+  }
+]

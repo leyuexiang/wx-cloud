@@ -40,6 +40,9 @@ class Dim3dSceneServiceTest {
                 .replace("wx_dim3d_", "wx_3d_")
                 .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
         for (String sql : schema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
+        String publications = Files.readString(Path.of("../deploy/test148/migrations/data09/001-scene-publication.up.sql"))
+                .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
+        jdbc.execute(publications);
         String templateSchema = Files.readString(Path.of("../deploy/test148/migrations/tpl01/001-scene-template.up.sql"))
                 .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
         for (String sql : templateSchema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
@@ -52,7 +55,7 @@ class Dim3dSceneServiceTest {
         String shareSchema = Files.readString(Path.of("../deploy/test148/migrations/tpl01/004-template-share.up.sql"))
                 .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
         for (String sql : shareSchema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
-        jdbc.execute("CREATE TABLE wx_3d_template(id BIGINT PRIMARY KEY,template_name VARCHAR(50) NOT NULL,template_desc VARCHAR(500),template_type VARCHAR(16) NOT NULL,category VARCHAR(32) NOT NULL,resource_belong VARCHAR(16) NOT NULL,cover_image_id BIGINT,template_file_id BIGINT NOT NULL,status VARCHAR(16) NOT NULL,tenant_id VARCHAR(20) NOT NULL,del_flag CHAR(1) NOT NULL,update_time TIMESTAMP)");
+        jdbc.execute("CREATE TABLE wx_3d_template(id BIGINT PRIMARY KEY,template_name VARCHAR(50) NOT NULL,template_desc VARCHAR(500),template_type VARCHAR(16) NOT NULL,category VARCHAR(32) NOT NULL,resource_belong VARCHAR(16) NOT NULL,cover_image_id BIGINT,template_file_id BIGINT NOT NULL,status VARCHAR(16) NOT NULL,tenant_id VARCHAR(20) NOT NULL,del_flag CHAR(1) NOT NULL,create_time TIMESTAMP,update_time TIMESTAMP)");
         var target = new Dim3dSceneService(); access = mock(ArtResourceAccess.class);
         when(access.actor()).thenReturn(new ArtResourceAccess.Actor(2, 2));
         dictionaries = mock(DictDataApi.class);
@@ -67,12 +70,172 @@ class Dim3dSceneServiceTest {
     private String create() {
         return (String) service.create(json.createObjectNode().put("name", "测试场景").put("sceneType", "local3d")).get("sceneId");
     }
+
+    @Test void pageFiltersActualPublicationsAndScopesExplicitTenant() {
+        String id = create();
+        String second = service.create(json.createObjectNode().put("name", "A").put("sceneType", "local3d")).get("sceneId").toString();
+        jdbc.update("""
+                INSERT INTO wx_3d_scene_publication(id,publication_id,tenant_id,scene_id,revision_no,source_hash,index_version,dependency_snapshot,request_id,created_by)
+                VALUES(1,'PUB-1',2,?,1,?,2,'{}','page-check',2)
+                """, Long.parseLong(id), "a".repeat(64));
+        var online = service.page(null, null, null, null, 1, null, 1, 10, null, null);
+        assertEquals(1L, online.getTotal());
+        assertEquals("PUB-1", online.getList().get(0).get("publishedPublicationId"));
+        assertNotNull(service.info(id).get("publishedRevision"));
+        var offline = service.page(null, null, null, null, 0, null, 1, 10, "sceneName", "asc");
+        assertEquals(second, offline.getList().get(0).get("sceneId"));
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.remove(id)).getCode());
+        assertEquals(403, assertThrows(ServiceException.class,
+                () -> service.page(null, null, null, null, null, "3", 1, 10, null, null)).getCode());
+        when(access.isPlatformAdministrator(new ArtResourceAccess.Actor(2, 2))).thenReturn(true);
+        assertEquals(0L, service.page(null, null, null, null, null, "3", 1, 10, null, null).getTotal());
+    }
+
+    /** 复制独立的首版，重新生成内部实例编号，保持固定资源标识。 */
+    @Test void copiesSavedPackagesAndLeavesSourceLeaseUntouched() throws Exception {
+        String id = create();
+        String token = service.lock(id, "copy-source").get("lockToken").toString();
+        ObjectNode body = saveBody(id, token);
+        var threeD = (ObjectNode) json.readTree(body.path("threeDJson").asText());
+        threeD.set("objects", json.readTree("[{\"instanceId\":\"root\",\"resourceId\":\"77\"},{\"instanceId\":\"child\",\"parentInstanceId\":\"root\"}]"));
+        body.put("threeDJson", threeD.toString());
+        service.save(body);
+        var copied = service.copy(id);
+        assertNotEquals(id, copied.get("sceneId"));
+        assertEquals(1, copied.get("revisionNo"));
+        assertEquals(0, copied.get("publishStatus"));
+        var detail = (Map<?, ?>) service.info(copied.get("sceneId").toString()).get("currentRevision");
+        var objects = json.readTree(detail.get("threeDJson").toString()).path("objects");
+        assertNotEquals("root", objects.get(0).path("instanceId").asText());
+        assertEquals(objects.get(0).path("instanceId"), objects.get(1).path("parentInstanceId"));
+        assertEquals("77", objects.get(0).path("resourceId").asText());
+        assertEquals(token, service.lock(id, "copy-source").get("lockToken"));
+        assertNotEquals(token, service.lock(copied.get("sceneId").toString(), "copy-new").get("lockToken"));
+    }
     @SuppressWarnings("unchecked") private ObjectNode saveBody(String id, String token) {
         var revision = (Map<String, Object>) service.info(id).get("currentRevision");
         var body = json.createObjectNode().put("sceneId", id).put("lockToken", token).put("requestId", UUID.randomUUID().toString())
                 .put("baseRevisionNo", ((Number) revision.get("revisionNo")).intValue()).put("schemaVersion", 1);
         for (String key : java.util.List.of("sceneJson", "threeDJson", "twoDJson", "dependenciesJson")) body.put(key, (String) revision.get(key));
         return body;
+    }
+
+    @Test void retentionRequestRowsAreWrittenOnlyWhenTheFeatureIsEnabled() {
+        jdbc.execute("CREATE TABLE wx_3d_scene_request(id BIGINT PRIMARY KEY,tenant_id BIGINT NOT NULL,scene_id BIGINT NOT NULL,request_id VARCHAR(128) NOT NULL,request_hash CHAR(64) NOT NULL,revision_no INT NOT NULL,expires_time TIMESTAMP NOT NULL,created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,updated_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,UNIQUE(tenant_id,scene_id,request_id))");
+        ReflectionTestUtils.setField(service, "sceneRetentionEnabled", true);
+        ReflectionTestUtils.setField(service, "sceneRequestRetentionDays", 30);
+        String id = create();
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_request WHERE tenant_id=2 AND scene_id=?", Integer.class, Long.parseLong(id)));
+        String token = service.lock(id, "retention").get("lockToken").toString();
+        service.save(saveBody(id, token));
+        assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_request WHERE tenant_id=2 AND scene_id=?", Integer.class, Long.parseLong(id)));
+        assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_request WHERE tenant_id=2 AND scene_id=? AND expires_time>CURRENT_TIMESTAMP", Integer.class, Long.parseLong(id)));
+    }
+
+    /** 重放必须固定到期时间；过期后换请求号，不能覆盖旧回执或追加修订。 */
+    @Test void retentionRejectsExpiredReplayWithoutRenewingTheOriginalReceipt() {
+        enableRetention();
+        String id = create();
+        String token = service.lock(id, "retention-replay").get("lockToken").toString();
+        ObjectNode body = saveBody(id, token);
+        var saved = service.save(body);
+        var expiry = jdbc.queryForObject("SELECT expires_time FROM wx_3d_scene_request WHERE request_id=?", java.sql.Timestamp.class, body.path("requestId").asText());
+        assertEquals(saved.get("revisionNo"), service.save(body).get("revisionNo"));
+        assertEquals(expiry, jdbc.queryForObject("SELECT expires_time FROM wx_3d_scene_request WHERE request_id=?", java.sql.Timestamp.class, body.path("requestId").asText()));
+        jdbc.update("UPDATE wx_3d_scene_request SET expires_time='2000-01-01 00:00:00' WHERE request_id=?", body.path("requestId").asText());
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.save(body)).getCode());
+        assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_revision", Integer.class));
+        assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_request", Integer.class));
+    }
+
+    /** 请求记录写入失败必须撤销同事务新增修订和场景主表。 */
+    @Test void retentionRecordFailureRollsBackTheWholeCreateTransaction() {
+        enableRetention();
+        jdbc.execute("DROP TABLE wx_3d_scene_request");
+        assertThrows(org.springframework.dao.DataAccessException.class, this::create);
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene", Integer.class));
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_revision", Integer.class));
+    }
+
+    /** 被污染的请求摘要不能重放；历史未回填请求仍沿用原幂等且不冒充已过期。 */
+    @Test void retentionRejectsMismatchedHashAndPreservesLegacyReplay() {
+        String id = create();
+        String token = service.lock(id, "legacy").get("lockToken").toString();
+        ObjectNode legacy = saveBody(id, token);
+        service.save(legacy);
+        enableRetention();
+        assertEquals(2, service.save(legacy).get("revisionNo"));
+        ObjectNode fresh = saveBody(id, token);
+        service.save(fresh);
+        jdbc.update("UPDATE wx_3d_scene_request SET request_hash=? WHERE request_id=?", "f".repeat(64), fresh.path("requestId").asText());
+        assertEquals(500, assertThrows(ServiceException.class, () -> service.save(fresh)).getCode());
+        assertEquals(3, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_revision", Integer.class));
+    }
+
+    /** 固定旧修订的书签不能因新保存或同键重试而改变身份、修订及到期时间。 */
+    @Test void persistentBookmarkIsFixedIdempotentAndRevocableAfterSceneDeletion() {
+        enableRetention();
+        String id = create();
+        ObjectNode body = bookmarkBody("same-key");
+        var mark = service.createBookmark(id, body);
+        assertEquals(mark, service.createBookmark(id, body));
+        String token = service.lock(id, "bookmark-save").get("lockToken").toString();
+        service.save(saveBody(id, token));
+        assertEquals(1, mark.get("revisionNo"));
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.createBookmark(id, body.deepCopy().put("revisionNo", 2))).getCode());
+        service.unlock(id, "bookmark-save");
+        service.remove(id);
+        service.revokeBookmark(id, mark.get("bookmarkId").toString());
+        var audit = jdbc.queryForMap("SELECT status,revoked_by,revoked_time FROM wx_3d_scene_bookmark");
+        service.revokeBookmark(id, mark.get("bookmarkId").toString());
+        assertEquals(audit, jdbc.queryForMap("SELECT status,revoked_by,revoked_time FROM wx_3d_scene_bookmark"));
+        assertEquals("REVOKED", audit.get("status"));
+        assertEquals(2L, audit.get("revoked_by"));
+    }
+
+    /** 书签隔离覆盖错租户、同租户其他用户和同键换场景，不依赖控制器角色注解。 */
+    @Test void bookmarkOwnershipAndTenantGuardsCannotBeOverriddenByTheBody() {
+        enableRetention();
+        String id = create(), other = create();
+        var body = bookmarkBody("owned").put("tenantId", "3").put("createdBy", "99");
+        String bookmarkId = service.createBookmark(id, body).get("bookmarkId").toString();
+        assertEquals(2L, jdbc.queryForObject("SELECT tenant_id FROM wx_3d_scene_bookmark", Long.class));
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.createBookmark(other, body)).getCode());
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(9, 2));
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.createBookmark(id, body)).getCode());
+        assertEquals(403, assertThrows(ServiceException.class, () -> service.revokeBookmark(id, bookmarkId)).getCode());
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(3, 3));
+        assertEquals(404, assertThrows(ServiceException.class, () -> service.createBookmark(id, body)).getCode());
+        assertEquals(404, assertThrows(ServiceException.class, () -> service.revokeBookmark(id, bookmarkId)).getCode());
+    }
+
+    @Test void bookmarkExpiryRevocationAndFeatureGateRejectLateRetries() {
+        assertEquals(503, assertThrows(ServiceException.class, () -> service.createBookmark("1", bookmarkBody("off"))).getCode());
+        enableRetention();
+        String id = create();
+        assertEquals(400, assertThrows(ServiceException.class, () -> service.createBookmark(id, bookmarkBody("bad").put("expiresInSeconds", 59))).getCode());
+        assertEquals(404, assertThrows(ServiceException.class, () -> service.createBookmark(id, bookmarkBody("bad-rev").put("revisionNo", 99))).getCode());
+        var mark = service.createBookmark(id, bookmarkBody("expired"));
+        jdbc.update("UPDATE wx_3d_scene_bookmark SET expires_time='2000-01-01 00:00:00'");
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.createBookmark(id, bookmarkBody("expired"))).getCode());
+        service.revokeBookmark(id, mark.get("bookmarkId").toString());
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.createBookmark(id, bookmarkBody("expired"))).getCode());
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_bookmark", Integer.class));
+    }
+
+    private ObjectNode bookmarkBody(String key) {
+        return json.createObjectNode().put("revisionNo", 1).put("bookmarkType", "EDITOR")
+                .put("bookmarkKey", key).put("expiresInSeconds", 300);
+    }
+
+    private void enableRetention() {
+        try {
+            String schema = Files.readString(Path.of("../deploy/test148/migrations/data08/003-retention-references.up.sql"))
+                    .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
+            for (String sql : schema.split(";")) if (!sql.isBlank()) jdbc.execute(sql);
+        } catch (java.io.IOException error) { throw new IllegalStateException(error); }
+        ReflectionTestUtils.setField(service, "sceneRetentionEnabled", true);
+        ReflectionTestUtils.setField(service, "sceneRequestRetentionDays", 30);
     }
 
     @Test void invalidNodeTreesCannotCreateRevision() throws Exception {
@@ -127,7 +290,7 @@ class Dim3dSceneServiceTest {
         String id = create(); var detail = service.info(id);
         assertEquals("2", detail.get("tenantId")); assertTrue(Long.parseLong(id) > Integer.MAX_VALUE);
         assertEquals(1, saveBody(id, "unused").get("baseRevisionNo").asInt());
-        assertEquals(1L, service.page(null, null, null, null, null, null, 1, 10).get("total"));
+        assertEquals(1L, service.page(null, null, null, null, null, null, 1, 10, null, null).getTotal());
     }
 
     @Test void dualWriteSwitchStoresAndReusesSharedContentWithoutChangingRevisionBookmark() {
@@ -176,7 +339,7 @@ class Dim3dSceneServiceTest {
         String id = create(); when(access.actor()).thenReturn(new ArtResourceAccess.Actor(5, 3));
         assertThrows(ServiceException.class, () -> service.info(id));
         assertThrows(ServiceException.class, () -> service.lock(id, "foreign"));
-        assertEquals(0L, service.page(null, null, null, null, null, null, 1, 10).get("total"));
+        assertEquals(0L, service.page(null, null, null, null, null, null, 1, 10, null, null).getTotal());
     }
     @Test void sameClientReplaysLeaseAndOtherClientCannotUnlockIt() {
         String id = create(); var lease = service.lock(id, "one");
@@ -235,7 +398,7 @@ class Dim3dSceneServiceTest {
         assertEquals(first, service.saveAsTemplateFromSnapshot(body));
         String templateScene = first.get("sceneId").toString();
         assertEquals("TEMPLATE", service.info(templateScene).get("sceneKind"));
-        assertEquals(1L, service.page(null, null, null, null, null, null, 1, 10).get("total"));
+        assertEquals(1L, service.page(null, null, null, null, null, null, 1, 10, null, null).getTotal());
         assertThrows(ServiceException.class, () -> service.lock(templateScene, "template-edit"));
         assertThrows(ServiceException.class, () -> service.remove(templateScene));
         assertThrows(ServiceException.class, () -> service.saveAsTemplateFromSnapshot(body.deepCopy().put("templateDesc", "不同描述")));
@@ -389,7 +552,7 @@ class Dim3dSceneServiceTest {
         assertEquals(child, json.readTree(instanceRevision.get("sceneJson").toString()).path("sceneActions").get(0).path("config").path("actionTargetUuid").asText());
         assertEquals(instance.get("sceneId").toString(), savedThreeD.path("streaming").path("chunks").get(0).path("sceneId").asText());
         assertEquals(instance.get("sceneId"), service.createFromTemplate(instanceBody).get("sceneId"));
-        assertEquals(2L, service.page(null, null, null, null, null, null, 1, 10).get("total"));
+        assertEquals(2L, service.page(null, null, null, null, null, null, 1, 10, null, null).getTotal());
         assertEquals("TEMPLATE", service.info(template.get("templateSceneId").toString()).get("sceneKind"));
     }
 
@@ -422,15 +585,15 @@ class Dim3dSceneServiceTest {
                 .put("category", "测试").put("saveScope", "all");
         for (String key : java.util.List.of("sceneJson", "threeDJson", "twoDJson", "dependenciesJson")) body.put(key, (String) revision.get(key));
         var snapshot = service.saveAsTemplateFromSnapshot(body);
-        var page = service.templatePageCombined(null, "dim3d_template_industry", null, null, null, 1, 10);
+        var page = service.templatePageCombined(null, "dim3d_template_industry", null, null, null, 1, 10, "templateName", "asc");
         assertEquals(2, page.getTotal());
-        assertEquals(java.util.Set.of("LEGACY", "SNAPSHOT"), page.getList().stream().map(row -> row.get("recordKind")).collect(java.util.stream.Collectors.toSet()));
+        assertEquals(java.util.List.of("SNAPSHOT", "LEGACY"), page.getList().stream().map(row -> row.get("recordKind")).toList());
         service.removeTemplate(snapshot.get("templateId").toString());
-        var afterRemoval = service.templatePageCombined(null, "dim3d_template_industry", null, null, null, 1, 10);
+        var afterRemoval = service.templatePageCombined(null, "dim3d_template_industry", null, null, null, 1, 10, null, null);
         assertEquals(1, afterRemoval.getTotal());
         assertEquals("LEGACY", afterRemoval.getList().get(0).get("recordKind"));
         when(access.actor()).thenReturn(new ArtResourceAccess.Actor(9, 3));
-        var otherTenant = service.templatePageCombined(null, "dim3d_template_industry", null, null, null, 1, 10);
+        var otherTenant = service.templatePageCombined(null, "dim3d_template_industry", null, null, null, 1, 10, null, null);
         assertEquals(1, otherTenant.getTotal());
         assertEquals("其他租户模板", otherTenant.getList().get(0).get("templateName"));
     }

@@ -41,7 +41,19 @@ def build_iot_config(system, datasource):
     wx.setdefault('info', {})['base-package'] = 'cn.iocoder.wx.module.iot'
     wx.setdefault('tenant', {})['enable'] = True
     wx.setdefault('security', {})['mock-enable'] = False
-    wx['iot'] = {'mqtt': {'enabled': False}}
+    # MQTT 运行参数由受控环境文件注入，默认关闭，避免管理端候选部署意外建立外部连接。
+    # 不能在这里写死 false，否则即使部署人员提供 IOT_MQTT_* 参数，重建容器后也不会启动工作线程。
+    wx['iot'] = {'mqtt': {
+        'enabled': '${IOT_MQTT_ENABLED:false}',
+        'mode': '${IOT_MQTT_MODE:SINGLE}',
+        'tenant-id': '${IOT_MQTT_TENANT_ID:}',
+        'connector-id': '${IOT_MQTT_CONNECTOR_ID:}',
+        'allow-insecure': '${IOT_MQTT_ALLOW_INSECURE:false}',
+        'max-connections': '${IOT_MQTT_MAX_CONNECTIONS:64}',
+        'connect-concurrency': '${IOT_MQTT_CONNECT_CONCURRENCY:4}',
+        'control-concurrency': '${IOT_MQTT_CONTROL_CONCURRENCY:4}',
+        'discovery-batch-size': '${IOT_MQTT_DISCOVERY_BATCH_SIZE:32}',
+    }}
     result['server'] = {'port': 48096, 'address': '127.0.0.1'}
     result['logging'] = {'file': {'name': '/app/logs/wx-iot.log'}, 'level': {'root': 'INFO'}}
     result['management'] = {'endpoints': {'web': {'exposure': {'include': 'health,info'}}},

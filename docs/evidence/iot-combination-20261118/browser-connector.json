@@ -1,0 +1,9 @@
+{
+  "realLogin": true,
+  "connector": "iot-resident-20261113",
+  "configurationVersion": 2,
+  "savedConnectionAndSubscriptionPassed": true,
+  "observation": "尚未观测/无有效租约",
+  "observationNotAHealthClaim": true,
+  "unityRuntimeExercised": false
+}

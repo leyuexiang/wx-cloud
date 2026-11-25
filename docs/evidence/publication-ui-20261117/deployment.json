@@ -1,0 +1,10 @@
+{
+  "health": "UP",
+  "backupContainer": "wx-editor-dimensions-data08-before-publication-1117",
+  "siteSha256": "effdda741ab6a793557274415eaeadae917acbaa765bb6286f640819a16d5675",
+  "webCommit": "9057261201819ecc1a8150d5e6ee0c5a9fe379bf",
+  "serverCommit": "81a8659d7ad7f8dc58f9a7697b658488877d0351",
+  "playerCommit": "793d3356",
+  "jarSha256": "77fdff62074612dbad39adff83fcded7c5b702f8d47e39abe4da0cfd9bd307d5",
+  "webSha256": "39556a788890df42650b0a886fae15880f5913cf97f0f28dcfc08705e7f2ee16"
+}

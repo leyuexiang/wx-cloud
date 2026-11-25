@@ -1,0 +1,733 @@
+{
+  "logicalDevices": 1000,
+  "intervalSeconds": 5,
+  "clients": 50,
+  "bindingsPerClient": 1000,
+  "mqttConnections": 1,
+  "distinctAccounts": 50,
+  "cycles": 120,
+  "expectedMessages": 120000,
+  "expectedDeliveries": 6000000,
+  "targetMessagesPerSecond": 200.0,
+  "clockSource": "同一负载发生器的单调时钟",
+  "renderingMeasured": false,
+  "subscriptionScope": "publication",
+  "passed": true,
+  "latencyResolutionMs": 1,
+  "latencyRounding": "ceil",
+  "minuteSamples": [
+    {
+      "minute": 1,
+      "messages": 12016,
+      "deliveries": 600050,
+      "minimumClientReceived": 12001,
+      "renewalAcks": 5000
+    },
+    {
+      "minute": 2,
+      "messages": 24020,
+      "deliveries": 1200000,
+      "minimumClientReceived": 24000,
+      "renewalAcks": 10682
+    },
+    {
+      "minute": 3,
+      "messages": 36011,
+      "deliveries": 1800000,
+      "minimumClientReceived": 36000,
+      "renewalAcks": 17500
+    },
+    {
+      "minute": 4,
+      "messages": 48015,
+      "deliveries": 2400000,
+      "minimumClientReceived": 48000,
+      "renewalAcks": 22500
+    },
+    {
+      "minute": 5,
+      "messages": 60019,
+      "deliveries": 3000050,
+      "minimumClientReceived": 60001,
+      "renewalAcks": 30000
+    },
+    {
+      "minute": 6,
+      "messages": 72000,
+      "deliveries": 3599546,
+      "minimumClientReceived": 71990,
+      "renewalAcks": 35000
+    },
+    {
+      "minute": 7,
+      "messages": 84000,
+      "deliveries": 4199805,
+      "minimumClientReceived": 83996,
+      "renewalAcks": 40539
+    },
+    {
+      "minute": 8,
+      "messages": 96000,
+      "deliveries": 4799950,
+      "minimumClientReceived": 95999,
+      "renewalAcks": 47500
+    },
+    {
+      "minute": 9,
+      "messages": 108000,
+      "deliveries": 5399650,
+      "minimumClientReceived": 107993,
+      "renewalAcks": 52500
+    },
+    {
+      "minute": 10,
+      "messages": 120000,
+      "deliveries": 5999631,
+      "minimumClientReceived": 119991,
+      "renewalAcks": 59912
+    }
+  ],
+  "receiverProcesses": 5,
+  "receiverIsolation": "spawn-process-shared-metrics",
+  "distinctTickets": 50,
+  "setupSeconds": 11.149,
+  "publishSeconds": 600.039,
+  "maximumAckBatchSeconds": 0.093,
+  "publisherCpuSeconds": 2.031,
+  "abortReason": null,
+  "messagesAcknowledged": 120000,
+  "loadGeneratorCpuSeconds": 131.328,
+  "publisherIsolation": "spawn-process-shared-clock",
+  "receiverCpuSeconds": 129.234,
+  "receiverProcessCpuSeconds": [
+    26.297,
+    26.016,
+    26.297,
+    25.109,
+    25.516
+  ],
+  "receiverErrors": [],
+  "receiverShutdownSeconds": 0.6,
+  "parentCpuSeconds": 0.062,
+  "cpuMeasurementWindow": "publish-start-through-receiver-drain-and-stop",
+  "mqttMaxInFlight": 20,
+  "uniqueDeliveries": 6000000,
+  "duplicateDeliveries": 0,
+  "drainSeconds": 0.0,
+  "clientErrors": [],
+  "clientResults": [
+    {
+      "client": 0,
+      "userId": "1276779",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 142
+      }
+    },
+    {
+      "client": 1,
+      "userId": "1276780",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 64,
+        "p95": 111,
+        "p99": 142
+      }
+    },
+    {
+      "client": 2,
+      "userId": "1276781",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 3,
+      "userId": "1276782",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 4,
+      "userId": "1276783",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 5,
+      "userId": "1276784",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 142
+      }
+    },
+    {
+      "client": 6,
+      "userId": "1276785",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 64,
+        "p95": 111,
+        "p99": 142
+      }
+    },
+    {
+      "client": 7,
+      "userId": "1276786",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 64,
+        "p95": 111,
+        "p99": 142
+      }
+    },
+    {
+      "client": 8,
+      "userId": "1276787",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 9,
+      "userId": "1276788",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 142
+      }
+    },
+    {
+      "client": 10,
+      "userId": "1276789",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 142
+      }
+    },
+    {
+      "client": 11,
+      "userId": "1276790",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 64,
+        "p95": 111,
+        "p99": 142
+      }
+    },
+    {
+      "client": 12,
+      "userId": "1276791",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 142
+      }
+    },
+    {
+      "client": 13,
+      "userId": "1276792",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 14,
+      "userId": "1276793",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 142
+      }
+    },
+    {
+      "client": 15,
+      "userId": "1276794",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 64,
+        "p95": 111,
+        "p99": 142
+      }
+    },
+    {
+      "client": 16,
+      "userId": "1276795",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 64,
+        "p95": 111,
+        "p99": 142
+      }
+    },
+    {
+      "client": 17,
+      "userId": "1276796",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 18,
+      "userId": "1276797",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 19,
+      "userId": "1276798",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 142
+      }
+    },
+    {
+      "client": 20,
+      "userId": "1276799",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 142
+      }
+    },
+    {
+      "client": 21,
+      "userId": "1276800",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 64,
+        "p95": 111,
+        "p99": 142
+      }
+    },
+    {
+      "client": 22,
+      "userId": "1276801",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 23,
+      "userId": "1276802",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 24,
+      "userId": "1276803",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 25,
+      "userId": "1276804",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 144
+      }
+    },
+    {
+      "client": 26,
+      "userId": "1276805",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 27,
+      "userId": "1276806",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 28,
+      "userId": "1276807",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 29,
+      "userId": "1276808",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 30,
+      "userId": "1276809",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 112,
+        "p99": 143
+      }
+    },
+    {
+      "client": 31,
+      "userId": "1276810",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 32,
+      "userId": "1276811",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 112,
+        "p99": 143
+      }
+    },
+    {
+      "client": 33,
+      "userId": "1276812",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 34,
+      "userId": "1276813",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1183,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 35,
+      "userId": "1276814",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 112,
+        "p99": 143
+      }
+    },
+    {
+      "client": 36,
+      "userId": "1276815",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 37,
+      "userId": "1276816",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 112,
+        "p99": 144
+      }
+    },
+    {
+      "client": 38,
+      "userId": "1276817",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 112,
+        "p99": 143
+      }
+    },
+    {
+      "client": 39,
+      "userId": "1276818",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1183,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 40,
+      "userId": "1276819",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 112,
+        "p99": 143
+      }
+    },
+    {
+      "client": 41,
+      "userId": "1276820",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 142
+      }
+    },
+    {
+      "client": 42,
+      "userId": "1276821",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 112,
+        "p99": 144
+      }
+    },
+    {
+      "client": 43,
+      "userId": "1276822",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 112,
+        "p99": 143
+      }
+    },
+    {
+      "client": 44,
+      "userId": "1276823",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1183,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 45,
+      "userId": "1276824",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 144
+      }
+    },
+    {
+      "client": 46,
+      "userId": "1276825",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 47,
+      "userId": "1276826",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 112,
+        "p99": 143
+      }
+    },
+    {
+      "client": 48,
+      "userId": "1276827",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1200,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    },
+    {
+      "client": 49,
+      "userId": "1276828",
+      "received": 120000,
+      "missing": 0,
+      "renewalAcks": 1184,
+      "latencyMs": {
+        "p50": 65,
+        "p95": 111,
+        "p99": 143
+      }
+    }
+  ],
+  "latencyMs": {
+    "p50": 65,
+    "p95": 111,
+    "p99": 143
+  },
+  "metricStorageBytes": 18961262,
+  "deliveryComplete": true,
+  "latencyGateMs": 5000,
+  "ticketsRevoked": 50,
+  "ticketRevokeFailures": 0,
+  "viewerSessionsLoggedOut": 50,
+  "viewerLogoutFailures": 0,
+  "totalSeconds": 616.857
+}

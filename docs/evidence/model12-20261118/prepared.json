@@ -1,0 +1,29 @@
+{
+  "sourceCommit": "aa507a1c80874aa1261defea8219f3dd8104a5d7",
+  "artifactSha256": "80d797e00207d4053130ed8e46f58f81833a90bcb8887396bcb486faacf7ef11",
+  "artifactBytes": 194774423,
+  "targets": {
+    "main": {
+      "database": "wx_editor",
+      "clone": "wx_model12_main_20261118",
+      "container": "wx-editor-dimensions",
+      "candidate": "wx-editor-model12-main",
+      "port": 48092,
+      "candidatePort": 49212,
+      "previousSha256": "ad0c484fd1dec5cd9aafb09d0867cc3ceb3e298a5b3491db7c851f7f2f6bd031",
+      "candidateMigrations": [],
+      "backupSha256": "f3bb6e6f3bea6d3ba538474d9ab20e0136ba84c2f032543011f2ce21fdeeff45"
+    },
+    "data08": {
+      "database": "wx_editor_data08",
+      "clone": "wx_model12_data08_20261118",
+      "container": "wx-editor-dimensions-data08",
+      "candidate": "wx-editor-model12-data08",
+      "port": 48093,
+      "candidatePort": 49213,
+      "previousSha256": "c92ccb8bc71bf32dec200f0ebcf2cc38203fe02141e712bac9fcffd0fc4a56fb",
+      "candidateMigrations": [],
+      "backupSha256": "d2bc2d3a7a1753024709bcf1368d0ac458a0e136a7b7f80581ffa7a44cdd99aa"
+    }
+  }
+}

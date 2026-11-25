@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.iocoder.wx.framework.common.util.json.JsonUtils;
 import cn.iocoder.wx.framework.websocket.core.message.JsonWebSocketMessage;
 import cn.iocoder.wx.framework.websocket.core.session.WebSocketSessionManager;
+import cn.iocoder.wx.framework.websocket.core.util.WebSocketFrameworkUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.TextMessage;
@@ -46,7 +47,7 @@ public abstract class AbstractWebSocketMessageSender implements WebSocketMessage
         // 1. 获得 Session 列表
         List<WebSocketSession> sessions = sessionManager.getSessionAll();
         if (CollUtil.isEmpty(sessions)) {
-            log.info("[send][messageType({}) messageContent({}) 未匹配到会话]", messageType, messageContent);
+            log.debug("WebSocket 原文发送未匹配本机会话，messageType={}", messageType);
             return;
         }
         // 2. 执行发送
@@ -76,8 +77,8 @@ public abstract class AbstractWebSocketMessageSender implements WebSocketMessage
             sessions = (List<WebSocketSession>) sessionManager.getSessionList(userType);
         }
         if (CollUtil.isEmpty(sessions)) {
-            log.info("[send][sessionId({}) userType({}) userId({}) messageType({}) messageContent({}) 未匹配到会话]",
-                    sessionId, userType, userId, messageType, messageContent);
+            // 多节点独立扇出组都会消费同一消息，非目标节点未命中属于正常路由，不逐帧写信息正文。
+            log.debug("WebSocket 发送未匹配本机会话，messageType={}", messageType);
         }
         // 2. 执行发送
         doSend(sessions, messageType, messageContent);
@@ -99,6 +100,8 @@ public abstract class AbstractWebSocketMessageSender implements WebSocketMessage
                 log.error("[doSend][session 为空, message({})]", message);
                 return;
             }
+            // 专用端点在握手时固定类型范围，旧任务广播不能混入新协议会话。
+            if (!WebSocketFrameworkUtils.isMessageTypeAllowed(session, messageType)) return;
             if (!session.isOpen()) {
                 log.error("[doSend][session({}) 已关闭, message({})]", session.getId(), message);
                 return;
@@ -106,7 +109,8 @@ public abstract class AbstractWebSocketMessageSender implements WebSocketMessage
             // 2. 执行发送
             try {
                 session.sendMessage(new TextMessage(payload));
-                log.info("[doSend][session({}) 发送消息成功，message({})]", session.getId(), message);
+                // 高频成功路径仅保留调试元信息，避免逐帧正文日志放大磁盘写入及暴露业务数据。
+                log.debug("WebSocket 发送成功，session={}, messageType={}, chars={}", session.getId(), messageType, payload.length());
             } catch (IOException ex) {
                 log.error("[doSend][session({}) 发送消息失败，message({})]", session.getId(), message, ex);
             }
@@ -126,6 +130,8 @@ public abstract class AbstractWebSocketMessageSender implements WebSocketMessage
                 log.error("[doSend][session 为空, message({})]", message);
                 return;
             }
+            // 原文分支无法证明消息类型，专用协议会话默认拒绝。
+            if (!WebSocketFrameworkUtils.isMessageTypeAllowed(session, null)) return;
             if (!session.isOpen()) {
                 log.error("[doSend][session({}) 已关闭, message({})]", session.getId(), message);
                 return;
@@ -133,7 +139,8 @@ public abstract class AbstractWebSocketMessageSender implements WebSocketMessage
             // 2. 执行发送
             try {
                 session.sendMessage(new TextMessage(message));
-                log.info("[doSend][session({}) 发送消息成功，message({})]", session.getId(), message);
+                // 旧原文发送分支同样不在信息日志中输出完整正文。
+                log.debug("WebSocket 原文发送成功，session={}, chars={}", session.getId(), message.length());
             } catch (IOException ex) {
                 log.error("[doSend][session({}) 发送消息失败，message({})]", session.getId(), message, ex);
             }

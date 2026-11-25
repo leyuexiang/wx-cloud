@@ -6,46 +6,97 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.concurrent.Executor;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 /** MQTT 3.1.1 持久会话；数据库持久接收成功之后才显式发送 QoS 1 确认。 */
 public class PahoIotMqttConnection implements IotMqttConnection {
+    private static final Logger log = LoggerFactory.getLogger(PahoIotMqttConnection.class);
     private final MqttAsyncClient client;
     private final IotMqttSettings settings;
     private final IotMqttSettings.Credentials credentials;
     private final AtomicBoolean active = new AtomicBoolean(true);
+    private final AtomicBoolean closed = new AtomicBoolean();
+    private final Object lifecycle = new Object();
+    private final Executor receiverExecutor;
+    private final IotMqttLease lease;
+    private final long generation;
+    private final BiConsumer<String, byte[]> receiver;
+    private final Semaphore inFlight;
 
     public PahoIotMqttConnection(MqttAsyncClient client, IotMqttSettings settings,
             IotMqttSettings.Credentials credentials, IotMqttLease lease, BiConsumer<String, byte[]> receiver) {
+        // 既有嵌入调用保留同步语义；应用装配显式传入共享接收池。
+        this(client, settings, credentials, lease, receiver, null, 1);
+    }
+
+    public PahoIotMqttConnection(MqttAsyncClient client, IotMqttSettings settings,
+            IotMqttSettings.Credentials credentials, IotMqttLease lease, BiConsumer<String, byte[]> receiver,
+            Executor receiverExecutor, int maxInFlight) {
+        if (maxInFlight < 1 || maxInFlight > 256) throw new IllegalArgumentException("MQTT 在途上限无效");
         this.client = client;
         this.settings = settings;
         this.credentials = credentials;
-        long generation = lease.generation();
+        this.lease = lease;
+        this.receiver = receiver;
+        this.receiverExecutor = receiverExecutor;
+        this.generation = lease.generation();
+        this.inFlight = new Semaphore(maxInFlight, true);
         client.setManualAcks(true);
         client.setCallback(new MqttCallback() {
             @Override
             public void connectionLost(Throwable cause) {
                 // 不在网络回调中重连；运行时使用统一退避和租约检查重新建立连接。
-                active.set(false);
+                deactivate();
             }
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 try {
-                    if (!active.get() || !lease.isValid() || generation != lease.generation() || message.getQos() != 1) {
+                    requireCurrent();
+                    byte[] payload = message.getPayload();
+                    if (message.getQos() != 1 || payload == null || payload.length == 0 || payload.length > 65536) {
                         throw new IllegalStateException("MQTT 会话已失效或发布方未采用 QoS 1");
                     }
-                    receiver.accept(topic, message.getPayload());
-                    // 写库期间可能发生租约超时或停用；旧会话不得继续确认新所有者应接收的消息。
-                    if (!active.get() || !lease.isValid() || generation != lease.generation()) {
-                        throw new IllegalStateException("MQTT 接收确认前会话或租约失效");
+                    if (receiverExecutor == null) {
+                        receiveAndAcknowledge(topic, payload, message.getId());
+                        return;
                     }
-                    client.messageArrivedComplete(message.getId(), message.getQos());
+                    // 单连接满额时背压，等待期间定期核对关闭/租约，不能永久阻塞网络回调。
+                    while (!inFlight.tryAcquire(100, TimeUnit.MILLISECONDS)) requireCurrent();
+                    FutureTask<Void> task;
+                    try {
+                        requireCurrent();
+                        // 任务拥有独立字节副本；名额已取得且长度已限制，队列不会保留无界载荷。
+                        byte[] owned = Arrays.copyOf(payload, payload.length);
+                        int packetId = message.getId();
+                        task = new FutureTask<>(() -> {
+                            try { receiveAndAcknowledge(topic, owned, packetId); }
+                            catch (Exception error) { fail(error); }
+                            return null;
+                        }) {
+                            @Override protected void done() {
+                                if (isCancelled()) deactivate();
+                                inFlight.release();
+                            }
+                        };
+                    } catch (Exception error) {
+                        inFlight.release();
+                        throw error;
+                    }
+                    try { receiverExecutor.execute(task); }
+                    catch (RuntimeException error) { task.cancel(false); throw error; }
                 } catch (Exception ex) {
-                    active.set(false);
+                    if (ex instanceof InterruptedException) Thread.currentThread().interrupt();
+                    fail(ex);
                     throw ex;
                 }
             }
@@ -55,6 +106,35 @@ public class PahoIotMqttConnection implements IotMqttConnection {
                 // 此客户端仅订阅，不发布下行消息。
             }
         });
+    }
+
+    private void requireCurrent() {
+        if (closed.get() || !active.get() || !lease.isValid() || generation != lease.generation()
+                || Thread.currentThread().isInterrupted()
+                || receiverExecutor instanceof IotMqttReceiveDispatcher dispatcher && dispatcher.isShutdown()) {
+            throw new IllegalStateException("MQTT 接收会话、租约代次或接收池已失效");
+        }
+    }
+
+    private void receiveAndAcknowledge(String topic, byte[] payload, int packetId) throws MqttException {
+        // 同步入口刚完成检查；异步任务可能已排队，执行前必须重新检查。
+        if (receiverExecutor != null) requireCurrent();
+        receiver.accept(topic, payload);
+        synchronized (lifecycle) {
+            // 与关闭互斥，落库后再次确认代次；排队成功或迟到完成都不能触发旧会话确认。
+            requireCurrent();
+            client.messageArrivedComplete(packetId, 1);
+        }
+    }
+
+    private void deactivate() {
+        synchronized (lifecycle) { active.set(false); }
+    }
+
+    private void fail(Exception error) {
+        deactivate();
+        // 异步失败由现有运行时发现并关闭会话，未确认消息继续留在代理持久会话内。
+        log.warn("MQTT 持久接收失败，failureType={}", error.getClass().getSimpleName());
     }
 
     @Override
@@ -92,7 +172,9 @@ public class PahoIotMqttConnection implements IotMqttConnection {
 
     @Override
     public void close() {
-        active.set(false);
+        // 失效回收与应用关闭可能重叠，Paho 释放只能执行一次。
+        if (!closed.compareAndSet(false, true)) return;
+        deactivate();
         Arrays.fill(credentials.password(), '\0');
         try {
             // 异常回调或尚未完成连接时也应释放客户端，避免重试累积网络线程。

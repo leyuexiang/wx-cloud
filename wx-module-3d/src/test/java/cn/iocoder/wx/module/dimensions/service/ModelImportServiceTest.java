@@ -34,7 +34,8 @@ class ModelImportServiceTest {
         db.execute("CREATE TABLE wx_3d_resource(id BIGINT PRIMARY KEY,resource_name VARCHAR(150),resource_type VARCHAR(20),asset_name VARCHAR(150),resource_relative_path VARCHAR(255),resource_scope VARCHAR(20),tenant_id VARCHAR(20),content_state VARCHAR(16),current_revision BIGINT DEFAULT 0,current_operation_id VARCHAR(36),content_hash VARCHAR(64),upload_source VARCHAR(20),create_by BIGINT,del_flag CHAR DEFAULT '0')");
         db.execute("CREATE TABLE wx_3d_resource_operation(id VARCHAR(36) PRIMARY KEY,resource_id BIGINT,operation_type VARCHAR(16),resource_scope VARCHAR(20),tenant_id VARCHAR(20),operator_id BIGINT,request_hash VARCHAR(64),expected_revision BIGINT,committed_revision BIGINT,status VARCHAR(16) DEFAULT 'UPLOADING',storage_prefix VARCHAR(512),candidate_descriptor CLOB,expires_at TIMESTAMP,error_code VARCHAR(64))");
         db.execute("CREATE TABLE wx_3d_resource_import(operation_id VARCHAR(36) PRIMARY KEY,resource_id BIGINT,target_format VARCHAR(4),source_size BIGINT,source_sha256 VARCHAR(64),status VARCHAR(24) DEFAULT 'RECEIVING',attempt_id VARCHAR(36),error_code VARCHAR(64),row_version BIGINT DEFAULT 0,publish_descriptor CLOB,cancel_requested BOOLEAN DEFAULT FALSE)");
-        db.execute("CREATE TABLE wx_3d_model(resource_id BIGINT,cover_image_id BIGINT,del_flag CHAR DEFAULT '0')");
+        db.execute("CREATE TABLE wx_3d_model(id BIGINT,resource_id BIGINT,model_file_id BIGINT,tenant_id VARCHAR(20),"
+                + "resource_belong VARCHAR(16),data_user_id BIGINT,create_by BIGINT,cover_image_id BIGINT,del_flag CHAR DEFAULT '0')");
         db.execute("CREATE TABLE wx_infra_file(id BIGINT PRIMARY KEY,tenant_id BIGINT,uploader_id BIGINT,visibility_scope VARCHAR(20),type VARCHAR(40),size INT,deleted BOOLEAN DEFAULT FALSE,update_time TIMESTAMP)");
         db.update("INSERT INTO wx_infra_file VALUES(5,2,10,'PRIVATE_UPLOAD','image/png',50,FALSE,NULL)");
         access=mock(ArtResourceAccess.class);when(access.actor()).thenReturn(new ArtResourceAccess.Actor(10,2));
@@ -76,15 +77,34 @@ class ModelImportServiceTest {
         verifyNoInteractions(signer);
     }
 
-    @Test void multipartUploadFixesSystemScopeAndAuthenticatedUploader() {
+    /** 旧客户端传系统归属时仍先暂存于当前租户，最终范围留到保存。 */
+    @Test void multipartUploadKeepsAuthenticatedTenantUntilSave() {
         ReflectionTestUtils.setField(service, "objects", mock(ArtResourceObjectStore.class));
         var file = new org.springframework.mock.web.MockMultipartFile("file", "模型.zip", "application/zip", new byte[]{80,75,3,4});
         var state = service.upload(file, "SYSTEM");
         assertEquals("QUEUED", state.importStatus());
-        assertEquals("GLOBAL_SYSTEM", db.queryForObject("SELECT resource_scope FROM wx_3d_resource_operation", String.class));
-        assertEquals("0", db.queryForObject("SELECT tenant_id FROM wx_3d_resource", String.class));
+        assertEquals("TENANT_SHARED", db.queryForObject("SELECT resource_scope FROM wx_3d_resource_operation", String.class));
+        assertEquals("2", db.queryForObject("SELECT tenant_id FROM wx_3d_resource", String.class));
+        verify(access, never()).maintain(any(), eq("GLOBAL_SYSTEM"), anyString());
         assertEquals(10L, db.queryForObject("SELECT create_by FROM wx_3d_resource", Long.class));
         assertEquals(10L, db.queryForObject("SELECT operator_id FROM wx_3d_resource_operation", Long.class));
+    }
+
+    /** 兼容旧保存表单，也允许显式选择覆盖上传偏好。 */
+    @Test void compatibilitySaveUsesUploadPreferenceOnlyWhenBelongIsOmitted() throws Exception {
+        ReflectionTestUtils.setField(service, "objects", mock(ArtResourceObjectStore.class));
+        var file = new org.springframework.mock.web.MockMultipartFile("file", "模型.zip", "application/zip", new byte[]{80,75,3,4});
+        for (String chosen : List.of("SYSTEM", "MINE")) {
+            var upload = service.upload(file, "SYSTEM");
+            db.update("UPDATE wx_3d_resource_import SET status='PUBLISHING' WHERE operation_id=?", upload.operationId());
+            var body = json.createObjectNode().put("operationId", upload.operationId()).put("resourceId", upload.resourceId())
+                    .put("modelName", "兼容模型").put("category", "sample");
+            if ("MINE".equals(chosen)) body.put("resourceBelong", chosen);
+            assertEquals("PUBLISHING", service.saveUploadedModel(body).importStatus());
+            String saved = db.queryForObject("SELECT publish_descriptor FROM wx_3d_resource_import WHERE operation_id=?",
+                    String.class, upload.operationId());
+            assertEquals(chosen, json.readTree(saved).path("targetBelong").asText());
+        }
     }
 
     @Test void simpleSaveBindsOriginalResourceAndPreservesUnifiedDictionaryError() {
@@ -216,17 +236,63 @@ class ModelImportServiceTest {
         assertEquals("PUBLISHING", service.requestPublish(op(), directory).importStatus());
     }
 
-    @Test void tenantPaidDirectoryIsRejectedAndIntegerPriceCannotOverflowOrRound() {
+    @Test void personalPaidDirectoryUsesSameExactPriceRules() {
         service.create(request);
         db.update("UPDATE wx_3d_resource_import SET status='PUBLISHING'");
         var directory = json.createObjectNode().put("modelName", "样本模型").put("category", "sample").put("isPaid", "PAID").put("price", 1);
-        assertEquals(400, assertThrows(ServiceException.class, () -> service.requestPublish(op(), directory)).getCode());
-        db.update("UPDATE wx_3d_resource_operation SET resource_scope='GLOBAL_SYSTEM',tenant_id='0'");
         for (String price : List.of("0", "-1", "1.01", "2147483648", "null", "\"1\"")) {
             try { directory.set("price", json.readTree(price)); } catch (Exception invalid) { throw new AssertionError(invalid); }
             assertEquals(400, assertThrows(ServiceException.class, () -> service.requestPublish(op(), directory)).getCode());
         }
         assertNull(db.queryForObject("SELECT publish_descriptor FROM wx_3d_resource_import", String.class));
+        directory.put("price", 1);
+        assertEquals("PUBLISHING", service.requestPublish(op(), directory).importStatus());
+    }
+
+    @Test void directoryRedirectIsAuthorizedAndCannotBeInjectedThroughPublicBody() throws Exception {
+        service.create(request);
+        db.update("UPDATE wx_3d_resource_import SET status='PUBLISHING'");
+        db.update("INSERT INTO wx_3d_model(id,model_file_id,tenant_id,resource_belong,data_user_id,create_by)"
+                + " VALUES(44,301,'2','MINE',10,10)");
+        var directory = json.createObjectNode().put("modelName", "替换模型").put("category", "sample");
+        service.requestPublishForDirectory(op(), directory, 44L);
+        var saved = json.readTree(db.queryForObject("SELECT publish_descriptor FROM wx_3d_resource_import", String.class));
+        assertEquals("44", saved.path("catalogTarget").path("id").asText());
+        assertEquals("301", saved.path("catalogTarget").path("modelFileId").asText());
+        directory.set("catalogTarget", saved.path("catalogTarget"));
+        assertEquals(400, assertThrows(ServiceException.class, () -> service.requestPublish(op(), directory)).getCode());
+    }
+
+    @Test void directoryRedirectRejectsAnotherAccountBeforeConfirmingOperation() {
+        service.create(request);
+        db.update("UPDATE wx_3d_resource_import SET status='PUBLISHING'");
+        db.update("INSERT INTO wx_3d_model(id,model_file_id,tenant_id,resource_belong,data_user_id,create_by)"
+                + " VALUES(44,301,'2','MINE',11,11)");
+        var directory = json.createObjectNode().put("modelName", "替换模型").put("category", "sample");
+        assertThrows(ServiceException.class, () -> service.requestPublishForDirectory(op(), directory, 44L));
+        assertNull(db.queryForObject("SELECT publish_descriptor FROM wx_3d_resource_import", String.class));
+    }
+
+    /** 目录原位替换只接受同一资源的原替换操作，普通上传或其他资源不得借道。 */
+    @Test void directoryReplacementConfirmsOnlyMatchingReplacementOperation() {
+        var created = service.create(request);
+        long resourceId = Long.parseLong(created.resourceId());
+        db.update("UPDATE wx_3d_resource_import SET status='PUBLISHING'");
+        var directory = json.createObjectNode().put("modelName", "替换模型").put("category", "sample");
+        assertThrows(ServiceException.class, () -> service.requestReplaceForResource(op(), resourceId, directory));
+        db.update("UPDATE wx_3d_resource_operation SET operation_type='REPLACE'");
+        assertThrows(ServiceException.class, () -> service.requestReplaceForResource(op(), resourceId + 1, directory));
+        assertNull(db.queryForObject("SELECT publish_descriptor FROM wx_3d_resource_import", String.class));
+        assertEquals("PUBLISHING", service.requestReplaceForResource(op(), resourceId, directory).importStatus());
+        assertEquals("PUBLISHING", service.requestReplaceForResource(op(), resourceId, directory).importStatus());
+        assertEquals(1L, db.queryForObject("SELECT row_version FROM wx_3d_resource_import", Long.class));
+    }
+
+    @Test void disabledImportCannotBePublishedThroughCatalogAdapter() {
+        ReflectionTestUtils.setField(service, "enabled", false);
+        assertEquals(503, assertThrows(ServiceException.class, () -> service.requestPublish(op(),
+                json.createObjectNode().put("modelName", "样本模型").put("category", "sample"))).getCode());
+        assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM wx_3d_resource_operation", Integer.class));
     }
 
     @Test void descriptionSupportsParagraphsAndRejectsHiddenControls() {

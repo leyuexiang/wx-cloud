@@ -1,0 +1,14 @@
+{
+  "health": "UP",
+  "backupContainer": "wx-editor-dimensions-data08-before-widget-1117",
+  "siteSha256": "a5f0d0cdf5936051e178811cf5db88fdf4524c1e97840ff5f275281ebeea26d9",
+  "webCommit": "e56294b352a6bc12fb0a599525ba8463c183582c",
+  "serverCommit": "c97f1de990a386f664f771506a065d469f39d759",
+  "playerCommit": "793d3356",
+  "jarSha256": "475f2b413e488cd0c79df72a6769c165b9738d06df2994c7a3f32a20b62dd965",
+  "webSha256": "8a415873fbe3a257c6a59c3f31895a28a7e3a6eca1613fbd737d1dbfa7ec8171",
+  "candidateContainerRemoved": true,
+  "editorLockReleased": true,
+  "observersDetached": true,
+  "resultPageKept": true
+}

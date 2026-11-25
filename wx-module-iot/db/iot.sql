@@ -20,8 +20,9 @@ CREATE TABLE IF NOT EXISTS `wx_iot_connector` (
   `creator` varchar(64) DEFAULT NULL COMMENT '创建者',
   `updater` varchar(64) DEFAULT NULL COMMENT '更新者',
   `deleted` bit NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `active_unique_key` tinyint GENERATED ALWAYS AS (IF(`deleted` = b'0', 1, NULL)) VIRTUAL COMMENT '仅活动记录参与业务编号唯一校验',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_iot_connector_tenant_code` (`tenant_id`, `connector_id`, `deleted`),
+  UNIQUE KEY `uk_iot_connector_tenant_code` (`tenant_id`, `connector_id`, `deleted`, `active_unique_key`),
   KEY `idx_iot_connector_discovery` (`tenant_id`, `connector_type`, `enabled`, `deleted`, `id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='物联网外部连接器';
 
@@ -41,8 +42,9 @@ CREATE TABLE IF NOT EXISTS `wx_iot_device_binding` (
   `creator` varchar(64) DEFAULT NULL COMMENT '创建者',
   `updater` varchar(64) DEFAULT NULL COMMENT '更新者',
   `deleted` bit NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `active_unique_key` tinyint GENERATED ALWAYS AS (IF(`deleted` = b'0', 1, NULL)) VIRTUAL COMMENT '仅活动记录参与业务编号唯一校验',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_iot_binding_external_device` (`tenant_id`, `connector_id`, `external_device_id`, `deleted`),
+  UNIQUE KEY `uk_iot_binding_external_device` (`tenant_id`, `connector_id`, `external_device_id`, `deleted`, `active_unique_key`),
   CONSTRAINT `chk_iot_binding_mapping_json` CHECK (`point_mapping_json` IS NULL OR JSON_VALID(`point_mapping_json`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='物联网外部设备绑定';
 

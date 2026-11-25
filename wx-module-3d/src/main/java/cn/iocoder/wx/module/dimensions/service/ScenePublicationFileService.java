@@ -19,9 +19,11 @@ public class ScenePublicationFileService {
     @Resource private ArtResourceManifestVerifier parser;
     @Resource private ArtResourceObjectStore store;
     @Resource private ArtResourceDownloadSigner signer;
+    // 冻结绑定使用发布时获准的范围。目录调整归属后，已发布场景仍可访问原快照。
     private static final String SELECT = "SELECT b.*,r.id AS visible_id,o.id AS committed_id,o.after_snapshot AS committed_snapshot "
-            + "FROM wx_3d_scene_publication_resource b LEFT JOIN wx_3d_resource r ON r.id=b.resource_id AND r.resource_scope=b.resource_scope "
-            + "AND r.tenant_id=b.resource_tenant_id AND r.del_flag='0' AND r.content_state='READY' "
+            + "FROM wx_3d_scene_publication_resource b LEFT JOIN wx_3d_resource r ON r.id=b.resource_id "
+            + "AND (r.resource_type='MODEL' OR (r.resource_scope=b.resource_scope AND r.tenant_id=b.resource_tenant_id)) "
+            + "AND r.del_flag='0' AND r.content_state='READY' "
             + "LEFT JOIN wx_3d_resource_operation o ON o.id=b.operation_id AND o.resource_id=b.resource_id AND o.committed_revision=b.resource_revision "
             + "AND o.resource_scope=b.resource_scope AND o.tenant_id=b.resource_tenant_id AND o.status='COMMITTED' "
             + "WHERE b.publication_id=? AND b.tenant_id=?";

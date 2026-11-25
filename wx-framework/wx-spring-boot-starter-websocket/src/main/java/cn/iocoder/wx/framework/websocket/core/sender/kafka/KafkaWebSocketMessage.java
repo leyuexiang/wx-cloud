@@ -55,4 +55,8 @@ public class KafkaWebSocketMessage {
      */
     private Object data;
 
+    /** 是否为发送器交给指定会话或用户类型的消息。 */
+    public boolean hasDeliveryTarget() {
+        return sessionId != null || userType != null;
+    }
 }

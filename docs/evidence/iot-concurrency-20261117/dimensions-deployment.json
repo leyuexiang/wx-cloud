@@ -1,0 +1,12 @@
+{
+  "health": "UP",
+  "backupContainer": "wx-editor-dimensions-data08-before-fanout-1117",
+  "maxPending": 1024,
+  "staticSiteChanged": false,
+  "databaseMigration": false,
+  "sourceCommit": "d20a6b442e975595e844e399dbad5b8017b19091",
+  "dimensionsSha256": "63f9f6a0db909d064bec02a32d1c9b10569d68f285d4e009ab270adb2e31e9f2",
+  "artifact": "/opt/wx/editor-test148/releases/iot-fanout-20261117/dimensions-logging.jar",
+  "loggingBackupContainer": "wx-editor-dimensions-data08-before-fanout-logging-1117",
+  "manifestFinalizedFromActualMount": true
+}

@@ -1,0 +1,9 @@
+{
+  "tag": "capacity-a1f4ec1fa041",
+  "connectorId": "capacity-handshake-1117",
+  "counts": {
+    "PUBLISHED": 128184
+  },
+  "total": 128184,
+  "expectedAccepted": 128184
+}

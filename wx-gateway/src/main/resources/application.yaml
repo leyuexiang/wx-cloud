@@ -52,21 +52,62 @@ spring:
           filters:
             - RemoveRequestHeader=x-bot-user
             - RewritePath=/admin-api/resource/oss/listByIds/(?<ids>[^/]+), /admin-api/infra/file/resource/oss/listByIds/$\{ids}
-        # 两端平台目录合同统一投影到 dimensions admin API，保留原始认证和租户头。
+        # 图片文件单独转入基础设施服务，保留端别、登录信息和文件归属校验。
+        - id: operation-image-oss-platform-api
+          uri: grayLb://infra-server
+          predicates:
+            - Path=/api/operation/resource/oss/upload,/api/operation/resource/oss/listByIds/{ids}
+          filters:
+            - RemoveRequestHeader=x-bot-user
+            - RewritePath=^/api/operation/resource/oss/(?<path>.*)$, /admin-api/infra/file/operation/resource/oss/$\{path}
+        - id: tenant-image-oss-platform-api
+          uri: grayLb://infra-server
+          predicates:
+            - Path=/api/tenant/web/resource/oss/upload,/api/tenant/web/resource/oss/listByIds/{ids}
+          filters:
+            - RemoveRequestHeader=x-bot-user
+            - RewritePath=^/api/tenant/web/resource/oss/(?<path>.*)$, /admin-api/infra/file/tenant/resource/oss/$\{path}
+        # 既有双端预览别名优先转入原票据控制器，管理路由不接管匿名消费。
+        - id: dim3d-ticket-preview-compat-api
+          order: -2
+          uri: grayLb://dimensions-server
+          predicates:
+            - Path=/api/operation/dim3d/scene/publication/preview,/api/operation/dim3d/scene/publication/preview/resources,/api/operation/dim3d/scene/publication/preview/file,/api/tenant/web/dim3d/scene/publication/preview,/api/tenant/web/dim3d/scene/publication/preview/resources,/api/tenant/web/dim3d/scene/publication/preview/file
+          filters:
+            - RemoveRequestHeader=x-bot-user
+            - RewritePath=^/api/(?:operation|tenant/web)/dim3d/(?<path>scene/publication/preview(?:/resources|/file)?)$, /admin-api/dim3d/$\{path}
+        # 三维平台专用路由将登录后的模型、图标、模板和场景请求送入各自身份边界。
+        - id: operation-dim3d-platform-api
+          order: -1
+          uri: grayLb://dimensions-server
+          predicates:
+            - Path=/api/operation/dim3d/model/**,/api/operation/dim3d/model-imports/**,/api/operation/dim3d/resource/uploadConvert,/api/operation/dim3d/resource/info/{id},/api/operation/dim3d/icon/**,/api/operation/dim3d/template/**,/api/operation/dim3d/scene/**
+          filters:
+            - RemoveRequestHeader=x-bot-user
+            - RewritePath=/api/operation/dim3d/(?<path>.*), /admin-api/dim3d/operation/$\{path}
+        - id: tenant-dim3d-platform-api
+          order: -1
+          uri: grayLb://dimensions-server
+          predicates:
+            - Path=/api/tenant/web/dim3d/model/**,/api/tenant/web/dim3d/model-imports/**,/api/tenant/web/dim3d/resource/uploadConvert,/api/tenant/web/dim3d/resource/info/{id},/api/tenant/web/dim3d/icon/**,/api/tenant/web/dim3d/template/**,/api/tenant/web/dim3d/scene/**
+          filters:
+            - RemoveRequestHeader=x-bot-user
+            - RewritePath=/api/tenant/web/dim3d/(?<path>.*), /admin-api/dim3d/tenant/$\{path}
+        # 通用资源文件等既有能力继续兼容转发，内部平台段只由专用路由生成。
         - id: operation-dim3d-api
           uri: grayLb://dimensions-server
           predicates:
             - Path=/api/operation/dim3d/**
           filters:
             - RemoveRequestHeader=x-bot-user
-            - RewritePath=/api/operation/dim3d/(?<path>.*), /admin-api/dim3d/$\{path}
+            - RewritePath=^/api/operation/dim3d/(?<path>(?!(?:operation|tenant)(?:/|$)).*), /admin-api/dim3d/$\{path}
         - id: tenant-dim3d-api
           uri: grayLb://dimensions-server
           predicates:
             - Path=/api/tenant/web/dim3d/**
           filters:
             - RemoveRequestHeader=x-bot-user
-            - RewritePath=/api/tenant/web/dim3d/(?<path>.*), /admin-api/dim3d/$\{path}
+            - RewritePath=^/api/tenant/web/dim3d/(?<path>(?!(?:operation|tenant)(?:/|$)).*), /admin-api/dim3d/$\{path}
         # 字典属于登录后的公共元数据；只映射按类型读取路径，保留系统服务的认证及租户校验。
         - id: system-dictionary-api
           uri: grayLb://system-server

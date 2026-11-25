@@ -1,0 +1,10 @@
+{
+  "container": "wx-iot-cold-dimensions-1117",
+  "startedAt": "2026-11-17T13:58:27.264961966Z",
+  "health": "UP",
+  "elapsedSeconds": 16.424,
+  "sourceCommit": "40d40effd4d67117897632411014ea2c78b9b1b4",
+  "jarSha256": "c92ccb8bc71bf32dec200f0ebcf2cc38203fe02141e712bac9fcffd0fc4a56fb",
+  "coldScope": "isolated-dimensions-process; shared dependencies and OS caches retained",
+  "residentChanged": false
+}

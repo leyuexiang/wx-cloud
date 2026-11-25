@@ -25,6 +25,12 @@ class ArtResourceAccessTest {
     @Test void missingPlatformConfigurationFailsClosed(){ReflectionTestUtils.setField(access,"platformTenant",0L);assertThrows(ServiceException.class,()->access.maintain(new ArtResourceAccess.Actor(10,1),"GLOBAL_SYSTEM","0"));}
     @Test void tenantManagerOnlyOwnTenant(){when(permissions.hasAnyRoles(10L,"tenant_admin")).thenReturn(CommonResult.success(true));assertDoesNotThrow(()->access.maintain(new ArtResourceAccess.Actor(10,2),"TENANT_SHARED","2"));assertThrows(ServiceException.class,()->access.maintain(new ArtResourceAccess.Actor(10,2),"TENANT_SHARED","3"));}
     @Test void viewerCannotMaintain(){when(permissions.hasAnyRoles(10L,"tenant_admin")).thenReturn(CommonResult.success(false));assertThrows(ServiceException.class,()->access.maintain(new ArtResourceAccess.Actor(10,2),"TENANT_SHARED","2"));}
-    @Test void platformDoesNotAutomaticallyMaintainShared(){when(permissions.hasAnyRoles(10L,"tenant_admin")).thenReturn(CommonResult.success(false));assertThrows(ServiceException.class,()->access.maintain(new ArtResourceAccess.Actor(10,1),"TENANT_SHARED","1"));}
+    @Test void platformDoesNotAutomaticallyMaintainShared(){when(permissions.hasAnyRoles(10L,"super_admin")).thenReturn(CommonResult.success(false));when(permissions.hasAnyRoles(10L,"tenant_admin")).thenReturn(CommonResult.success(false));assertThrows(ServiceException.class,()->access.maintain(new ArtResourceAccess.Actor(10,1),"TENANT_SHARED","1"));}
+    /** 运营管理员的个人模型仍绑定登录租户，不能取得其他租户的维护权。 */
+    @Test void platformAdministratorMaintainsOnlyItsOwnPersonalScope() {
+        when(permissions.hasAnyRoles(10L,"super_admin")).thenReturn(CommonResult.success(true));
+        assertDoesNotThrow(() -> access.maintain(new ArtResourceAccess.Actor(10,1), "TENANT_SHARED", "1"));
+        assertThrows(ServiceException.class, () -> access.maintain(new ArtResourceAccess.Actor(10,1), "TENANT_SHARED", "2"));
+    }
     private void login(long tenant){LoginUser user=new LoginUser();user.setId(10L);user.setTenantId(tenant);TenantContextHolder.setTenantId(tenant);SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(user,null,List.of()));}
 }

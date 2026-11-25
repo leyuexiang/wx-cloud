@@ -1,0 +1,23 @@
+{
+  "capacityComplete": true,
+  "renewalAcksMinimum": 1150,
+  "browserSameDocument": true,
+  "browserNaturalTicketRenewal": true,
+  "browserNoExtraSnapshots": true,
+  "browserNoExtraPlayerLoads": true,
+  "browserNoEditSaves": true,
+  "browserCount": 1,
+  "distinctAccounts": 1,
+  "unityEditorConnected": false,
+  "unityCliVersion": "1.0.0",
+  "egoVersion": "0.6.2.8",
+  "toolTests": {
+    "tests": 22,
+    "passed": 22,
+    "skipped": 0
+  },
+  "databaseMigration": false,
+  "residentApplicationDeployedByThisBatch": false,
+  "webSourceChanged": false,
+  "unitySourceChanged": false
+}

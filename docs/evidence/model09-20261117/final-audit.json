@@ -1,0 +1,55 @@
+{
+  "checkedAt": "2026-11-17T08:56:22.014232+00:00",
+  "status": "DEPLOYED",
+  "integratedCommit": "8b0cf42102368222235c9fc7327d95adb6d2aba0",
+  "services": {
+    "main": {
+      "health": "UP",
+      "containerHealth": "healthy",
+      "sha256": "2331904ed503d2a6cefa413f488b5d3ec79381381627cd83085f6ea40967ebea",
+      "sameEnvironment": true,
+      "sameEntrypoint": true,
+      "sameCommand": true,
+      "sameOtherMounts": true,
+      "sameImage": true,
+      "sameMemoryLimit": true,
+      "startedAt": "2026-11-17T08:52:42.622005428Z",
+      "backupContainer": "wx-editor-dimensions-before-model09",
+      "extractedControllerVerified": true
+    },
+    "data08": {
+      "health": "UP",
+      "containerHealth": "healthy",
+      "sha256": "2331904ed503d2a6cefa413f488b5d3ec79381381627cd83085f6ea40967ebea",
+      "sameEnvironment": true,
+      "sameEntrypoint": true,
+      "sameCommand": true,
+      "sameOtherMounts": true,
+      "sameImage": true,
+      "sameMemoryLimit": true,
+      "startedAt": "2026-11-17T08:52:53.897016498Z",
+      "backupContainer": "wx-editor-dimensions-data08-before-model09"
+    }
+  },
+  "gateways": {
+    "12522": "UP",
+    "12525": "UP"
+  },
+  "cleanup": {
+    "main": {
+      "candidateRemoved": true,
+      "cloneRemoved": true,
+      "candidateConfigurationRemoved": true,
+      "testResourcesRemoved": true,
+      "testSessionsLoggedOut": true
+    },
+    "data08": {
+      "candidateRemoved": true,
+      "cloneRemoved": true,
+      "candidateConfigurationRemoved": true,
+      "testResourcesRemoved": true,
+      "testSessionsLoggedOut": true
+    }
+  },
+  "passed": true
+}

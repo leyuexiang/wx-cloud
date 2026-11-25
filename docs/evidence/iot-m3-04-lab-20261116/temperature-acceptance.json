@@ -1,0 +1,358 @@
+{
+  "task": "IOT-M3-04",
+  "verifiedAt": "2026-11-17T03:00:55Z",
+  "sceneId": "2122269441737682946",
+  "savedRevision": 4,
+  "delivery": {
+    "type": "polling",
+    "intervalSeconds": 1,
+    "useCurrentSystemAuth": true,
+    "deviceId": "lab-temperature-01",
+    "pointCode": "temperature",
+    "mapping": "value -> value",
+    "decimalPlaces": 3,
+    "unit": "°C"
+  },
+  "temperatureInitial": {
+    "eventId": "61d0766d-09bf-3eb9-a15c-015604647c45",
+    "schemaVersion": "1.0",
+    "eventTime": "2026-11-17T03:00:53.467076Z",
+    "tenantId": 2,
+    "deviceId": "lab-temperature-01",
+    "pointCode": "temperature",
+    "value": 26.125,
+    "valueType": "NUMBER",
+    "unit": "°C",
+    "quality": "GOOD",
+    "sceneId": "2122269441737682946",
+    "objectId": "lab-temperature-model",
+    "mappingRevision": "lab-v1",
+    "replay": false,
+    "traceId": "eda5fa67162d4571b9db0b262560cb5c"
+  },
+  "duplicate": {
+    "messages": [
+      {
+        "externalDeviceId": "virtual-temperature",
+        "pointCode": "rawTemperature",
+        "value": 29.5,
+        "valueType": "NUMBER",
+        "quality": "GOOD",
+        "eventTime": "2026-11-17T03:00:53.728964+00:00",
+        "traceId": "b245b2942cd74695af050625f124cf3c",
+        "unit": "°C"
+      },
+      {
+        "externalDeviceId": "virtual-temperature",
+        "pointCode": "rawTemperature",
+        "value": 29.5,
+        "valueType": "NUMBER",
+        "quality": "GOOD",
+        "eventTime": "2026-11-17T03:00:53.728964+00:00",
+        "traceId": "b245b2942cd74695af050625f124cf3c",
+        "unit": "°C"
+      }
+    ],
+    "brokerAcknowledged": true,
+    "snapshot": {
+      "eventId": "af4e02f5-80ef-37d3-8baa-594a000e9e3d",
+      "schemaVersion": "1.0",
+      "eventTime": "2026-11-17T03:00:53.728964Z",
+      "tenantId": 2,
+      "deviceId": "lab-temperature-01",
+      "pointCode": "temperature",
+      "value": 29.5,
+      "valueType": "NUMBER",
+      "unit": "°C",
+      "quality": "GOOD",
+      "sceneId": "2122269441737682946",
+      "objectId": "lab-temperature-model",
+      "mappingRevision": "lab-v1",
+      "replay": false,
+      "traceId": "b245b2942cd74695af050625f124cf3c"
+    },
+    "acceptedRecord": {
+      "id": 75,
+      "eventId": "af4e02f5-80ef-37d3-8baa-594a000e9e3d",
+      "connectorId": "iot-resident-20261113",
+      "externalDeviceId": "virtual-temperature",
+      "pointCode": "temperature",
+      "status": "PUBLISHED",
+      "retryCount": 0,
+      "receivedAt": 1794884455000,
+      "errorMessage": null,
+      "createTime": 1794884455000,
+      "updateTime": 1794884455000
+    },
+    "recordTotal": 14
+  },
+  "outOfOrder": {
+    "messages": [
+      {
+        "externalDeviceId": "virtual-temperature",
+        "pointCode": "rawTemperature",
+        "value": 31.125,
+        "valueType": "NUMBER",
+        "quality": "GOOD",
+        "eventTime": "2026-11-17T03:00:54.010119+00:00",
+        "traceId": "077894f5da554a19b3930de1ade0c0be",
+        "unit": "°C"
+      },
+      {
+        "externalDeviceId": "virtual-temperature",
+        "pointCode": "rawTemperature",
+        "value": 26.125,
+        "valueType": "NUMBER",
+        "quality": "GOOD",
+        "eventTime": "2026-11-17T03:00:51.010119+00:00",
+        "traceId": "5d14f7c17ede464fa0aa13934aa99d93",
+        "unit": "°C"
+      }
+    ],
+    "brokerAcknowledged": true,
+    "snapshot": {
+      "eventId": "366fc055-df5b-313d-8063-08c3cc1288c3",
+      "schemaVersion": "1.0",
+      "eventTime": "2026-11-17T03:00:54.010119Z",
+      "tenantId": 2,
+      "deviceId": "lab-temperature-01",
+      "pointCode": "temperature",
+      "value": 31.125,
+      "valueType": "NUMBER",
+      "unit": "°C",
+      "quality": "GOOD",
+      "sceneId": "2122269441737682946",
+      "objectId": "lab-temperature-model",
+      "mappingRevision": "lab-v1",
+      "replay": false,
+      "traceId": "077894f5da554a19b3930de1ade0c0be"
+    },
+    "acceptedRecord": {
+      "id": 77,
+      "eventId": "366fc055-df5b-313d-8063-08c3cc1288c3",
+      "connectorId": "iot-resident-20261113",
+      "externalDeviceId": "virtual-temperature",
+      "pointCode": "temperature",
+      "status": "PUBLISHED",
+      "retryCount": 0,
+      "receivedAt": 1794884455000,
+      "errorMessage": null,
+      "createTime": 1794884455000,
+      "updateTime": 1794884455000
+    },
+    "recordTotal": 16
+  },
+  "publisherReconnect": {
+    "messages": [
+      {
+        "externalDeviceId": "virtual-temperature",
+        "pointCode": "rawTemperature",
+        "value": 29.5,
+        "valueType": "NUMBER",
+        "quality": "GOOD",
+        "eventTime": "2026-11-17T03:00:54.612524+00:00",
+        "traceId": "0741dfee58b2445f9c29a77e7c3aba9f",
+        "unit": "°C"
+      }
+    ],
+    "brokerAcknowledged": true,
+    "snapshot": {
+      "eventId": "0d381a71-d708-3313-bcce-5e51dc37c83d",
+      "schemaVersion": "1.0",
+      "eventTime": "2026-11-17T03:00:54.612524Z",
+      "tenantId": 2,
+      "deviceId": "lab-temperature-01",
+      "pointCode": "temperature",
+      "value": 29.5,
+      "valueType": "NUMBER",
+      "unit": "°C",
+      "quality": "GOOD",
+      "sceneId": "2122269441737682946",
+      "objectId": "lab-temperature-model",
+      "mappingRevision": "lab-v1",
+      "replay": false,
+      "traceId": "0741dfee58b2445f9c29a77e7c3aba9f"
+    },
+    "acceptedRecord": {
+      "id": 79,
+      "eventId": "0d381a71-d708-3313-bcce-5e51dc37c83d",
+      "connectorId": "iot-resident-20261113",
+      "externalDeviceId": "virtual-temperature",
+      "pointCode": "temperature",
+      "status": "PUBLISHED",
+      "retryCount": 0,
+      "receivedAt": 1794884456000,
+      "errorMessage": null,
+      "createTime": 1794884456000,
+      "updateTime": 1794884456000
+    },
+    "recordTotal": 17
+  },
+  "switchFalse": {
+    "messages": [
+      {
+        "externalDeviceId": "virtual-switch",
+        "pointCode": "rawVisible",
+        "value": false,
+        "valueType": "BOOLEAN",
+        "quality": "GOOD",
+        "eventTime": "2026-11-17T03:00:55.142337+00:00",
+        "traceId": "12796c9065fa4b26987d221e8de1acf6"
+      }
+    ],
+    "brokerAcknowledged": true,
+    "snapshot": {
+      "eventId": "792b1079-b451-3d20-8c61-f8bb1a59d313",
+      "schemaVersion": "1.0",
+      "eventTime": "2026-11-17T03:00:55.142337Z",
+      "tenantId": 2,
+      "deviceId": "lab-switch-01",
+      "pointCode": "visible",
+      "value": false,
+      "valueType": "BOOLEAN",
+      "unit": null,
+      "quality": "GOOD",
+      "sceneId": "2122269441737682946",
+      "objectId": "lab-switch-model",
+      "mappingRevision": "lab-v1",
+      "replay": false,
+      "traceId": "12796c9065fa4b26987d221e8de1acf6"
+    },
+    "acceptedRecord": {
+      "id": 80,
+      "eventId": "792b1079-b451-3d20-8c61-f8bb1a59d313",
+      "connectorId": "iot-resident-20261113",
+      "externalDeviceId": "virtual-switch",
+      "pointCode": "visible",
+      "status": "PUBLISHED",
+      "retryCount": 0,
+      "receivedAt": 1794884457000,
+      "errorMessage": null,
+      "createTime": 1794884456000,
+      "updateTime": 1794884456000
+    },
+    "recordTotal": 15
+  },
+  "switchRestored": {
+    "messages": [
+      {
+        "externalDeviceId": "virtual-switch",
+        "pointCode": "rawVisible",
+        "value": true,
+        "valueType": "BOOLEAN",
+        "quality": "GOOD",
+        "eventTime": "2026-11-17T03:00:55.429988+00:00",
+        "traceId": "9d9472ea843e40f1bbffe37fc7ce5e8f"
+      }
+    ],
+    "brokerAcknowledged": true,
+    "snapshot": {
+      "eventId": "4162499e-b617-300e-85fb-87052bc38110",
+      "schemaVersion": "1.0",
+      "eventTime": "2026-11-17T03:00:55.429988Z",
+      "tenantId": 2,
+      "deviceId": "lab-switch-01",
+      "pointCode": "visible",
+      "value": true,
+      "valueType": "BOOLEAN",
+      "unit": null,
+      "quality": "GOOD",
+      "sceneId": "2122269441737682946",
+      "objectId": "lab-switch-model",
+      "mappingRevision": "lab-v1",
+      "replay": false,
+      "traceId": "9d9472ea843e40f1bbffe37fc7ce5e8f"
+    },
+    "acceptedRecord": {
+      "id": 81,
+      "eventId": "4162499e-b617-300e-85fb-87052bc38110",
+      "connectorId": "iot-resident-20261113",
+      "externalDeviceId": "virtual-switch",
+      "pointCode": "visible",
+      "status": "PUBLISHED",
+      "retryCount": 0,
+      "receivedAt": 1794884457000,
+      "errorMessage": null,
+      "createTime": 1794884456000,
+      "updateTime": 1794884456000
+    },
+    "recordTotal": 16
+  },
+  "differentDevicesIndependent": true,
+  "browser": {
+    "before": {
+      "timeOrigin": 1794884204835.725,
+      "displayedValue": 26.125
+    },
+    "after": {
+      "timeOrigin": 1794884204835.725,
+      "displayedValue": 29.5,
+      "unitVisible": true,
+      "statusCodes": [
+        200,
+        200,
+        200
+      ]
+    },
+    "published": {
+      "brokerAcknowledged": true,
+      "scenario": "normal",
+      "messages": [
+        {
+          "externalDeviceId": "virtual-temperature",
+          "pointCode": "rawTemperature",
+          "value": 29.5,
+          "valueType": "NUMBER",
+          "quality": "GOOD",
+          "eventTime": "2026-11-17T02:58:12.346850+00:00",
+          "traceId": "c0be0b03301f40bc92f6918de94ad792",
+          "unit": "°C"
+        }
+      ]
+    },
+    "changedWithoutReload": true,
+    "delivery": "polling",
+    "intervalSeconds": 1,
+    "reopened": true,
+    "savedRevision": 4,
+    "screenshots": [
+      "temperature-26.png",
+      "temperature-29.png",
+      "temperature-reopened.png"
+    ],
+    "networkRecovery": {
+      "during": {
+        "online": false,
+        "oldValueVisible": true
+      },
+      "after": {
+        "online": true,
+        "timeOrigin": 1794884321499.6,
+        "valueVisible": true
+      },
+      "published": {
+        "brokerAcknowledged": true,
+        "scenario": "normal",
+        "messages": [
+          {
+            "externalDeviceId": "virtual-temperature",
+            "pointCode": "rawTemperature",
+            "value": 28.125,
+            "valueType": "NUMBER",
+            "quality": "GOOD",
+            "eventTime": "2026-11-17T02:59:23.832990+00:00",
+            "traceId": "ba0431497cc14b0889c7f4638690b5a2",
+            "unit": "°C"
+          }
+        ]
+      },
+      "pageReloaded": false
+    }
+  },
+  "remaining": [
+    "二维数字组件通用 WebSocket 消费",
+    "新增温度组件固定发布",
+    "代表性容量",
+    "代理整机和现场网络恢复"
+  ]
+}

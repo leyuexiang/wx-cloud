@@ -1,0 +1,24 @@
+{
+  "name": "wx-editor-system",
+  "id": "19d703d19be857722c6ce3659c7dfe54702edffa977187b509e5497a1494fac5",
+  "running": true,
+  "health": "healthy",
+  "startedAt": "2026-11-10T08:00:36.95276569Z",
+  "network": "host",
+  "mounts": [
+    {
+      "Source": "/opt/wx/editor-test148/jars/system.jar",
+      "Destination": "/opt/wx/app.jar",
+      "RW": false,
+      "sha256": "0aae9cbad7d4e8f2c0cec44cbccecf272eef272af316bd2974b64d57aff3df2e"
+    },
+    {
+      "Source": "/opt/wx/editor-test148/config/system.yaml",
+      "Destination": "/opt/wx/application.yaml",
+      "RW": false
+    }
+  ],
+  "commandOptionNames": [],
+  "entrypointProgram": "java",
+  "environmentValuesRecorded": false
+}

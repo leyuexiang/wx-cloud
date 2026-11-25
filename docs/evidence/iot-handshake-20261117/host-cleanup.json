@@ -1,0 +1,7 @@
+{
+  "candidateRemoved": true,
+  "temporaryIngestAndBrokerRemoved": true,
+  "temporaryHostDirectoryRemoved": true,
+  "provisionHelperRemoved": true,
+  "residentAndRollbackPreserved": true
+}

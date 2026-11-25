@@ -1,0 +1,17 @@
+{
+  "health148": {
+    "12522": "UP",
+    "12525": "UP",
+    "48093": "UP",
+    "48096": "UP"
+  },
+  "health246": {
+    "48096": "UP"
+  },
+  "/dts/": 200,
+  "/threeWeb/": 200,
+  "/bootstrap": 401,
+  "/bootstrap?build=iot-793d3356": 401,
+  "/dts-api/dimensions/ws": 426,
+  "activeSampleConnectors": 0
+}

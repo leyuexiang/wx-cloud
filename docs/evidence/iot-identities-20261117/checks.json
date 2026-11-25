@@ -1,0 +1,17 @@
+{
+  "tests": 24,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "sourceCommit": "91ec44894d5c28390a8c9d2911a0f845cc08794d",
+  "sourceSha256": "1afc48240f40f1291e540ed24a65e890204b5432838b625be2ce377dfd99945e",
+  "distinctServerUsers": 50,
+  "singleBrowserUnderLoad": true,
+  "browserReauthenticatedAfterExpiredSession": true,
+  "anonymousHandshakeDenied": false,
+  "anonymousIotSubscriptionDenied": true,
+  "businessCodeChangedByThisBatch": false,
+  "webSourceChanged": false,
+  "unitySourceChanged": false,
+  "loadReportWrittenAtUtc": "2026-11-17T10:07:00.723414+00:00"
+}

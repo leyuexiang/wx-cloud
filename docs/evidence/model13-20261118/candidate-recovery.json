@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "steps": [
+    {
+      "directoryDeleted": 200
+    },
+    {
+      "resourceDeletePrepare": 200
+    },
+    {
+      "resourceDeleteCommit": 200
+    }
+  ],
+  "prefixesCleaned": 9
+}

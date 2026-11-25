@@ -1,0 +1,3266 @@
+[
+  {
+    "at": 1794898629.1496198,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.97%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.23%",
+        "MemUsage": "1.288GiB / 31.03GiB",
+        "MemPerc": "4.15%",
+        "PIDs": "137",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.93MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.27%",
+        "MemUsage": "524.8MiB / 1.172GiB",
+        "MemPerc": "43.74%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.6MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.00%",
+        "MemUsage": "2.055MiB / 128MiB",
+        "MemPerc": "1.61%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 28.7kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.24%",
+        "MemUsage": "12.76MiB / 256MiB",
+        "MemPerc": "4.99%",
+        "PIDs": "7",
+        "NetIO": "1.67GB / 1.46GB",
+        "BlockIO": "411MB / 1.51GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.33%",
+        "MemUsage": "929.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 2.63GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898634.1453292,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.02%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.23%",
+        "MemUsage": "1.288GiB / 31.03GiB",
+        "MemPerc": "4.15%",
+        "PIDs": "137",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.93MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.35%",
+        "MemUsage": "525MiB / 1.172GiB",
+        "MemPerc": "43.75%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.00%",
+        "MemUsage": "2.047MiB / 128MiB",
+        "MemPerc": "1.60%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 28.7kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.22%",
+        "MemUsage": "12.77MiB / 256MiB",
+        "MemPerc": "4.99%",
+        "PIDs": "7",
+        "NetIO": "1.67GB / 1.46GB",
+        "BlockIO": "411MB / 1.52GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.21%",
+        "MemUsage": "929.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 2.63GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898639.1627412,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.05%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "295.20%",
+        "MemUsage": "1.289GiB / 31.03GiB",
+        "MemPerc": "4.16%",
+        "PIDs": "143",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "9.08%",
+        "MemUsage": "525MiB / 1.172GiB",
+        "MemPerc": "43.75%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.02%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.02%",
+        "MemUsage": "2.031MiB / 128MiB",
+        "MemPerc": "1.59%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 28.7kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "16.33%",
+        "MemUsage": "17.27MiB / 256MiB",
+        "MemPerc": "6.74%",
+        "PIDs": "7",
+        "NetIO": "1.67GB / 1.47GB",
+        "BlockIO": "411MB / 1.52GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.30%",
+        "MemUsage": "929.2MiB / 31.03GiB",
+        "MemPerc": "2.92%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 2.63GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898644.1493778,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.02%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.25%",
+        "MemUsage": "1.246GiB / 31.03GiB",
+        "MemPerc": "4.02%",
+        "PIDs": "143",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.23%",
+        "MemUsage": "524.9MiB / 1.172GiB",
+        "MemPerc": "43.74%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.00%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.88%",
+        "MemUsage": "2.113MiB / 128MiB",
+        "MemPerc": "1.65%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 28.7kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.30%",
+        "MemUsage": "21.96MiB / 256MiB",
+        "MemPerc": "8.58%",
+        "PIDs": "7",
+        "NetIO": "1.68GB / 1.47GB",
+        "BlockIO": "411MB / 1.54GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.27%",
+        "MemUsage": "930.5MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 3.37GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898649.1477907,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.02%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.29%",
+        "MemUsage": "1.246GiB / 31.03GiB",
+        "MemPerc": "4.02%",
+        "PIDs": "142",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.27%",
+        "MemUsage": "524.9MiB / 1.172GiB",
+        "MemPerc": "43.74%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.26%",
+        "MemUsage": "2.113MiB / 128MiB",
+        "MemPerc": "1.65%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 58.4kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.23%",
+        "MemUsage": "21.92MiB / 256MiB",
+        "MemPerc": "8.56%",
+        "PIDs": "7",
+        "NetIO": "1.68GB / 1.47GB",
+        "BlockIO": "411MB / 1.54GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.15%",
+        "MemUsage": "930.5MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 3.37GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898654.1389484,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.11%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.35%",
+        "MemUsage": "1.246GiB / 31.03GiB",
+        "MemPerc": "4.02%",
+        "PIDs": "142",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.23%",
+        "MemUsage": "524.9MiB / 1.172GiB",
+        "MemPerc": "43.74%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.00%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 58.4kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.23%",
+        "MemUsage": "22.05MiB / 256MiB",
+        "MemPerc": "8.61%",
+        "PIDs": "7",
+        "NetIO": "1.68GB / 1.47GB",
+        "BlockIO": "411MB / 1.54GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.18%",
+        "MemUsage": "930.5MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 3.37GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898659.1490662,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.91%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.35%",
+        "MemUsage": "1.246GiB / 31.03GiB",
+        "MemPerc": "4.02%",
+        "PIDs": "142",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.31%",
+        "MemUsage": "524.9MiB / 1.172GiB",
+        "MemPerc": "43.74%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.00%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 58.4kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.32%",
+        "MemUsage": "21.91MiB / 256MiB",
+        "MemPerc": "8.56%",
+        "PIDs": "7",
+        "NetIO": "1.68GB / 1.47GB",
+        "BlockIO": "411MB / 1.54GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.19%",
+        "MemUsage": "930.5MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 3.37GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898664.1585445,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.03%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.24%",
+        "MemUsage": "1.246GiB / 31.03GiB",
+        "MemPerc": "4.02%",
+        "PIDs": "142",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.30%",
+        "MemUsage": "524.9MiB / 1.172GiB",
+        "MemPerc": "43.74%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.00%",
+        "MemUsage": "4.633MiB / 96MiB",
+        "MemPerc": "4.83%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.00%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 58.4kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.30%",
+        "MemUsage": "21.92MiB / 256MiB",
+        "MemPerc": "8.56%",
+        "PIDs": "7",
+        "NetIO": "1.68GB / 1.47GB",
+        "BlockIO": "411MB / 1.54GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.23%",
+        "MemUsage": "930.5MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 3.37GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898669.1427703,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.02%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.28%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "142",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.28%",
+        "MemUsage": "525.3MiB / 1.172GiB",
+        "MemPerc": "43.77%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.633MiB / 96MiB",
+        "MemPerc": "4.83%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.00%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 58.4kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.23%",
+        "MemUsage": "21.99MiB / 256MiB",
+        "MemPerc": "8.59%",
+        "PIDs": "7",
+        "NetIO": "1.69GB / 1.47GB",
+        "BlockIO": "411MB / 1.56GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.20%",
+        "MemUsage": "930.5MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898674.1428895,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.02%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.32%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "141",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.30%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.77%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 58.4kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.25%",
+        "MemUsage": "22.53MiB / 256MiB",
+        "MemPerc": "8.80%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.47GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.18%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898679.1450415,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.02%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.25%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "141",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.31%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.77%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 89.1kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.31%",
+        "MemUsage": "15.58MiB / 256MiB",
+        "MemPerc": "6.09%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.47GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.15%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898684.148024,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.02%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.22%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "141",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.26%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.77%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 89.1kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.31%",
+        "MemUsage": "15.58MiB / 256MiB",
+        "MemPerc": "6.09%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.47GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.25%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898689.1497111,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "1.33%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.32%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "141",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.32%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.77%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 89.1kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.24%",
+        "MemUsage": "14.69MiB / 256MiB",
+        "MemPerc": "5.74%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.47GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.26%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898694.14809,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.02%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.27%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "141",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.26%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.77%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.633MiB / 96MiB",
+        "MemPerc": "4.83%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 89.1kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.23%",
+        "MemUsage": "14.69MiB / 256MiB",
+        "MemPerc": "5.74%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.47GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.29%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898699.1650753,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.03%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.30%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "139",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.29%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.77%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.633MiB / 96MiB",
+        "MemPerc": "4.83%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 89.1kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.31%",
+        "MemUsage": "13.67MiB / 256MiB",
+        "MemPerc": "5.34%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.47GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.26%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898704.1483283,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.03%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.30%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "139",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.30%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.77%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 89.1kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.25%",
+        "MemUsage": "13.66MiB / 256MiB",
+        "MemPerc": "5.34%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.47GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.24%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898709.1766808,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.04%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.30%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "139",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.34%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.76%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 112kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.33%",
+        "MemUsage": "13.59MiB / 256MiB",
+        "MemPerc": "5.31%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.47GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.32%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898714.1597762,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.02%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.35%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "139",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.24%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.76%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 112kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.23%",
+        "MemUsage": "13.59MiB / 256MiB",
+        "MemPerc": "5.31%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.47GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.16%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898719.153897,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.95%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.35%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "139",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.34%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.76%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.7MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 112kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.24%",
+        "MemUsage": "13.61MiB / 256MiB",
+        "MemPerc": "5.32%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.47GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.36%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898724.1655576,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.03%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.24%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "139",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.23%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.76%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.03%",
+        "MemUsage": "4.633MiB / 96MiB",
+        "MemPerc": "4.83%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 112kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.22%",
+        "MemUsage": "13.73MiB / 256MiB",
+        "MemPerc": "5.36%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.20%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898729.163242,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.25%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.33%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "139",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.28%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.76%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.633MiB / 96MiB",
+        "MemPerc": "4.83%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 112kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.23%",
+        "MemUsage": "13.28MiB / 256MiB",
+        "MemPerc": "5.19%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.31%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898734.1598213,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.02%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.31%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "138",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.25%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.76%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.633MiB / 96MiB",
+        "MemPerc": "4.83%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 112kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.24%",
+        "MemUsage": "13.27MiB / 256MiB",
+        "MemPerc": "5.18%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.15%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898739.1592102,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.03%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.30%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "138",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.66%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.76%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.02%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 134kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.23%",
+        "MemUsage": "13.08MiB / 256MiB",
+        "MemPerc": "5.11%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.32%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898744.1629784,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.13%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.27%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "138",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.24%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.76%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 134kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.23%",
+        "MemUsage": "13.2MiB / 256MiB",
+        "MemPerc": "5.16%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.15%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898749.15303,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.95%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.43%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "138",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "1.08%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.76%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 134kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.32%",
+        "MemUsage": "13.22MiB / 256MiB",
+        "MemPerc": "5.17%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.19%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898754.1578188,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.03%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.37%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "138",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.26%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.76%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.02%",
+        "MemUsage": "4.633MiB / 96MiB",
+        "MemPerc": "4.83%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.00%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 134kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.22%",
+        "MemUsage": "13.16MiB / 256MiB",
+        "MemPerc": "5.14%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.12%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898759.1547096,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.04%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.33%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "137",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.33%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.76%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.95GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.633MiB / 96MiB",
+        "MemPerc": "4.83%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.00%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 134kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.22%",
+        "MemUsage": "13.17MiB / 256MiB",
+        "MemPerc": "5.14%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.28%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898764.1541667,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.04%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.33%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "137",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.35%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.76%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 134kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.32%",
+        "MemUsage": "12.89MiB / 256MiB",
+        "MemPerc": "5.04%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.25%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898769.164379,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.03%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.26%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "137",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.33%",
+        "MemUsage": "525.3MiB / 1.172GiB",
+        "MemPerc": "43.77%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.02%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 157kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.23%",
+        "MemUsage": "12.99MiB / 256MiB",
+        "MemPerc": "5.07%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.27%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898774.184573,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.03%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.32%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "137",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.34%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.76%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 157kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.30%",
+        "MemUsage": "13.04MiB / 256MiB",
+        "MemPerc": "5.09%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.40%",
+        "MemUsage": "930.4MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898779.1964264,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.97%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.42%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "137",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.41%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.76%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 157kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.35%",
+        "MemUsage": "13.06MiB / 256MiB",
+        "MemPerc": "5.10%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.35%",
+        "MemUsage": "930.3MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898784.1888046,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.15%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.43%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "137",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.32%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.76%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 157kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.36%",
+        "MemUsage": "13.06MiB / 256MiB",
+        "MemPerc": "5.10%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.16%",
+        "MemUsage": "930.3MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898789.1996472,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.04%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.53%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "137",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.37%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.76%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.633MiB / 96MiB",
+        "MemPerc": "4.83%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.07MiB / 128MiB",
+        "MemPerc": "1.62%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 157kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.34%",
+        "MemUsage": "13.14MiB / 256MiB",
+        "MemPerc": "5.13%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.42%",
+        "MemUsage": "930.3MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898794.157696,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.12%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.29%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "137",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.30%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.77%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.00%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.00%",
+        "MemUsage": "2.109MiB / 128MiB",
+        "MemPerc": "1.65%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 157kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.23%",
+        "MemUsage": "13.14MiB / 256MiB",
+        "MemPerc": "5.13%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.17%",
+        "MemUsage": "930.3MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898799.160321,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.03%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.27%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "137",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.32%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.77%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.00%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.00%",
+        "MemUsage": "2.109MiB / 128MiB",
+        "MemPerc": "1.65%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 157kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.22%",
+        "MemUsage": "13.03MiB / 256MiB",
+        "MemPerc": "5.09%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.16%",
+        "MemUsage": "930.3MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898804.1627176,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.03%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.27%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "137",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.29%",
+        "MemUsage": "525.3MiB / 1.172GiB",
+        "MemPerc": "43.78%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.00%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.00%",
+        "MemUsage": "2.109MiB / 128MiB",
+        "MemPerc": "1.65%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 179kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.24%",
+        "MemUsage": "12.86MiB / 256MiB",
+        "MemPerc": "5.02%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.33%",
+        "MemUsage": "930.3MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898809.166485,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.96%",
+        "MemUsage": "367.1MiB / 768MiB",
+        "MemPerc": "47.80%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.35%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "137",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.35%",
+        "MemUsage": "525.2MiB / 1.172GiB",
+        "MemPerc": "43.77%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.00%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.00%",
+        "MemUsage": "2.109MiB / 128MiB",
+        "MemPerc": "1.65%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 179kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.25%",
+        "MemUsage": "12.91MiB / 256MiB",
+        "MemPerc": "5.04%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.31%",
+        "MemUsage": "930.3MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898814.1532671,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.02%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "0.21%",
+        "MemUsage": "1.324GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "137",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.94MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "0.26%",
+        "MemUsage": "525.3MiB / 1.172GiB",
+        "MemPerc": "43.78%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.00%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.109MiB / 128MiB",
+        "MemPerc": "1.65%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 179kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.24%",
+        "MemUsage": "12.7MiB / 256MiB",
+        "MemPerc": "4.96%",
+        "PIDs": "8",
+        "NetIO": "1.69GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.32%",
+        "MemUsage": "930.3MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898819.180974,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.05%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "333.93%",
+        "MemUsage": "1.325GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "141",
+        "NetIO": "0B / 0B",
+        "BlockIO": "2.96MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "11.44%",
+        "MemUsage": "525.4MiB / 1.172GiB",
+        "MemPerc": "43.78%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.01%",
+        "MemUsage": "2.109MiB / 128MiB",
+        "MemPerc": "1.65%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 179kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "18.90%",
+        "MemUsage": "17.88MiB / 256MiB",
+        "MemPerc": "6.98%",
+        "PIDs": "8",
+        "NetIO": "1.7GB / 1.48GB",
+        "BlockIO": "411MB / 1.57GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "0.21%",
+        "MemUsage": "930.1MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.12GB",
+        "BlockIO": "496MB / 7.45GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898824.2044263,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.04%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "24.01%",
+        "MemUsage": "1.245GiB / 31.03GiB",
+        "MemPerc": "4.01%",
+        "PIDs": "141",
+        "NetIO": "0B / 0B",
+        "BlockIO": "3.02MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "11.29%",
+        "MemUsage": "526.7MiB / 1.172GiB",
+        "MemPerc": "43.89%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.72%",
+        "MemUsage": "2.711MiB / 128MiB",
+        "MemPerc": "2.12%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 179kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "1.28%",
+        "MemUsage": "22.17MiB / 256MiB",
+        "MemPerc": "8.66%",
+        "PIDs": "8",
+        "NetIO": "1.7GB / 1.48GB",
+        "BlockIO": "411MB / 1.59GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "5.36%",
+        "MemUsage": "930.3MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "58",
+        "NetIO": "1.03GB / 4.86GB",
+        "BlockIO": "496MB / 7.46GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898829.2247329,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.04%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "13.73%",
+        "MemUsage": "1.245GiB / 31.03GiB",
+        "MemPerc": "4.01%",
+        "PIDs": "141",
+        "NetIO": "0B / 0B",
+        "BlockIO": "3.02MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "10.87%",
+        "MemUsage": "528.8MiB / 1.172GiB",
+        "MemPerc": "44.06%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.76%",
+        "MemUsage": "3.133MiB / 128MiB",
+        "MemPerc": "2.45%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 179kB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "1.30%",
+        "MemUsage": "22.32MiB / 256MiB",
+        "MemPerc": "8.72%",
+        "PIDs": "8",
+        "NetIO": "1.7GB / 1.48GB",
+        "BlockIO": "411MB / 1.6GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "5.79%",
+        "MemUsage": "930.9MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "59",
+        "NetIO": "1.03GB / 4.86GB",
+        "BlockIO": "496MB / 7.47GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898834.2113316,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.04%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "18.31%",
+        "MemUsage": "771.6MiB / 31.03GiB",
+        "MemPerc": "2.43%",
+        "PIDs": "141",
+        "NetIO": "0B / 0B",
+        "BlockIO": "3.02MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "10.99%",
+        "MemUsage": "529.5MiB / 1.172GiB",
+        "MemPerc": "44.13%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.22%",
+        "MemUsage": "3.207MiB / 128MiB",
+        "MemPerc": "2.51%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 1.65MB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "1.48%",
+        "MemUsage": "22.4MiB / 256MiB",
+        "MemPerc": "8.75%",
+        "PIDs": "8",
+        "NetIO": "1.7GB / 1.48GB",
+        "BlockIO": "411MB / 1.6GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "5.60%",
+        "MemUsage": "930.8MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "59",
+        "NetIO": "1.03GB / 4.86GB",
+        "BlockIO": "496MB / 7.48GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898839.2158954,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "1.03%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "37.80%",
+        "MemUsage": "761.5MiB / 31.03GiB",
+        "MemPerc": "2.40%",
+        "PIDs": "141",
+        "NetIO": "0B / 0B",
+        "BlockIO": "3.02MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "10.98%",
+        "MemUsage": "530.9MiB / 1.172GiB",
+        "MemPerc": "44.24%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.29%",
+        "MemUsage": "3.152MiB / 128MiB",
+        "MemPerc": "2.46%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 1.65MB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "1.40%",
+        "MemUsage": "22.56MiB / 256MiB",
+        "MemPerc": "8.81%",
+        "PIDs": "8",
+        "NetIO": "1.7GB / 1.48GB",
+        "BlockIO": "411MB / 1.6GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "5.68%",
+        "MemUsage": "931.5MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "59",
+        "NetIO": "1.03GB / 4.86GB",
+        "BlockIO": "496MB / 7.5GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898844.2333844,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.12%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "456.06%",
+        "MemUsage": "1.135GiB / 31.03GiB",
+        "MemPerc": "3.66%",
+        "PIDs": "141",
+        "NetIO": "0B / 0B",
+        "BlockIO": "3.02MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "24.81%",
+        "MemUsage": "532MiB / 1.172GiB",
+        "MemPerc": "44.34%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.8MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.32%",
+        "MemUsage": "3.023MiB / 128MiB",
+        "MemPerc": "2.36%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 1.65MB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "21.64%",
+        "MemUsage": "23.71MiB / 256MiB",
+        "MemPerc": "9.26%",
+        "PIDs": "8",
+        "NetIO": "1.71GB / 1.49GB",
+        "BlockIO": "411MB / 1.6GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "39.65%",
+        "MemUsage": "931.5MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "59",
+        "NetIO": "1.03GB / 5.18GB",
+        "BlockIO": "496MB / 7.51GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898849.2024474,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.04%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "14.81%",
+        "MemUsage": "1.326GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "141",
+        "NetIO": "0B / 0B",
+        "BlockIO": "3.02MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "10.10%",
+        "MemUsage": "533.9MiB / 1.172GiB",
+        "MemPerc": "44.49%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.9MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.22%",
+        "MemUsage": "2.906MiB / 128MiB",
+        "MemPerc": "2.27%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 1.65MB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "1.20%",
+        "MemUsage": "22.87MiB / 256MiB",
+        "MemPerc": "8.93%",
+        "PIDs": "8",
+        "NetIO": "1.71GB / 1.49GB",
+        "BlockIO": "411MB / 1.62GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "5.49%",
+        "MemUsage": "931.3MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "59",
+        "NetIO": "1.03GB / 5.61GB",
+        "BlockIO": "496MB / 7.52GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898854.197146,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.04%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "2.31%",
+        "MemUsage": "1.326GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "140",
+        "NetIO": "0B / 0B",
+        "BlockIO": "3.02MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "1.62%",
+        "MemUsage": "534MiB / 1.172GiB",
+        "MemPerc": "44.50%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "205kB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.9MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.14%",
+        "MemUsage": "2.797MiB / 128MiB",
+        "MemPerc": "2.19%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 1.65MB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.51%",
+        "MemUsage": "22.89MiB / 256MiB",
+        "MemPerc": "8.94%",
+        "PIDs": "8",
+        "NetIO": "1.72GB / 1.49GB",
+        "BlockIO": "411MB / 1.63GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "4.16%",
+        "MemUsage": "932.1MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "59",
+        "NetIO": "1.03GB / 5.61GB",
+        "BlockIO": "496MB / 7.54GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898859.2259197,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.03%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "2.26%",
+        "MemUsage": "1.326GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "140",
+        "NetIO": "0B / 0B",
+        "BlockIO": "3.02MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "2.00%",
+        "MemUsage": "592.8MiB / 1.172GiB",
+        "MemPerc": "49.40%",
+        "PIDs": "143",
+        "NetIO": "0B / 0B",
+        "BlockIO": "18.9MB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.9MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.16%",
+        "MemUsage": "2.742MiB / 128MiB",
+        "MemPerc": "2.14%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 1.65MB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.59%",
+        "MemUsage": "20.45MiB / 256MiB",
+        "MemPerc": "7.99%",
+        "PIDs": "8",
+        "NetIO": "1.72GB / 1.49GB",
+        "BlockIO": "411MB / 1.63GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "4.44%",
+        "MemUsage": "932MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "59",
+        "NetIO": "1.04GB / 5.61GB",
+        "BlockIO": "496MB / 7.56GB"
+      }
+    ]
+  },
+  {
+    "at": 1794898864.199306,
+    "containers": [
+      {
+        "Name": "wx-editor-iot-data08",
+        "CPUPerc": "0.03%",
+        "MemUsage": "367MiB / 768MiB",
+        "MemPerc": "47.79%",
+        "PIDs": "95",
+        "NetIO": "0B / 0B",
+        "BlockIO": "8.15MB / 0B"
+      },
+      {
+        "Name": "wx-editor-dimensions-data08",
+        "CPUPerc": "1.97%",
+        "MemUsage": "1.325GiB / 31.03GiB",
+        "MemPerc": "4.27%",
+        "PIDs": "140",
+        "NetIO": "0B / 0B",
+        "BlockIO": "3.02MB / 0B"
+      },
+      {
+        "Name": "wx-iot-kafka148",
+        "CPUPerc": "4.22%",
+        "MemUsage": "543.5MiB / 1.172GiB",
+        "MemPerc": "45.29%",
+        "PIDs": "116",
+        "NetIO": "0B / 0B",
+        "BlockIO": "20.3MB / 2.96GB"
+      },
+      {
+        "Name": "wx-iot-mqtt-lab148",
+        "CPUPerc": "0.01%",
+        "MemUsage": "4.629MiB / 96MiB",
+        "MemPerc": "4.82%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "5.01MB / 65.9MB"
+      },
+      {
+        "Name": "wx-iot-capacity-20261117",
+        "CPUPerc": "0.18%",
+        "MemUsage": "2.508MiB / 128MiB",
+        "MemPerc": "1.96%",
+        "PIDs": "1",
+        "NetIO": "0B / 0B",
+        "BlockIO": "991kB / 2.03MB"
+      },
+      {
+        "Name": "wx-editor-redis",
+        "CPUPerc": "0.73%",
+        "MemUsage": "15.64MiB / 256MiB",
+        "MemPerc": "6.11%",
+        "PIDs": "8",
+        "NetIO": "1.72GB / 1.49GB",
+        "BlockIO": "411MB / 1.63GB"
+      },
+      {
+        "Name": "mysql8",
+        "CPUPerc": "4.58%",
+        "MemUsage": "932.1MiB / 31.03GiB",
+        "MemPerc": "2.93%",
+        "PIDs": "59",
+        "NetIO": "1.04GB / 5.61GB",
+        "BlockIO": "496MB / 7.58GB"
+      }
+    ]
+  }
+]

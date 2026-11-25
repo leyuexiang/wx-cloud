@@ -247,6 +247,40 @@
                 "alwaysShow": false,
                 "name": "重放"
               }
+            },
+            {
+              "parentKey": "messages",
+              "request": {
+                "permission": "dimensions:iot-state:query",
+                "type": 3,
+                "sort": 3,
+                "path": "",
+                "icon": "",
+                "component": "",
+                "componentName": "",
+                "status": 0,
+                "visible": false,
+                "keepAlive": false,
+                "alwaysShow": false,
+                "name": "三维状态查询"
+              }
+            },
+            {
+              "parentKey": "messages",
+              "request": {
+                "permission": "dimensions:iot-state:subscribe",
+                "type": 3,
+                "sort": 4,
+                "path": "",
+                "icon": "",
+                "component": "",
+                "componentName": "",
+                "status": 0,
+                "visible": false,
+                "keepAlive": false,
+                "alwaysShow": false,
+                "name": "三维状态订阅"
+              }
             }
           ]
         }

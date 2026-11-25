@@ -1,0 +1,38 @@
+{
+  "checks": [
+    {
+      "name": "super_admin独立登录",
+      "passed": true
+    },
+    {
+      "name": "viewer独立登录",
+      "passed": true
+    },
+    {
+      "name": "匿名专用连接拒绝",
+      "passed": true
+    },
+    {
+      "name": "无效令牌专用连接拒绝",
+      "passed": true
+    },
+    {
+      "name": "无权限角色专用连接拒绝",
+      "passed": true
+    },
+    {
+      "name": "令牌与显式租户不符拒绝",
+      "passed": true
+    },
+    {
+      "name": "已授权专用连接心跳有效",
+      "passed": true
+    },
+    {
+      "name": "未知消息后专用连接仍可用",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "sessionsLoggedOut": true
+}

@@ -1,0 +1,21 @@
+{
+  "candidates": [
+    {
+      "name": "wx-gateway-auth-check-a-1118",
+      "port": 49525,
+      "health": "UP",
+      "originalId": "db2fa62dbe094cf24689ba9f65afebeac8c199135d7feb6261f36e3ff55005cb",
+      "originalStartedAt": "2026-11-16T09:27:05.526685077Z"
+    },
+    {
+      "name": "wx-gateway-auth-check-b-1118",
+      "port": 49522,
+      "health": "UP",
+      "originalId": "298656b8d592a0463cdc060f9c5a65631cc1fae407e965e13dad45a2d239dc3c",
+      "originalStartedAt": "2026-11-13T11:11:25.520889607Z"
+    }
+  ],
+  "jarSha256": "96bbd634961b702df692013ed0399e10a2c0489085c6d1794c3f2518e0616131",
+  "originalGatewaysRestarted": false,
+  "formalRouteChanged": false
+}

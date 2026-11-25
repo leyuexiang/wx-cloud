@@ -1,0 +1,26 @@
+[
+  {
+    "database": "wx_editor",
+    "modelSchemaVerified": true,
+    "referenceTablePresent": true,
+    "schemaSha256": "00293debf929fa24a4acd2c3b9c77e1393a6f35e18463df340d8d200f2364cf3"
+  },
+  {
+    "database": "wx_model12_main_20261118",
+    "modelSchemaVerified": true,
+    "referenceTablePresent": true,
+    "schemaSha256": "00293debf929fa24a4acd2c3b9c77e1393a6f35e18463df340d8d200f2364cf3"
+  },
+  {
+    "database": "wx_editor_data08",
+    "modelSchemaVerified": true,
+    "referenceTablePresent": true,
+    "schemaSha256": "00293debf929fa24a4acd2c3b9c77e1393a6f35e18463df340d8d200f2364cf3"
+  },
+  {
+    "database": "wx_model12_data08_20261118",
+    "modelSchemaVerified": true,
+    "referenceTablePresent": true,
+    "schemaSha256": "00293debf929fa24a4acd2c3b9c77e1393a6f35e18463df340d8d200f2364cf3"
+  }
+]

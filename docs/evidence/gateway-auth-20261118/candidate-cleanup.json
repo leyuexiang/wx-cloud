@@ -1,0 +1,11 @@
+{
+  "removed": [
+    "wx-gateway-auth-check-a-1118",
+    "wx-gateway-auth-check-b-1118"
+  ],
+  "formalGatewaysDeployed": [
+    "wx-editor-gateway-data08",
+    "wx-editor-gateway"
+  ],
+  "releaseAndRollbackInfoRetained": true
+}

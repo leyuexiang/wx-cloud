@@ -1,0 +1,25 @@
+{
+  "protocolGeneratorLocation": "test-server-local",
+  "independentUsers": 50,
+  "hostTenMinutePassed": true,
+  "hostProcessColdRounds": 3,
+  "hostColdAndWarmAllPassed": true,
+  "workstationCapacityPassed": false,
+  "workstationColdAndWarmPassed": false,
+  "networkOrReceiverRootCauseIsolated": false,
+  "standaloneSshThroughputDoesNotProveMultiWssCapacity": true,
+  "sourceHashesMatch": true,
+  "newBusinessCodeOrDeployment": false,
+  "schemaMigration": false,
+  "webOrUnitySourceChanged": false,
+  "newBrowserAcceptance": false,
+  "capacityToolTests": {
+    "tests": 12,
+    "passed": 12,
+    "skipped": 0
+  },
+  "toolScriptsSyntaxChecked": true,
+  "temporaryResourcesAndSecretsRemoved": true,
+  "local18885And19497TunnelStoppedAfterProcessCheck": true,
+  "previousAcceptanceTestsNotRecounted": true
+}

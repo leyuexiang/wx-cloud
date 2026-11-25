@@ -1,0 +1,32 @@
+{
+  "before": {
+    "now": 1794909853710,
+    "timeOrigin": 1794906383853.43,
+    "text": "场景管理平台\n\n登录工作空间\n运营端\n租户端\n账号登录\n手机登录\n账号\n密码\n登录租户端",
+    "counts": {
+      "ticketRequests": 7,
+      "playerLoads": 1,
+      "snapshotRequests": 2
+    }
+  },
+  "ready": {
+    "now": 1794909932737,
+    "timeOrigin": 1794906383853.43,
+    "text": "温度\n27.250\n°C",
+    "counts": {
+      "ticketRequests": 8,
+      "playerLoads": 2,
+      "snapshotRequests": 4
+    }
+  },
+  "after": {
+    "now": 1794909972666,
+    "timeOrigin": 1794906383853.43,
+    "text": "温度\n29.500\n°C",
+    "counts": {
+      "ticketRequests": 8,
+      "playerLoads": 2,
+      "snapshotRequests": 4
+    }
+  }
+}

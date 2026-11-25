@@ -1,0 +1,13 @@
+{
+  "viewersDeleted": 50,
+  "workingTenantAdminDeleted": true,
+  "viewerRoleDeleted": true,
+  "temporaryTenantsDeleted": 1,
+  "packageDeleted": true,
+  "temporaryMenusDeleted": 7,
+  "originalTenant2Unchanged": true,
+  "originalMenusPackagesAndRoleGrantsUnchanged": true,
+  "automaticSystemRolesRetained": 1,
+  "selfDeletedAdminLogoutBusinessCode": 400,
+  "credentialsFileRemoved": false
+}

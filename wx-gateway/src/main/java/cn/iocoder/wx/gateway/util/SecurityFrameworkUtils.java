@@ -5,6 +5,7 @@ import cn.iocoder.wx.framework.common.util.json.JsonUtils;
 import cn.iocoder.wx.gateway.filter.security.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -22,6 +23,8 @@ import java.nio.charset.StandardCharsets;
 public class SecurityFrameworkUtils {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
+    /** WebSocket 握手不能稳定携带自定义请求头，沿用服务端约定从 token 查询参数读取令牌。 */
+    private static final String TOKEN_PARAMETER = "token";
 
     private static final String AUTHORIZATION_BEARER = "Bearer";
 
@@ -43,13 +46,23 @@ public class SecurityFrameworkUtils {
     public static String obtainAuthorization(ServerWebExchange exchange) {
         String authorization = exchange.getRequest().getHeaders().getFirst(AUTHORIZATION_HEADER);
         if (!StringUtils.hasText(authorization)) {
-            return null;
+            if (!isDimensionsWebSocket(exchange)) return null;
+            authorization = exchange.getRequest().getQueryParams().getFirst(TOKEN_PARAMETER);
+            if (!StringUtils.hasText(authorization)) return null;
+            return authorization.trim();
         }
         int index = authorization.indexOf(AUTHORIZATION_BEARER + " ");
         if (index == -1) { // 未找到
             return null;
         }
         return authorization.substring(index + 7).trim();
+    }
+
+    /** 只在三维连接升级时接受查询参数中的认证信息。 */
+    public static boolean isDimensionsWebSocket(ServerWebExchange exchange) {
+        var request = exchange.getRequest();
+        return "/dimensions/ws".equals(request.getPath().value())
+                && "websocket".equalsIgnoreCase(request.getHeaders().getFirst(HttpHeaders.UPGRADE));
     }
 
     /**

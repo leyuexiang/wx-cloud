@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicReference;
 
 /** 单工作线程协调租约、数据库配置、网络会话及有上限退避，不持有本地消息队列。 */
 @Slf4j
@@ -60,6 +61,7 @@ public class IotMqttWorker implements SmartLifecycle {
         if (!running) {
             return;
         }
+        AtomicReference<String> failureStage = new AtomicReference<>("lease");
         try {
             if (!lease.isValid()) {
                 closeConnection();
@@ -68,6 +70,7 @@ public class IotMqttWorker implements SmartLifecycle {
                 closeConnection();
                 return;
             }
+            failureStage.set("tenant-and-connector");
             TenantUtils.execute(properties.getTenantId(), () -> {
                 tenants.validTenant(properties.getTenantId());
                 IotConnectorDO connector = connectors.selectByConnectorId(properties.getConnectorId());
@@ -99,15 +102,19 @@ public class IotMqttWorker implements SmartLifecycle {
                 if (nextAttempt != 0 && System.nanoTime() - nextAttempt < 0) {
                     return;
                 }
+                failureStage.set("settings-and-status");
                 settings = IotMqttSettings.parse(connector, properties.isAllowInsecure(), mapper);
                 updateStatus(connector, "DISCONNECTED");
                 try {
+                    failureStage.set("connection-create");
                     connection = factory.create(settings, lease);
+                    failureStage.set("connection-connect");
                     connection.connect();
                     if (!lease.isValid() || !connection.isConnected()) {
                         throw new IllegalStateException("MQTT 连接完成时租约已失效");
                     }
                     connectedSince = System.nanoTime();
+                    failureStage.set("connected-status");
                     updateStatus(connector, "CONNECTED");
                 } catch (Exception ex) {
                     closeConnection();
@@ -121,8 +128,9 @@ public class IotMqttWorker implements SmartLifecycle {
             long delay = Math.min(300, (1L << failures) * 2 + ThreadLocalRandom.current().nextLong(3));
             nextAttempt = System.nanoTime() + TimeUnit.SECONDS.toNanos(delay);
             // 底层异常可能含用户名、地址、JSON 或 SQL，不记录原始异常文本。
-            log.warn("MQTT 接入暂不可用，tenantId={}, connectorId={}, retrySeconds={}",
-                    properties.getTenantId(), properties.getConnectorId(), delay);
+            // 只记录异常类型，避免把凭据、地址、JSON 或底层报文写入现场日志。
+            log.warn("MQTT 接入暂不可用，tenantId={}, connectorId={}, retrySeconds={}, failureStage={}, failureType={}",
+                    properties.getTenantId(), properties.getConnectorId(), delay, failureStage.get(), ex.getClass().getSimpleName());
         }
     }
 

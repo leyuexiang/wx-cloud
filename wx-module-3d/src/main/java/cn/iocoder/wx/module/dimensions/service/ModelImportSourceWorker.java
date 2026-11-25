@@ -137,6 +137,15 @@ public class ModelImportSourceWorker implements AutoCloseable {
         } finally {slots.release();}
     }
 
+    /** 文档目录保存只定向发布当前操作，沿用原并发槽、租约和提交逻辑，不领取其他上传任务。 */
+    public boolean publishOperation(String operation) {
+        if (publication == null || !publication.configured() || !slots.tryAcquire()) return false;
+        try {
+            var lease = tx(() -> claim(operation, ClaimStage.PUBLICATION));
+            return lease != null && publishClaimed(lease);
+        } finally { slots.release(); }
+    }
+
     private ScheduledFuture<?> keepAlive(Lease lease,String phase,AtomicBoolean active) {
         return heartbeat.scheduleWithFixedDelay(()->{
             try {if(!renew(lease,phase))active.set(false);}
@@ -213,6 +222,10 @@ public class ModelImportSourceWorker implements AutoCloseable {
             var result=input.descriptor().deepCopy();
             var validated=result.putObject("validated");
             validated.put("modelPath",checked.modelPath());
+            // 仅归一过的入口需要原成员名，其余文件及既有发布计划继续使用同名读取。
+            if(!checked.modelPath().equals(checked.archiveModelPath())) {
+                validated.put("archiveModelPath",checked.archiveModelPath());
+            }
             var files=validated.putArray("files");
             for(var file:checked.files()) {
                 files.addObject().put("path",file.path()).put("size",Long.toString(file.size())).put("sha256",file.sha256());
@@ -261,13 +274,20 @@ public class ModelImportSourceWorker implements AutoCloseable {
                 if(rows==null)return null;
                 var op=rows.get(0);var task=rows.get(1);
                 String assetName=jdbc.queryForObject("SELECT asset_name FROM wx_3d_resource WHERE id=?",String.class,lease.resourceId());
-                String prefix=op.get("storage_prefix")+"frozen/"+lease.attemptId()+"/";
+                var directory = readObject(task.get("publish_descriptor"));
+                var actor = operator(op);
+                String belong = ModelImportService.targetBelong(op, directory);
+                // 目标归属在目录确认时固定，公开前仍需通过最终权限及租约复核。
+                String prefix = "resources/" + Dim3dModelWriteService.scope(belong) + "/"
+                        + Dim3dModelWriteService.owner(actor, belong) + "/"
+                        + lease.resourceId() + "/" + lease.attemptId() + "/";
                 return new PublicationInput((String)task.get("target_format"),prefix,
-                        readObject(task.get("artifact_descriptor")),readObject(task.get("publish_descriptor")),assetName,operator(op));
+                        readObject(task.get("artifact_descriptor")),directory,assetName,actor);
             });
             if(input==null)return false;
             // 分类可能在确认后停用。调用既有字典接口时已释放资源、操作和任务锁。
             withOperatorTenant(input.actor(), () -> importService.validateCategory(input.directory().path("category").asText()));
+            checkCatalogEdit(input);
             var ready=publication.freeze(lease.operationId(),lease.resourceId(),input.format(),input.assetName(),
                     input.prefix(),input.artifact(),active::get);
             return tx(()->{
@@ -280,6 +300,7 @@ public class ModelImportSourceWorker implements AutoCloseable {
                 if(!input.artifact().equals(readObject(task.get("artifact_descriptor"))) ||
                         !input.directory().equals(readObject(task.get("publish_descriptor"))))return false;
                 maintain(op);
+                checkCatalogEdit(input);
                 if(!liveLease(rows,databaseNow()))return false;
                 boolean committed=resourceTransactions.commitModel(resources.get(0),op,ready,input.directory(),operator(op));
                 jdbc.update("UPDATE wx_3d_resource_import SET status=?,lease_until=NULL,error_code=NULL,row_version=row_version+1 WHERE operation_id=?",
@@ -309,6 +330,23 @@ public class ModelImportSourceWorker implements AutoCloseable {
             if(json.readTree(jsonText(raw)) instanceof ObjectNode object)return object;
         } catch(Exception invalid){ /* 固定输入损坏时停止发布。 */ }
         throw new ModelImportArtifactValidation.Failure(ModelImportErrorCode.ARTIFACT_UNAVAILABLE);
+    }
+
+    /** 新上传改绑旧目录同时需要编辑权限，后台发布前及最终事务均复核撤销结果。 */
+    private void checkCatalogEdit(PublicationInput input) {
+        if (input.directory().has("catalogTarget") || input.directory().has("targetBelong")) {
+            withOperatorTenant(input.actor(), () -> {
+                if (input.directory().has("targetBelong")) {
+                    String belong = input.directory().path("targetBelong").asText();
+                    access.maintain(input.actor(), Dim3dModelWriteService.scope(belong),
+                            Dim3dModelWriteService.owner(input.actor(), belong));
+                }
+                if (input.directory().has("catalogTarget")
+                        && !Boolean.TRUE.equals(permissions.hasAnyPermissions(input.actor().user(), "dim3d:model:edit").getCheckedData())) {
+                    throw new ServiceException(403, "无权编辑目标模型目录");
+                }
+            });
+        }
     }
 
     private ModelImportConversionClient.Archive fetchArchive(Lease lease,String format,AtomicBoolean active) {

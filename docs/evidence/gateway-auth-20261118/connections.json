@@ -1,0 +1,22 @@
+{
+  "legacyGateways": [
+    {
+      "port": 12522,
+      "authenticatedHeartbeat": true
+    },
+    {
+      "port": 12525,
+      "authenticatedHeartbeat": true
+    }
+  ],
+  "dedicated": {
+    "anonymous": 401,
+    "invalidToken": 401,
+    "noPermission": 403,
+    "wrongTenant": 403,
+    "authorizedHeartbeat": true,
+    "unknownMessageCompatibility": true,
+    "draftProxyAuthorized": true
+  },
+  "passed": true
+}

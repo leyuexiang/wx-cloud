@@ -1,0 +1,17 @@
+{
+  "switch": "5f6f90f5-c54e-3f21-a447-8aec4262e334",
+  "temperature": "3784413c-a6c8-31d5-adf5-2f402eb2d44a",
+  "duplicateAcceptedOnce": "d5a5b21b-241a-336c-80d2-9e0cfdca06e6",
+  "outOfOrderLatest": "4ae7c3ac-eaef-3c13-96e3-3b1de06855bd",
+  "publisherReconnected": "d648f6e2-4f9b-31fb-b2f0-c5add64a5438",
+  "differentDevicesIndependent": true,
+  "traces": [
+    "2d8e7c4adb1b4abd9d95ccadc659e7da",
+    "1cb174de72d747cdb013c38816d93bd0",
+    "89a35c15d6f14508acc3c8d53d2975d5",
+    "89a35c15d6f14508acc3c8d53d2975d5",
+    "ebeadbfc9d0b49c296f510a2fe9ef96a",
+    "63c51ca7e7ca47f8943791f430bf4984",
+    "3cc389beb96d467aa1e90a33f3c37e6f"
+  ]
+}

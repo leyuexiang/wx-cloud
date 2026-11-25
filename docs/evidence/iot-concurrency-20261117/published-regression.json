@@ -1,0 +1,58 @@
+{
+  "scope": {
+    "invalidBindingsRejected": [
+      {
+        "domain": "threeD"
+      },
+      {
+        "domain": "invalid"
+      },
+      {
+        "objectId": "removed-widget"
+      },
+      {
+        "deviceId": "lab-switch-01",
+        "pointCode": "visible"
+      }
+    ],
+    "oldRevisionCannotBorrowDraftWidget": true,
+    "forgedTenantRejected": true
+  },
+  "duplicate": {
+    "value": 29.5,
+    "eventId": "35493aeb-d495-3b0b-bdaa-acd613993b11",
+    "sourceObjectId": "lab-temperature-model",
+    "consumerObjectId": "115772655977013248",
+    "stateVersion": "31557015962123964512051000:35493aeb-d495-3b0b-bdaa-acd613993b11",
+    "acceptedRecords": 1,
+    "sentMessages": 2,
+    "inboxStatus": "PUBLISHED"
+  },
+  "outOfOrder": {
+    "value": 31.125,
+    "eventId": "92931796-1c66-368e-8acb-ac8e442fea8c",
+    "sourceObjectId": "lab-temperature-model",
+    "consumerObjectId": "115772655977013248",
+    "stateVersion": "31557015962123967211089000:92931796-1c66-368e-8acb-ac8e442fea8c",
+    "acceptedRecords": 2,
+    "sentMessages": 2,
+    "inboxStatus": "PUBLISHED"
+  },
+  "reconnectSnapshot": {
+    "value": 26.125,
+    "eventId": "2551e321-a2b9-3614-a2ff-dffdf966395d"
+  },
+  "restored": {
+    "value": 29.5,
+    "eventId": "595887a1-c9d8-383b-90ce-00a94b0a16f0",
+    "sourceObjectId": "lab-temperature-model",
+    "consumerObjectId": "115772655977013248",
+    "stateVersion": "31557015962123971407883000:595887a1-c9d8-383b-90ce-00a94b0a16f0",
+    "acceptedRecords": 1,
+    "sentMessages": 1,
+    "inboxStatus": "PUBLISHED"
+  },
+  "ticketRevocationStopsQueryAndPush": true,
+  "publicationId": "PUB-2122542758537261058",
+  "revisionNo": 5
+}

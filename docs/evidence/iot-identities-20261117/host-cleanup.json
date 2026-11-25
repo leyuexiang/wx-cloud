@@ -1,0 +1,12 @@
+{
+  "temporaryContainersRemoved": true,
+  "certificateCopiesRemoved": true,
+  "credentialsFileRemoved": true,
+  "helperScriptsRemoved": true,
+  "temporaryBrokerPortClosed": true,
+  "publicCleanupReportsRetained": "/home/wx-iot-identities-20261117",
+  "temporaryTunnelStopped": true,
+  "originalSceneCount": 3,
+  "originalPublicationPreserved": true,
+  "originalRevisionNo": 5
+}

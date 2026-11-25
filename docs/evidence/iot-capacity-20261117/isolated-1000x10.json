@@ -1,0 +1,133 @@
+{
+  "logicalDevices": 1000,
+  "intervalSeconds": 5,
+  "clients": 10,
+  "bindingsPerClient": 1000,
+  "mqttConnections": 1,
+  "distinctAccounts": 1,
+  "cycles": 2,
+  "expectedMessages": 2000,
+  "expectedDeliveries": 20000,
+  "targetMessagesPerSecond": 200.0,
+  "clockSource": "同一负载发生器的单调时钟",
+  "renderingMeasured": false,
+  "subscriptionScope": "draft",
+  "passed": false,
+  "setupSeconds": 1.536,
+  "publishSeconds": 9.996,
+  "loadGeneratorCpuSeconds": 0.75,
+  "abortReason": null,
+  "messagesAcknowledged": 2000,
+  "uniqueDeliveries": 11300,
+  "duplicateDeliveries": 0,
+  "drainSeconds": 20.047,
+  "clientErrors": [],
+  "clientResults": [
+    {
+      "client": 0,
+      "received": 1130,
+      "missing": 870,
+      "latencyMs": {
+        "p50": 13096.479,
+        "p95": 23189.989,
+        "p99": 24181.387
+      }
+    },
+    {
+      "client": 1,
+      "received": 1130,
+      "missing": 870,
+      "latencyMs": {
+        "p50": 13096.986,
+        "p95": 23189.345,
+        "p99": 24180.828
+      }
+    },
+    {
+      "client": 2,
+      "received": 1130,
+      "missing": 870,
+      "latencyMs": {
+        "p50": 13097.171,
+        "p95": 23189.519,
+        "p99": 24180.652
+      }
+    },
+    {
+      "client": 3,
+      "received": 1130,
+      "missing": 870,
+      "latencyMs": {
+        "p50": 13096.827,
+        "p95": 23189.823,
+        "p99": 24181.179
+      }
+    },
+    {
+      "client": 4,
+      "received": 1130,
+      "missing": 870,
+      "latencyMs": {
+        "p50": 13096.675,
+        "p95": 23190.181,
+        "p99": 24181.02
+      }
+    },
+    {
+      "client": 5,
+      "received": 1130,
+      "missing": 870,
+      "latencyMs": {
+        "p50": 13097.616,
+        "p95": 23190.326,
+        "p99": 24181.992
+      }
+    },
+    {
+      "client": 6,
+      "received": 1130,
+      "missing": 870,
+      "latencyMs": {
+        "p50": 13097.294,
+        "p95": 23190.811,
+        "p99": 24181.56
+      }
+    },
+    {
+      "client": 7,
+      "received": 1130,
+      "missing": 870,
+      "latencyMs": {
+        "p50": 13097.426,
+        "p95": 23190.515,
+        "p99": 24181.717
+      }
+    },
+    {
+      "client": 8,
+      "received": 1130,
+      "missing": 870,
+      "latencyMs": {
+        "p50": 13097.833,
+        "p95": 23191.091,
+        "p99": 24182.162
+      }
+    },
+    {
+      "client": 9,
+      "received": 1130,
+      "missing": 870,
+      "latencyMs": {
+        "p50": 13098.188,
+        "p95": 23190.656,
+        "p99": 24181.883
+      }
+    }
+  ],
+  "latencyMs": {
+    "p50": 13098.188,
+    "p95": 23190.181,
+    "p99": 24181.717
+  },
+  "totalSeconds": 31.676
+}

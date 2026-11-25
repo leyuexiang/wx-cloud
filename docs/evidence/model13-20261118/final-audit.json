@@ -1,0 +1,63 @@
+{
+  "checkedAt": "2026-11-18T03:10:42.904061+00:00",
+  "sourceCommit": "d036fa69efd055a0f1767d02a5cbf85b8a477158",
+  "status": "DEPLOYED",
+  "services": {
+    "main": {
+      "health": "UP",
+      "containerHealth": "healthy",
+      "sha256": "1ebbdbe94dc9ed289c9291e267bb62e9e3a61d28531055cc5b8bcba23ec9a2d2",
+      "preservedConfiguration": {
+        "Env": true,
+        "Entrypoint": true,
+        "Cmd": true,
+        "User": true
+      },
+      "sameOtherMounts": true,
+      "sameImage": true,
+      "sameMemoryLimit": true,
+      "startedAt": "2026-11-18T03:08:35.465634594Z",
+      "backupContainer": "wx-editor-dimensions-before-model13-20261118",
+      "extractedModelImportSourceWorkerVerified": true,
+      "extractedArtResourceServiceVerified": true
+    },
+    "data08": {
+      "health": "UP",
+      "containerHealth": "healthy",
+      "sha256": "1ebbdbe94dc9ed289c9291e267bb62e9e3a61d28531055cc5b8bcba23ec9a2d2",
+      "preservedConfiguration": {
+        "Env": true,
+        "Entrypoint": true,
+        "Cmd": true,
+        "User": true
+      },
+      "sameOtherMounts": true,
+      "sameImage": true,
+      "sameMemoryLimit": true,
+      "startedAt": "2026-11-18T03:08:46.455129014Z",
+      "backupContainer": "wx-editor-dimensions-data08-before-model13-20261118"
+    }
+  },
+  "gateways": {
+    "12522": "UP",
+    "12525": "UP"
+  },
+  "cleanup": {
+    "main": {
+      "candidateRemoved": true,
+      "cloneRemoved": true,
+      "candidateConfigurationRemoved": true,
+      "testResourcesRemoved": true,
+      "testSessionsLoggedOut": true
+    },
+    "data08": {
+      "candidateRemoved": true,
+      "cloneRemoved": true,
+      "candidateConfigurationRemoved": true,
+      "testResourcesRemoved": true,
+      "testSessionsLoggedOut": true
+    }
+  },
+  "passed": true,
+  "iotSmokePassed": true
+}

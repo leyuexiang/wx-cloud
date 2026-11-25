@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 基于 Kafka 的 {@link WebSocketMessageSender} 实现类
@@ -19,13 +21,22 @@ public class KafkaWebSocketMessageSender extends AbstractWebSocketMessageSender 
     private final KafkaTemplate<Object, Object> kafkaTemplate;
 
     private final String topic;
+    private final Semaphore pending;
 
     public KafkaWebSocketMessageSender(WebSocketSessionManager sessionManager,
                                        KafkaTemplate<Object, Object> kafkaTemplate,
                                        String topic) {
+        this(sessionManager, kafkaTemplate, topic, 0);
+    }
+
+    /** 零上限保留旧同步语义；启用时只保留有界的待确认消息，不创建额外线程。 */
+    public KafkaWebSocketMessageSender(WebSocketSessionManager sessionManager,
+                                       KafkaTemplate<Object, Object> kafkaTemplate, String topic, int maxPending) {
         super(sessionManager);
+        if (maxPending < 0 || maxPending > 4096) throw new IllegalArgumentException("WebSocket 待确认上限无效");
         this.kafkaTemplate = kafkaTemplate;
         this.topic = topic;
+        this.pending = maxPending == 0 ? null : new Semaphore(maxPending);
     }
 
     @Override
@@ -57,10 +68,38 @@ public class KafkaWebSocketMessageSender extends AbstractWebSocketMessageSender 
         KafkaWebSocketMessage mqMessage = new KafkaWebSocketMessage()
                 .setSessionId(sessionId).setUserId(userId).setUserType(userType)
                 .setMessageType(messageType).setMessageContent(messageContent);
+        if (pending != null) {
+            sendBoundedAsync(mqMessage);
+            return;
+        }
         try {
             kafkaTemplate.send(topic, mqMessage).get();
         } catch (InterruptedException | ExecutionException e) {
-            log.error("[sendKafkaMessage][发送消息({}) 到 Kafka 失败]", mqMessage, e);
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            log.error("WebSocket Kafka 发送失败，failureType={}", e.getClass().getSimpleName());
+        }
+    }
+
+    private void sendBoundedAsync(KafkaWebSocketMessage message) {
+        boolean acquired = false;
+        try {
+            // Kafka 慢或不可用时施加背压，最长等待五秒；当前态仍可通过授权快照补偿。
+            acquired = pending.tryAcquire(5, TimeUnit.SECONDS);
+            if (!acquired) {
+                log.warn("WebSocket Kafka 待确认配额等待超时");
+                return;
+            }
+            kafkaTemplate.send(topic, message).whenComplete((result, failure) -> {
+                pending.release();
+                if (failure != null) log.error("WebSocket Kafka 异步发送失败，failureType={}", failure.getClass().getSimpleName());
+            });
+        } catch (InterruptedException error) {
+            Thread.currentThread().interrupt();
+            if (acquired) pending.release();
+            log.warn("WebSocket Kafka 待确认等待已中断");
+        } catch (RuntimeException error) {
+            if (acquired) pending.release();
+            log.error("WebSocket Kafka 提交失败，failureType={}", error.getClass().getSimpleName());
         }
     }
 

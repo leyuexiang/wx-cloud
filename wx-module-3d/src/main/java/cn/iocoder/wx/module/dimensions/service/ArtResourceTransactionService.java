@@ -179,13 +179,32 @@ public class ArtResourceTransactionService {
         boolean creating="CREATE".equals(type);
         if(!(creating?"PENDING":"READY").equals(resource.get("content_state")))throw ServiceException.of(INVALID_OPERATION_STATE);
         var linked=jdbc.queryForList("SELECT * FROM wx_3d_model WHERE resource_id=? AND del_flag='0' FOR UPDATE",resourceId);
-        Object owner=resource.get("tenant_id");
-        if(creating?!linked.isEmpty():linked.size()!=1 || !Objects.equals(owner,linked.get(0).get("tenant_id")))
+        if(creating?!linked.isEmpty():linked.size()!=1 || !Objects.equals(resource.get("tenant_id"),linked.get(0).get("tenant_id")))
             throw ServiceException.of(INVALID_OPERATION_STATE);
         var before=snapshot(resource);
         long operator=((Number)op.get("operator_id")).longValue();
         if (actor.user() != operator) throw ServiceException.of(INVALID_OPERATION_STATE);
         Map<String, Object> previous = creating ? Map.of() : linked.get(0);
+        boolean redirect = directory.has("catalogTarget");
+        if (redirect) {
+            if (!creating) throw ServiceException.of(INVALID_OPERATION_STATE);
+            var target = directory.path("catalogTarget");
+            var targets = jdbc.queryForList("SELECT * FROM wx_3d_model WHERE id=? AND del_flag='0' FOR UPDATE",
+                    target.path("id").asText());
+            if (targets.size() != 1 || !Dim3dModelWriteService.visible(targets.get(0), actor)) {
+                throw ServiceException.of(NOT_VISIBLE);
+            }
+            previous = targets.get(0);
+            String oldScope = "SYSTEM".equals(previous.get("resource_belong")) ? "GLOBAL_SYSTEM" : "TENANT_SHARED";
+            access.maintain(actor, oldScope, previous.get("tenant_id").toString());
+            // 确认后的另一次目录换文件或归属变更使本次提交冲突，旧目录和候选资源一并回滚。
+            if (!Objects.toString(previous.get("resource_id"), "").equals(target.path("resourceId").asText())
+                    || !Objects.toString(previous.get("model_file_id"), "").equals(target.path("modelFileId").asText())
+                    || !Objects.toString(previous.get("tenant_id"), "").equals(target.path("tenantId").asText())
+                    || !Objects.toString(previous.get("resource_belong"), "").equals(target.path("resourceBelong").asText())) {
+                throw ServiceException.of(REVISION_CONFLICT);
+            }
+        }
         String name=directory.path("modelName").asText(),category=directory.path("category").asText();
         // 旧确认请求没有新增字段。替换从锁定目录保全省略项，显式空值才清空封面或描述。
         Object description = directory.has("modelDesc") ? directory.path("modelDesc").asText() : previous.get("model_desc");
@@ -198,31 +217,79 @@ public class ArtResourceTransactionService {
             cover = null;
             if (directory.hasNonNull("coverImageId")) cover = Long.valueOf(directory.path("coverImageId").asText());
         }
-        String belong = "GLOBAL_SYSTEM".equals(resource.get("resource_scope")) ? "SYSTEM" : "MINE";
-        if ("MINE".equals(belong) && "PAID".equals(paid)) throw new ServiceException(400, "租户模型仅支持免费");
-        if (directory.hasNonNull("coverImageId")) {
+        String belong = ModelImportService.targetBelong(op, directory);
+        String scope = Dim3dModelWriteService.scope(belong);
+        String owner = Dim3dModelWriteService.owner(actor, belong);
+        boolean scopeChanged = !scope.equals(resource.get("resource_scope")) || !owner.equals(resource.get("tenant_id"));
+        if (cover != null && (directory.hasNonNull("coverImageId") || redirect || scopeChanged)) {
+            // 只迁移仍由当前目录独占的原封面，新封面沿用已有上传者与范围校验。
             long coverId = ((Number) cover).longValue();
             boolean retained = previous.get("cover_image_id") instanceof Number id && id.longValue() == coverId;
-            images.bindModelCover(coverId, actor, belong, retained);
+            images.bindModelCover(coverId, actor, belong,
+                    retained ? previous.get("resource_belong").toString() : null,
+                    previous.get("id") instanceof Number id ? id.longValue() : null);
         }
-        if(creating) {
+        if(creating && !redirect) {
             // 目录的主键单独生成，受管模型通过资源主键关联，旧文件编号为空。
             jdbc.update("""
                     INSERT INTO wx_3d_model(resource_id,model_file_id,tenant_id,model_name,category,model_desc,
                         resource_belong,is_paid,price,cover_image_id,status,data_user_id,create_by,update_by)
                     VALUES(?,NULL,?,?,?,?,?,?,?,?,'ONLINE',?,?,?)
                     """, resourceId,owner,name,category,description,belong,paid,price,cover,operator,operator,operator);
+        } else if (redirect) {
+            jdbc.update("""
+                    UPDATE wx_3d_model SET resource_id=?,model_file_id=NULL,tenant_id=?,resource_belong=?,data_user_id=?,
+                        model_name=?,category=?,model_desc=?,is_paid=?,price=?,cover_image_id=?,update_by=?,
+                        update_time=CURRENT_TIMESTAMP WHERE id=?
+                    """, resourceId, owner, belong, operator, name, category, description, paid, price, cover, operator,
+                    previous.get("id"));
+        } else if (scopeChanged) {
+            jdbc.update("""
+                    UPDATE wx_3d_model SET tenant_id=?,resource_belong=?,data_user_id=?,model_name=?,category=?,
+                        model_desc=?,is_paid=?,price=?,cover_image_id=?,update_by=?,update_time=CURRENT_TIMESTAMP WHERE id=?
+                    """, owner, belong, operator, name, category, description, paid, price, cover, operator, previous.get("id"));
         } else {
             jdbc.update("UPDATE wx_3d_model SET model_name=?,category=?,model_desc=?,is_paid=?,price=?,cover_image_id=?,update_by=? WHERE id=?",
                     name,category,description,paid,price,cover,operator,linked.get(0).get("id"));
         }
         var checked=ready.manifest();
+        if (scopeChanged) {
+            // 旧范围只用于上传、转换及身份复核，正式归属与文件指针、快照和回执原子提交。
+            jdbc.update("UPDATE wx_3d_resource SET resource_scope=?,tenant_id=?,data_user_id=? WHERE id=?",
+                    scope, owner, operator, resourceId);
+            jdbc.update("UPDATE wx_3d_resource_operation SET resource_scope=?,tenant_id=?,storage_prefix=? WHERE id=?",
+                    scope, owner, ready.prefix(), operation);
+        }
         writePointer(resourceId,operation,operator,revision+1,Map.of("storage_prefix",ready.prefix(),
                 "manifest_path",ready.manifestPath(),"manifest_sha256",checked.manifestSha256(),
                 "content_hash",checked.contentHash(),"content_format",checked.contentFormat(),
                 "platform","WebGL","app_compatibility",checked.compatibility()));
         writeReceipt(resourceId,operation,revision+1,before);
         return true;
+    }
+
+    /** 同内容修订保留原对象键与快照。修订递增使尚未提交的旧归属操作失效。 */
+    void moveModelScope(Map<String, Object> resource, String scope, String owner, ArtResourceAccess.Actor actor,
+                        Runnable writeDirectory) {
+        long revision = ((Number) resource.get("current_revision")).longValue();
+        if (revision < 1 || revision == Long.MAX_VALUE) throw ServiceException.of(REVISION_CONFLICT);
+        Object id = resource.get("id");
+        String operation = UUID.randomUUID().toString();
+        var before = snapshot(resource);
+        String hash = resources.hash(json.createObjectNode().put("resourceId", id.toString())
+                .put("resourceScope", scope).put("tenantId", owner).put("expectedRevision", Long.toString(revision)));
+        // 沿用受管操作表和替换型同内容回执，先建立操作行以满足当前指针的复合外键。
+        jdbc.update("""
+                INSERT INTO wx_3d_resource_operation(id,resource_id,operation_type,resource_scope,tenant_id,operator_id,
+                    request_hash,expected_revision,storage_prefix,expires_at)
+                VALUES(?,?,'REPLACE',?,?,?,?,?,?,CURRENT_TIMESTAMP)
+                """, operation, id, scope, owner, actor.user(), hash, revision, resource.get("storage_prefix"));
+        jdbc.update("""
+                UPDATE wx_3d_resource SET resource_scope=?,tenant_id=?,data_user_id=?,current_revision=?,
+                    current_operation_id=?,update_by=? WHERE id=?
+                """, scope, owner, actor.user(), revision + 1, operation, actor.user(), id);
+        writeDirectory.run();
+        writeReceipt(id, operation, revision + 1, before);
     }
 
     private void writePointer(Object resourceId,String operation,long operator,long revision,Map<String,Object> pointer) {

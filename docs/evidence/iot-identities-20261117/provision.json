@@ -1,0 +1,16 @@
+{
+  "tenantId": 1276673,
+  "packageId": 3,
+  "viewerCount": 50,
+  "viewerRoleId": 1276677,
+  "viewerPermissions": [
+    "dimensions:iot-state:query",
+    "dimensions:iot-state:subscribe"
+  ],
+  "originalTenant2Changed": false,
+  "createdTemporaryPermissionMenus": 7,
+  "credentialFileMode": "0o600",
+  "credentialsRecordedPublicly": false,
+  "bootstrapFailure": "创建允许30位而登录只允许16位；短账号复验",
+  "retiredBootstrapTenantId": 1276672
+}

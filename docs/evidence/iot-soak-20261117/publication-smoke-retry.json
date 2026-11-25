@@ -1,0 +1,932 @@
+{
+  "logicalDevices": 1000,
+  "intervalSeconds": 5,
+  "clients": 50,
+  "bindingsPerClient": 1000,
+  "mqttConnections": 1,
+  "distinctAccounts": 1,
+  "cycles": 2,
+  "expectedMessages": 2000,
+  "expectedDeliveries": 100000,
+  "targetMessagesPerSecond": 200.0,
+  "clockSource": "同一负载发生器的单调时钟",
+  "renderingMeasured": false,
+  "subscriptionScope": "publication",
+  "passed": false,
+  "latencyResolutionMs": 1,
+  "latencyRounding": "ceil",
+  "minuteSamples": [],
+  "distinctTickets": 50,
+  "setupSeconds": 9.287,
+  "publishSeconds": 1.956,
+  "loadGeneratorCpuSeconds": 0.0,
+  "abortReason": "viewer-error",
+  "messagesAcknowledged": 380,
+  "mqttMaxInFlight": 20,
+  "uniqueDeliveries": 600,
+  "duplicateDeliveries": 0,
+  "drainSeconds": 0.0,
+  "clientErrors": [
+    {
+      "client": 3,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 0,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 1,
+      "errors": [
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 2,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 4,
+      "errors": [
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 6,
+      "errors": [
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 5,
+      "errors": [
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 8,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 7,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 9,
+      "errors": [
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 10,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 13,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 11,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 12,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 14,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 15,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 16,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 17,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 18,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 19,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 20,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 21,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 22,
+      "errors": [
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 23,
+      "errors": [
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 24,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 25,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 26,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 27,
+      "errors": [
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 29,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 28,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 30,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 31,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 32,
+      "errors": [
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 33,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 34,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 35,
+      "errors": [
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 36,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 37,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 38,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 39,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 40,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 41,
+      "errors": [
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 42,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 43,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 44,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 45,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 46,
+      "errors": [
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 47,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 48,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    },
+    {
+      "client": 49,
+      "errors": [
+        "unexpected-sequence",
+        "unexpected-sequence"
+      ]
+    }
+  ],
+  "clientResults": [
+    {
+      "client": 0,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1879,
+        "p95": 1934,
+        "p99": 1934
+      }
+    },
+    {
+      "client": 1,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1877,
+        "p95": 1939,
+        "p99": 1939
+      }
+    },
+    {
+      "client": 2,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1880,
+        "p95": 1933,
+        "p99": 1933
+      }
+    },
+    {
+      "client": 3,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1877,
+        "p95": 1933,
+        "p99": 1933
+      }
+    },
+    {
+      "client": 4,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1877,
+        "p95": 1933,
+        "p99": 1933
+      }
+    },
+    {
+      "client": 5,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1879,
+        "p95": 1936,
+        "p99": 1936
+      }
+    },
+    {
+      "client": 6,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1877,
+        "p95": 1938,
+        "p99": 1938
+      }
+    },
+    {
+      "client": 7,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1880,
+        "p95": 1933,
+        "p99": 1933
+      }
+    },
+    {
+      "client": 8,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1879,
+        "p95": 1936,
+        "p99": 1936
+      }
+    },
+    {
+      "client": 9,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1878,
+        "p95": 1935,
+        "p99": 1935
+      }
+    },
+    {
+      "client": 10,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1879,
+        "p95": 1937,
+        "p99": 1937
+      }
+    },
+    {
+      "client": 11,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1879,
+        "p95": 1934,
+        "p99": 1934
+      }
+    },
+    {
+      "client": 12,
+      "received": 13,
+      "missing": 1987,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1888,
+        "p95": 1935,
+        "p99": 1935
+      }
+    },
+    {
+      "client": 13,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1877,
+        "p95": 1935,
+        "p99": 1935
+      }
+    },
+    {
+      "client": 14,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1880,
+        "p95": 1934,
+        "p99": 1934
+      }
+    },
+    {
+      "client": 15,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1880,
+        "p95": 1935,
+        "p99": 1935
+      }
+    },
+    {
+      "client": 16,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1879,
+        "p95": 1934,
+        "p99": 1934
+      }
+    },
+    {
+      "client": 17,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1880,
+        "p95": 1934,
+        "p99": 1934
+      }
+    },
+    {
+      "client": 18,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1878,
+        "p95": 1934,
+        "p99": 1934
+      }
+    },
+    {
+      "client": 19,
+      "received": 13,
+      "missing": 1987,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1890,
+        "p95": 1937,
+        "p99": 1937
+      }
+    },
+    {
+      "client": 20,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1879,
+        "p95": 1937,
+        "p99": 1937
+      }
+    },
+    {
+      "client": 21,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1877,
+        "p95": 1934,
+        "p99": 1934
+      }
+    },
+    {
+      "client": 22,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1878,
+        "p95": 1936,
+        "p99": 1936
+      }
+    },
+    {
+      "client": 23,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1878,
+        "p95": 1935,
+        "p99": 1935
+      }
+    },
+    {
+      "client": 24,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1879,
+        "p95": 1935,
+        "p99": 1935
+      }
+    },
+    {
+      "client": 25,
+      "received": 13,
+      "missing": 1987,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1890,
+        "p95": 1935,
+        "p99": 1935
+      }
+    },
+    {
+      "client": 26,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1880,
+        "p95": 1935,
+        "p99": 1935
+      }
+    },
+    {
+      "client": 27,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1878,
+        "p95": 1936,
+        "p99": 1936
+      }
+    },
+    {
+      "client": 28,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1879,
+        "p95": 1937,
+        "p99": 1937
+      }
+    },
+    {
+      "client": 29,
+      "received": 14,
+      "missing": 1986,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1890,
+        "p95": 1983,
+        "p99": 1983
+      }
+    },
+    {
+      "client": 30,
+      "received": 14,
+      "missing": 1986,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1890,
+        "p95": 1967,
+        "p99": 1967
+      }
+    },
+    {
+      "client": 31,
+      "received": 13,
+      "missing": 1987,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1890,
+        "p95": 1947,
+        "p99": 1947
+      }
+    },
+    {
+      "client": 32,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1879,
+        "p95": 1937,
+        "p99": 1937
+      }
+    },
+    {
+      "client": 33,
+      "received": 13,
+      "missing": 1987,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1891,
+        "p95": 1947,
+        "p99": 1947
+      }
+    },
+    {
+      "client": 34,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1879,
+        "p95": 1935,
+        "p99": 1935
+      }
+    },
+    {
+      "client": 35,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1880,
+        "p95": 1934,
+        "p99": 1934
+      }
+    },
+    {
+      "client": 36,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1879,
+        "p95": 1934,
+        "p99": 1934
+      }
+    },
+    {
+      "client": 37,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1880,
+        "p95": 1936,
+        "p99": 1936
+      }
+    },
+    {
+      "client": 38,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1879,
+        "p95": 1936,
+        "p99": 1936
+      }
+    },
+    {
+      "client": 39,
+      "received": 13,
+      "missing": 1987,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1889,
+        "p95": 1947,
+        "p99": 1947
+      }
+    },
+    {
+      "client": 40,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1879,
+        "p95": 1938,
+        "p99": 1938
+      }
+    },
+    {
+      "client": 41,
+      "received": 14,
+      "missing": 1986,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1890,
+        "p95": 1967,
+        "p99": 1967
+      }
+    },
+    {
+      "client": 42,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1878,
+        "p95": 1934,
+        "p99": 1934
+      }
+    },
+    {
+      "client": 43,
+      "received": 14,
+      "missing": 1986,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1891,
+        "p95": 1967,
+        "p99": 1967
+      }
+    },
+    {
+      "client": 44,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1880,
+        "p95": 1936,
+        "p99": 1936
+      }
+    },
+    {
+      "client": 45,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1880,
+        "p95": 1938,
+        "p99": 1938
+      }
+    },
+    {
+      "client": 46,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1880,
+        "p95": 1935,
+        "p99": 1935
+      }
+    },
+    {
+      "client": 47,
+      "received": 12,
+      "missing": 1988,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1879,
+        "p95": 1936,
+        "p99": 1936
+      }
+    },
+    {
+      "client": 48,
+      "received": 13,
+      "missing": 1987,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1890,
+        "p95": 1936,
+        "p99": 1936
+      }
+    },
+    {
+      "client": 49,
+      "received": 13,
+      "missing": 1987,
+      "renewalAcks": 0,
+      "latencyMs": {
+        "p50": 1890,
+        "p95": 1937,
+        "p99": 1937
+      }
+    }
+  ],
+  "latencyMs": {
+    "p50": 1880,
+    "p95": 1934,
+    "p99": 1936
+  },
+  "metricStorageBytes": 12116458,
+  "deliveryComplete": false,
+  "latencyGateMs": 5000,
+  "ticketsRevoked": 50,
+  "ticketRevokeFailures": 0,
+  "totalSeconds": 13.678
+}

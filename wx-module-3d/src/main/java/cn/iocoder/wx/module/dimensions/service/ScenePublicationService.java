@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.List;
 
 /** 场景不可变发布记录服务。只固定已有修订，不复制或改写草稿四包。 */
 @Service
@@ -22,6 +23,57 @@ public class ScenePublicationService {
     @Transactional
     public Map<String, Object> publish(String sceneId, int revisionNo, String requestId) {
         return publishFixed(sceneId, revisionNo, requestId, null);
+    }
+
+    /** 能力来自实际服务合同，不把其他平台的公开模式伪装成已实现的票据权限。 */
+    public Map<String, Object> capabilities() {
+        access.actor();
+        return Map.of("protocol", "fixed-ticket-v1", "accessModes", List.of(Map.of("value", "TICKET", "label", "受控访问")),
+                "ticketDefaultSeconds", 300, "ticketMinSeconds", 60, "ticketMaxSeconds", 3600);
+    }
+
+    /** 管理界面只发布已确认的当前保存修订；历史发布及回退保留独立入口。 */
+    @Transactional
+    public Map<String, Object> publishCurrent(String sceneId, int revisionNo, String requestId) {
+        var actor = access.actor();
+        long scene = requireId(sceneId);
+        if (revisionNo < 1 || requestId == null || requestId.isBlank() || requestId.length() > 110)
+            throw bad("发布请求参数无效");
+        // 与保存、删除共用场景行锁；锁内再检查重放，避免两个并发确认重复写入。
+        var scenes = jdbc.queryForList("SELECT current_revision FROM wx_3d_scene WHERE id=? AND tenant_id=? AND deleted=0 FOR UPDATE",
+                scene, actor.tenant());
+        if (scenes.size() != 1) throw new ServiceException(404, "场景不存在或无权发布");
+        var replay = jdbc.queryForList("SELECT * FROM wx_3d_scene_publication WHERE tenant_id=? AND request_id=?", actor.tenant(), requestId);
+        if (replay.isEmpty()) {
+            replay = jdbc.queryForList("SELECT p.* FROM wx_3d_scene_publication_audit a JOIN wx_3d_scene_publication p "
+                            + "ON p.publication_id=a.publication_id AND p.tenant_id=a.tenant_id WHERE a.tenant_id=? AND a.request_id=? AND a.action='PUBLISH_REUSE'",
+                    actor.tenant(), requestId);
+        }
+        if (!replay.isEmpty()) {
+            var previous = replay.get(0);
+            if (((Number) previous.get("scene_id")).longValue() != scene || ((Number) previous.get("revision_no")).intValue() != revisionNo)
+                throw new ServiceException(409, "发布请求号已绑定其他场景或修订");
+            if (!"PUBLISHED".equals(previous.get("status"))) throw new ServiceException(409, "该次发布已撤销，请重新确认");
+            return managementReceipt(previous, true);
+        }
+        if (((Number) scenes.get(0).get("current_revision")).intValue() != revisionNo)
+            throw new ServiceException(409, "保存版本已变化，请重新确认后发布");
+        var current = jdbc.queryForList("SELECT * FROM wx_3d_scene_publication WHERE tenant_id=? AND scene_id=? AND current_flag=1 AND status='PUBLISHED'",
+                actor.tenant(), scene);
+        if (current.size() == 1 && ((Number) current.get(0).get("revision_no")).intValue() == revisionNo) {
+            // 复用也保存本次请求的回执关联，随后指针变化或撤销不能让重试变成新发布。
+            audit(actor, current.get(0).get("publication_id").toString(), null, "PUBLISH_REUSE", "", requestId);
+            return managementReceipt(current.get(0), true);
+        }
+        var result = new LinkedHashMap<>(publishFixed(sceneId, revisionNo, requestId, null));
+        result.put("alreadyPublished", false);
+        return result;
+    }
+
+    private Map<String, Object> managementReceipt(Map<String, Object> row, boolean alreadyPublished) {
+        var result = receipt(row);
+        result.put("alreadyPublished", alreadyPublished);
+        return result;
     }
 
     private Map<String, Object> publishFixed(String sceneId, int revisionNo, String requestId, String sourcePublication) {

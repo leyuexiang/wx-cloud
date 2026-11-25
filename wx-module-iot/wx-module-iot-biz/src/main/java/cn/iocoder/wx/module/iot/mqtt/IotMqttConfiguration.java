@@ -23,7 +23,10 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 public class IotMqttConfiguration {
     @Bean
     public IotMqttTelemetryAdapter iotMqttTelemetryAdapter(IotConnectorService connectors,
-            TenantFrameworkService tenants, IotTelemetryService telemetry, Validator validator, ObjectMapper mapper) {
+            TenantFrameworkService tenants, IotTelemetryService telemetry, Validator validator, ObjectMapper mapper,
+            IotMqttReceiveDispatcher receiverDispatcher) {
+        // 与持久接收共享有界并发预算，完成通知不再逐条阻塞生产者网络线程。
+        telemetry.setPublicationResultExecutor(receiverDispatcher);
         return new IotMqttTelemetryAdapter(connectors, tenants, telemetry, validator, mapper);
     }
 
@@ -40,8 +43,14 @@ public class IotMqttConfiguration {
     }
 
     @Bean
+    public IotMqttReceiveDispatcher iotMqttReceiveDispatcher(IotMqttProperties properties) {
+        return new IotMqttReceiveDispatcher(properties.getReceiveConcurrency(), properties.getReceiveQueueCapacity());
+    }
+
+    @Bean
     public IotMqttConnection.Factory iotMqttConnectionFactory(
-            IotMqttProperties properties, IotMqttTelemetryAdapter adapter, IotMqttCredentialsProvider provider) {
+            IotMqttProperties properties, IotMqttTelemetryAdapter adapter, IotMqttCredentialsProvider provider,
+            IotMqttReceiveDispatcher receiverDispatcher) {
         return (settings, lease) -> {
             if (settings.tenantId() == null || settings.connectorId() == null) {
                 throw new IllegalArgumentException("MQTT 会话缺少受控来源身份");
@@ -57,7 +66,7 @@ public class IotMqttConfiguration {
                             } else {
                                 adapter.ingest(settings.tenantId(), settings.connectorId(), settings, topic, payload);
                             }
-                        });
+                        }, receiverDispatcher, properties.getReceiveMaxInFlight());
             } catch (MqttException ex) {
                 java.util.Arrays.fill(credentials.password(), '\0');
                 throw new IllegalStateException("MQTT 客户端无法创建");

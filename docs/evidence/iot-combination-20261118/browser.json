@@ -1,0 +1,20 @@
+{
+  "realLogin": true,
+  "existingBindingsVerified": 2,
+  "savedMqttConnectionPassed": true,
+  "currentProtocolEventsVisible": true,
+  "verifiedEventIds": [
+    "3c9ded3b-0224-307a-9613-6a4586d6c414",
+    "29dcff00-7ba7-3f83-bb1c-21d1ac509752",
+    "b6ca5815-688a-3e3c-9771-18b9b04e9634",
+    "bdeb48b6-1199-392c-97a9-e15f67cd9cde"
+  ],
+  "messageDetailsRead": true,
+  "unityRuntimeExercised": false,
+  "realtimeWidgetRenderVerified": false,
+  "screenshotCaptured": false,
+  "screenshotReason": "Ego window minimized",
+  "browserSpaceId": 1,
+  "loggedOut": true,
+  "taskFinished": true
+}

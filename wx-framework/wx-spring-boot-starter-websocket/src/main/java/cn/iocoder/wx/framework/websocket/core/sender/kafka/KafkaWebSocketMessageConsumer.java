@@ -17,9 +17,15 @@ public class KafkaWebSocketMessageConsumer {
     @RabbitHandler
     @KafkaListener(
             topics = "${wx.websocket.sender-kafka.topic}",
+            // 新部署可单独启用定向投递，避免同时开启历史业务主题消费者。
+            autoStartup = "${wx.websocket.sender-kafka.auto-startup:${spring.kafka.listener.auto-startup:true}}",
             // 在 Group 上，使用 UUID 生成其后缀。这样，启动的 Consumer 的 Group 不同，以达到广播消费的目的
             groupId = "${wx.websocket.sender-kafka.consumer-group}" + "-" + "#{T(java.util.UUID).randomUUID()}")
     public void onMessage(KafkaWebSocketMessage message) {
+        // 同一主题承载旧任务消息，本消费者只处理具备路由目标的消息。
+        if (!message.hasDeliveryTarget()) {
+            return;
+        }
         kafkaWebSocketMessageSender.send(message.getSessionId(),
                 message.getUserType(), message.getUserId(),
                 message.getMessageType(), message.getMessageContent());

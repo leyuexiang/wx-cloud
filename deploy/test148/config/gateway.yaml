@@ -81,6 +81,47 @@ spring:
         - Path=/admin-api/dimensions/**,/app-api/dimensions/**,/admin-api/dim3d/**
         filters:
         - RemoveRequestHeader=x-bot-user
+      # 图片文件在基础设施服务内按端校验令牌，上传和单编号读取使用精确路径。
+      - id: operation-image-oss-platform-test148
+        uri: http://127.0.0.1:48182
+        predicates:
+        - Path=/api/operation/resource/oss/upload,/api/operation/resource/oss/listByIds/{ids}
+        filters:
+        - RemoveRequestHeader=x-bot-user
+        - RewritePath=^/api/operation/resource/oss/(?<path>.*)$, /admin-api/infra/file/operation/resource/oss/$\{path}
+      - id: tenant-image-oss-platform-test148
+        uri: http://127.0.0.1:48182
+        predicates:
+        - Path=/api/tenant/web/resource/oss/upload,/api/tenant/web/resource/oss/listByIds/{ids}
+        filters:
+        - RemoveRequestHeader=x-bot-user
+        - RewritePath=^/api/tenant/web/resource/oss/(?<path>.*)$, /admin-api/infra/file/tenant/resource/oss/$\{path}
+      # 原匿名发布别名保持票据校验并优先于登录场景入口。
+      - id: dim3d-ticket-preview-compat-test148
+        order: -2
+        uri: http://127.0.0.1:48192
+        predicates:
+        - Path=/api/operation/dim3d/scene/publication/preview,/api/operation/dim3d/scene/publication/preview/resources,/api/operation/dim3d/scene/publication/preview/file,/api/tenant/web/dim3d/scene/publication/preview,/api/tenant/web/dim3d/scene/publication/preview/resources,/api/tenant/web/dim3d/scene/publication/preview/file
+        filters:
+        - RemoveRequestHeader=x-bot-user
+        - RewritePath=^/api/(?:operation|tenant/web)/dim3d/(?<path>scene/publication/preview(?:/resources|/file)?)$, /admin-api/dim3d/$\{path}
+      # 模型、图标、模板和登录场景复用三维服务的端别校验。
+      - id: operation-dim3d-platform-test148
+        order: -1
+        uri: http://127.0.0.1:48192
+        predicates:
+        - Path=/api/operation/dim3d/model/**,/api/operation/dim3d/model-imports/**,/api/operation/dim3d/resource/uploadConvert,/api/operation/dim3d/resource/info/{id},/api/operation/dim3d/icon/**,/api/operation/dim3d/template/**,/api/operation/dim3d/scene/**
+        filters:
+        - RemoveRequestHeader=x-bot-user
+        - RewritePath=/api/operation/dim3d/(?<path>.*), /admin-api/dim3d/operation/$\{path}
+      - id: tenant-dim3d-platform-test148
+        order: -1
+        uri: http://127.0.0.1:48192
+        predicates:
+        - Path=/api/tenant/web/dim3d/model/**,/api/tenant/web/dim3d/model-imports/**,/api/tenant/web/dim3d/resource/uploadConvert,/api/tenant/web/dim3d/resource/info/{id},/api/tenant/web/dim3d/icon/**,/api/tenant/web/dim3d/template/**,/api/tenant/web/dim3d/scene/**
+        filters:
+        - RemoveRequestHeader=x-bot-user
+        - RewritePath=/api/tenant/web/dim3d/(?<path>.*), /admin-api/dim3d/tenant/$\{path}
       x-forwarded:
         prefix-enabled: false
 server:

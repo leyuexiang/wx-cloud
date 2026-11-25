@@ -11,6 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Collections;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -19,7 +20,7 @@ import static org.mockito.Mockito.*;
 class IotStateQueryTest {
     private final IotStateStore store = mock(IotStateStore.class);
     private final SecurityFrameworkService security = mock(SecurityFrameworkService.class);
-    private final IotStateQueryService service = new IotStateQueryService(store, security);
+    private final IotStateQueryService service = new IotStateQueryService(store, security, mock(IotSceneBindingScope.class));
 
     @AfterEach
     void clearContext() {
@@ -72,5 +73,27 @@ class IotStateQueryTest {
         authenticate(null, UserTypeEnum.ADMIN.getValue());
         assertThrows(AccessDeniedException.class, () -> service.get("device-1", "temperature"));
         verifyNoInteractions(store, security);
+    }
+
+    @Test
+    void shouldUseSameWidgetScopeForDraftAndFixedPublicationWithoutTrustingSourceObjectId() throws Exception {
+        authenticate(7L, UserTypeEnum.ADMIN.getValue());
+        when(security.hasPermission(IotStateQueryService.QUERY_PERMISSION)).thenReturn(true);
+        var scope = mock(IotSceneBindingScope.class);
+        var query = new IotStateQueryService(store, security, scope);
+        var json = new ObjectMapper();
+        var saved = new IotSceneBindingScope.SavedScene(json.readTree("{}"), json.readTree("""
+                {"dataBindings":[{"owner":{"domain":"twoD","ownerType":"instance","instanceId":"widget"},
+                  "source":{"type":"adapter","requestConfig":{"adapterId":"iot-state","config":{"deviceId":"d1","pointCode":"temperature"}}}}]}
+                """), json.readTree("{\"components\":[{\"instanceId\":\"widget\"}]}"));
+        when(scope.read("10")).thenReturn(saved);
+        when(scope.readPublished("PUB-1", "ticket", 7L)).thenReturn(new IotSceneBindingScope.ScopedScene("10", "t1", saved));
+        var event = cn.iocoder.wx.module.iot.api.TwinTelemetryEvent.builder().sceneId("10").objectId("source-model").build();
+        when(store.get(7L, "d1", "temperature")).thenReturn(event);
+        assertSame(event, query.get("d1", "temperature", "10", "widget", "twoD"));
+        assertSame(event, query.getPublished("PUB-1", "ticket", "widget", "d1", "temperature", "twoD"));
+        assertThrows(AccessDeniedException.class, () -> query.get("d1", "temperature", "10", "widget", null));
+        event.setSceneId("11");
+        assertNull(query.get("d1", "temperature", "10", "widget", "twoD"));
     }
 }

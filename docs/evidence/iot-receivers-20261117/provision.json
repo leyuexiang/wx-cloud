@@ -1,0 +1,14 @@
+{
+  "tenantId": 1276675,
+  "packageId": 5,
+  "viewerCount": 50,
+  "viewerRoleId": 1276681,
+  "viewerPermissions": [
+    "dimensions:iot-state:query",
+    "dimensions:iot-state:subscribe"
+  ],
+  "originalTenant2Changed": false,
+  "createdTemporaryPermissionMenus": 7,
+  "credentialFileMode": "0o600",
+  "credentialsRecordedPublicly": false
+}

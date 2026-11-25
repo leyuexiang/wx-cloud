@@ -122,6 +122,18 @@ class GeneratedConfigTest(unittest.TestCase):
         self.assertEqual(by_id["tenant-dim3d-test148"]["uri"], "http://127.0.0.1:48192")
         self.assertIn("/admin-api/dim3d/", by_id["operation-dim3d-test148"]["filters"][-1])
         self.assertIn("/admin-api/dim3d/", by_id["tenant-dim3d-test148"]["filters"][-1])
+        # 专用平台路由先于通用兼容路由，预览仍优先转往票据入口。
+        self.assertEqual(by_id["dim3d-ticket-preview-compat-test148"]["order"], -2)
+        for platform, prefix in (("operation", "/api/operation"), ("tenant", "/api/tenant/web")):
+            platform_route = by_id[f"{platform}-dim3d-platform-test148"]
+            self.assertEqual(platform_route["order"], -1)
+            self.assertEqual(platform_route["uri"], "http://127.0.0.1:48192")
+            for entry in ("resource/info/{id}", "icon/**", "template/**", "scene/**"):
+                self.assertIn(f"{prefix}/dim3d/{entry}", platform_route["predicates"][0])
+            self.assertIn(f"/admin-api/dim3d/{platform}/", platform_route["filters"][-1])
+            files = by_id[f"{platform}-image-oss-platform-test148"]
+            self.assertEqual(files["uri"], "http://127.0.0.1:48182")
+            self.assertEqual(files["predicates"], [f"Path={prefix}/resource/oss/upload,{prefix}/resource/oss/listByIds/{{ids}}"])
 
 
 class ResourceUploadCorsTest(unittest.TestCase):

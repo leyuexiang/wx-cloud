@@ -168,3 +168,9 @@
 ## 请求大小边界
 
 网关 `12525` 的聚合上限为 16 MiB，三维服务每个四包字段的校验上限为 4 MiB。通过隔离网关验证，`threeDJson` 为 4,129,025 字节时保存成功并生成修订 2，`threeDJson` 为 4,260,097 字节时返回业务码 400 和 `threeDJson格式无效`，场景没有新增修订。[大小边界报告](size-boundary.json)
+
+## 2026-11-18 历史缺引用前置回填与恢复演练
+
+恢复演练前置回读发现 3 个已软删除场景的 6 条历史修订缺少共享正文引用。经只读来源审计确认四包完整、发布历史已撤销后，在服务器专用备份 `/opt/wx/editor-test148/backups/data08-preflight-backfill-20261118T105955Z/scene-tables.sql.gz` 保护下停写隔离三维服务，执行现有 `migrate-data08-db.py` 事务回填 6 条正文和 6 条引用，随后恢复服务并确认健康。
+
+完整恢复演练创建 128、1024 节点两档场景，关闭双写保存、停写回填、恢复双写保存和重复回填均通过；重复计划为 0/0。最终全量回读覆盖 180 条修订、163 条共享正文，缺失引用、租户隔离、结构、摘要、字节数和四包差异均为 0。清场后活动锁为 0，所有本轮场景仅软删除并保留修订。原始结果保存在服务器 `/opt/wx/editor-test148/backups/data08-recovery-20261118T110244Z/result.json`，工作站副本及收尾核验在 D 盘 `art07-20261118/server-evidence/data08-recovery-load-result.json`、`data08-post-recovery-verification.json`。

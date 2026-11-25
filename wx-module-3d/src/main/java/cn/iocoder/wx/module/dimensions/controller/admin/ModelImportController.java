@@ -9,13 +9,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import static cn.iocoder.wx.module.dimensions.config.Dim3dPlatformConfiguration.PLATFORM_SEGMENT;
+
 /**
  * 导入入口沿用场景列表的全局令牌认证和 ss 方法权限，不在此解析令牌或建立会话。
  * 新增、替换共用入口，服务再按原操作类型细分既有权限；资源归属仍由受控服务核对。
- * 路由默认关闭，工作线程和发布适配完成前不得用于正式新增。
+ * 双端入口统一校验登录租户，旧管理路径继续受原鉴权和归属约束。路由由配置开关控制。
  */
 @RestController
-@RequestMapping("/dim3d/model-imports")
+@RequestMapping({"/dim3d/model-imports", "/dim3d" + PLATFORM_SEGMENT + "/model-imports"})
 @ConditionalOnProperty(name="dim3d.model-import.enabled",havingValue="true")
 public class ModelImportController {
     @Resource private ModelImportService service;

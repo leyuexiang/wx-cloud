@@ -131,19 +131,56 @@ for service, (module, port) in MODULES.items():
             upstream = MODULES[name][1]
             predicates = f"Path=/admin-api/{name}/**,/app-api/{name}/**"
             if name == "dimensions":
-                # 平台别名会统一投影到 dimensions 管理控制器；身份仍由下游令牌解析。
                 routes.extend([
-                    {"id": "operation-dim3d-test148", "uri": f"http://127.0.0.1:{upstream}",
-                     "predicates": ["Path=/api/operation/dim3d/**"],
-                     "filters": ["RemoveRequestHeader=x-bot-user",
-                                 r"RewritePath=/api/operation/dim3d/(?<path>.*), /admin-api/dim3d/$\{path}"]},
-                    {"id": "tenant-dim3d-test148", "uri": f"http://127.0.0.1:{upstream}",
-                     "predicates": ["Path=/api/tenant/web/dim3d/**"],
-                     "filters": ["RemoveRequestHeader=x-bot-user",
-                                 r"RewritePath=/api/tenant/web/dim3d/(?<path>.*), /admin-api/dim3d/$\{path}"]},
+                    # WebSocket 路由需要显式覆盖精确端点和子路径，保证认证令牌能到达三维服务。
+                    {"id": "dimensions-websocket-test148", "uri": f"ws://127.0.0.1:{upstream}",
+                     "predicates": ["Path=/dimensions/ws,/dimensions/ws/**"],
+                     "filters": ["RemoveRequestHeader=x-bot-user"]},
                 ])
+                # 票据消费的兼容别名优先于登录场景路由，仍转入原匿名控制器。
+                preview_paths = [
+                    f"/api/{platform}/dim3d/scene/publication/preview{suffix}"
+                    for platform in ("operation", "tenant/web")
+                    for suffix in ("", "/resources", "/file")
+                ]
+                routes.append({
+                    "id": "dim3d-ticket-preview-compat-test148", "order": -2,
+                    "uri": f"http://127.0.0.1:{upstream}",
+                    "predicates": ["Path=" + ",".join(preview_paths)],
+                    "filters": ["RemoveRequestHeader=x-bot-user",
+                                r"RewritePath=^/api/(?:operation|tenant/web)/dim3d/(?<path>scene/publication/preview(?:/resources|/file)?)$, /admin-api/dim3d/$\{path}"],
+                })
+                for platform, public_prefix in (("operation", "/api/operation"), ("tenant", "/api/tenant/web")):
+                    public_root = f"{public_prefix}/dim3d"
+                    paths = ("model/**", "model-imports/**", "resource/uploadConvert", "resource/info/{id}",
+                             "icon/**", "template/**", "scene/**")
+                    # 三维平台路由先于通用兼容路由命中，登录身份由下游核验。
+                    routes.append({
+                        "id": f"{platform}-dim3d-platform-test148", "order": -1,
+                        "uri": f"http://127.0.0.1:{upstream}",
+                        "predicates": ["Path=" + ",".join(f"{public_root}/{path}" for path in paths)],
+                        "filters": ["RemoveRequestHeader=x-bot-user",
+                                    f"RewritePath={public_root}/(?<path>.*), /admin-api/dim3d/{platform}/" + r"$\{path}"],
+                    })
+                    routes.append({
+                        "id": f"{platform}-dim3d-test148", "uri": f"http://127.0.0.1:{upstream}",
+                        "predicates": [f"Path={public_root}/**"],
+                        "filters": ["RemoveRequestHeader=x-bot-user",
+                                    # 禁止客户端把内部模型端别作为通用转发的业务路径。
+                                    f"RewritePath=^{public_root}/(?<path>(?!(?:operation|tenant)(?:/|$)).*), "
+                                    r"/admin-api/dim3d/$\{path}"],
+                    })
                 predicates += ",/admin-api/dim3d/**"
             if name == "infra":
+                # 图片文件入口只接受上传和单编号查询，避免扩大公共文件路由。
+                for platform, segment in (("operation", "operation"), ("tenant", "tenant/web")):
+                    root = f"/api/{segment}/resource/oss"
+                    routes.append({
+                        "id": f"{platform}-image-oss-platform-test148", "uri": f"http://127.0.0.1:{upstream}",
+                        "predicates": [f"Path={root}/upload,{root}/listByIds/{{ids}}"],
+                        "filters": ["RemoveRequestHeader=x-bot-user", f"RewritePath=^{root}/(?<path>.*)$, "
+                                    f"/admin-api/infra/file/{platform}/resource/oss/" + r"$\{path}"],
+                    })
                 # 新适配控制器类映射至 /admin-api/infra/file/resource/oss，验证运行网关能到达。
                 predicates += ",/admin-api/infra/file/resource/oss/upload,/admin-api/infra/file/resource/oss/listByIds/{ids}"
             routes.append({

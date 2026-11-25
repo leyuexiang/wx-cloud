@@ -47,7 +47,7 @@ def png_fixture():
             + chunk(b'IDAT', zlib.compress(b'\0\x80\x80\x80\xff')) + chunk(b'IEND', b''))
 
 
-def run(stage_path, role, output, simple_upload=False):
+def run(stage_path, role, output, simple_upload=False, resource_belong=None):
     stage = json.loads(stage_path.read_text(encoding='utf-8'))
     clone = stage['database']
     target = 'main' if stage['sourceDatabase'] == 'wx_editor' else 'data08'
@@ -63,9 +63,12 @@ def run(stage_path, role, output, simple_upload=False):
         urllib.request.HTTPSHandler(context=ssl.create_default_context(cafile=CERTIFICATE)))
     identities = json.loads((ROOT / 'test-identities.json').read_text(encoding='utf-8'))
     actor = dict(next(item for item in identities if item['role'] == role))
+    # 身份与资源归属独立选择，补充运营管理员上传个人测试模型的真实回归。
+    belong = resource_belong or ('SYSTEM' if role == 'super_admin' else 'MINE')
     checks = []
     result = {'target': target, 'role': role, 'passed': False, 'checks': checks,
-              'runtimeCompatibilityVerified': False, 'artifactSha256': stage['artifactSha256'], 'simpleUpload': simple_upload}
+              'runtimeCompatibilityVerified': False, 'artifactSha256': stage['artifactSha256'],
+              'simpleUpload': simple_upload, 'resourceBelong': belong}
     operations = []
     resource_id = None
     cover_id = None
@@ -150,13 +153,13 @@ def run(stage_path, role, output, simple_upload=False):
             if replacing:
                 body.update(resourceId=resource_id, expectedRevision='1')
             else:
-                body.update(resourceScope='GLOBAL_SYSTEM' if role == 'super_admin' else 'TENANT_SHARED',
+                body.update(resourceScope='GLOBAL_SYSTEM' if belong == 'SYSTEM' else 'TENANT_SHARED',
                             metadata={'resourceName': 'MODEL04-' + operation[:8], 'assetName': 'probe'})
             if simple_upload:
                 # 使用与当前新增弹窗相同的业务后端上传，原包摘要和存储编排不由客户端提供。
                 source_boundary = 'model05' + uuid.uuid4().hex
                 source_body = ('--' + source_boundary + '\r\nContent-Disposition: form-data; name="resourceBelong"\r\n\r\n'
-                               + ('SYSTEM' if role == 'super_admin' else 'MINE') + '\r\n--' + source_boundary
+                               + belong + '\r\n--' + source_boundary
                                + '\r\nContent-Disposition: form-data; name="file"; filename="model.zip"\r\nContent-Type: application/zip\r\n\r\n').encode()
                 source_body += payload + ('\r\n--' + source_boundary + '--\r\n').encode()
                 created = request('/admin-api/dim3d/resource/uploadConvert', source_body, 'POST',
@@ -183,8 +186,8 @@ def run(stage_path, role, output, simple_upload=False):
             wait(operation, 'PUBLISHING')
             fields = {'modelName': 'MODEL04-替换' if replacing else 'MODEL04-完整目录', 'category': category,
                       'modelDesc': '' if replacing else 'MODEL04-原始说明', 'coverImageId': None if replacing else cover_id,
-                      'isPaid': 'PAID' if role == 'super_admin' and not replacing else 'FREE',
-                      'price': 1299 if role == 'super_admin' and not replacing else 0}
+                      'isPaid': 'PAID' if belong == 'SYSTEM' and not replacing else 'FREE',
+                      'price': 1299 if belong == 'SYSTEM' and not replacing else 0}
             save_path = '/admin-api/dim3d/model/add' if simple_upload else path + '/publish'
             save_fields = {**fields, 'operationId': operation, 'resourceId': resource_id} if simple_upload else fields
             if not replacing:
@@ -202,15 +205,19 @@ def run(stage_path, role, output, simple_upload=False):
                 check('替换保持原目录编号', row['id'] == original_directory_id)
             else:
                 original_directory_id = row['id']
-            if not simple_upload:
-                detail = request('/admin-api/dim3d/model/info/' + str(row['id']))
-                check('既有详情接口回读完整字段', detail.get('code') == 200 and detail['data']['isPaid'] == fields['isPaid']
-                      and detail['data']['price'] == fields['price'])
+            detail = request('/admin-api/dim3d/model/info/' + str(row['id']))
+            check('既有详情接口回读完整字段', detail.get('code') == 200 and detail['data']['isPaid'] == fields['isPaid']
+                  and detail['data']['price'] == fields['price'])
+            # 查询使用原业务接口，按本次目录编号断言，避免把已有同名模型当作本轮成功。
+            listing = request('/admin-api/dim3d/model/page?' + urllib.parse.urlencode({
+                'modelName': fields['modelName'], 'resourceBelong': belong, 'pageNum': 1, 'pageSize': 200}))
+            check('新增目录出现在实际列表接口', listing.get('code') == 200
+                  and any(str(item['id']) == str(row['id']) for item in (listing.get('data') or {}).get('list', [])))
             if simple_upload:
-                check('保存继承上传归属和可信账号', row['resourceBelong'] == ('SYSTEM' if role == 'super_admin' else 'MINE')
+                check('保存继承上传归属和可信账号', row['resourceBelong'] == belong
                       and str(row['uploader']) == actor_id and str(row['creator']) == actor_id)
             scope = sql("SELECT visibility_scope FROM `" + clone + "`.wx_infra_file WHERE id=" + cover_id + ';')
-            check('封面归属随目录事务提交', scope == ('GLOBAL' if role == 'super_admin' else 'TENANT'))
+            check('封面归属随目录事务提交', scope == ('GLOBAL' if belong == 'SYSTEM' else 'TENANT'))
         result['passed'] = True
     except Exception as error:
         # 网络错误可能携带签名，结果只记录类型和已脱敏的检查名称。
@@ -221,8 +228,16 @@ def run(stage_path, role, output, simple_upload=False):
             prefixes.add('resources/model-imports/' + operation + '/')
         try:
             if resource_id:
-                saved = json.loads(sql("SELECT JSON_OBJECT('revision',current_revision,'state',content_state,'deleted',del_flag) FROM `"
+                saved = json.loads(sql("SELECT JSON_OBJECT('revision',current_revision,'state',content_state,'deleted',del_flag,"
+                                       "'scope',resource_scope,'owner',tenant_id) FROM `"
                                        + clone + "`.wx_3d_resource WHERE id=" + resource_id + ';'))
+                # 资源由本轮独占创建，核对归属后回收整个资源前缀，覆盖新旧正式路径及失败尝试。
+                scope, owner = saved['scope'], str(saved['owner'])
+                if (not re.fullmatch(r'[1-9][0-9]{0,18}', resource_id)
+                        or not ((scope == 'GLOBAL_SYSTEM' and owner == '0')
+                                or (scope == 'TENANT_SHARED' and owner == str(actor['tenantId'])))):
+                    raise RuntimeError('测试模型资源归属无法核实')
+                prefixes.add('resources/' + scope + '/' + owner + '/' + resource_id + '/')
                 if saved['state'] == 'READY' and saved['deleted'] == '0':
                     deletion = str(uuid.uuid4())
                     accepted = request('/admin-api/dim3d/resource-operations', {'operationId': deletion, 'operationType': 'DELETE',
@@ -287,7 +302,8 @@ if __name__ == '__main__':
     parser.add_argument('--role', choices=('super_admin', 'tenant_admin'), required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--simple-upload', action='store_true', help='验证图片式业务上传和保存入口')
+    parser.add_argument('--resource-belong', choices=('SYSTEM', 'MINE'), help='独立选择归属以验证运营端个人上传')
     args = parser.parse_args()
     if Path.cwd().resolve() != ROOT or ROOT / 'releases' not in args.output.resolve().parents:
         parser.error('仅允许本批受控工作目录及发布证据目录')
-    raise SystemExit(0 if run(args.stage_report, args.role, args.output, args.simple_upload) else 1)
+    raise SystemExit(0 if run(args.stage_report, args.role, args.output, args.simple_upload, args.resource_belong) else 1)

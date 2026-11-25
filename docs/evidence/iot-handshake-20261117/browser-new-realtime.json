@@ -1,0 +1,24 @@
+{
+  "paths": [
+    "/dimensions/ws/iot-state"
+  ],
+  "acks": 4,
+  "updates": [
+    {
+      "value": 28.625,
+      "eventId": "0f652138-bc46-3959-8ab8-d68c704566f8",
+      "objectId": "115772655977013248"
+    }
+  ],
+  "errors": 0,
+  "scenes": 1,
+  "commits": 0,
+  "timeOrigin": 1794913984100.925,
+  "at": 1794914057847,
+  "text": "温度\n28.625\n°C",
+  "counts": {
+    "ticketRequests": 1,
+    "playerLoads": 1,
+    "snapshotRequests": 2
+  }
+}

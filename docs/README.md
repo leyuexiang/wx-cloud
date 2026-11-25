@@ -15,6 +15,8 @@
 
 ## 2. 按任务需要阅读
 
+模型内容路径发布证据见[MODEL-13 合并发布](evidence/model13-20261118/README.md)，当前入口与状态统一在 00、03 维护。
+
 管理端导航统一见[前端设计](../../../Web/web-unity/docs/design/02_管理导航统一设计.md)，覆盖资源、场景及IoT的授权树、白名单、空菜单恢复和菜单增量配置；状态见03的NAV-01。
 
 管理端样式评估与首批实施见[视觉设计记录](../../../Web/web-unity/docs/design/03_管理端视觉优化评估.md)；统一授权配置、148现场前置与增量工具命令见[配置交接](evidence/iot-management-20261111/README.md)。状态统一维护在03，工具回归不代替真实授权与部署。
@@ -56,6 +58,16 @@
 - [03 RVT样本预检记录](30_验证与交付/03_RVT样本预检记录.md)：已有预检事实；未完成原生解析验收。
 
 ## 3. 合同、证据和样例
+
+图片保留原文件切换归属、共库真实签发及双库候选见 [IMG-09 发布验收](evidence/img09-20261119/README.md)。
+
+文件型模板双端路由、租户权限和快照授权实例化见 [TPL-09 发布验收](evidence/tpl09-20261119/README.md)。
+
+模型文件详情五字段、相对路径、受控下载和专用连接回归见 [MODEL-12 合并发布验收](evidence/model12-20261118/README.md)。
+
+模型响应字段、操作人名称及上下线的重新提交与双入口发布见 [MODEL-11 发布验收](evidence/model11-20261117/README.md)。
+
+模型五类接口的远端合并、双库发布、签名回读与清理见 [MODEL-09 发布验收](evidence/model09-20261117/README.md)。
 
 | 资料 | 位置和使用方式 |
 | --- | --- |
@@ -109,7 +121,21 @@
 - [物联网里程碑索引](plan/01_后端里程碑与进度台账.md)
 - [动态多连接设计](design/05_IoT动态多连接接入方案.md)
 - [三维状态投影](design/04_IoT三维状态投影设计说明.md)
+- [IoT 定向 WebSocket 推送交付设计](design/06_IoT定向WebSocket推送交付设计.md)
 - [设备到三维实例联动设计](design/04_IoT三维状态投影设计说明.md#iot-model-binding)
 - [IoT 六层验收与里程碑](plan/02_IoT服务进度与后续计划.md#iot-acceptance-plan)
 - [物联网管理接口](guides/04_IoT连接器管理接口.md)
+- [IOT-M3-03 候选链路验收证据](evidence/iot-m3-03-20261113/README.md)
+- [IOT-M3-03C 持久化消息服务验收](evidence/iot-m3-03c-20261116/README.md)
+- [PUB-UI-01 统一发布入口与凭证续期验收](evidence/publication-ui-20261117/README.md)
+- [IOT-M3-05 千设备容量基线与隔离恢复](evidence/iot-capacity-20261117/README.md)：保留优化前未通过的原始基线
+- [IOT-M3-05A/B 有界接收与分发复测](evidence/iot-concurrency-20261117/README.md)：优化后两轮协议客户端工程基线通过，独立身份及浏览器容量另验
+- [IOT-M3-05C 固定发布稳态与浏览器复验](evidence/iot-soak-20261117/README.md)：十分钟协议稳态及单浏览器实时/续期通过，保留排程停止轮，50 独立身份及浏览器规模仍待
+- [IOT-M3-05D 独立身份协议容量与单浏览器验收](evidence/iot-identities-20261117/README.md)：50 独立身份十分钟及单浏览器通过；首次延迟、匿名共享握手与身份接口缺口留证，50 真实播放器按用户选择暂不推进
+- [IOT-M3-05E 专用握手、协议容量与单浏览器](evidence/iot-handshake-20261117/README.md)：认证专用入口、十分钟 600 万次推送及页面重连/自然续期通过；现场精确代理差异、失败轮次及受控冷启动边界保留
+- [IOT-M3-05F 新包独立身份、进程冷启动与位置对照](evidence/iot-cold-20261117/README.md)：服务器本机 50 独立身份十分钟和三次进程冷启动通过；工作站路径仍有积压，失败保留，临时身份及夹具已回收
+- [IOT-M3-05G 工作站有界接收分进程](evidence/iot-receivers-20261117/README.md)：可选 1～5 接收进程，工作站 50 独立身份十分钟 600 万次推送通过；23 项工具回归、完整清理与历史根因边界留证
+- [IOT-M3-05H 身份接口一致性与正式入口](evidence/auth-consistency-20261118/README.md)：账号长度与删除后退出审计修复、47 项回归、共享身份服务部署及完整清理；正式网关旧令牌缓存缺口单列，未宣称全链路失效通过
+- [IOT-M3-05I 网关令牌撤销一致性](evidence/gateway-auth-20261118/README.md)：逐请求权威校验、24 项回归、真实双网关撤销及用户授权的正式切换；协议兼容、清理和回退留证
+- [MQTT 入门与 Kafka 对比](guides/08_MQTT入门与Kafka对比.md)：首次接触 MQTT 时读，讲清概念、本项目取值、部署与联调步骤及与 Kafka 的分工
 - [物联网历史验证记录](records/07_20261023_M2连接测试验证记录.md)

@@ -1,0 +1,18 @@
+{
+  "paths": [
+    "/dimensions/ws/iot-state"
+  ],
+  "acks": 2,
+  "updates": [],
+  "errors": 0,
+  "scenes": 1,
+  "commits": 0,
+  "timeOrigin": 1794913984100.925,
+  "at": 1794914003542,
+  "text": "温度\n29.500\n°C",
+  "counts": {
+    "ticketRequests": 1,
+    "playerLoads": 1,
+    "snapshotRequests": 2
+  }
+}

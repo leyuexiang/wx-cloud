@@ -95,14 +95,14 @@ class ImageResourceRouteTest {
         var operation = route("operation-dim3d-api");
         var tenant = route("tenant-dim3d-api");
         for (var pair : List.of(
-                new RouteExchange(operation, "/api/operation/dim3d/icon/add"),
-                new RouteExchange(tenant, "/api/tenant/web/dim3d/icon/add"))) {
+                new RouteExchange(operation, "/api/operation/dim3d/resources/7/current"),
+                new RouteExchange(tenant, "/api/tenant/web/dim3d/resources/7/current"))) {
             var exchange = MockServerWebExchange.from(MockServerHttpRequest.post(pair.path())
                     .header("Authorization", "Bearer trusted-session")
                     .header("ClientId", "trusted-client")
                     .header("x-bot-user", "forged-user"));
             var forwarded = apply(pair.route(), exchange);
-            assertEquals("/admin-api/dim3d/icon/add", forwarded.getRequest().getURI().getPath());
+            assertEquals("/admin-api/dim3d/resources/7/current", forwarded.getRequest().getURI().getPath());
             assertEquals("Bearer trusted-session", forwarded.getRequest().getHeaders().getFirst("Authorization"));
             assertEquals("trusted-client", forwarded.getRequest().getHeaders().getFirst("ClientId"));
             assertNull(forwarded.getRequest().getHeaders().getFirst("x-bot-user"));
@@ -111,6 +111,79 @@ class ImageResourceRouteTest {
                 MockServerHttpRequest.post("/api/tenant/web/dim3d/icon/add"))));
         assertFalse(predicate(tenant).test(MockServerWebExchange.from(
                 MockServerHttpRequest.post("/api/operation/dim3d/icon/add"))));
+    }
+
+    /** 两类模板、模型、图标和场景路径均优先转入端别校验，通用资源读取继续兼容。 */
+    @Test
+    void catalogAndScenePathsKeepTheirPlatformThroughTheGateway() throws Exception {
+        for (String platform : List.of("operation", "tenant")) {
+            var scoped = route(platform + "-dim3d-platform-api");
+            var general = route(platform + "-dim3d-api");
+            assertTrue(scoped.getOrder() < general.getOrder());
+            var matchesPlatform = predicate(scoped);
+            String root = "/api/" + (platform.equals("tenant") ? "tenant/web" : platform) + "/dim3d";
+            for (String path : List.of("/model/page", "/model/edit/7", "/model/file-access/7",
+                    "/resource/info/7", "/resource/uploadConvert", "/model-imports", "/model-imports/key/submit",
+                    "/icon/page", "/scene/saveAll", "/scene/template/page", "/scene/publication/PUB-7/ticket",
+                    "/template/page", "/template/info/7", "/template/add", "/template/edit/7",
+                    "/template/OFFLINE/7", "/template/remove/7", "/scene/template/share/7",
+                    "/scene/saveAsTemplateFromSnapshot", "/scene/fromTemplate")) {
+                var exchange = MockServerWebExchange.from(MockServerHttpRequest.get(root + path)
+                        .header("Authorization", "Bearer trusted-session").header("tenant-id", "7")
+                        .header("x-bot-user", "forged-user"));
+                assertTrue(matchesPlatform.test(exchange), root + path);
+                var forwarded = apply(scoped, exchange).getRequest();
+                assertEquals("/admin-api/dim3d/" + platform + path, forwarded.getURI().getPath());
+                assertEquals("Bearer trusted-session", forwarded.getHeaders().getFirst("Authorization"));
+                assertEquals("7", forwarded.getHeaders().getFirst("tenant-id"));
+                assertNull(forwarded.getHeaders().getFirst("x-bot-user"));
+            }
+            assertFalse(matchesPlatform.test(MockServerWebExchange.from(MockServerHttpRequest.get(root + "/resources/7/current"))));
+            // 兼容路由不能把外部拼接的平台段转成内部专用入口。
+            String nested = root + "/operation/model/page";
+            assertEquals(nested, apply(general, MockServerWebExchange.from(MockServerHttpRequest.get(nested)))
+                    .getRequest().getURI().getPath());
+        }
+    }
+
+    /** 两端的图片文件上传与单编号读取应转入基础设施服务，其他文件操作不在路由内。 */
+    @Test
+    void ownedImagePathsKeepTheirPlatformThroughTheGateway() throws Exception {
+        for (String platform : List.of("operation", "tenant")) {
+            var route = route(platform + "-image-oss-platform-api");
+            assertEquals("infra-server", route.getUri().getHost());
+            String root = "/api/" + (platform.equals("tenant") ? "tenant/web" : platform) + "/resource/oss";
+            for (String suffix : List.of("/upload", "/listByIds/9223372036854775807")) {
+                var exchange = MockServerWebExchange.from(MockServerHttpRequest.post(root + suffix)
+                        .header("Authorization", "Bearer trusted-session").header("tenant-id", "7"));
+                assertTrue(predicate(route).test(exchange));
+                var forwarded = apply(route, exchange).getRequest();
+                assertEquals("/admin-api/infra/file/" + platform + "/resource/oss" + suffix, forwarded.getURI().getPath());
+                assertEquals("Bearer trusted-session", forwarded.getHeaders().getFirst("Authorization"));
+                assertEquals("7", forwarded.getHeaders().getFirst("tenant-id"));
+            }
+            assertFalse(predicate(route).test(MockServerWebExchange.from(MockServerHttpRequest.get(root + "/listByIds/1/2"))));
+        }
+    }
+
+    /** 带票据的三种匿名消费优先走原入口，签发票据等管理操作仍走受鉴权入口。 */
+    @Test
+    void previewAliasesKeepTicketRoutesOutsideThePlatformGuard() throws Exception {
+        var preview = route("dim3d-ticket-preview-compat-api");
+        for (String platform : List.of("operation", "tenant")) {
+            assertTrue(preview.getOrder() < route(platform + "-dim3d-platform-api").getOrder());
+            String root = "/api/" + (platform.equals("tenant") ? "tenant/web" : platform) + "/dim3d/scene/publication";
+            for (String suffix : List.of("/preview", "/preview/resources", "/preview/file")) {
+                var exchange = MockServerWebExchange.from(MockServerHttpRequest.post(root + suffix)
+                        .header("X-Scene-Ticket", "test-ticket"));
+                assertTrue(predicate(preview).test(exchange));
+                var forwarded = apply(preview, exchange).getRequest();
+                assertEquals("/admin-api/dim3d/scene/publication" + suffix, forwarded.getURI().getPath());
+                assertEquals("test-ticket", forwarded.getHeaders().getFirst("X-Scene-Ticket"));
+            }
+            assertFalse(predicate(preview).test(MockServerWebExchange.from(MockServerHttpRequest.post(root + "/PUB-7/ticket"))));
+            assertFalse(predicate(preview).test(MockServerWebExchange.from(MockServerHttpRequest.post(root + "/preview/extra"))));
+        }
     }
 
     private static org.springframework.cloud.gateway.route.RouteDefinition route(String id) throws Exception {
@@ -125,7 +198,7 @@ class ImageResourceRouteTest {
     private static Predicate<org.springframework.web.server.ServerWebExchange> predicate(
             org.springframework.cloud.gateway.route.RouteDefinition route) {
         var config = new PathRoutePredicateFactory.Config();
-        config.setPatterns(List.of(route.getPredicates().get(0).getArgs().get("_genkey_0")));
+        config.setPatterns(List.copyOf(route.getPredicates().get(0).getArgs().values()));
         return new PathRoutePredicateFactory().apply(config);
     }
 

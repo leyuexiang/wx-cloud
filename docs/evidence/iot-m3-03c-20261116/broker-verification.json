@@ -1,0 +1,10 @@
+{
+  "state": "VERIFIED",
+  "endpoint": "127.0.0.1:19092",
+  "volume": "wx-iot-kafka148-data",
+  "restartRetention": true,
+  "writeRestrictions": true,
+  "clientAuthentication": "mutual TLS",
+  "automaticRestart": "unless-stopped",
+  "singleNode": true
+}

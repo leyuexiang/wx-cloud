@@ -1,0 +1,16 @@
+{
+  "crossTenantTicket": {
+    "type": "iot-state-subscribe-error",
+    "code": "FORBIDDEN"
+  },
+  "forgedTenantHandshakeStatus": 403,
+  "missingSubscribePermission": {
+    "type": "iot-state-subscribe-error",
+    "code": "FORBIDDEN"
+  },
+  "anonymousHandshakeAccepted": true,
+  "anonymousSubscribe": {
+    "type": "iot-state-subscribe-error",
+    "code": "FORBIDDEN"
+  }
+}

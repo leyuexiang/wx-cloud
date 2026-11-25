@@ -13,6 +13,7 @@ import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,14 +26,20 @@ import java.util.List;
 
 import static cn.iocoder.wx.framework.common.pojo.CommonResult.success;
 
-/** 普通图片文件公共别名的后台适配；稳定编号与资源目录、ART resourceId 分属不同命名空间。 */
+/** 双端图片与封面文件入口，复用原文件身份、上传及读取协议。 */
 @RestController
-@RequestMapping("/infra/file/resource/oss")
+@RequestMapping({"/infra/file/resource/oss", "/infra/file/{imagePlatform:operation|tenant}/resource/oss"})
 @Tag(name = "管理后台 - 有归属图片文件")
 public class OwnedImageController {
 
     @Resource
     private FileService fileService;
+
+    /** 双端路径在读取文件流或查询编号前核验端别；旧入口由原有登录和文件归属规则保护。 */
+    @ModelAttribute
+    void authorizePlatform(@PathVariable(value = "imagePlatform", required = false) String platform) {
+        if (platform != null) fileService.requireOwnedImagePlatform(platform);
+    }
 
     @PostMapping(value = "/upload", consumes = "multipart/form-data")
     @PreAuthorize("isAuthenticated()")

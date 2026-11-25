@@ -26,11 +26,27 @@ public class ArtResourceAccess {
         return new Actor(user.getId(), user.getTenantId());
     }
     public void maintain(Actor actor, String scope, String owner) {
-        boolean allowed = "GLOBAL_SYSTEM".equals(scope) && "0".equals(owner)
-            && platformTenant > 0 && actor.tenant() == platformTenant
-            && Boolean.TRUE.equals(permissions.hasAnyRoles(actor.user(), "super_admin").getCheckedData());
+        // 复用既有运营身份修复，平台管理员在当前登录租户同样可维护个人模型。
+        boolean platformAdministrator = isPlatformAdministrator(actor);
+        boolean allowed = "GLOBAL_SYSTEM".equals(scope) && "0".equals(owner) && platformAdministrator;
         if (!allowed && "TENANT_SHARED".equals(scope) && Long.toString(actor.tenant()).equals(owner))
-            allowed = Boolean.TRUE.equals(permissions.hasAnyRoles(actor.user(), "tenant_admin").getCheckedData());
+            allowed = platformAdministrator || Boolean.TRUE.equals(permissions.hasAnyRoles(actor.user(), "tenant_admin").getCheckedData());
         if (!allowed) throw ServiceException.of(ADMIN_REQUIRED);
+    }
+
+    /** 跨租户目录及授权复用平台租户与超级管理员角色的双重检查。 */
+    public boolean isPlatformAdministrator(Actor actor) {
+        return isPlatformTenant(actor.tenant())
+                && Boolean.TRUE.equals(permissions.hasAnyRoles(actor.user(), "super_admin").getCheckedData());
+    }
+
+    boolean isPlatformTenant(long tenant) { return platformTenant > 0 && tenant == platformTenant; }
+
+    /** 路由只声明要访问的端；权限由令牌一致的登录租户判定，公共资源租户 0 不参与登录。 */
+    public void requireDim3dPlatform(String platform) {
+        String authenticatedPlatform = isPlatformTenant(actor().tenant()) ? "operation" : "tenant";
+        if (!authenticatedPlatform.equals(platform)) {
+            throw new ServiceException(403, "当前登录身份无权访问该三维平台入口");
+        }
     }
 }

@@ -1,0 +1,61 @@
+{
+  "checkedAt": "2026-11-17T10:12:25.331476+00:00",
+  "status": "DEPLOYED",
+  "sourceCommit": "28564fef4731ebc6755250d3afdd335c78b744b3",
+  "services": {
+    "main": {
+      "health": "UP",
+      "containerHealth": "healthy",
+      "sha256": "ad0c484fd1dec5cd9aafb09d0867cc3ceb3e298a5b3491db7c851f7f2f6bd031",
+      "preservedConfiguration": {
+        "Env": true,
+        "Entrypoint": true,
+        "Cmd": true,
+        "User": true
+      },
+      "sameOtherMounts": true,
+      "sameImage": true,
+      "sameMemoryLimit": true,
+      "startedAt": "2026-11-17T10:10:19.217960055Z",
+      "backupContainer": "wx-editor-dimensions-before-model11-20261117",
+      "extractedControllerVerified": true
+    },
+    "data08": {
+      "health": "UP",
+      "containerHealth": "healthy",
+      "sha256": "ad0c484fd1dec5cd9aafb09d0867cc3ceb3e298a5b3491db7c851f7f2f6bd031",
+      "preservedConfiguration": {
+        "Env": true,
+        "Entrypoint": true,
+        "Cmd": true,
+        "User": true
+      },
+      "sameOtherMounts": true,
+      "sameImage": true,
+      "sameMemoryLimit": true,
+      "startedAt": "2026-11-17T10:10:32.481715666Z",
+      "backupContainer": "wx-editor-dimensions-data08-before-model11-20261117"
+    }
+  },
+  "gateways": {
+    "12522": "UP",
+    "12525": "UP"
+  },
+  "cleanup": {
+    "main": {
+      "candidateRemoved": true,
+      "cloneRemoved": true,
+      "candidateConfigurationRemoved": true,
+      "testResourcesRemoved": true,
+      "testSessionsLoggedOut": true
+    },
+    "data08": {
+      "candidateRemoved": true,
+      "cloneRemoved": true,
+      "candidateConfigurationRemoved": true,
+      "testResourcesRemoved": true,
+      "testSessionsLoggedOut": true
+    }
+  },
+  "passed": true
+}

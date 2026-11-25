@@ -1,0 +1,32 @@
+{
+  "backendTests": {
+    "tests": 114,
+    "passed": 111,
+    "skipped": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipReason": "未配置独立 Redis 条件"
+  },
+  "backendPackage": "BUILD SUCCESS",
+  "webTestsAfterMerge": {
+    "tests": 14,
+    "passed": 14
+  },
+  "webTypeCheck": true,
+  "webProductionBuild": true,
+  "capacityComplete": true,
+  "capacityDistinctAccounts": 1,
+  "browserCount": 1,
+  "browserDedicatedEndpoint": true,
+  "browserSameDocument": true,
+  "browserNormalUpdateExtraSnapshots": 0,
+  "browserReconnectSnapshotIncrease": 2,
+  "browserNaturalTicketRenewal": true,
+  "browserDiagnosticRemoved": true,
+  "browserScreenshot": "capture timed out; DOM and actual messages retained",
+  "unitySourceChanged": false,
+  "databaseMigration": false,
+  "deployedServerCommit": "40d40effd4d67117897632411014ea2c78b9b1b4",
+  "deployedWebCommit": "b3711ddf396f92f99b67274b11cef49c7bd0f4c8",
+  "integratedWebCommit": "3c5bb04513aa986ca791360032bdc718abdc4179"
+}

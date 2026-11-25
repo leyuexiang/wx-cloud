@@ -1,5 +1,6 @@
 """静态发布边界回归：保护旧站点、隔离代理及回退后的有效证书。"""
 import unittest
+import re
 from iot_web_release import render_config, rollback_config
 
 
@@ -32,6 +33,21 @@ class IotWebReleaseTest(unittest.TestCase):
         self.assertIn('proxy_set_header x-bot-user "";', result)
         self.assertNotIn('iot/**', result)
         self.assertNotIn('telemetry', result)
+
+    def test_platform_paths_are_whitelisted_without_opening_other_services(self):
+        result = render_config(BEFORE, SITE, CERT)
+        pattern = re.search(r'location ~ "(\^/dts-api/[^"]+)"', result).group(1)
+        for platform in ('operation', 'tenant/web'):
+            prefix = f'/dts-api/api/{platform}'
+            for path in ('model/page', 'model-imports', 'model-imports/key/submit',
+                         'resource/uploadConvert', 'resource/info/123', 'icon/page', 'scene/saveAll',
+                         'template/page', 'template/edit/123', 'scene/template/page', 'scene/fromTemplate',
+                         'scene/publication/preview'):
+                self.assertRegex(f'{prefix}/dim3d/{path}', pattern)
+            self.assertRegex(f'{prefix}/resource/oss/upload', pattern)
+            self.assertRegex(f'{prefix}/resource/oss/listByIds/123', pattern)
+            self.assertNotRegex(f'{prefix}/resource/oss/delete', pattern)
+            self.assertNotRegex(f'{prefix}/dim3d/resource/info/123/extra', pattern)
 
     def test_hash_assets_never_fall_back_to_html(self):
         result = render_config(BEFORE, SITE, CERT)
