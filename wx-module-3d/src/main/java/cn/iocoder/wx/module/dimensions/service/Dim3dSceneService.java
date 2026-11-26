@@ -112,9 +112,7 @@ public class Dim3dSceneService {
         scene.putObject("domainSlots").put("twoD", "present").put("threeD", "present"); scene.putObject("metadata");
         ObjectNode threeD = json.createObjectNode();
         ObjectNode base = threeD.putObject("baseConfig");
-        ObjectNode coordinates = base.putObject("coordinateSystem");
-        if ("gis".equals(type)) coordinates.put("kind", "wgs84").put("terrainEnabled", false).put("defaultLongitude", 104.0668).put("defaultLatitude", 30.5728).put("defaultHeight", 0);
-        else coordinates.put("kind", "local").put("unit", "meter").put("upAxis", "Y").put("gridEnabled", true);
+        base.set("coordinateSystem", defaultSceneCoordinates(type));
         base.putArray("gisLayers"); base.putObject("scene"); base.putObject("camera"); base.putObject("weather"); base.putObject("settings");
         for (String key : List.of("objects", "components", "layers", "cameraPaths")) threeD.putArray(key);
         ObjectNode streaming = threeD.putObject("streaming");
@@ -170,7 +168,7 @@ public class Dim3dSceneService {
         int length = Math.min(100 - suffix.length(), originalName.codePointCount(0, originalName.length()));
         String name = originalName.substring(0, originalName.offsetByCodePoints(0, length)) + suffix;
         long copied = IdWorker.getId();
-        List<String> packages = instantiatePackages(revision, id, id, Long.toString(copied), name);
+        List<String> packages = instantiatePackages(revision, id, id, Long.toString(copied), name, null);
         jdbc.update("INSERT INTO wx_3d_scene(id,tenant_id,name,scene_desc,scene_category,scene_type,cover_asset_id,create_by) VALUES(?,?,?,?,?,?,?,?)",
                 copied, actor.tenant(), name, original.get("scene_desc"), original.get("scene_category"),
                 original.get("scene_type"), original.get("cover_asset_id"), actor.user());
@@ -417,10 +415,17 @@ public class Dim3dSceneService {
         String templateSceneId = text(body, "templateSceneId", 19);
         String request = text(body, "requestId", 110);
         String name = text(body, "name", 100);
+        String targetType = text(body, "targetSceneType", 16);
+        if (!Set.of("local3d", "gis").contains(targetType)) throw bad("目标场景类型无效");
         String description = optional(body, "sceneDesc", 500);
         String category = optional(body, "sceneCategory", 100);
         var template = templateForInstantiation(templateSceneId, actor);
         if (!"ONLINE".equals(template.get("status"))) throw new ServiceException(409, "模板当前未上线");
+        // 含三维内容的模板绑定来源坐标系，只允许纯二维模板更换类型。
+        boolean twoDOnly = "twoD".equals(template.get("save_scope"));
+        if (!twoDOnly && !targetType.equals(template.get("scene_type"))) {
+            throw bad("含三维内容的模板必须使用来源场景类型");
+        }
         int publishedVersion = template.get("published_version_no") == null ? 1 : ((Number) template.get("published_version_no")).intValue();
         long ownerTenant = ((Number) template.get("tenant_id")).longValue();
         var versions = jdbc.queryForList("SELECT revision_no FROM wx_3d_scene_template_version WHERE tenant_id=? AND template_id=? AND version_no=? AND status='READY'",
@@ -432,23 +437,25 @@ public class Dim3dSceneService {
         if (revisions.size() != 1) throw new ServiceException(500, "模板场景修订不完整");
         var sourceRevision = revisionRowWithContent(ownerTenant == actor.tenant() ? actor : new ArtResourceAccess.Actor(actor.user(), ownerTenant), revisions.get(0));
         String storedRequest = "TPL6:" + request;
-        String requestHash = digest(templateSceneId + "\n" + name + "\n" + description + "\n" + category + "\n"
-                + sourceRevision.get("request_hash"));
+        // 按字段编码幂等内容，区分选择的坐标系，也避免名称或描述中的换行混淆字段边界。
+        String requestHash = digest(json.createArrayNode().add(templateSceneId).add(name).add(targetType)
+                .add(description).add(category).add(Objects.toString(sourceRevision.get("request_hash"))).toString());
         var replay = jdbc.queryForList("SELECT scene_id,request_hash FROM wx_3d_scene_revision WHERE tenant_id=? AND request_id=?",
                 actor.tenant(), storedRequest);
         if (!replay.isEmpty()) {
             var previous = replay.get(0);
             if (!requestHash.equals(previous.get("request_hash"))) throw new ServiceException(409, "实例化请求号已绑定其他内容");
-            return instanceReceipt(previous.get("scene_id").toString(), templateSceneId, template.get("scene_type"));
+            return instanceReceipt(previous.get("scene_id").toString(), templateSceneId, targetType);
         }
         long sceneId = IdWorker.getId();
-        List<String> packages = instantiatePackages(sourceRevision, template.get("source_scene_id").toString(), templateSceneId, Long.toString(sceneId), name);
+        List<String> packages = instantiatePackages(sourceRevision, template.get("source_scene_id").toString(),
+                templateSceneId, Long.toString(sceneId), name, twoDOnly ? targetType : null);
         jdbc.update("INSERT INTO wx_3d_scene(id,tenant_id,name,scene_desc,scene_category,scene_type,cover_asset_id,create_by) VALUES(?,?,?,?,?,?,?,?)",
                 sceneId, actor.tenant(), name, description.isEmpty() ? template.get("template_desc") : description,
-                category.isEmpty() ? template.get("category") : category, template.get("scene_type"), template.get("cover_asset_id"), actor.user());
+                category.isEmpty() ? template.get("category") : category, targetType, template.get("cover_asset_id"), actor.user());
         long revision = insertRevision(actor, sceneId, 1, 1, packages, storedRequest, requestHash);
         return Map.of("sceneId", Long.toString(sceneId), "templateSceneId", templateSceneId, "sceneKind", "INSTANCE",
-                "sceneType", template.get("scene_type"), "revisionId", Long.toString(revision), "revisionNo", 1);
+                "sceneType", targetType, "revisionId", Long.toString(revision), "revisionNo", 1);
     }
 
     /** 授予目标租户使用指定已发布模板版本的权限。共享只开放实例化入口，不改变模板目录租户边界。 */
@@ -515,16 +522,16 @@ public class Dim3dSceneService {
         String normalizedType = normalizeTemplateType(type);
         String order = Dim3dFileTemplateService.orderBy(
                 orderByColumn == null || orderByColumn.isBlank() ? "updateTime" : orderByColumn, isAsc);
-        // 数据库按数值编号排序，仅在返回时转字符串。旧目录继续按认证租户隔离。
+        // 数据库按数值编号排序。快照行带上实例化所需的范围和来源类型，网页无需另查四包详情。
         String old = """
                 SELECT id,template_name,template_desc,template_type,category,resource_belong,
                        CONCAT('',cover_image_id) cover_image_id,template_file_id,status,NULL template_scene_id,
-                       create_time,update_time,'LEGACY' record_kind
+                       create_time,update_time,'LEGACY' record_kind,NULL scene_type,NULL save_scope
                 FROM wx_3d_template WHERE del_flag='0' AND tenant_id=?
                 """;
         String snapshot = """
                 SELECT id,template_name,template_desc,template_type,category,resource_belong,
-                       cover_asset_id,NULL,status,template_scene_id,create_time,update_time,'SNAPSHOT'
+                       cover_asset_id,NULL,status,template_scene_id,create_time,update_time,'SNAPSHOT',scene_type,save_scope
                 FROM wx_3d_scene_template WHERE deleted=0 AND tenant_id=?
                 """;
         StringBuilder where = new StringBuilder(" FROM (" + old + " UNION ALL " + snapshot + ") t WHERE 1=1");
@@ -539,7 +546,7 @@ public class Dim3dSceneService {
         if (offset >= total) return new PageResult<>(List.of(), total);
         parameters.add(size); parameters.add(offset);
         // 两张表的目录编号可能相同，用来源标记稳定分页边界。
-        var rows = jdbc.queryForList("SELECT id,template_name,template_desc,template_type,category,resource_belong,cover_image_id,template_file_id,status,template_scene_id,update_time,record_kind"
+        var rows = jdbc.queryForList("SELECT id,template_name,template_desc,template_type,category,resource_belong,cover_image_id,template_file_id,status,template_scene_id,update_time,record_kind,scene_type,save_scope"
                 + where + order + ", record_kind LIMIT ? OFFSET ?", parameters.toArray());
         return new PageResult<>(rows.stream().map(this::combinedTemplateSummary).toList(), total);
     }
@@ -845,6 +852,16 @@ public class Dim3dSceneService {
         if (!scope.equals(owner.path("domain").asText())) throw bad("模板依赖归属超出保存范围");
     }
 
+    /** 普通新增和纯二维模板实例化使用同一组场景坐标默认值。 */
+    private ObjectNode defaultSceneCoordinates(String sceneType) {
+        ObjectNode coordinates = json.createObjectNode();
+        if ("gis".equals(sceneType)) {
+            return coordinates.put("kind", "wgs84").put("terrainEnabled", false)
+                    .put("defaultLongitude", 104.0668).put("defaultLatitude", 30.5728).put("defaultHeight", 0);
+        }
+        return coordinates.put("kind", "local").put("unit", "meter").put("upAxis", "Y").put("gridEnabled", true);
+    }
+
     private String emptyThreeD(String sceneType) {
         ObjectNode threeD = json.createObjectNode();
         ObjectNode base = threeD.putObject("baseConfig");
@@ -861,14 +878,19 @@ public class Dim3dSceneService {
         return twoD.toString();
     }
 
-    /** 复制模板四包并重建场景内节点、父级、图层和分块引用。 */
-    private List<String> instantiatePackages(Map<String, Object> sourceRevision, String sourceSceneId, String templateSceneId, String sceneId, String name) {
+    /** 复制四包并重建内部引用。只有纯二维模板实例化会传入目标类型，以初始化空三维包的坐标系。 */
+    private List<String> instantiatePackages(Map<String, Object> sourceRevision, String sourceSceneId,
+            String templateSceneId, String sceneId, String name, String twoDTargetType) {
         try {
             ObjectNode scene = (ObjectNode) json.readTree(sourceRevision.get("scene_json").toString());
             ObjectNode threeD = (ObjectNode) json.readTree(sourceRevision.get("three_d_json").toString());
             ObjectNode twoD = (ObjectNode) json.readTree(sourceRevision.get("two_d_json").toString());
             ObjectNode dependencies = (ObjectNode) json.readTree(sourceRevision.get("dependencies_json").toString());
             scene.put("name", name);
+            if (twoDTargetType != null) {
+                scene.put("sceneType", twoDTargetType);
+                threeD.withObjectProperty("baseConfig").set("coordinateSystem", defaultSceneCoordinates(twoDTargetType));
+            }
             Map<String, String> references = new LinkedHashMap<>();
             collectReferenceIds(threeD.path("objects"), "instanceId", references);
             collectReferenceIds(threeD.path("components"), "instanceId", references);
@@ -990,6 +1012,10 @@ public class Dim3dSceneService {
         out.put("resourceBelong", row.get("resource_belong")); out.put("coverImageId", row.get("cover_image_id"));
         out.put("templateFileId", Objects.toString(row.get("template_file_id"), null)); out.put("status", row.get("status"));
         out.put("templateSceneId", Objects.toString(row.get("template_scene_id"), null)); out.put("recordKind", row.get("record_kind"));
+        if ("SNAPSHOT".equals(row.get("record_kind"))) {
+            out.put("sceneType", row.get("scene_type"));
+            out.put("saveScope", row.get("save_scope"));
+        }
         out.put("updateTime", row.get("update_time") == null ? null : row.get("update_time").toString());
         return out;
     }
