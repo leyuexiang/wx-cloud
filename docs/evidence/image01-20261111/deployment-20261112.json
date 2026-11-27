@@ -1,0 +1,53 @@
+{
+  "time": "2026-11-12T08:37:48.576Z",
+  "source": "工作站直连正式入口",
+  "deployed": true,
+  "authenticatedUploadVerified": false,
+  "backup": "/opt/wx/editor-test148/backups/image01-20261112",
+  "checks": [
+    {
+      "name": "正式入口健康",
+      "path": "/actuator/health",
+      "httpStatus": 200,
+      "health": "UP"
+    },
+    {
+      "name": "上传控制器已部署",
+      "path": "/admin-api/infra/v3/api-docs",
+      "httpStatus": 200,
+      "imageUploadRegistered": true
+    },
+    {
+      "name": "匿名上传拒绝",
+      "path": "/admin-api/resource/oss/upload",
+      "httpStatus": 200,
+      "code": 401
+    },
+    {
+      "name": "匿名文件读取拒绝",
+      "path": "/admin-api/resource/oss/listByIds/1",
+      "httpStatus": 200,
+      "code": 401
+    },
+    {
+      "name": "匿名上传拒绝",
+      "path": "/api/resource/oss/upload",
+      "httpStatus": 200,
+      "code": 401
+    },
+    {
+      "name": "匿名文件读取拒绝",
+      "path": "/api/resource/oss/listByIds/1",
+      "httpStatus": 200,
+      "code": 401
+    },
+    {
+      "name": "浏览器跨域预检",
+      "path": "/admin-api/resource/oss/upload",
+      "httpStatus": 200,
+      "allowedOrigin": "*",
+      "allowedMethods": "*",
+      "allowedHeaders": "*"
+    }
+  ]
+}

@@ -58,15 +58,16 @@ BASE-01 涉及模型、图片、场景、访问模式、行业模板和展厅模
 
 | 编号 | 方法及路径 | 来源及消费者 | 当前后端基础 | 明确差异/处理 | 分类/责任 |
 | --- | --- | --- | --- | --- | --- |
-| CAT-01 | GET `P/dim3d/model/page`、`/model/info/{id}` | F05；模型管理、编辑资源面板 | B04 同名后缀 `/admin-api/dim3d` | MODEL-10 已使用独立 16 字段目录投影、统一 `modelFileId`、两位小数字符串价格及日期文本，根级分页和排序保留；预览由资源详情获取，本次字段收敛已部署并通过接口验收 | 适配/三维 |
+| CAT-01 | GET `P/dim3d/model/page`、`P/dim3d/model/info/{id}` | F05；模型管理、编辑资源面板 | MODEL-18 双端入口按可信运营租户与普通租户校验；旧 `/admin-api/dim3d` 路径兼容 | MODEL-10 的 16 字段目录投影、字符串 `modelFileId`、两位价格及日期格式已通过接口验收；MODEL-17 上下线可见性适用于分页、详情及文件元信息，编辑面板逐页查询已上线模型 | 适配/三维 |
 | CAT-02 | POST `/model/add`；PUT `/model/edit/{id}`；DELETE `/model/remove/{id}`；PUT `/model/{status}/{id}`，均加 `P/dim3d` | F05；模型管理/弹窗 | MODEL-09 五类接口表单收口，MODEL-11 上下线调整 | 新增、编辑要求完整文档表单，受管模型支持元数据编辑及文件替换，删除复用资源事务及引用保护，成功 `data=null`；上下线已统一历史及受管目录、编辑及归属权限，只接受 `ONLINE/OFFLINE`，成功 `data=null`；本次上下线调整已部署并通过接口验收 | 适配/三维 |
 | CAT-03 | GET `/icon/page`、`/icon/info/{id}`；POST `/icon/add`；PUT `/icon/edit/{id}`、`/icon/{status}/{id}`；DELETE `/icon/remove/{id}`，均加 `P/dim3d` | F06；图片管理、图像选择及部件素材 | IMG-08 校验双端身份，租户只读上线系统目录及当前租户目录 | 保留根级分页、排序、字符串新增编号和 `dim3d:icon:*` 写入权限；真实网关另验 | 适配/三维 |
 | CAT-04 | GET `/template/page`、`/template/info/{id}`；POST `/template/add`；PUT `/template/edit/{id}`、`/template/{status}/{id}`；DELETE `/template/remove/{id}`，均加 `P/dim3d` | F07；模板管理和编辑器资源面板 | TPL-09 核验双端身份，旧管理路径兼容 | 保留同租户合并分页的来源标记、排序及空写入回执。文件型新增在后端接入，网页另存快照见 TMP-01 | 适配/三维 |
 | FILE-01 | POST `P/resource/oss/upload` | F08；图片及各业务封面 | IMG-08 按端调用基础设施服务，校验上传业务权限和可信归属 | 单字段 `file`，返回 `ossId,url,originalName,fileSuffix`，编号按字符串传输 | 适配/基础设施；[图片合同](image-upload-contract.md) |
 | FILE-02 | GET `P/resource/oss/listByIds/{ids}` | F08；`sceneAssetUrlResolver.ts` 和图片部件 | IMG-08 按端核验身份并检查文件范围 | 单个正十进制文件编号，按文件范围签发短期地址；不可见时返回空数组 | 读取适配/基础设施 |
-| RES-01 | POST `/api/dim3d/resource/uploadConvert` | F09；模型新增弹窗 | B04 有 `/admin-api/dim3d/resource/uploadConvert`；B07 代理转换 | 前端 file ZIP → `id,resourceName,resourceType,assetName,resourceRelativePath`；代理仍依赖参考服务，不能声称本地转换齐备 | 适配+外部/三维 |
-| RES-02 | GET `/admin-api/dim3d/resource/info/{id}` | F09；模型管理、资源面板、场景资源解析 | MODEL-12 已收敛路径字段，复用既有目录授权与快照校验 | 按字符串 `modelFileId` 返回 `id/resourceName/resourceType/assetName/resourceRelativePath`，唯一相对路径；私有下载沿用资源当前修订及文件接口；本次收敛已部署并通过接口验收，实际页面加载另验 | 读取适配/三维 |
-| RES-03 | 静态 `{VITE_DIM3D_AMM_SERVER_URL}/amm/{resourceRelativePath}` | F09 `buildDim3dResourceUrl`，活跃资源解析 | 当前新私有桶及 ART 签名读取不是旧 `/amm/` 静态合同 | 审计资源格式/产物和访问授权；不能公开整个私有桶，也不把 GLB 路径当 Unity 包 | 外部/存储与三维 |
+| RES-01 | POST `P/dim3d/resource/uploadConvert` | F09；模型新增弹窗 | MODEL-18 双端入口复用受控导入及旧转换分支；旧 `/admin-api/dim3d` 路径兼容 | 单 ZIP 文件；受管模式按导入合同提交，旧转换调用保留 `id,resourceName,resourceType,assetName,resourceRelativePath` 同步回执；B07 代理仍依赖参考服务 | 适配+外部/三维 |
+| RES-02 | GET `P/dim3d/resource/info/{id}` | F09；模型管理、资源面板、场景资源解析 | MODEL-18 双端元信息入口应用目录授权、上线范围及既有快照校验；旧 `/admin-api/dim3d` 路径兼容 | MODEL-12 的五字段响应按字符串编号返回唯一 `resourceRelativePath`，文件下载沿用资源当前修订及受控接口；接口验收通过，实际页面加载另验 | 读取适配/三维 |
+| RES-03 | GET `P/dim3d/model/file-access/{id}` | 模型管理及编辑器资源面板 | MODEL-15/18 复用同归属目录授权并按双端入口校验 | 返回字符串文件编号与访问方式；历史文件附相对路径，受管文件由播放器按编号读取受控文件 | 读取适配/三维 |
+| RES-04 | 静态 `{VITE_DIM3D_AMM_SERVER_URL}/amm/{resourceRelativePath}` | F09 `buildDim3dResourceUrl`，活跃资源解析 | 当前新私有桶及 ART 签名读取不是旧 `/amm/` 静态合同 | 审计资源格式/产物和访问授权；不能公开整个私有桶，也不把 GLB 路径当 Unity 包 | 外部/存储与三维 |
 
 B04 三类目录的删除/状态服务存在不等于已满足运营/租户双端权限与新场景引用规则。以上需要适配的项目，没有一项被认定为“改服务地址即可直接复用的前端接口”。
 

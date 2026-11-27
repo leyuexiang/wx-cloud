@@ -83,7 +83,7 @@
   "realMinioUploadPrivateAndSignedDownloadPassed": true,
   "temporaryMinioObjectsRemoved": true,
   "businessSchemaMigrationApplied": true,
-  "deployed": false,
+  "deployed": true,
   "browserEndToEndAccepted": false,
   "businessSchemaMigrationDatabases": [
     "wx_editor",
@@ -97,5 +97,9 @@
   ],
   "businessMinioConfigurationEvidence": "minio-configuration.json",
   "imageStorageBucket": "wx-art-test148",
-  "temporaryMigrationDependenciesRemoved": true
+  "temporaryMigrationDependenciesRemoved": true,
+  "deploymentDate": "2026-11-12",
+  "deploymentEvidence": "deployment-20261112.json",
+  "authenticatedUploadVerified": false,
+  "temporaryDeploymentResourcesRemoved": true
 }

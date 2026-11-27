@@ -248,10 +248,6 @@ def run(stage_path, role, output, simple_upload=False, resource_belong=None):
                     result['testResourceDeleted'] = True
                 for operation in operations:
                     request('/admin-api/dim3d/resource-operations/' + operation + '/cancel', {}, 'POST')
-                rows = sql("SELECT storage_prefix FROM `" + clone + "`.wx_3d_resource_operation WHERE resource_id=" + resource_id + ';')
-                for prefix in rows.splitlines():
-                    if prefix.startswith('resources/') and any(item in prefix for item in operations):
-                        prefixes.add(prefix)
             if result.get('testResourceDeleted', resource_id is None):
                 removed = True
                 for prefix in prefixes:
