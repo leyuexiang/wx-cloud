@@ -2,10 +2,14 @@ package cn.iocoder.wx.module.dimensions.service;
 
 import cn.iocoder.wx.framework.common.pojo.PageResult;
 import cn.iocoder.wx.module.dimensions.controller.admin.Dim3dSceneController;
+import cn.iocoder.wx.module.dimensions.controller.admin.ScenePublicationPreviewController;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import cn.iocoder.wx.framework.security.core.LoginUser;
 import cn.iocoder.wx.framework.tenant.core.context.TenantContextHolder;

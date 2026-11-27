@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -447,6 +449,63 @@ class Dim3dSceneServiceTest {
         verify(access, atLeastOnce()).maintain(new ArtResourceAccess.Actor(2, 2), "GLOBAL_SYSTEM", "0");
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"gis", "local3d"})
+    void twoDTemplateInstantiatesWithSelectedTypeAndDefaultCoordinates(String sourceType) throws Exception {
+        String sourceId = (String) service.create(json.createObjectNode().put("name", "模板来源").put("sceneType", sourceType)).get("sceneId");
+        var revision = (Map<?, ?>) service.info(sourceId).get("currentRevision");
+        ObjectNode snapshot = json.createObjectNode().put("sourceSceneId", sourceId).put("sourceRevisionNo", 1)
+                .put("requestId", "tpl-scene-type-source").put("templateName", "二维快照").put("templateType", "INDUSTRY")
+                .put("category", "测试").put("saveScope", "twoD");
+        for (String key : List.of("sceneJson", "twoDJson", "dependenciesJson")) snapshot.put(key, (String) revision.get(key));
+        snapshot.put("threeDJson", """
+                {"baseConfig":{},"objects":[],"components":[],"layers":[],"cameraPaths":[],
+                 "streaming":{"groups":[],"chunks":[],"chunkTargets":[]}}
+                """);
+        var template = service.saveAsTemplateFromSnapshot(snapshot);
+        String templateId = template.get("templateSceneId").toString();
+        ObjectNode request = json.createObjectNode().put("templateSceneId", templateId).put("name", "新场景");
+        // 同一个二维模板分别生成两类场景，检查回执、主表、修订和普通新增场景的坐标默认值一致。
+        for (String type : List.of("local3d", "gis")) {
+            request.put("requestId", "tpl-scene-type-" + type).put("targetSceneType", type);
+            var result = service.createFromTemplate(request);
+            assertEquals(type, result.get("sceneType"));
+            String sceneId = result.get("sceneId").toString();
+            var scene = service.info(sceneId);
+            assertEquals(type, scene.get("sceneType"));
+            var saved = (Map<?, ?>) scene.get("currentRevision");
+            assertEquals(type, json.readTree(saved.get("sceneJson").toString()).path("sceneType").asText());
+            JsonNode coordinates = json.readTree(saved.get("threeDJson").toString()).at("/baseConfig/coordinateSystem");
+            assertEquals("gis".equals(type) ? "wgs84" : "local", coordinates.path("kind").asText());
+            if ("gis".equals(type)) assertEquals(104.0668, coordinates.path("defaultLongitude").asDouble());
+            else assertEquals("meter", coordinates.path("unit").asText());
+            var replay = service.createFromTemplate(request);
+            assertEquals(result.get("sceneId"), replay.get("sceneId"));
+            assertEquals(type, replay.get("sceneType"));
+
+            // 实例首版还要通过编辑保存的类型校验，避免只修复创建回执而留下错误的场景包。
+            String token = service.lock(sceneId, "模板实例编辑").get("lockToken").toString();
+            ObjectNode save = saveBody(sceneId, token);
+            ObjectNode scenePackage = (ObjectNode) json.readTree(save.path("sceneJson").asText());
+            scenePackage.put("name", "编辑后的模板实例");
+            save.put("sceneJson", scenePackage.toString());
+            assertEquals(2, service.save(save).get("revisionNo"));
+            var reopened = service.info(sceneId);
+            assertEquals(type, reopened.get("sceneType"));
+            assertEquals("编辑后的模板实例", reopened.get("name"));
+        }
+        // 相同请求编号修改目标类型必须冲突，缺少或传入无效类型一律拒绝。
+        assertEquals(409, assertThrows(ServiceException.class,
+                () -> service.createFromTemplate(request.deepCopy().put("targetSceneType", "local3d"))).getCode());
+        assertEquals(400, assertThrows(ServiceException.class,
+                () -> service.createFromTemplate(request.deepCopy().put("targetSceneType", "invalid"))).getCode());
+        ObjectNode missingType = request.deepCopy();
+        missingType.remove("targetSceneType");
+        assertEquals(400, assertThrows(ServiceException.class,
+                () -> service.createFromTemplate(missingType)).getCode());
+        assertEquals(sourceType, service.info(templateId).get("sceneType"));
+    }
+
     @Test void deniedOperatorAndDirectoryFailureLeaveSourceUnchanged() {
         String sourceId = create();
         ObjectNode body = saveBody(sourceId, "unused")
@@ -522,7 +581,10 @@ class Dim3dSceneServiceTest {
         templateBody.put("sceneJson", scenePackage.toString());
         var template = service.saveAsTemplateFromSnapshot(templateBody);
         ObjectNode instanceBody = json.createObjectNode().put("templateSceneId", template.get("templateSceneId").toString())
-                .put("requestId", "tpl-instance-request").put("name", "实例场景");
+                .put("requestId", "tpl-instance-request").put("name", "实例场景").put("targetSceneType", "local3d");
+        // 混合模板携带来源坐标下的三维内容，不允许跨场景类型实例化。
+        assertEquals(400, assertThrows(ServiceException.class,
+                () -> service.createFromTemplate(instanceBody.deepCopy().put("targetSceneType", "gis"))).getCode());
         var instance = service.createFromTemplate(instanceBody);
         assertEquals("INSTANCE", instance.get("sceneKind"));
         assertEquals("实例场景", service.info(instance.get("sceneId").toString()).get("name"));
@@ -565,7 +627,7 @@ class Dim3dSceneServiceTest {
         for (String key : java.util.List.of("sceneJson", "threeDJson", "twoDJson", "dependenciesJson")) templateBody.put(key, (String) revision.get(key));
         var template = service.saveAsTemplateFromSnapshot(templateBody);
         ObjectNode instanceBody = json.createObjectNode().put("templateSceneId", template.get("templateSceneId").toString())
-                .put("requestId", "tpl-instance-guard").put("name", "受保护实例");
+                .put("requestId", "tpl-instance-guard").put("name", "受保护实例").put("targetSceneType", "local3d");
         service.changeTemplateStatus(template.get("templateId").toString(), "OFFLINE");
         assertThrows(ServiceException.class, () -> service.createFromTemplate(instanceBody));
         service.changeTemplateStatus(template.get("templateId").toString(), "ONLINE");
@@ -588,6 +650,10 @@ class Dim3dSceneServiceTest {
         var page = service.templatePageCombined(null, "dim3d_template_industry", null, null, null, 1, 10, "templateName", "asc");
         assertEquals(2, page.getTotal());
         assertEquals(java.util.List.of("SNAPSHOT", "LEGACY"), page.getList().stream().map(row -> row.get("recordKind")).toList());
+        // 管理分页直接返回快照的创建参数；文件模板没有用于实例化的场景类型。
+        assertEquals("all", page.getList().get(0).get("saveScope"));
+        assertEquals("local3d", page.getList().get(0).get("sceneType"));
+        assertFalse(page.getList().get(1).containsKey("sceneType"));
         service.removeTemplate(snapshot.get("templateId").toString());
         var afterRemoval = service.templatePageCombined(null, "dim3d_template_industry", null, null, null, 1, 10, null, null);
         assertEquals(1, afterRemoval.getTotal());
@@ -610,7 +676,7 @@ class Dim3dSceneServiceTest {
 
         when(access.actor()).thenReturn(new ArtResourceAccess.Actor(9, 3));
         ObjectNode instance = json.createObjectNode().put("templateSceneId", template.get("templateSceneId").toString())
-                .put("requestId", "shared-instance-1").put("name", "共享实例");
+                .put("requestId", "shared-instance-1").put("name", "共享实例").put("targetSceneType", "local3d");
         assertEquals("local3d", service.createFromTemplate(instance).get("sceneType"));
 
         when(access.actor()).thenReturn(new ArtResourceAccess.Actor(2, 2));

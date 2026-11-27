@@ -40,8 +40,14 @@ public class ScenePublicationService {
         if (revisionNo < 1 || requestId == null || requestId.isBlank() || requestId.length() > 110)
             throw bad("发布请求参数无效");
         // 与保存、删除共用场景行锁；锁内再检查重放，避免两个并发确认重复写入。
-        var scenes = jdbc.queryForList("SELECT current_revision FROM wx_3d_scene WHERE id=? AND tenant_id=? AND deleted=0 FOR UPDATE",
-                scene, actor.tenant());
+        // 快照模板只能通过另存实例化，锁内排除模板记录，避免普通发布入口绕过模板授权规则。
+        var scenes = jdbc.queryForList("""
+                SELECT s.current_revision FROM wx_3d_scene s
+                WHERE s.id=? AND s.tenant_id=? AND s.deleted=0
+                  AND NOT EXISTS (SELECT 1 FROM wx_3d_scene_template t
+                                  WHERE t.tenant_id=s.tenant_id AND t.template_scene_id=s.id)
+                FOR UPDATE
+                """, scene, actor.tenant());
         if (scenes.size() != 1) throw new ServiceException(404, "场景不存在或无权发布");
         var replay = jdbc.queryForList("SELECT * FROM wx_3d_scene_publication WHERE tenant_id=? AND request_id=?", actor.tenant(), requestId);
         if (replay.isEmpty()) {
@@ -81,7 +87,14 @@ public class ScenePublicationService {
         long scene = requireId(sceneId);
         if (revisionNo < 1 || requestId == null || requestId.isBlank() || requestId.length() > 110)
             throw bad("发布请求参数无效");
-        var replay = jdbc.queryForList("SELECT * FROM wx_3d_scene_publication WHERE tenant_id=? AND request_id=?", actor.tenant(), requestId);
+        // 首次发布与同场景重试统一先拿场景行锁；快照模板必须另存后才能进入发布流程。
+        var sceneRows = jdbc.queryForList("""
+                SELECT s.id,s.current_revision FROM wx_3d_scene s WHERE s.id=? AND s.tenant_id=? AND s.deleted=0
+                AND NOT EXISTS (SELECT 1 FROM wx_3d_scene_template t WHERE t.tenant_id=s.tenant_id AND t.template_scene_id=s.id)
+                FOR UPDATE
+                """, scene, actor.tenant());
+        if (sceneRows.size() != 1) throw new ServiceException(404, "场景不存在或无权发布");
+        var replay = jdbc.queryForList("SELECT * FROM wx_3d_scene_publication WHERE tenant_id=? AND request_id=? FOR UPDATE", actor.tenant(), requestId);
         if (!replay.isEmpty()) {
             var previous = replay.get(0);
             if (!Objects.equals(((Number) previous.get("scene_id")).longValue(), scene)
@@ -89,9 +102,6 @@ public class ScenePublicationService {
                 throw new ServiceException(409, "发布请求号已绑定其他修订");
             return receipt(previous);
         }
-        // 锁定场景主记录，串行化同一场景的首次发布和当前指针切换。
-        var sceneRows = jdbc.queryForList("SELECT id FROM wx_3d_scene WHERE id=? AND tenant_id=? AND deleted=0 FOR UPDATE", scene, actor.tenant());
-        if (sceneRows.size() != 1) throw new ServiceException(404, "场景不存在或无权发布");
         var revisions = jdbc.queryForList("SELECT schema_version,scene_json,three_d_json,two_d_json,dependencies_json,content_hash FROM wx_3d_scene_revision WHERE tenant_id=? AND scene_id=? AND revision_no=?",
                 actor.tenant(), scene, revisionNo);
         if (revisions.size() != 1) throw new ServiceException(404, "场景修订不存在");

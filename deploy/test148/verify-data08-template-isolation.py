@@ -101,6 +101,8 @@ def main():
         check('模板与来源相同正文复用', len(references) == 2 and len({row[0] for row in references}) == 1)
         instance = call(SCENE, '/dim3d/scene/fromTemplate', 'POST', {
             'templateSceneId': template_scene, 'name': 'DATA08模板独立实例', 'requestId': uuid.uuid4().hex,
+            # 混合模板创建实例时，显式传入来源场景类型。
+            'targetSceneType': template['sceneType'],
         })
         instance_id = instance['sceneId']
         scene_ids.append(instance_id)

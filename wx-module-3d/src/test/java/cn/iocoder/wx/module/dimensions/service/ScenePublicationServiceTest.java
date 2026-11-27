@@ -22,6 +22,19 @@ import static org.mockito.Mockito.*;
 
 /** 使用真实 SQL 验证发布幂等、当前指针、撤销、回退和租户边界。 */
 class ScenePublicationServiceTest {
+    /** 管理页确认书签过期时拒绝首次发布，已提交的请求可以重放原回执。 */
+    @Test void publishCurrentChecksBookmarkAndReplaysCommittedRequest() {
+        var first = service.publishCurrent("101", 1, "current-1");
+        insertRevision(2, 101, 2);
+        jdbc.update("UPDATE wx_3d_scene SET current_revision=2 WHERE id=101");
+        var replay = service.publishCurrent("101", 1, "current-1");
+        assertEquals(first.get("publicationId"), replay.get("publicationId"));
+        assertEquals(true, replay.get("alreadyPublished"));
+        assertEquals(409, assertThrows(ServiceException.class, () -> service.publishCurrent("101", 1, "stale")).getCode());
+        assertEquals(first.get("publicationId"), service.current("101").get("publicationId"));
+        assertEquals(2, service.publishCurrent("101", 2, "current-2").get("revisionNo"));
+    }
+
     private ScenePublicationService service;
     private JdbcTemplate jdbc;
     private ArtResourceAccess access;
@@ -29,7 +42,9 @@ class ScenePublicationServiceTest {
     @BeforeEach void setup() throws Exception {
         var data = new DriverManagerDataSource("jdbc:h2:mem:" + UUID.randomUUID() + ";MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "");
         jdbc = new JdbcTemplate(data);
-        jdbc.execute("CREATE TABLE wx_3d_scene(id BIGINT PRIMARY KEY,tenant_id BIGINT NOT NULL,deleted BOOLEAN DEFAULT FALSE,current_revision INT DEFAULT 1)");
+        jdbc.execute("CREATE TABLE wx_3d_scene(id BIGINT PRIMARY KEY,tenant_id BIGINT NOT NULL,deleted BOOLEAN DEFAULT FALSE,current_revision INT NOT NULL DEFAULT 1)");
+        // 发布服务需要判断场景是否为模板快照，测试结构与正式授权边界保持一致。
+        jdbc.execute("CREATE TABLE wx_3d_scene_template(tenant_id BIGINT,template_scene_id BIGINT)");
         jdbc.execute("CREATE TABLE wx_3d_scene_revision(id BIGINT PRIMARY KEY,tenant_id BIGINT NOT NULL,scene_id BIGINT NOT NULL,revision_no INT NOT NULL,schema_version INT NOT NULL,scene_json LONGTEXT NOT NULL,three_d_json LONGTEXT NOT NULL,two_d_json LONGTEXT NOT NULL,dependencies_json LONGTEXT NOT NULL,content_hash CHAR(64))");
         String schema = Files.readString(Path.of("../deploy/test148/migrations/data09/001-scene-publication.up.sql"))
                 .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "");
