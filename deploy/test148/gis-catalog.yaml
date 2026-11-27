@@ -1,0 +1,39 @@
+# 本文件只登记用户要求复用的既有公开共享来源，不包含存储凭据或迁移操作。
+dim3d:
+  gis:
+    catalog:
+      enabled: true
+      cache-seconds: 60
+      connect-timeout-millis: 2000
+      read-timeout-millis: 4000
+      sources:
+        - key: legacy-world-imagery
+          name: 全球影像（既有目录）
+          data-type: SATELLITE
+          metadata-url: http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/tms.xml
+          public-url: https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F
+          maximum-level: 8
+        - key: legacy-wenchang-imagery
+          name: 文昌市影像（既有目录）
+          data-type: SATELLITE
+          metadata-url: http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/tms.xml
+          public-url: https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82
+          maximum-level: 17
+        - key: legacy-nanshan-imagery
+          name: 南山区影像（既有目录）
+          data-type: SATELLITE
+          metadata-url: http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/tms.xml
+          public-url: https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA
+          maximum-level: 12
+        - key: legacy-world-elevation-1
+          name: 全球高程（既有目录1）
+          data-type: ELEVATION
+          metadata-url: http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/layer.json
+          public-url: https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/layer.json
+          maximum-level: 8
+        - key: legacy-dem-90m
+          name: DEM 90m（既有120服务）
+          data-type: ELEVATION
+          metadata-url: http://192.168.10.120:58000/gis-images/terrain/layer.json
+          public-url: https://192.168.10.148:9447/gis-source/terrain-dem/layer.json
+          maximum-level: 12

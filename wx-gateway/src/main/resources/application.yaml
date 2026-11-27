@@ -76,6 +76,15 @@ spring:
           filters:
             - RemoveRequestHeader=x-bot-user
             - RewritePath=^/api/(?:operation|tenant/web)/dim3d/(?<path>scene/publication/preview(?:/resources|/file)?)$, /admin-api/dim3d/$\{path}
+        # 旧网页 GIS 目录地址进入三维服务的既有端别校验；只匹配两个明确的读取入口。
+        - id: gis-catalog-platform-api
+          order: -2
+          uri: grayLb://dimensions-server
+          predicates:
+            - Path=/api/operation/webgis/info/list,/api/tenant/web/webgis/info/list
+          filters:
+            - RemoveRequestHeader=x-bot-user
+            - RewritePath=^/api/(?<platform>operation|tenant)(?:/web)?/webgis/info/list$, /admin-api/dim3d/$\{platform}/webgis/info/list
         # 三维平台专用路由将登录后的模型、图标、模板和场景请求送入各自身份边界。
         - id: operation-dim3d-platform-api
           order: -1
