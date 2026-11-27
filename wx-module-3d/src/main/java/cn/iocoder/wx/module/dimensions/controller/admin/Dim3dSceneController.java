@@ -178,7 +178,17 @@ public class Dim3dSceneController {
     }
 
     @GetMapping("/template/info/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
-    public CommonResult<Map<String, Object>> templateInfo(@PathVariable String id) { return CommonResult.success(service.templateInfo(id)); }
+    public CommonResult<Map<String, Object>> templateInfo(@PathVariable String id,
+                                                         @RequestParam(defaultValue = "true") boolean includeRevision) {
+        return CommonResult.success(includeRevision ? service.templateInfo(id) : service.templateInfo(id, false));
+    }
+
+    /** 编辑页按模板目录编号保存基础信息，复用现有模板管理角色和端别校验。 */
+    @PutMapping("/template/edit/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
+    public CommonResult<Void> editTemplate(@PathVariable String id, @RequestBody JsonNode body) {
+        service.editTemplate(id, body);
+        return CommonResult.success(null);
+    }
 
     @PutMapping("/template/{status}/{id}") @PreAuthorize("@ss.hasAnyRoles('super_admin','tenant_admin')")
     public CommonResult<Boolean> templateStatus(@PathVariable String status, @PathVariable String id, @RequestParam(required = false) String reason) {

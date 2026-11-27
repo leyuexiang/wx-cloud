@@ -212,13 +212,19 @@ public class Dim3dImageResourceService {
 
     /** 模型确认前仅校验文件，不提前改变私有上传的可见范围。 */
     void validateModelCover(long id, ArtResourceAccess.Actor actor, String belong, boolean retainedReference) {
-        requireModelCover(fileForBinding(id, actor, belong, retainedReference, false));
+        requireCoverImage(fileForBinding(id, actor, belong, retainedReference, false), "模型");
     }
 
     /** 模型发布事务持有目录锁后再锁封面，文件归属随目录、修订和回执共同提交。 */
     void bindModelCover(long id, ArtResourceAccess.Actor actor, String belong, boolean retainedReference) {
-        requireModelCover(fileForBinding(id, actor, belong, retainedReference, true));
+        requireCoverImage(fileForBinding(id, actor, belong, retainedReference, true), "模型");
         updateFileBinding(id, actor, belong);
+    }
+
+    /** 快照模板归属当前租户，只有提交新的封面时才校验上传身份并绑定到同租户。 */
+    void bindTemplateCover(long id, ArtResourceAccess.Actor actor) {
+        requireCoverImage(fileForBinding(id, actor, "MINE", false, true), "模板");
+        updateFileBinding(id, actor, "MINE");
     }
 
     /** 原封面随目录迁移前核对旧范围。拒绝改动其他模型、图标及模板仍在使用的封面。 */
@@ -227,7 +233,7 @@ public class Dim3dImageResourceService {
             bindModelCover(id, actor, belong, previousBelong != null);
             return;
         }
-        requireModelCover(fileForBinding(id, actor, previousBelong, true, true));
+        requireCoverImage(fileForBinding(id, actor, previousBelong, true, true), "模型");
         if (hasOtherDirectoryReferences(id, owner(actor, previousBelong), directoryId, 0L)) {
             throw new ServiceException(409, "模型封面仍被其他目录使用，请更换或移除封面");
         }
@@ -277,11 +283,11 @@ public class Dim3dImageResourceService {
         return file;
     }
 
-    /** 封面格式和大小与现有模型弹窗一致，不能仅依赖浏览器限制。 */
-    private static void requireModelCover(Map<String, Object> file) {
+    /** 模型和模板封面共用图片格式与大小检查，错误文案对应当前编辑对象。 */
+    private static void requireCoverImage(Map<String, Object> file, String target) {
         if (!Set.of("image/png", "image/jpeg", "image/webp").contains(Objects.toString(file.get("type"), ""))
                 || ((Number) file.get("size")).longValue() > 5L * 1024 * 1024) {
-            throw invalid("模型封面须为不超过5MiB的PNG、JPEG或WebP图片");
+            throw invalid(target + "封面须为不超过5MiB的PNG、JPEG或WebP图片");
         }
     }
 

@@ -31,6 +31,7 @@ public class Dim3dSceneService {
     @Resource private ArtResourceAccess access;
     @Resource private ObjectMapper json;
     @Resource private DictDataApi dictionaries;
+    @Resource private Dim3dImageResourceService images;
     /** 兼容期共享正文双写开关，默认关闭；未完成结构迁移时不得访问新表。 */
     @Value("${dim3d.scene-content.dual-write-enabled:false}")
     private boolean sceneContentDualWriteEnabled;
@@ -364,13 +365,9 @@ public class Dim3dSceneService {
         if (body.has("schemaVersion") && requiredInt(body, "schemaVersion") != 1) throw bad("四包结构版本无效");
         String scope = text(body, "saveScope", 16);
         int requestedRevision = requiredInt(body, "sourceRevisionNo");
-        if (!Set.of("INDUSTRY", "EXHIBITION").contains(templateType)) throw bad("模板类型无效");
         if (!Set.of("twoD", "threeD", "all").contains(scope)) throw bad("保存范围无效");
         if (requestedRevision < 1) throw bad("来源修订号无效");
-        // 字典由系统服务维护，先验证再锁定来源，避免远程调用延长场景行锁。
-        String dictionary = "dim3d_template_" + templateType.toLowerCase(Locale.ROOT);
-        if (!Boolean.TRUE.equals(dictionaries.validateDictDataList(dictionary, List.of(category)).getCheckedData()))
-            throw bad("模板分类无效");
+        validateTemplateClassification(templateType, category);
         if (!cover.isEmpty()) throw bad("当前服务无法验证模板封面归属，请先移除封面");
 
         var source = scene(sourceId, actor, true);
@@ -407,7 +404,7 @@ public class Dim3dSceneService {
 
     /**
      * 从快照模板创建独立场景。模板四包先在内存中完成编号映射，再与新场景主记录、首版修订一起落库。
-     * 这样模板始终保持不可编辑，实例保存时也不会继续引用模板场景编号。
+     * 版本正文保持不可变，实例保存也不会继续引用模板场景编号。
      */
     @Transactional
     public Map<String, Object> createFromTemplate(JsonNode body) {
@@ -553,13 +550,60 @@ public class Dim3dSceneService {
 
     /** 查询快照模板详情并回读独立四包；来源场景只返回身份，不暴露其当前正文。 */
     public Map<String, Object> templateInfo(String id) {
+        return templateInfo(id, true);
+    }
+
+    /** 基础信息弹窗无需加载首版四包，原详情调用默认继续包含完整修订。 */
+    public Map<String, Object> templateInfo(String id, boolean includeRevision) {
         var actor = access.actor();
         var row = template(id, actor, false);
         var result = templateSummary(row);
+        if (!includeRevision) return result;
         var revisions = jdbc.queryForList("SELECT * FROM wx_3d_scene_revision WHERE tenant_id=? AND scene_id=? AND revision_no=1", actor.tenant(), row.get("template_scene_id"));
         if (revisions.size() != 1) throw new ServiceException(500, "模板场景修订不完整");
         result.put("currentRevision", revision(actor, revisions.get(0)));
         return result;
+    }
+
+    /** 同一事务维护快照目录、模板场景摘要及封面归属，已发布的四包和版本指针保持不可变。 */
+    @Transactional
+    public void editTemplate(String id, JsonNode body) {
+        var actor = access.actor();
+        String name = text(body, "templateName", 100).trim();
+        String description = optional(body, "templateDesc", 500).trim();
+        String type = normalizeTemplateType(text(body, "templateType", 32));
+        String category = text(body, "category", 100).trim();
+        // 字典远程校验在获取目录行锁前完成。
+        validateTemplateClassification(type, category);
+        var current = template(id, actor, true);
+        String previousCover = Objects.toString(current.get("cover_asset_id"), "");
+        String cover = body.has("coverAssetId") ? optional(body, "coverAssetId", 32).trim() : previousCover;
+        if (name.equals(current.get("template_name")) && description.equals(current.get("template_desc"))
+                && type.equals(current.get("template_type")) && category.equals(current.get("category"))
+                && cover.equals(previousCover)) return;
+
+        if (!cover.isEmpty() && !cover.equals(previousCover)) {
+            images.bindTemplateCover(requireId(cover), actor);
+        }
+        jdbc.update("""
+                UPDATE wx_3d_scene_template SET template_name=?,template_desc=?,template_type=?,category=?,
+                cover_asset_id=?,update_time=CURRENT_TIMESTAMP WHERE id=? AND tenant_id=? AND deleted=0
+                """, name, description, type, category, cover, current.get("id"), actor.tenant());
+        int updated = jdbc.update("""
+                UPDATE wx_3d_scene SET name=?,scene_desc=?,scene_category=?,cover_asset_id=?,update_time=CURRENT_TIMESTAMP
+                WHERE id=? AND tenant_id=? AND deleted=0
+                """, name, description, category, cover, current.get("template_scene_id"), actor.tenant());
+        if (updated != 1) throw new ServiceException(409, "模板场景不可用，基础信息未保存");
+        String status = current.get("status").toString();
+        insertTemplateAudit(actor, current, "METADATA_EDIT", status, status, "编辑模板基础信息");
+    }
+
+    /** 另存和编辑都按所选模板类型对应的系统字典验证分类。 */
+    private void validateTemplateClassification(String type, String category) {
+        if (!Set.of("INDUSTRY", "EXHIBITION").contains(type)) throw bad("模板类型无效");
+        String dictionary = "dim3d_template_" + type.toLowerCase(Locale.ROOT);
+        if (!Boolean.TRUE.equals(dictionaries.validateDictDataList(dictionary, List.of(category)).getCheckedData()))
+            throw bad("模板分类无效");
     }
 
     @Transactional

@@ -64,6 +64,9 @@ class Dim3dSceneServiceTest {
         when(dictionaries.validateDictDataList(anyString(), eq(List.of("测试")))).thenReturn(CommonResult.success(true));
         ReflectionTestUtils.setField(target, "dictionaries", dictionaries);
         ReflectionTestUtils.setField(target, "jdbc", jdbc); ReflectionTestUtils.setField(target, "access", access); ReflectionTestUtils.setField(target, "json", json);
+        var images = new Dim3dImageResourceService();
+        ReflectionTestUtils.setField(images, "jdbc", jdbc);
+        ReflectionTestUtils.setField(target, "images", images);
         var factory = new ProxyFactory(target);
         factory.addAdvice(new TransactionInterceptor(new DataSourceTransactionManager(data), new AnnotationTransactionAttributeSource()));
         service = (Dim3dSceneService) factory.getProxy();
@@ -548,6 +551,65 @@ class Dim3dSceneServiceTest {
         assertEquals(0, service.templatePage(null, null, null, null, 1, 10).getTotal());
         assertEquals(4, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_template_audit", Integer.class));
         assertEquals(sourceId, service.info(sourceId).get("sceneId"));
+    }
+
+    @Test void snapshotMetadataEditUpdatesDirectoryAndSceneWithoutRewritingPublishedRevision() {
+        String sourceId = create();
+        var snapshotBody = saveBody(sourceId, "unused").put("sourceSceneId", sourceId).put("sourceRevisionNo", 1)
+                .put("templateName", "原模板").put("templateType", "INDUSTRY").put("category", "测试").put("saveScope", "all");
+        var template = service.saveAsTemplateFromSnapshot(snapshotBody);
+        String templateId = template.get("templateId").toString(), templateSceneId = template.get("templateSceneId").toString();
+        var originalRevision = service.templateInfo(templateId).get("currentRevision");
+        when(dictionaries.validateDictDataList("dim3d_template_exhibition", List.of("新分类"))).thenReturn(CommonResult.success(true));
+        jdbc.execute("CREATE TABLE wx_infra_file(id BIGINT PRIMARY KEY,tenant_id BIGINT,uploader_id BIGINT,"
+                + "visibility_scope VARCHAR(20),type VARCHAR(40),size INT,deleted INT DEFAULT 0,update_time TIMESTAMP)");
+        jdbc.update("INSERT INTO wx_infra_file(id,tenant_id,uploader_id,visibility_scope,type,size) VALUES"
+                + "(601,2,2,'PRIVATE_UPLOAD','image/png',100),(602,3,2,'PRIVATE_UPLOAD','image/png',100),"
+                + "(603,2,2,'PRIVATE_UPLOAD','image/webp',101)");
+        ObjectNode edit = json.createObjectNode().put("templateName", "更新模板").put("templateDesc", "更新描述")
+                .put("templateType", "dim3d_template_exhibition").put("category", "新分类").put("coverAssetId", "601");
+
+        service.editTemplate(templateId, edit);
+        service.editTemplate(templateId, edit);
+        var metadata = service.templateInfo(templateId, false);
+        assertEquals("更新模板", metadata.get("templateName"));
+        assertEquals("更新描述", metadata.get("templateDesc"));
+        assertEquals("EXHIBITION", metadata.get("templateType"));
+        assertEquals("新分类", metadata.get("category"));
+        assertEquals("601", metadata.get("coverAssetId"));
+        assertEquals("all", metadata.get("saveScope"));
+        assertEquals("local3d", metadata.get("sceneType"));
+        assertEquals("ONLINE", metadata.get("status"));
+        assertEquals(1, metadata.get("publishedVersionNo"));
+        assertFalse(metadata.containsKey("currentRevision"));
+        assertEquals(originalRevision, service.templateInfo(templateId).get("currentRevision"));
+        var summary = service.info(templateSceneId);
+        assertEquals("更新模板", summary.get("name"));
+        assertEquals("更新描述", summary.get("sceneDesc"));
+        assertEquals("新分类", summary.get("sceneCategory"));
+        assertEquals("601", summary.get("coverAssetId"));
+        var directory = service.templatePageCombined("更新模板", "EXHIBITION", "新分类", null, null, 1, 10, null, null);
+        assertEquals("601", directory.getList().get(0).get("coverImageId"));
+        assertEquals("TENANT", jdbc.queryForObject("SELECT visibility_scope FROM wx_infra_file WHERE id=601", String.class));
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM wx_3d_scene_template_audit WHERE action='METADATA_EDIT'", Integer.class));
+
+        // 拒绝外租户封面。即使数据库在第二张业务表更新失败，目录和新文件归属也必须恢复。
+        assertEquals(403, assertThrows(ServiceException.class, () -> service.editTemplate(templateId,
+                edit.deepCopy().put("coverAssetId", "602"))).getCode());
+        jdbc.execute("ALTER TABLE wx_3d_scene ADD CONSTRAINT reject_template_edit CHECK (name <> '回滚样例')");
+        assertThrows(org.springframework.dao.DataIntegrityViolationException.class, () -> service.editTemplate(templateId,
+                edit.deepCopy().put("templateName", "回滚样例").put("coverAssetId", "603")));
+        assertEquals("PRIVATE_UPLOAD", jdbc.queryForObject("SELECT visibility_scope FROM wx_infra_file WHERE id=603", String.class));
+        assertEquals("601", service.templateInfo(templateId, false).get("coverAssetId"));
+        assertEquals("更新模板", service.info(templateSceneId).get("name"));
+
+        ObjectNode clearDescription = edit.deepCopy().put("templateDesc", "");
+        clearDescription.remove("coverAssetId");
+        service.editTemplate(templateId, clearDescription);
+        assertEquals("", service.info(templateSceneId).get("sceneDesc"));
+        assertEquals("601", service.info(templateSceneId).get("coverAssetId"));
+        when(access.actor()).thenReturn(new ArtResourceAccess.Actor(2, 3));
+        assertEquals(404, assertThrows(ServiceException.class, () -> service.editTemplate(templateId, edit)).getCode());
     }
 
     @Test void templateInstantiationCreatesIndependentSceneAndRemapsNodeReferences() throws Exception {

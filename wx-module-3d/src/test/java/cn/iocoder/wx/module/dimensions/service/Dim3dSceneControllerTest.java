@@ -33,6 +33,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** 验证发布路由只负责参数投影，真实租户鉴权由服务和安全链路继续负责。 */
 class Dim3dSceneControllerTest {
+    /** 快照模板走场景目录编辑入口，目录编号仍按字符串传输。 */
+    @Test void snapshotTemplateHasMetadataEditRoute() throws Exception {
+        var controller = new Dim3dSceneController();
+        var scene = mock(Dim3dSceneService.class);
+        ReflectionTestUtils.setField(controller, "service", scene);
+        var mvc = MockMvcBuilders.standaloneSetup(controller).build();
+        for (String path : List.of("/dim3d/operation", "/dim3d/tenant")) {
+            mvc.perform(put(path + "/scene/template/edit/9007199254740993")
+                            .contentType("application/json").content("{\"templateName\":\"新名称\"}"))
+                    .andExpect(status().isOk()).andExpect(handler().methodName("editTemplate"))
+                    .andExpect(jsonPath("$.code").value(200));
+        }
+        verify(scene, times(2)).editTemplate(eq("9007199254740993"), argThat(body -> "新名称".equals(body.path("templateName").asText())));
+        assertEquals("@ss.hasAnyRoles('super_admin','tenant_admin')",
+                Dim3dSceneController.class.getDeclaredMethod("editTemplate", String.class, com.fasterxml.jackson.databind.JsonNode.class)
+                        .getAnnotation(PreAuthorize.class).value());
+        when(scene.templateInfo("9007199254740993", false)).thenReturn(Map.of("templateName", "新名称"));
+        mvc.perform(get("/dim3d/scene/template/info/9007199254740993").param("includeRevision", "false"))
+                .andExpect(jsonPath("$.data.templateName").value("新名称"))
+                .andExpect(jsonPath("$.data.currentRevision").doesNotHaveJsonPath());
+    }
+
     /** 路由先核验端别再进入业务，匿名固定快照继续按票据读取。 */
     @Test void sceneAndIconRoutesCheckPlatformButPreviewUsesTicket() throws Exception {
         var scene = mock(Dim3dSceneService.class);
