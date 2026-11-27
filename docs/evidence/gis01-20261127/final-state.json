@@ -1,0 +1,46 @@
+{
+  "backend": {
+    "main": {
+      "container": "wx-editor-dimensions",
+      "running": true,
+      "sha256": "ddac2c4674a0537a0ae57c6414c37c39542670e25caecde47097476e2c208c14",
+      "startedAt": "2026-11-27T05:43:03.417455065Z"
+    },
+    "data08": {
+      "container": "wx-editor-dimensions-data08",
+      "running": true,
+      "sha256": "ddac2c4674a0537a0ae57c6414c37c39542670e25caecde47097476e2c208c14",
+      "startedAt": "2026-11-27T05:43:14.621608141Z"
+    }
+  },
+  "gisMigration": false,
+  "frontend": {
+    "root": "/home/wx-editor-web148/releases/gis-existing-20261127-reopen/candidate",
+    "nginxSha256": "e6b1bb0f6eee9b5f76d266a8893a7ee215c6457d093f77483260ca578d3352c2",
+    "buildInfo": {
+      "revision": "f48b2447841ab5c8b0b9c4fda71cad827e7f2a96",
+      "workspaceChanges": true,
+      "sourceManifestSha256": "77d339fe508d85747f4f5afb75fda82365945d43aa4b64b7fcf25a63cc552bd2",
+      "release": "gis-existing-20261127-reopen",
+      "gisSources": [
+        "192.168.10.110",
+        "192.168.10.120"
+      ]
+    }
+  },
+  "candidateCleanup": {
+    "formalServicesHealthy": true,
+    "removedCandidates": [
+      "wx-editor-gis01-main",
+      "wx-editor-gis01-data08"
+    ],
+    "removedSchemas": [
+      "wx_gis01_main_20261127",
+      "wx_gis01_data08_20261127"
+    ],
+    "removedLicenseCopies": [
+      "wx-editor-gis01-main/license/license.lic",
+      "wx-editor-gis01-data08/license/license.lic"
+    ]
+  }
+}

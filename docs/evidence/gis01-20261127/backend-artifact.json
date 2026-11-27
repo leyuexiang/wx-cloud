@@ -1,0 +1,14 @@
+{
+  "baseSha256": "6eb7c407c0d0b8795ebc7829d0c17f374ddac79d0287ae972c7712a970502e50",
+  "artifactSha256": "ddac2c4674a0537a0ae57c6414c37c39542670e25caecde47097476e2c208c14",
+  "sourceRevision": "a76cad3c2cc548483129024d97e43b49f1ba0169",
+  "unchangedEntries": 917,
+  "addedClasses": {
+    "BOOT-INF/classes/cn/iocoder/wx/module/dimensions/config/GisCatalogProperties$Source.class": "2434dbe8098bba39a872262106acbb27ddedc16bd18f9d6dc9d1a864313a4b2d",
+    "BOOT-INF/classes/cn/iocoder/wx/module/dimensions/config/GisCatalogProperties.class": "6e0992bf5786f13bf8d8f7d28c95e8b757f9201365723857e5dd540b12b85f04",
+    "BOOT-INF/classes/cn/iocoder/wx/module/dimensions/controller/admin/GisCatalogController.class": "4a1e6eb7586a2171fad0af5a14effed6e5e124d62fa945f1f980d076ff7fb5f8",
+    "BOOT-INF/classes/cn/iocoder/wx/module/dimensions/domain/vo/GisCatalogEntry.class": "0a2dd0a2d440678a5a2d3f6975046934ea298058c46af862df9ab7912eb4d439",
+    "BOOT-INF/classes/cn/iocoder/wx/module/dimensions/service/GisCatalogService$Cache.class": "5b8e1a5873ecd0bc7122d4fe39119ea257810aa9ee3d98a8c33a85a58a02130d",
+    "BOOT-INF/classes/cn/iocoder/wx/module/dimensions/service/GisCatalogService.class": "cf8225f05edf40db6ad8ad20f3733281c43c8c5c998b3d4261c9b27ab12ba3b4"
+  }
+}

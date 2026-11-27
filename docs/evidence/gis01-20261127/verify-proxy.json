@@ -1,0 +1,222 @@
+{
+  "passed": true,
+  "comparedFiles": 10,
+  "headAndPostChecks": 20,
+  "checks": [
+    {
+      "name": "全球影像（既有目录）",
+      "path": "/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/tms.xml",
+      "passed": true,
+      "proxy": {
+        "status": 200,
+        "sha256": "65dd9e0f6e54f7f00e691846f9420b99f9fafe2ea417842f18e47bdeda52906c",
+        "bytes": 2008,
+        "contentType": "application/octet-stream",
+        "encoding": null
+      },
+      "source": {
+        "status": 200,
+        "sha256": "65dd9e0f6e54f7f00e691846f9420b99f9fafe2ea417842f18e47bdeda52906c",
+        "bytes": 2008,
+        "contentType": "application/octet-stream",
+        "encoding": null
+      }
+    },
+    {
+      "name": "全球影像（既有目录）",
+      "path": "/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/0/1/0.jpg",
+      "passed": true,
+      "proxy": {
+        "status": 200,
+        "sha256": "8957f7704de82e6610430c51a71864f1ba657b8002875b56d4fdcf7f08517c99",
+        "bytes": 14768,
+        "contentType": "application/octet-stream",
+        "encoding": null
+      },
+      "source": {
+        "status": 200,
+        "sha256": "8957f7704de82e6610430c51a71864f1ba657b8002875b56d4fdcf7f08517c99",
+        "bytes": 14768,
+        "contentType": "application/octet-stream",
+        "encoding": null
+      }
+    },
+    {
+      "name": "文昌市影像（既有目录）",
+      "path": "/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/tms.xml",
+      "passed": true,
+      "proxy": {
+        "status": 200,
+        "sha256": "ef0463adc79b973722dea36c3d2a9522b01d998e77e712bae531d51c2d67a088",
+        "bytes": 1999,
+        "contentType": "application/octet-stream",
+        "encoding": null
+      },
+      "source": {
+        "status": 200,
+        "sha256": "ef0463adc79b973722dea36c3d2a9522b01d998e77e712bae531d51c2d67a088",
+        "bytes": 1999,
+        "contentType": "application/octet-stream",
+        "encoding": null
+      }
+    },
+    {
+      "name": "文昌市影像（既有目录）",
+      "path": "/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/0/1/0.jpg",
+      "passed": true,
+      "proxy": {
+        "status": 200,
+        "sha256": "c00a3a593c56fdba160b6f7f89422ff110a5b360fbcf8131e34e53190cd6449a",
+        "bytes": 1673,
+        "contentType": "application/octet-stream",
+        "encoding": null
+      },
+      "source": {
+        "status": 200,
+        "sha256": "c00a3a593c56fdba160b6f7f89422ff110a5b360fbcf8131e34e53190cd6449a",
+        "bytes": 1673,
+        "contentType": "application/octet-stream",
+        "encoding": null
+      }
+    },
+    {
+      "name": "南山区影像（既有目录）",
+      "path": "/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/tms.xml",
+      "passed": true,
+      "proxy": {
+        "status": 200,
+        "sha256": "7e0c1fe5757f280f448acb95d0e0dfbf260f421ee4dc7cebcc1c7341b0c28c0d",
+        "bytes": 2011,
+        "contentType": "application/octet-stream",
+        "encoding": null
+      },
+      "source": {
+        "status": 200,
+        "sha256": "7e0c1fe5757f280f448acb95d0e0dfbf260f421ee4dc7cebcc1c7341b0c28c0d",
+        "bytes": 2011,
+        "contentType": "application/octet-stream",
+        "encoding": null
+      }
+    },
+    {
+      "name": "南山区影像（既有目录）",
+      "path": "/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/0/1/0.jpg",
+      "passed": true,
+      "proxy": {
+        "status": 200,
+        "sha256": "d1cdc2412191165a5d7d376ec9fc98a9a91047c7a3a8283591fae858abd75639",
+        "bytes": 1651,
+        "contentType": "application/octet-stream",
+        "encoding": null
+      },
+      "source": {
+        "status": 200,
+        "sha256": "d1cdc2412191165a5d7d376ec9fc98a9a91047c7a3a8283591fae858abd75639",
+        "bytes": 1651,
+        "contentType": "application/octet-stream",
+        "encoding": null
+      }
+    },
+    {
+      "name": "全球高程（既有目录1）",
+      "path": "/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/layer.json",
+      "passed": true,
+      "proxy": {
+        "status": 200,
+        "sha256": "448d11a052e4b58643a8ab6ec6c1bd0ab47aceb79d54833e437e2e3f20c706d3",
+        "bytes": 836,
+        "contentType": "application/octet-stream",
+        "encoding": null
+      },
+      "source": {
+        "status": 200,
+        "sha256": "448d11a052e4b58643a8ab6ec6c1bd0ab47aceb79d54833e437e2e3f20c706d3",
+        "bytes": 836,
+        "contentType": "application/octet-stream",
+        "encoding": null
+      }
+    },
+    {
+      "name": "全球高程（既有目录1）",
+      "path": "/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/0/0/0.terrain",
+      "passed": true,
+      "proxy": {
+        "status": 200,
+        "sha256": "01c12edd45419cccca439cc09debd24bd5d89401a2abce3cce343798098dc5b9",
+        "bytes": 1499,
+        "contentType": "application/octet-stream",
+        "encoding": null
+      },
+      "source": {
+        "status": 200,
+        "sha256": "01c12edd45419cccca439cc09debd24bd5d89401a2abce3cce343798098dc5b9",
+        "bytes": 1499,
+        "contentType": "application/octet-stream",
+        "encoding": null
+      }
+    },
+    {
+      "name": "DEM 90m（既有120服务）",
+      "path": "/gis-source/terrain-dem/layer.json",
+      "passed": true,
+      "proxy": {
+        "status": 200,
+        "sha256": "8622cb1951d338222e72881f4d9e3bd87f372a259b68a64beef0fcbaa62a5b17",
+        "bytes": 1188,
+        "contentType": "403",
+        "encoding": null
+      },
+      "source": {
+        "status": 200,
+        "sha256": "8622cb1951d338222e72881f4d9e3bd87f372a259b68a64beef0fcbaa62a5b17",
+        "bytes": 1188,
+        "contentType": "403",
+        "encoding": null
+      }
+    },
+    {
+      "name": "DEM 90m（既有120服务）",
+      "path": "/gis-source/terrain-dem/0/0/0.terrain",
+      "passed": true,
+      "proxy": {
+        "status": 200,
+        "sha256": "4787bc4c2d5f2fe3645718d4a8785b0e5a1c36f502c58403258af115eb48a40f",
+        "bytes": 1493,
+        "contentType": "403",
+        "encoding": null
+      },
+      "source": {
+        "status": 200,
+        "sha256": "4787bc4c2d5f2fe3645718d4a8785b0e5a1c36f502c58403258af115eb48a40f",
+        "bytes": 1493,
+        "contentType": "403",
+        "encoding": null
+      }
+    },
+    {
+      "path": "/gis-source/",
+      "passed": true,
+      "status": 404
+    },
+    {
+      "path": "/gis-source/v2.0.0/gis/",
+      "passed": true,
+      "status": 404
+    },
+    {
+      "path": "/gis-source/minio/health/live",
+      "passed": true,
+      "status": 404
+    },
+    {
+      "path": "/gis-source/v2.0.0/gis/satellite/tile/test/tms.xml",
+      "passed": true,
+      "status": 404
+    },
+    {
+      "path": "/gis-source/terrain-dem/../private.txt",
+      "passed": true,
+      "status": 404
+    }
+  ]
+}

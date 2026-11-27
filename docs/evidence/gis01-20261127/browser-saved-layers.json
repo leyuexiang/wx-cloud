@@ -1,0 +1,60 @@
+{
+  "sceneId": "2126190539307020289",
+  "revision": 2,
+  "layers": [
+    {
+      "layerKey": "__editor-base-terrain__",
+      "layerType": "terrain",
+      "name": "DEM 90m（既有120服务）",
+      "visible": true,
+      "locked": true,
+      "sortNo": -100,
+      "opacity": 1,
+      "provider": "local",
+      "url": "https://192.168.10.148:9447/gis-source/terrain-dem/layer.json",
+      "options": {},
+      "metadata": {
+        "source": "webgis-info",
+        "tileId": "6980010272698806032",
+        "sliceRule": "tms",
+        "coordinate": "EPSG:4326",
+        "longitude": "90",
+        "latitude": "0",
+        "credit": "DEM 90m（既有120服务）"
+      }
+    },
+    {
+      "layerKey": "__editor-base-imagery__",
+      "layerType": "imagery",
+      "name": "全球影像（既有目录）",
+      "visible": true,
+      "locked": true,
+      "sortNo": -100,
+      "opacity": 1,
+      "provider": "local",
+      "url": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F",
+      "options": {
+        "fileExtension": "jpg",
+        "yOrigin": "tms",
+        "tileSize": 256,
+        "maximumLevel": 8,
+        "minimumLevel": 0,
+        "rectangleDegrees": [
+          -180,
+          -90,
+          180,
+          90
+        ]
+      },
+      "metadata": {
+        "source": "webgis-info",
+        "tileId": "2344945282589520749",
+        "sliceRule": "tms",
+        "coordinate": "EPSG:4326",
+        "longitude": "",
+        "latitude": "",
+        "credit": "全球影像（既有目录）"
+      }
+    }
+  ]
+}

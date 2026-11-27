@@ -1,0 +1,4031 @@
+{
+  "timestampUtc": "2026-11-27T06:19:38.544477+00:00",
+  "readOnly": true,
+  "concurrency": 2,
+  "strategy": "每层最多两条既有对象样本；DEM90m按已声明可用范围首尾节点。非空间均匀或全量抽检。",
+  "specification": "https://github.com/CesiumGS/quantized-mesh",
+  "scriptSha256": "79c344b6ed811a033bdb66487d71be1f436a6664a6efab2c1028ee6c43cf9742",
+  "samples": 110,
+  "passed": 108,
+  "transportPassed": 110,
+  "structurePassed": 110,
+  "results": [
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 0,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/0/0/0.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/0/0/0.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/0/0/0.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 12168,
+        "sha256": "c699f6922f3711bc3eaa733ba3f48147a05d8da76af9764e077ebe0444ea2ac1",
+        "elapsedMs": 12
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 12168,
+        "sha256": "c699f6922f3711bc3eaa733ba3f48147a05d8da76af9764e077ebe0444ea2ac1",
+        "elapsedMs": 21
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 12168,
+        "sha256": "c699f6922f3711bc3eaa733ba3f48147a05d8da76af9764e077ebe0444ea2ac1",
+        "elapsedMs": 3
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 0,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/0/1/0.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/0/1/0.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/0/1/0.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 14768,
+        "sha256": "8957f7704de82e6610430c51a71864f1ba657b8002875b56d4fdcf7f08517c99",
+        "elapsedMs": 12
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 14768,
+        "sha256": "8957f7704de82e6610430c51a71864f1ba657b8002875b56d4fdcf7f08517c99",
+        "elapsedMs": 4
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 14768,
+        "sha256": "8957f7704de82e6610430c51a71864f1ba657b8002875b56d4fdcf7f08517c99",
+        "elapsedMs": 4
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 1,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/1/0/0.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/1/0/0.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/1/0/0.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 6660,
+        "sha256": "9c8a9c1eb9e7f3db6434e8fc2ec216bced1bad4ac5965e4f1175d03595412510",
+        "elapsedMs": 5
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 6660,
+        "sha256": "9c8a9c1eb9e7f3db6434e8fc2ec216bced1bad4ac5965e4f1175d03595412510",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 6660,
+        "sha256": "9c8a9c1eb9e7f3db6434e8fc2ec216bced1bad4ac5965e4f1175d03595412510",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 1,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/1/1/1.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/1/1/1.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/1/1/1.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 11938,
+        "sha256": "bc44e1a8768bdd4c22ece439f3a59ee841249db7d961a41225e1947f0b95ffe7",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 11938,
+        "sha256": "bc44e1a8768bdd4c22ece439f3a59ee841249db7d961a41225e1947f0b95ffe7",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 11938,
+        "sha256": "bc44e1a8768bdd4c22ece439f3a59ee841249db7d961a41225e1947f0b95ffe7",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 2,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/2/0/0.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/2/0/0.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/2/0/0.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 6452,
+        "sha256": "446af579ada07a124232626be0543438001e0f0a55dbe4ea4a5ce01eca7969de",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 6452,
+        "sha256": "446af579ada07a124232626be0543438001e0f0a55dbe4ea4a5ce01eca7969de",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 6452,
+        "sha256": "446af579ada07a124232626be0543438001e0f0a55dbe4ea4a5ce01eca7969de",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 2,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/2/0/3.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/2/0/3.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/2/0/3.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 8106,
+        "sha256": "497ccf3c3b6598fd2e836a1a511dc08749acbbe07271c20fee5e7a98f85715b8",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 8106,
+        "sha256": "497ccf3c3b6598fd2e836a1a511dc08749acbbe07271c20fee5e7a98f85715b8",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 8106,
+        "sha256": "497ccf3c3b6598fd2e836a1a511dc08749acbbe07271c20fee5e7a98f85715b8",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 3,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/3/0/0.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/3/0/0.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/3/0/0.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 6101,
+        "sha256": "7941e755e71c607bf1d40e3ab1790d1ea65a5b9c4b9198515ac016c7b669fadd",
+        "elapsedMs": 5
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 6101,
+        "sha256": "7941e755e71c607bf1d40e3ab1790d1ea65a5b9c4b9198515ac016c7b669fadd",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 6101,
+        "sha256": "7941e755e71c607bf1d40e3ab1790d1ea65a5b9c4b9198515ac016c7b669fadd",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 3,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/3/0/3.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/3/0/3.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/3/0/3.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 10478,
+        "sha256": "f6566a940d4649ecb5a86198caf8ddd14918d988fd4af89eb232ac7f278a4393",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 10478,
+        "sha256": "f6566a940d4649ecb5a86198caf8ddd14918d988fd4af89eb232ac7f278a4393",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 10478,
+        "sha256": "f6566a940d4649ecb5a86198caf8ddd14918d988fd4af89eb232ac7f278a4393",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 4,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/4/0/0.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/4/0/0.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/4/0/0.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 5588,
+        "sha256": "b910a1253d9197a76ceedcc77e81a1d60c1389fde64a52465c96d100876464f2",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 5588,
+        "sha256": "b910a1253d9197a76ceedcc77e81a1d60c1389fde64a52465c96d100876464f2",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 5588,
+        "sha256": "b910a1253d9197a76ceedcc77e81a1d60c1389fde64a52465c96d100876464f2",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 4,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/4/0/11.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/4/0/11.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/4/0/11.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 8771,
+        "sha256": "cabb9244026f532ff61025afe02261d22aeea448fea4d45b8303300c9165d546",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 8771,
+        "sha256": "cabb9244026f532ff61025afe02261d22aeea448fea4d45b8303300c9165d546",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 8771,
+        "sha256": "cabb9244026f532ff61025afe02261d22aeea448fea4d45b8303300c9165d546",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 5,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/5/0/0.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/5/0/0.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/5/0/0.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 6649,
+        "sha256": "64f45faf5b00f1d16bcc2e165160868d06808485e6b8c76c701d85a9fcd96024",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 6649,
+        "sha256": "64f45faf5b00f1d16bcc2e165160868d06808485e6b8c76c701d85a9fcd96024",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 6649,
+        "sha256": "64f45faf5b00f1d16bcc2e165160868d06808485e6b8c76c701d85a9fcd96024",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 5,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/5/0/11.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/5/0/11.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/5/0/11.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 11004,
+        "sha256": "b20e5e4215b7c0ed931ae462daaa1fa2f43c3149220bb07ecfe3c88ccb7de228",
+        "elapsedMs": 5
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 11004,
+        "sha256": "b20e5e4215b7c0ed931ae462daaa1fa2f43c3149220bb07ecfe3c88ccb7de228",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 11004,
+        "sha256": "b20e5e4215b7c0ed931ae462daaa1fa2f43c3149220bb07ecfe3c88ccb7de228",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 6,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/6/0/0.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/6/0/0.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/6/0/0.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 3029,
+        "sha256": "98cdeb1426423cd5599b94a345acb0a461b7a445604578bde273028242ec8dfb",
+        "elapsedMs": 5
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 3029,
+        "sha256": "98cdeb1426423cd5599b94a345acb0a461b7a445604578bde273028242ec8dfb",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 3029,
+        "sha256": "98cdeb1426423cd5599b94a345acb0a461b7a445604578bde273028242ec8dfb",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 6,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/6/0/11.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/6/0/11.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/6/0/11.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 4459,
+        "sha256": "e99bb1b38bba00a6623a4dcf006072500bd9e5bb60f2dcde21d8986f5f6b275a",
+        "elapsedMs": 5
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 4459,
+        "sha256": "e99bb1b38bba00a6623a4dcf006072500bd9e5bb60f2dcde21d8986f5f6b275a",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 4459,
+        "sha256": "e99bb1b38bba00a6623a4dcf006072500bd9e5bb60f2dcde21d8986f5f6b275a",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 7,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/7/0/0.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/7/0/0.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/7/0/0.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 2752,
+        "sha256": "b2ea4f1675638407984ed4419590709c362c5514db27c6d06b802a6de8b11e4e",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 2752,
+        "sha256": "b2ea4f1675638407984ed4419590709c362c5514db27c6d06b802a6de8b11e4e",
+        "elapsedMs": 25
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 2752,
+        "sha256": "b2ea4f1675638407984ed4419590709c362c5514db27c6d06b802a6de8b11e4e",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 7,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/7/0/100.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/7/0/100.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/7/0/100.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 10412,
+        "sha256": "5ff2094e3a540ba0d141c0df2b3ef321379b81c96d9b2ba6955fbc342efda46f",
+        "elapsedMs": 27
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 10412,
+        "sha256": "5ff2094e3a540ba0d141c0df2b3ef321379b81c96d9b2ba6955fbc342efda46f",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 10412,
+        "sha256": "5ff2094e3a540ba0d141c0df2b3ef321379b81c96d9b2ba6955fbc342efda46f",
+        "elapsedMs": 4
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 8,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/8/0/0.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/8/0/0.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/8/0/0.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 2319,
+        "sha256": "6cec3d980e76b57901f363f0eeff8ab3d06e79d5588e767842575d6fd130193f",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 2319,
+        "sha256": "6cec3d980e76b57901f363f0eeff8ab3d06e79d5588e767842575d6fd130193f",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 2319,
+        "sha256": "6cec3d980e76b57901f363f0eeff8ab3d06e79d5588e767842575d6fd130193f",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2344945282589520749",
+      "name": "全球影像（既有目录）",
+      "level": 8,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/8/0/100.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/8/0/100.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F/8/0/100.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 7126,
+        "sha256": "861d2d703b8452856a4dd1f5afa1987f215b64e30910b5488935de80cb4071d5",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 7126,
+        "sha256": "861d2d703b8452856a4dd1f5afa1987f215b64e30910b5488935de80cb4071d5",
+        "elapsedMs": 2
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 7126,
+        "sha256": "861d2d703b8452856a4dd1f5afa1987f215b64e30910b5488935de80cb4071d5",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 0,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/0/1/0.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/0/1/0.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/0/1/0.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1673,
+        "sha256": "c00a3a593c56fdba160b6f7f89422ff110a5b360fbcf8131e34e53190cd6449a",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1673,
+        "sha256": "c00a3a593c56fdba160b6f7f89422ff110a5b360fbcf8131e34e53190cd6449a",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1673,
+        "sha256": "c00a3a593c56fdba160b6f7f89422ff110a5b360fbcf8131e34e53190cd6449a",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 1,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/1/3/1.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/1/3/1.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/1/3/1.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1694,
+        "sha256": "b8527aed778687a5ea4fea354f6999616b4a76bacfa8ca5b00623d0dacec7a06",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1694,
+        "sha256": "b8527aed778687a5ea4fea354f6999616b4a76bacfa8ca5b00623d0dacec7a06",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1694,
+        "sha256": "b8527aed778687a5ea4fea354f6999616b4a76bacfa8ca5b00623d0dacec7a06",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 2,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/2/6/2.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/2/6/2.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/2/6/2.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1708,
+        "sha256": "e091ce339ec730e9c3cf815d1c591fa2e5d4abfc86240501b920b32a0b9a7890",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1708,
+        "sha256": "e091ce339ec730e9c3cf815d1c591fa2e5d4abfc86240501b920b32a0b9a7890",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1708,
+        "sha256": "e091ce339ec730e9c3cf815d1c591fa2e5d4abfc86240501b920b32a0b9a7890",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 3,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/3/12/4.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/3/12/4.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/3/12/4.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1726,
+        "sha256": "a654bcfb641d8f3490528b2044f01f2bce1d117455999e3f370197477b8684b8",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1726,
+        "sha256": "a654bcfb641d8f3490528b2044f01f2bce1d117455999e3f370197477b8684b8",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1726,
+        "sha256": "a654bcfb641d8f3490528b2044f01f2bce1d117455999e3f370197477b8684b8",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 4,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/4/25/9.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/4/25/9.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/4/25/9.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1839,
+        "sha256": "5d7b86f23ce86dbc6a7d17d7272590d1c4825b60875340fe6c8d249c89285dfa",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1839,
+        "sha256": "5d7b86f23ce86dbc6a7d17d7272590d1c4825b60875340fe6c8d249c89285dfa",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1839,
+        "sha256": "5d7b86f23ce86dbc6a7d17d7272590d1c4825b60875340fe6c8d249c89285dfa",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 5,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/5/51/19.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/5/51/19.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/5/51/19.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 2137,
+        "sha256": "c3ec2d8809c9869f129e58a0ddfc3e4ff16f07007f715b8e2ea5438638ad8bad",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 2137,
+        "sha256": "c3ec2d8809c9869f129e58a0ddfc3e4ff16f07007f715b8e2ea5438638ad8bad",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 2137,
+        "sha256": "c3ec2d8809c9869f129e58a0ddfc3e4ff16f07007f715b8e2ea5438638ad8bad",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 6,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/6/103/38.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/6/103/38.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/6/103/38.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 2231,
+        "sha256": "71eefcb605045433c429472768f1c3e1beddc0c07593e3aa87ae7456cde5732a",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 2231,
+        "sha256": "71eefcb605045433c429472768f1c3e1beddc0c07593e3aa87ae7456cde5732a",
+        "elapsedMs": 5
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 2231,
+        "sha256": "71eefcb605045433c429472768f1c3e1beddc0c07593e3aa87ae7456cde5732a",
+        "elapsedMs": 3
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 6,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/6/103/39.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/6/103/39.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/6/103/39.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 2406,
+        "sha256": "16ed17a50695467dd518f2d408f2af6208b27c905d42e2499cccc792dc7e53da",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 2406,
+        "sha256": "16ed17a50695467dd518f2d408f2af6208b27c905d42e2499cccc792dc7e53da",
+        "elapsedMs": 2
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 2406,
+        "sha256": "16ed17a50695467dd518f2d408f2af6208b27c905d42e2499cccc792dc7e53da",
+        "elapsedMs": 3
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 7,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/7/206/77.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/7/206/77.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/7/206/77.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 3333,
+        "sha256": "a5f93aee9d8fbcaf266fd75f0785c6f39d88594412acd5adcea5e72739e31f07",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 3333,
+        "sha256": "a5f93aee9d8fbcaf266fd75f0785c6f39d88594412acd5adcea5e72739e31f07",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 3333,
+        "sha256": "a5f93aee9d8fbcaf266fd75f0785c6f39d88594412acd5adcea5e72739e31f07",
+        "elapsedMs": 3
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 7,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/7/207/78.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/7/207/78.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/7/207/78.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1695,
+        "sha256": "38241e910b0ecfa19ac3d9849d2d73f8b8a606a6d039697541f9ec1a2640b2d4",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1695,
+        "sha256": "38241e910b0ecfa19ac3d9849d2d73f8b8a606a6d039697541f9ec1a2640b2d4",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1695,
+        "sha256": "38241e910b0ecfa19ac3d9849d2d73f8b8a606a6d039697541f9ec1a2640b2d4",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 8,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/8/413/155.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/8/413/155.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/8/413/155.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 6846,
+        "sha256": "36cb403501e5893b217b324ac4ff5d84e8272e0f53df9342428c319505b1c4d6",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 6846,
+        "sha256": "36cb403501e5893b217b324ac4ff5d84e8272e0f53df9342428c319505b1c4d6",
+        "elapsedMs": 2
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 6846,
+        "sha256": "36cb403501e5893b217b324ac4ff5d84e8272e0f53df9342428c319505b1c4d6",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 8,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/8/414/156.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/8/414/156.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/8/414/156.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1782,
+        "sha256": "c8a11ee2a2f949d54e6825760bf1f1d3832b7613a50abb988048703d49e1083e",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1782,
+        "sha256": "c8a11ee2a2f949d54e6825760bf1f1d3832b7613a50abb988048703d49e1083e",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1782,
+        "sha256": "c8a11ee2a2f949d54e6825760bf1f1d3832b7613a50abb988048703d49e1083e",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 9,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/9/826/311.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/9/826/311.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/9/826/311.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 10229,
+        "sha256": "d288fb0b2e0218787dd3cec1ed48715942cd2fd44b722772b043bcf472bceee7",
+        "elapsedMs": 5
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 10229,
+        "sha256": "d288fb0b2e0218787dd3cec1ed48715942cd2fd44b722772b043bcf472bceee7",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 10229,
+        "sha256": "d288fb0b2e0218787dd3cec1ed48715942cd2fd44b722772b043bcf472bceee7",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 9,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/9/827/311.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/9/827/311.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/9/827/311.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 10678,
+        "sha256": "ee6a96236b404f5fbd18fc27b6dd185eebdd0e039412654efb7e9a1995c22d96",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 10678,
+        "sha256": "ee6a96236b404f5fbd18fc27b6dd185eebdd0e039412654efb7e9a1995c22d96",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 10678,
+        "sha256": "ee6a96236b404f5fbd18fc27b6dd185eebdd0e039412654efb7e9a1995c22d96",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 10,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/10/1652/622.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/10/1652/622.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/10/1652/622.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 3329,
+        "sha256": "13e01b9eb659588df115e744f69d96066731028a98a144e5575963def0641ba4",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 3329,
+        "sha256": "13e01b9eb659588df115e744f69d96066731028a98a144e5575963def0641ba4",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 3329,
+        "sha256": "13e01b9eb659588df115e744f69d96066731028a98a144e5575963def0641ba4",
+        "elapsedMs": 5
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 10,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/10/1652/626.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/10/1652/626.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/10/1652/626.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 2645,
+        "sha256": "27c2d7afbde2b1ad0e2aab69bf52b6bf28c2ed8deec1e3432dfb80001c0bcecd",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 2645,
+        "sha256": "27c2d7afbde2b1ad0e2aab69bf52b6bf28c2ed8deec1e3432dfb80001c0bcecd",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 2645,
+        "sha256": "27c2d7afbde2b1ad0e2aab69bf52b6bf28c2ed8deec1e3432dfb80001c0bcecd",
+        "elapsedMs": 3
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 11,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/11/3304/1245.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/11/3304/1245.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/11/3304/1245.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1907,
+        "sha256": "0fafc38130c6f497082a99252163cdffbe93a902b305c6e7e84c03164a223b54",
+        "elapsedMs": 7
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1907,
+        "sha256": "0fafc38130c6f497082a99252163cdffbe93a902b305c6e7e84c03164a223b54",
+        "elapsedMs": 4
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1907,
+        "sha256": "0fafc38130c6f497082a99252163cdffbe93a902b305c6e7e84c03164a223b54",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 11,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/11/3305/1246.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/11/3305/1246.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/11/3305/1246.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 10451,
+        "sha256": "497c8e116602de0c2312e3378eb352b8630c51fda7b0d93c045a22a6f0680a71",
+        "elapsedMs": 6
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 10451,
+        "sha256": "497c8e116602de0c2312e3378eb352b8630c51fda7b0d93c045a22a6f0680a71",
+        "elapsedMs": 4
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 10451,
+        "sha256": "497c8e116602de0c2312e3378eb352b8630c51fda7b0d93c045a22a6f0680a71",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 12,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/12/6609/2491.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/12/6609/2491.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/12/6609/2491.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 2315,
+        "sha256": "a9705a05b13bcb65fcbdb5647607313c8af01198aa61ea7c780523a46f77c221",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 2315,
+        "sha256": "a9705a05b13bcb65fcbdb5647607313c8af01198aa61ea7c780523a46f77c221",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 2315,
+        "sha256": "a9705a05b13bcb65fcbdb5647607313c8af01198aa61ea7c780523a46f77c221",
+        "elapsedMs": 4
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 12,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/12/6610/2492.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/12/6610/2492.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/12/6610/2492.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 17189,
+        "sha256": "e55ceffa2c993eddc288cbdbe10fd6cb0fefac79bc3b1f74f652e321a081c81f",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 17189,
+        "sha256": "e55ceffa2c993eddc288cbdbe10fd6cb0fefac79bc3b1f74f652e321a081c81f",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 17189,
+        "sha256": "e55ceffa2c993eddc288cbdbe10fd6cb0fefac79bc3b1f74f652e321a081c81f",
+        "elapsedMs": 4
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 13,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/13/13219/4983.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/13/13219/4983.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/13/13219/4983.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 3679,
+        "sha256": "4f44e807908fcea36b5f22577d3e489125baf4b352e1c375edf03af5ef999f74",
+        "elapsedMs": 5
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 3679,
+        "sha256": "4f44e807908fcea36b5f22577d3e489125baf4b352e1c375edf03af5ef999f74",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 3679,
+        "sha256": "4f44e807908fcea36b5f22577d3e489125baf4b352e1c375edf03af5ef999f74",
+        "elapsedMs": 3
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 13,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/13/13220/4983.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/13/13220/4983.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/13/13220/4983.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 4585,
+        "sha256": "52479ab3a4d3df229e7b324235c1fc25df3b0d9bf6c50c12e56b0e157260ae16",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 4585,
+        "sha256": "52479ab3a4d3df229e7b324235c1fc25df3b0d9bf6c50c12e56b0e157260ae16",
+        "elapsedMs": 4
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 4585,
+        "sha256": "52479ab3a4d3df229e7b324235c1fc25df3b0d9bf6c50c12e56b0e157260ae16",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 14,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/14/26438/9967.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/14/26438/9967.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/14/26438/9967.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1705,
+        "sha256": "2500193649ea60ac770dad16c0bd95a1e86bd3286afe79eaea41f8ec3c2d90c2",
+        "elapsedMs": 5
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1705,
+        "sha256": "2500193649ea60ac770dad16c0bd95a1e86bd3286afe79eaea41f8ec3c2d90c2",
+        "elapsedMs": 4
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1705,
+        "sha256": "2500193649ea60ac770dad16c0bd95a1e86bd3286afe79eaea41f8ec3c2d90c2",
+        "elapsedMs": 3
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 14,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/14/26438/9970.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/14/26438/9970.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/14/26438/9970.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 2015,
+        "sha256": "eae445406f5e0d0a2c3c95d7e56ee17de6426494e9a2b42d585de6d29a3e9305",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 2015,
+        "sha256": "eae445406f5e0d0a2c3c95d7e56ee17de6426494e9a2b42d585de6d29a3e9305",
+        "elapsedMs": 5
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 2015,
+        "sha256": "eae445406f5e0d0a2c3c95d7e56ee17de6426494e9a2b42d585de6d29a3e9305",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 15,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/15/52877/19935.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/15/52877/19935.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/15/52877/19935.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1750,
+        "sha256": "f193d867a7a0da3bb826facfbfb88339fb3c1a2acf350610d43d84e256b68923",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1750,
+        "sha256": "f193d867a7a0da3bb826facfbfb88339fb3c1a2acf350610d43d84e256b68923",
+        "elapsedMs": 4
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1750,
+        "sha256": "f193d867a7a0da3bb826facfbfb88339fb3c1a2acf350610d43d84e256b68923",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 15,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/15/52877/19938.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/15/52877/19938.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/15/52877/19938.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 6468,
+        "sha256": "3efe4d66bef7a8f54e3749fd10d77d4267ee0721bfb0a5db723ffcdd56d0fe0e",
+        "elapsedMs": 5
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 6468,
+        "sha256": "3efe4d66bef7a8f54e3749fd10d77d4267ee0721bfb0a5db723ffcdd56d0fe0e",
+        "elapsedMs": 2
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 6468,
+        "sha256": "3efe4d66bef7a8f54e3749fd10d77d4267ee0721bfb0a5db723ffcdd56d0fe0e",
+        "elapsedMs": 3
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 16,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/16/105755/39871.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/16/105755/39871.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/16/105755/39871.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1895,
+        "sha256": "e228fccae036c9ecb31ad58212a35402381a36fb1e3a9d74ac4752b4a664200c",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1895,
+        "sha256": "e228fccae036c9ecb31ad58212a35402381a36fb1e3a9d74ac4752b4a664200c",
+        "elapsedMs": 5
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1895,
+        "sha256": "e228fccae036c9ecb31ad58212a35402381a36fb1e3a9d74ac4752b4a664200c",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 16,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/16/105755/39874.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/16/105755/39874.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/16/105755/39874.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 7769,
+        "sha256": "790b58e9577f2bc53165851d23c60ca549a7c177165678cdeae1dfeb23e295d5",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 7769,
+        "sha256": "790b58e9577f2bc53165851d23c60ca549a7c177165678cdeae1dfeb23e295d5",
+        "elapsedMs": 6
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 7769,
+        "sha256": "790b58e9577f2bc53165851d23c60ca549a7c177165678cdeae1dfeb23e295d5",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 17,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/17/211510/79751.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/17/211510/79751.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/17/211510/79751.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 2180,
+        "sha256": "78bf17f49e9febe3700023de356679f836dbdfb0b6c76783516c4e2edb040b4d",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 2180,
+        "sha256": "78bf17f49e9febe3700023de356679f836dbdfb0b6c76783516c4e2edb040b4d",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 2180,
+        "sha256": "78bf17f49e9febe3700023de356679f836dbdfb0b6c76783516c4e2edb040b4d",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "2060096314025833328",
+      "name": "文昌市影像（既有目录）",
+      "level": 17,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/17/211510/79754.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/17/211510/79754.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82/17/211510/79754.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 8391,
+        "sha256": "d842e51583da275444114225f39c2fc1e2ba1b411a10c58234b604f09d0c0a2b",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 8391,
+        "sha256": "d842e51583da275444114225f39c2fc1e2ba1b411a10c58234b604f09d0c0a2b",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 8391,
+        "sha256": "d842e51583da275444114225f39c2fc1e2ba1b411a10c58234b604f09d0c0a2b",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 0,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/0/1/0.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/0/1/0.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/0/1/0.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1651,
+        "sha256": "d1cdc2412191165a5d7d376ec9fc98a9a91047c7a3a8283591fae858abd75639",
+        "elapsedMs": 6
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1651,
+        "sha256": "d1cdc2412191165a5d7d376ec9fc98a9a91047c7a3a8283591fae858abd75639",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1651,
+        "sha256": "d1cdc2412191165a5d7d376ec9fc98a9a91047c7a3a8283591fae858abd75639",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 1,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/1/3/1.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/1/3/1.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/1/3/1.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1651,
+        "sha256": "d1cdc2412191165a5d7d376ec9fc98a9a91047c7a3a8283591fae858abd75639",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1651,
+        "sha256": "d1cdc2412191165a5d7d376ec9fc98a9a91047c7a3a8283591fae858abd75639",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1651,
+        "sha256": "d1cdc2412191165a5d7d376ec9fc98a9a91047c7a3a8283591fae858abd75639",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 2,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/2/6/2.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/2/6/2.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/2/6/2.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1723,
+        "sha256": "7e2a90641eaeb4757e719de6881d090457aa117a510dd82e5ee42a1fedb112fb",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1723,
+        "sha256": "7e2a90641eaeb4757e719de6881d090457aa117a510dd82e5ee42a1fedb112fb",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1723,
+        "sha256": "7e2a90641eaeb4757e719de6881d090457aa117a510dd82e5ee42a1fedb112fb",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 3,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/3/13/4.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/3/13/4.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/3/13/4.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1673,
+        "sha256": "84580e71d449ee9a6f927feaff29ca3311bdddca38db9aca5e09bccfb0c408f3",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1673,
+        "sha256": "84580e71d449ee9a6f927feaff29ca3311bdddca38db9aca5e09bccfb0c408f3",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1673,
+        "sha256": "84580e71d449ee9a6f927feaff29ca3311bdddca38db9aca5e09bccfb0c408f3",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 3,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/3/13/5.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/3/13/5.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/3/13/5.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1693,
+        "sha256": "5179c34a8243e266a07490797afbab94bec11163a3c28bfec5922e37a17d7c63",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1693,
+        "sha256": "5179c34a8243e266a07490797afbab94bec11163a3c28bfec5922e37a17d7c63",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1693,
+        "sha256": "5179c34a8243e266a07490797afbab94bec11163a3c28bfec5922e37a17d7c63",
+        "elapsedMs": 4
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 4,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/4/26/10.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/4/26/10.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/4/26/10.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1706,
+        "sha256": "895c16792a98a15ca4db47d8aa0c66e047c35bf7f9320a8de51fe9b5963e3932",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1706,
+        "sha256": "895c16792a98a15ca4db47d8aa0c66e047c35bf7f9320a8de51fe9b5963e3932",
+        "elapsedMs": 4
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1706,
+        "sha256": "895c16792a98a15ca4db47d8aa0c66e047c35bf7f9320a8de51fe9b5963e3932",
+        "elapsedMs": 3
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 4,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/4/26/9.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/4/26/9.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/4/26/9.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1700,
+        "sha256": "99d92b9b1746ca9ddab869fecddd819f96c23f281521b5a5f9807199a44bf78c",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1700,
+        "sha256": "99d92b9b1746ca9ddab869fecddd819f96c23f281521b5a5f9807199a44bf78c",
+        "elapsedMs": 4
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1700,
+        "sha256": "99d92b9b1746ca9ddab869fecddd819f96c23f281521b5a5f9807199a44bf78c",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 5,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/5/52/19.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/5/52/19.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/5/52/19.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1720,
+        "sha256": "1c650319c3fff49334fe4ae7aa0f7033c9ea00e8cb06117749892614b3703479",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1720,
+        "sha256": "1c650319c3fff49334fe4ae7aa0f7033c9ea00e8cb06117749892614b3703479",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1720,
+        "sha256": "1c650319c3fff49334fe4ae7aa0f7033c9ea00e8cb06117749892614b3703479",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 5,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/5/52/20.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/5/52/20.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/5/52/20.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1725,
+        "sha256": "a4b14116fc6d34e6ab31074dd4003c0a2a7a4b5f0d0120a89f3ab92e37832a8b",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1725,
+        "sha256": "a4b14116fc6d34e6ab31074dd4003c0a2a7a4b5f0d0120a89f3ab92e37832a8b",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1725,
+        "sha256": "a4b14116fc6d34e6ab31074dd4003c0a2a7a4b5f0d0120a89f3ab92e37832a8b",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 6,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/6/104/39.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/6/104/39.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/6/104/39.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1823,
+        "sha256": "20e3952e875ed6b5c71060a66679f2556c740b77bc2ff793b1050bdd8f72b72b",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1823,
+        "sha256": "20e3952e875ed6b5c71060a66679f2556c740b77bc2ff793b1050bdd8f72b72b",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1823,
+        "sha256": "20e3952e875ed6b5c71060a66679f2556c740b77bc2ff793b1050bdd8f72b72b",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 6,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/6/104/40.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/6/104/40.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/6/104/40.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1849,
+        "sha256": "94ef4349671fa16fdf7f6322a4a9f905eb22e82e611aeb5492df6e7687ae4798",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1849,
+        "sha256": "94ef4349671fa16fdf7f6322a4a9f905eb22e82e611aeb5492df6e7687ae4798",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1849,
+        "sha256": "94ef4349671fa16fdf7f6322a4a9f905eb22e82e611aeb5492df6e7687ae4798",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 7,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/7/208/79.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/7/208/79.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/7/208/79.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1819,
+        "sha256": "cc31d56596d33eb861221ca6471000b326e39e2f2787f4be1d9128775cd8a67b",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1819,
+        "sha256": "cc31d56596d33eb861221ca6471000b326e39e2f2787f4be1d9128775cd8a67b",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1819,
+        "sha256": "cc31d56596d33eb861221ca6471000b326e39e2f2787f4be1d9128775cd8a67b",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 7,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/7/209/80.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/7/209/80.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/7/209/80.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 1978,
+        "sha256": "5e0b377e1b1d5cdca4016feba2a4dca0f96b13f00ceff8f074e2071bfc9fdd81",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1978,
+        "sha256": "5e0b377e1b1d5cdca4016feba2a4dca0f96b13f00ceff8f074e2071bfc9fdd81",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1978,
+        "sha256": "5e0b377e1b1d5cdca4016feba2a4dca0f96b13f00ceff8f074e2071bfc9fdd81",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 8,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/8/417/159.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/8/417/159.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/8/417/159.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 2052,
+        "sha256": "3128efc18f2f7606739fbf95d54a88c3a69b0236da121d7f5a1399de823b40f1",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 2052,
+        "sha256": "3128efc18f2f7606739fbf95d54a88c3a69b0236da121d7f5a1399de823b40f1",
+        "elapsedMs": 4
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 2052,
+        "sha256": "3128efc18f2f7606739fbf95d54a88c3a69b0236da121d7f5a1399de823b40f1",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 8,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/8/418/160.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/8/418/160.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/8/418/160.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 2743,
+        "sha256": "9ce43a700f2ede0fbf87b6687457a26168347cb504d4781db9f07b655df7e915",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 2743,
+        "sha256": "9ce43a700f2ede0fbf87b6687457a26168347cb504d4781db9f07b655df7e915",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 2743,
+        "sha256": "9ce43a700f2ede0fbf87b6687457a26168347cb504d4781db9f07b655df7e915",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 9,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/9/835/319.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/9/835/319.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/9/835/319.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 2664,
+        "sha256": "dc4800968be2dbdf6b0b09e465f8cabb736ba7d641ccc8c0e0ddd583a717a86e",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 2664,
+        "sha256": "dc4800968be2dbdf6b0b09e465f8cabb736ba7d641ccc8c0e0ddd583a717a86e",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 2664,
+        "sha256": "dc4800968be2dbdf6b0b09e465f8cabb736ba7d641ccc8c0e0ddd583a717a86e",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 9,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/9/836/320.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/9/836/320.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/9/836/320.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 5518,
+        "sha256": "6519d791bada8dbedb97e9bdb150af170a78669067abef2e9cbe7c0bac10559a",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 5518,
+        "sha256": "6519d791bada8dbedb97e9bdb150af170a78669067abef2e9cbe7c0bac10559a",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 5518,
+        "sha256": "6519d791bada8dbedb97e9bdb150af170a78669067abef2e9cbe7c0bac10559a",
+        "elapsedMs": 3
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 10,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/10/1671/639.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/10/1671/639.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/10/1671/639.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 4532,
+        "sha256": "adbb6b020d2f0d04f3014fc8a735c2631b9abc06bb675f2dbfd8534582289c1e",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 4532,
+        "sha256": "adbb6b020d2f0d04f3014fc8a735c2631b9abc06bb675f2dbfd8534582289c1e",
+        "elapsedMs": 2
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 4532,
+        "sha256": "adbb6b020d2f0d04f3014fc8a735c2631b9abc06bb675f2dbfd8534582289c1e",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 10,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/10/1672/640.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/10/1672/640.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/10/1672/640.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 15122,
+        "sha256": "2ce241a7e2bd0d6579e29a6c6873c08292fb738de7bb1438b400665e7b33a080",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 15122,
+        "sha256": "2ce241a7e2bd0d6579e29a6c6873c08292fb738de7bb1438b400665e7b33a080",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 15122,
+        "sha256": "2ce241a7e2bd0d6579e29a6c6873c08292fb738de7bb1438b400665e7b33a080",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 11,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/11/3342/1278.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/11/3342/1278.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/11/3342/1278.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 2172,
+        "sha256": "e6baf1a1ea46065787163803babf639c8a7066a6244299b9ce60a8eb5eaae618",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 2172,
+        "sha256": "e6baf1a1ea46065787163803babf639c8a7066a6244299b9ce60a8eb5eaae618",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 2172,
+        "sha256": "e6baf1a1ea46065787163803babf639c8a7066a6244299b9ce60a8eb5eaae618",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 11,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/11/3342/1281.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/11/3342/1281.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/11/3342/1281.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 7607,
+        "sha256": "cabe4600d5030cbf8c3b3ed48b31d99be3356b647e10d9e4981c46101491c79f",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 7607,
+        "sha256": "cabe4600d5030cbf8c3b3ed48b31d99be3356b647e10d9e4981c46101491c79f",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 7607,
+        "sha256": "cabe4600d5030cbf8c3b3ed48b31d99be3356b647e10d9e4981c46101491c79f",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 12,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/12/6685/2557.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/12/6685/2557.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/12/6685/2557.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 3167,
+        "sha256": "7524794e9924e6abf0792c9b446919c8105f92f8bc42017b366d10805104e6ed",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 3167,
+        "sha256": "7524794e9924e6abf0792c9b446919c8105f92f8bc42017b366d10805104e6ed",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 3167,
+        "sha256": "7524794e9924e6abf0792c9b446919c8105f92f8bc42017b366d10805104e6ed",
+        "elapsedMs": 1
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "1608497895306292076",
+      "name": "南山区影像（既有目录）",
+      "level": 12,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/12/6685/2560.jpg",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/12/6685/2560.jpg",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA/12/6685/2560.jpg",
+      "proxy": {
+        "status": 200,
+        "bytes": 2349,
+        "sha256": "f1db27f21993d89ffd968019babbe1f17b6b2d518b9978786294ad3f35d2c320",
+        "elapsedMs": 6
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 2349,
+        "sha256": "f1db27f21993d89ffd968019babbe1f17b6b2d518b9978786294ad3f35d2c320",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 2349,
+        "sha256": "f1db27f21993d89ffd968019babbe1f17b6b2d518b9978786294ad3f35d2c320",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "JPEG",
+        "width": 256,
+        "height": 256
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "3547026449859139549",
+      "name": "全球高程（既有目录1）",
+      "level": 0,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/0/0/0.terrain",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/0/0/0.terrain",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/0/0/0.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1499,
+        "sha256": "01c12edd45419cccca439cc09debd24bd5d89401a2abce3cce343798098dc5b9",
+        "elapsedMs": 5
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1499,
+        "sha256": "01c12edd45419cccca439cc09debd24bd5d89401a2abce3cce343798098dc5b9",
+        "elapsedMs": 4
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1499,
+        "sha256": "01c12edd45419cccca439cc09debd24bd5d89401a2abce3cce343798098dc5b9",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": -5886.103515625,
+        "maximumHeight": 3017.27294921875,
+        "extensions": [],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          0.9999999999999999,
+          -14654.579992974557,
+          -16.710314115880653
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "3547026449859139549",
+      "name": "全球高程（既有目录1）",
+      "level": 0,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/0/1/1.terrain",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/0/1/1.terrain",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/0/1/1.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 924,
+        "sha256": "4c86685b9b617dc41b4921a1a5e8bd8683676e7550c5eee9f178d98ad251bdf2",
+        "elapsedMs": 5
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 924,
+        "sha256": "4c86685b9b617dc41b4921a1a5e8bd8683676e7550c5eee9f178d98ad251bdf2",
+        "elapsedMs": 13
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 924,
+        "sha256": "4c86685b9b617dc41b4921a1a5e8bd8683676e7550c5eee9f178d98ad251bdf2",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": -4233.94482421875,
+        "maximumHeight": 0.0,
+        "extensions": [],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          0.0,
+          -8171040366380490.0,
+          -5438925470127.532
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "3547026449859139549",
+      "name": "全球高程（既有目录1）",
+      "level": 1,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/1/0/0.terrain",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/1/0/0.terrain",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/1/0/0.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1515,
+        "sha256": "989ebcac306f0a56553f5dde0cdb6ff8fb1a67f345ead76e708945ad7d7f226d",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1515,
+        "sha256": "989ebcac306f0a56553f5dde0cdb6ff8fb1a67f345ead76e708945ad7d7f226d",
+        "elapsedMs": 13
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1515,
+        "sha256": "989ebcac306f0a56553f5dde0cdb6ff8fb1a67f345ead76e708945ad7d7f226d",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": -6019.20849609375,
+        "maximumHeight": 2951.640625,
+        "extensions": [],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -2.133025051645585,
+          -1.5389145723939854,
+          -1.0806268720698446
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "3547026449859139549",
+      "name": "全球高程（既有目录1）",
+      "level": 1,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/1/1/0.terrain",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/1/1/0.terrain",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/1/1/0.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1494,
+        "sha256": "72440e41270212ad0b6964310d45b507b069180843b75ed92513fa521186ff7d",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1494,
+        "sha256": "72440e41270212ad0b6964310d45b507b069180843b75ed92513fa521186ff7d",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1494,
+        "sha256": "72440e41270212ad0b6964310d45b507b069180843b75ed92513fa521186ff7d",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": -5712.9453125,
+        "maximumHeight": 4065.953857421875,
+        "extensions": [],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          1.0425421238647914,
+          -1.0430546212832759,
+          -1.0438087782549168
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "3547026449859139549",
+      "name": "全球高程（既有目录1）",
+      "level": 2,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/2/0/0.terrain",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/2/0/0.terrain",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/2/0/0.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1471,
+        "sha256": "c4cf26bbf6e425d077df9f4c4630cb7f73ef10f9ad615eb551f6a2ff58470ee7",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1471,
+        "sha256": "c4cf26bbf6e425d077df9f4c4630cb7f73ef10f9ad615eb551f6a2ff58470ee7",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1471,
+        "sha256": "c4cf26bbf6e425d077df9f4c4630cb7f73ef10f9ad615eb551f6a2ff58470ee7",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": -5460.8076171875,
+        "maximumHeight": 2964.29150390625,
+        "extensions": [],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.4217780825145986,
+          -0.29807143195512786,
+          -1.0159736647560715
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "3547026449859139549",
+      "name": "全球高程（既有目录1）",
+      "level": 2,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/2/0/3.terrain",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/2/0/3.terrain",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/2/0/3.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1480,
+        "sha256": "513edd1b9c82b9b7960a56065ae390847dc48d06f848fa299846c26b1d2cdbb0",
+        "elapsedMs": 5
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1480,
+        "sha256": "513edd1b9c82b9b7960a56065ae390847dc48d06f848fa299846c26b1d2cdbb0",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1480,
+        "sha256": "513edd1b9c82b9b7960a56065ae390847dc48d06f848fa299846c26b1d2cdbb0",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": -6424.46142578125,
+        "maximumHeight": 1865.9471435546875,
+        "extensions": [],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.4151729655966887,
+          -0.2936349194330055,
+          1.0000263877558122
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "3547026449859139549",
+      "name": "全球高程（既有目录1）",
+      "level": 3,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/3/0/0.terrain",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/3/0/0.terrain",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/3/0/0.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1436,
+        "sha256": "e94d01fe24d1cab0db26a328a961086e95a17cebc7a5c992659a29392dc104b8",
+        "elapsedMs": 5
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1436,
+        "sha256": "e94d01fe24d1cab0db26a328a961086e95a17cebc7a5c992659a29392dc104b8",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1436,
+        "sha256": "e94d01fe24d1cab0db26a328a961086e95a17cebc7a5c992659a29392dc104b8",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": -4356.43603515625,
+        "maximumHeight": 3122.3671875,
+        "extensions": [],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.20084706245916456,
+          -0.0768394263013128,
+          -1.006866839427704
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "3547026449859139549",
+      "name": "全球高程（既有目录1）",
+      "level": 3,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/3/0/3.terrain",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/3/0/3.terrain",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/3/0/3.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1493,
+        "sha256": "0d7db3bda81c3d179582d1cbe4903e56e8f866fb4abc5b4ee06ed61fae9764fe",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1493,
+        "sha256": "0d7db3bda81c3d179582d1cbe4903e56e8f866fb4abc5b4ee06ed61fae9764fe",
+        "elapsedMs": 4
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1493,
+        "sha256": "0d7db3bda81c3d179582d1cbe4903e56e8f866fb4abc5b4ee06ed61fae9764fe",
+        "elapsedMs": 3
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": -6892.83935546875,
+        "maximumHeight": 0.7341451644897461,
+        "extensions": [],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.9999999999999999,
+          -0.20645144087030223,
+          -0.2059579609257672
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "3547026449859139549",
+      "name": "全球高程（既有目录1）",
+      "level": 4,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/4/0/0.terrain",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/4/0/0.terrain",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/4/0/0.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1388,
+        "sha256": "3248b759acef6d472a112ba514a0f5b60768298c4dc7bbfc958d596b47e92599",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1388,
+        "sha256": "3248b759acef6d472a112ba514a0f5b60768298c4dc7bbfc958d596b47e92599",
+        "elapsedMs": 4
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1388,
+        "sha256": "3248b759acef6d472a112ba514a0f5b60768298c4dc7bbfc958d596b47e92599",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": 44.08965301513672,
+        "maximumHeight": 3113.16845703125,
+        "extensions": [],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.0991356545486093,
+          -0.01934041623431118,
+          -1.0034522399999246
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "3547026449859139549",
+      "name": "全球高程（既有目录1）",
+      "level": 4,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/4/0/11.terrain",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/4/0/11.terrain",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/4/0/11.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1484,
+        "sha256": "da70c63b5655316cd3e06ed5a52c93986481c348d4d4f7f80bc99093893551b7",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1484,
+        "sha256": "da70c63b5655316cd3e06ed5a52c93986481c348d4d4f7f80bc99093893551b7",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1484,
+        "sha256": "da70c63b5655316cd3e06ed5a52c93986481c348d4d4f7f80bc99093893551b7",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": -6353.32470703125,
+        "maximumHeight": -2833.966552734375,
+        "extensions": [],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.7753639016078425,
+          -0.08244253188958037,
+          0.6398234085405827
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "3547026449859139549",
+      "name": "全球高程（既有目录1）",
+      "level": 5,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/5/0/0.terrain",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/5/0/0.terrain",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/5/0/0.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1434,
+        "sha256": "8728bf2b0828925ccbbe3a240aaaa5379ebe0fe032f9aca17ccb303b191f02bc",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1434,
+        "sha256": "8728bf2b0828925ccbbe3a240aaaa5379ebe0fe032f9aca17ccb303b191f02bc",
+        "elapsedMs": 2
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1434,
+        "sha256": "8728bf2b0828925ccbbe3a240aaaa5379ebe0fe032f9aca17ccb303b191f02bc",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": 67.58341979980469,
+        "maximumHeight": 3139.095947265625,
+        "extensions": [],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.049375702303803164,
+          -0.004839624996626567,
+          -1.0019185213619322
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "3547026449859139549",
+      "name": "全球高程（既有目录1）",
+      "level": 5,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/5/0/11.terrain",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/5/0/11.terrain",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/5/0/11.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1498,
+        "sha256": "2bd03989067e2f52799b3da2f97037e7b31f689825800b1ce2d1edff44e7cfb3",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1498,
+        "sha256": "2bd03989067e2f52799b3da2f97037e7b31f689825800b1ce2d1edff44e7cfb3",
+        "elapsedMs": 4
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1498,
+        "sha256": "2bd03989067e2f52799b3da2f97037e7b31f689825800b1ce2d1edff44e7cfb3",
+        "elapsedMs": 3
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": -9353.5224609375,
+        "maximumHeight": -240.6807098388672,
+        "extensions": [],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.90527969899987,
+          -0.04547746133969052,
+          -0.4277404562028327
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "3547026449859139549",
+      "name": "全球高程（既有目录1）",
+      "level": 6,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/6/0/0.terrain",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/6/0/0.terrain",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/6/0/0.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1424,
+        "sha256": "4f8ee4edd35dde788a38aa459ba3d2e60670a47002550d9349b74ae9320a6ee6",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1424,
+        "sha256": "4f8ee4edd35dde788a38aa459ba3d2e60670a47002550d9349b74ae9320a6ee6",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1424,
+        "sha256": "4f8ee4edd35dde788a38aa459ba3d2e60670a47002550d9349b74ae9320a6ee6",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": 2808.914794921875,
+        "maximumHeight": 3135.502685546875,
+        "extensions": [],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.024662032150087432,
+          -0.0012101015283315128,
+          -1.0012385889053677
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "3547026449859139549",
+      "name": "全球高程（既有目录1）",
+      "level": 6,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/6/0/11.terrain",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/6/0/11.terrain",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/6/0/11.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1509,
+        "sha256": "e37b54921a6086202659958a6041f5d954f79edbb97a36be67e3f8f6d52d861b",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1509,
+        "sha256": "e37b54921a6086202659958a6041f5d954f79edbb97a36be67e3f8f6d52d861b",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 1509,
+        "sha256": "e37b54921a6086202659958a6041f5d954f79edbb97a36be67e3f8f6d52d861b",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": -5356.7978515625,
+        "maximumHeight": -4058.437255859375,
+        "extensions": [],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.5362244971713933,
+          -0.013672083080546895,
+          -0.8444410303614325
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "3547026449859139549",
+      "name": "全球高程（既有目录1）",
+      "level": 7,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/7/0/0.terrain",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/7/0/0.terrain",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/7/0/0.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 143,
+        "sha256": "45bcd42fbc17b71d7e2fadb2f088cfd35a453809c8a4298e8110db6ebd756bbf",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 143,
+        "sha256": "45bcd42fbc17b71d7e2fadb2f088cfd35a453809c8a4298e8110db6ebd756bbf",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 143,
+        "sha256": "45bcd42fbc17b71d7e2fadb2f088cfd35a453809c8a4298e8110db6ebd756bbf",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 4,
+        "triangles": 6,
+        "minimumHeight": 2807.469970703125,
+        "maximumHeight": 3104.898193359375,
+        "extensions": [],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.012324744554890356,
+          -0.000302464295750434,
+          -1.0008737886246952
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "3547026449859139549",
+      "name": "全球高程（既有目录1）",
+      "level": 7,
+      "public": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/7/0/100.terrain",
+      "source": "http://192.168.10.110:58000/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/7/0/100.terrain",
+      "storage": "http://192.168.10.120:9000/9tyf/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/7/0/100.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 800,
+        "sha256": "fe6fe82ca39314e009fabbd9bcce53981d89693611d48fe882f04677bb4a10f3",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 800,
+        "sha256": "fe6fe82ca39314e009fabbd9bcce53981d89693611d48fe882f04677bb4a10f3",
+        "elapsedMs": 3
+      },
+      "storageResponse": {
+        "status": 200,
+        "bytes": 800,
+        "sha256": "fe6fe82ca39314e009fabbd9bcce53981d89693611d48fe882f04677bb4a10f3",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 83,
+        "triangles": 231,
+        "minimumHeight": -5136.73486328125,
+        "maximumHeight": -0.5005704164505005,
+        "extensions": [],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.6260661389357729,
+          -0.007799518081971984,
+          0.7798691528583931
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 0,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/0/0/0.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/0/0/0.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1493,
+        "sha256": "4787bc4c2d5f2fe3645718d4a8785b0e5a1c36f502c58403258af115eb48a40f",
+        "elapsedMs": 2
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1493,
+        "sha256": "4787bc4c2d5f2fe3645718d4a8785b0e5a1c36f502c58403258af115eb48a40f",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": 0.0,
+        "maximumHeight": 0.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": false,
+        "horizonPoint": [
+          "nan",
+          "-inf",
+          "nan"
+        ]
+      },
+      "structurePassed": true,
+      "passed": false,
+      "reason": "源站地形遮挡点包含非有限数值，未据几何可解码认定元数据有效"
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 0,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/0/1/0.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/0/1/0.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1513,
+        "sha256": "0f531dd55214be4d32894b33bc3f240b3cc85e5ef37d8964202800672b1d7b6b",
+        "elapsedMs": 2
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1513,
+        "sha256": "0f531dd55214be4d32894b33bc3f240b3cc85e5ef37d8964202800672b1d7b6b",
+        "elapsedMs": 1
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": 0.0,
+        "maximumHeight": 4623.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": false,
+        "horizonPoint": [
+          "nan",
+          "inf",
+          "nan"
+        ]
+      },
+      "structurePassed": true,
+      "passed": false,
+      "reason": "源站地形遮挡点包含非有限数值，未据几何可解码认定元数据有效"
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 1,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/1/3/1.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/1/3/1.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1531,
+        "sha256": "07f2793fcb58a369e4f9f6e41d815f98c2c74c21188f55b309a103b31d73ded0",
+        "elapsedMs": 2
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1531,
+        "sha256": "07f2793fcb58a369e4f9f6e41d815f98c2c74c21188f55b309a103b31d73ded0",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": 0.0,
+        "maximumHeight": 3980.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -1.000000000000028,
+          1.000000000000028,
+          1.0
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 2,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/2/6/2.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/2/6/2.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1565,
+        "sha256": "cb11909518c93881244b153f15adac40eeef1a479b6fe32064110b52f2e0fb9f",
+        "elapsedMs": 2
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1565,
+        "sha256": "cb11909518c93881244b153f15adac40eeef1a479b6fe32064110b52f2e0fb9f",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": 0.0,
+        "maximumHeight": 4643.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.47114102604286817,
+          1.0,
+          0.4703492132866103
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 3,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/3/12/5.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/3/12/5.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1556,
+        "sha256": "3221e1e71c7ae97710f5556a75a341e0b93f7cc2540aaedc9a355d5f7805db0d",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1556,
+        "sha256": "3221e1e71c7ae97710f5556a75a341e0b93f7cc2540aaedc9a355d5f7805db0d",
+        "elapsedMs": 3
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": 0.0,
+        "maximumHeight": 4551.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.18873158936807505,
+          0.8423237468011315,
+          0.5802407253563581
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 4,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/4/24/10.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/4/24/10.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1477,
+        "sha256": "0d0cada40fd8d619c5b62011470528d0941356bbbc1f8c0359cbfb5fc169db32",
+        "elapsedMs": 2
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1477,
+        "sha256": "0d0cada40fd8d619c5b62011470528d0941356bbbc1f8c0359cbfb5fc169db32",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": 0.0,
+        "maximumHeight": 4789.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.09193649166666103,
+          0.8874425354964496,
+          0.477341738520629
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 4,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/4/25/11.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/4/25/11.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1290,
+        "sha256": "68c7048c706108fc545800fb7584abe370836a8e9ac1ad2bbbfafe183df40042",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1290,
+        "sha256": "68c7048c706108fc545800fb7584abe370836a8e9ac1ad2bbbfafe183df40042",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": 0.0,
+        "maximumHeight": 3602.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.23213096193563748,
+          0.7475330811442478,
+          0.6405324097766447
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 5,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/5/49/20.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/5/49/20.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1338,
+        "sha256": "ae50711984418c725ae898716a00839357e6eb0dbcc3f659152b09de8b1d18be",
+        "elapsedMs": 2
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1338,
+        "sha256": "ae50711984418c725ae898716a00839357e6eb0dbcc3f659152b09de8b1d18be",
+        "elapsedMs": 1
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 295,
+        "triangles": 869,
+        "minimumHeight": 0.0,
+        "maximumHeight": 4374.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.13428786420130503,
+          0.8988192020194652,
+          0.4288164287477064
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 5,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/5/51/22.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/5/51/22.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1109,
+        "sha256": "60c51aaa3b9f8c2817411cd07b0f6422271bee04ff5c22e0b263a8357bfafb26",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1109,
+        "sha256": "60c51aaa3b9f8c2817411cd07b0f6422271bee04ff5c22e0b263a8357bfafb26",
+        "elapsedMs": 3
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": 0.0,
+        "maximumHeight": 0.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.2725076909840975,
+          0.7583165013820589,
+          0.5956679406748647
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 6,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/6/98/41.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/6/98/41.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 1034,
+        "sha256": "96c5841e899c249708c26b7a29e5f7022f37253e0aa638dfaab8c8f2d138d7f6",
+        "elapsedMs": 2
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 1034,
+        "sha256": "96c5841e899c249708c26b7a29e5f7022f37253e0aa638dfaab8c8f2d138d7f6",
+        "elapsedMs": 3
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": 0.0,
+        "maximumHeight": 0.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.10972926792737889,
+          0.8875233784260989,
+          0.4487379683274575
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 6,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/6/102/44.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/6/102/44.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 990,
+        "sha256": "16eb04be1f3198e48e52b14f6f2888983fbd6df12d033640742e131a88bfe6b9",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 990,
+        "sha256": "16eb04be1f3198e48e52b14f6f2888983fbd6df12d033640742e131a88bfe6b9",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 289,
+        "triangles": 855,
+        "minimumHeight": 0.0,
+        "maximumHeight": 0.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.25713729150643766,
+          0.7774799469068056,
+          0.5748304527844672
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 7,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/7/197/82.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/7/197/82.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 137,
+        "sha256": "9dad405d718a4f138d7c1150beb3e453ce35020e02d6410653c76d9ee9a561e0",
+        "elapsedMs": 2
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 137,
+        "sha256": "9dad405d718a4f138d7c1150beb3e453ce35020e02d6410653c76d9ee9a561e0",
+        "elapsedMs": 1
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 4,
+        "triangles": 6,
+        "minimumHeight": 0.0,
+        "maximumHeight": 0.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.12110028979932072,
+          0.8911769466155226,
+          0.4375075370333105
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 7,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/7/205/88.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/7/205/88.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 137,
+        "sha256": "69d6b9e9e9782cf405aa9bcc3407cb88f6c5ee3a95f249132fe6e81a767bea9f",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 137,
+        "sha256": "69d6b9e9e9782cf405aa9bcc3407cb88f6c5ee3a95f249132fe6e81a767bea9f",
+        "elapsedMs": 1
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 4,
+        "triangles": 6,
+        "minimumHeight": 0.0,
+        "maximumHeight": 0.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.2686316727050001,
+          0.7806489428349714,
+          0.5645170599890301
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 8,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/8/394/165.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/8/394/165.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 137,
+        "sha256": "a3e9544694ffcf99c2f162f55067ee7671b688e96626425490fe7dbc241c0dd9",
+        "elapsedMs": 2
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 137,
+        "sha256": "a3e9544694ffcf99c2f162f55067ee7671b688e96626425490fe7dbc241c0dd9",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 4,
+        "triangles": 6,
+        "minimumHeight": 0.0,
+        "maximumHeight": 0.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.11522561459036208,
+          0.8891513803979629,
+          0.44294579903826314
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 8,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/8/410/176.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/8/410/176.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 139,
+        "sha256": "95acc7d329cd16537ddb886ea21cce8c0d638c61c2b33629e7d91c8c9639035b",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 139,
+        "sha256": "95acc7d329cd16537ddb886ea21cce8c0d638c61c2b33629e7d91c8c9639035b",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 4,
+        "triangles": 6,
+        "minimumHeight": 0.0,
+        "maximumHeight": 0.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.26486486870478065,
+          0.7854891952643263,
+          0.559389891100816
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 9,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/9/788/330.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/9/788/330.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 138,
+        "sha256": "690bbabe2c58cdf7b5d05dad39306e823cb5c91ee60e0ae84b78b64758aa74d3",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 138,
+        "sha256": "690bbabe2c58cdf7b5d05dad39306e823cb5c91ee60e0ae84b78b64758aa74d3",
+        "elapsedMs": 1
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 4,
+        "triangles": 6,
+        "minimumHeight": 0.0,
+        "maximumHeight": 0.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.11265216890019536,
+          0.8908226027852315,
+          0.44018357985430784
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 9,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/9/820/353.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/9/820/353.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 138,
+        "sha256": "33a6d9357caa0227728ca1e8448eda6eab545fafa7fa29981cef04622b40225c",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 138,
+        "sha256": "33a6d9357caa0227728ca1e8448eda6eab545fafa7fa29981cef04622b40225c",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 4,
+        "triangles": 6,
+        "minimumHeight": 0.0,
+        "maximumHeight": 0.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.2618919752065053,
+          0.7846543901788898,
+          0.5619127588432874
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 10,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/10/1577/660.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/10/1577/660.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 139,
+        "sha256": "982a013c32bad255265dcd7cbe8602684188037a8213e10a88e6f714c577646b",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 139,
+        "sha256": "982a013c32bad255265dcd7cbe8602684188037a8213e10a88e6f714c577646b",
+        "elapsedMs": 1
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 4,
+        "triangles": 6,
+        "minimumHeight": 0.0,
+        "maximumHeight": 0.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.11410031881975011,
+          0.8913112609148898,
+          0.4388047425591312
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 10,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/10/1641/707.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/10/1641/707.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 138,
+        "sha256": "f1eac6d9e6c64f597d95e6d3c7bdf89e46e2c020d2ace226f2888e58fbcb1989",
+        "elapsedMs": 3
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 138,
+        "sha256": "f1eac6d9e6c64f597d95e6d3c7bdf89e46e2c020d2ace226f2888e58fbcb1989",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 4,
+        "triangles": 6,
+        "minimumHeight": 0.0,
+        "maximumHeight": 0.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.26281668416062715,
+          0.7834311253938154,
+          0.5631758349588504
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 11,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/11/3155/1320.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/11/3155/1320.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 138,
+        "sha256": "232b79917f1f0833125b7b1c105730bce0b02ff8a3614d8cc8c0cce29a69c6b7",
+        "elapsedMs": 2
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 138,
+        "sha256": "232b79917f1f0833125b7b1c105730bce0b02ff8a3614d8cc8c0cce29a69c6b7",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 4,
+        "triangles": 6,
+        "minimumHeight": 0.0,
+        "maximumHeight": 0.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.11482587104310664,
+          0.8915551287935386,
+          0.4381158905161141
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 11,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/11/3282/1414.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/11/3282/1414.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 138,
+        "sha256": "e3f8e18cb53976778b360cdd997eb63f4fd4d8a50cf6afa6a5789e74b87959b3",
+        "elapsedMs": 2
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 138,
+        "sha256": "e3f8e18cb53976778b360cdd997eb63f4fd4d8a50cf6afa6a5789e74b87959b3",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 4,
+        "triangles": 6,
+        "minimumHeight": 0.0,
+        "maximumHeight": 0.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.26235141841462845,
+          0.7840404968137072,
+          0.5625417514635632
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 12,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/12/6311/2640.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/12/6311/2640.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 138,
+        "sha256": "be3ddf06b3c975fb3d685043c120371b6871aa2bab5391c0edced5195ece516e",
+        "elapsedMs": 2
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 138,
+        "sha256": "be3ddf06b3c975fb3d685043c120371b6871aa2bab5391c0edced5195ece516e",
+        "elapsedMs": 2
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 4,
+        "triangles": 6,
+        "minimumHeight": 0.0,
+        "maximumHeight": 0.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.11518901531871385,
+          0.8916769472511192,
+          0.4377716047415313
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    },
+    {
+      "id": "6980010272698806032",
+      "name": "DEM 90m（既有120服务）",
+      "level": 12,
+      "public": "https://192.168.10.148:9447/gis-source/terrain-dem/12/6565/2828.terrain",
+      "source": "http://192.168.10.120:58000/gis-images/terrain/12/6565/2828.terrain",
+      "proxy": {
+        "status": 200,
+        "bytes": 138,
+        "sha256": "f2176f200d6783210937fa5270a3a5c1f65151a769b2e6007dfd214be095f271",
+        "elapsedMs": 4
+      },
+      "sourceResponse": {
+        "status": 200,
+        "bytes": 138,
+        "sha256": "f2176f200d6783210937fa5270a3a5c1f65151a769b2e6007dfd214be095f271",
+        "elapsedMs": 1
+      },
+      "transportPassed": true,
+      "decoded": {
+        "format": "quantized-mesh-1.0",
+        "gzip": true,
+        "vertices": 4,
+        "triangles": 6,
+        "minimumHeight": 0.0,
+        "maximumHeight": 0.0,
+        "extensions": [
+          1
+        ],
+        "horizonPointFinite": true,
+        "horizonPoint": [
+          -0.26272022445293153,
+          0.7841438588686906,
+          0.5622248123504768
+        ]
+      },
+      "structurePassed": true,
+      "passed": true
+    }
+  ]
+}

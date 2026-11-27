@@ -1,0 +1,15 @@
+{
+  "formalServicesHealthy": true,
+  "removedCandidates": [
+    "wx-editor-gis01-main",
+    "wx-editor-gis01-data08"
+  ],
+  "removedSchemas": [
+    "wx_gis01_main_20261127",
+    "wx_gis01_data08_20261127"
+  ],
+  "removedLicenseCopies": [
+    "wx-editor-gis01-main/license/license.lic",
+    "wx-editor-gis01-data08/license/license.lic"
+  ]
+}

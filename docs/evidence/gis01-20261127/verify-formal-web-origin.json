@@ -1,0 +1,307 @@
+{
+  "passed": true,
+  "cleaned": true,
+  "readOnly": true,
+  "checks": [
+    {
+      "name": "super_admin 登录",
+      "code": 200,
+      "passed": true
+    },
+    {
+      "name": "tenant_admin 登录",
+      "code": 200,
+      "passed": true
+    },
+    {
+      "name": "operation 未登录拒绝",
+      "code": 401,
+      "passed": true
+    },
+    {
+      "name": "operation 伪造身份头拒绝",
+      "code": 401,
+      "passed": true
+    },
+    {
+      "name": "operation 跨端拒绝",
+      "code": 403,
+      "passed": true
+    },
+    {
+      "name": "operation 非法类别拒绝",
+      "code": 400,
+      "passed": true
+    },
+    {
+      "name": "operation SATELLITE 真实来源可读",
+      "code": 200,
+      "passed": true
+    },
+    {
+      "name": "operation SATELLITE 缓存结果一致",
+      "code": 200,
+      "passed": true
+    },
+    {
+      "name": "operation ELEVATION 真实来源可读",
+      "code": 200,
+      "passed": true
+    },
+    {
+      "name": "operation ELEVATION 缓存结果一致",
+      "code": 200,
+      "passed": true
+    },
+    {
+      "name": "tenant 未登录拒绝",
+      "code": 401,
+      "passed": true
+    },
+    {
+      "name": "tenant 伪造身份头拒绝",
+      "code": 401,
+      "passed": true
+    },
+    {
+      "name": "tenant 跨端拒绝",
+      "code": 403,
+      "passed": true
+    },
+    {
+      "name": "tenant 非法类别拒绝",
+      "code": 400,
+      "passed": true
+    },
+    {
+      "name": "tenant SATELLITE 真实来源可读",
+      "code": 200,
+      "passed": true
+    },
+    {
+      "name": "tenant SATELLITE 缓存结果一致",
+      "code": 200,
+      "passed": true
+    },
+    {
+      "name": "tenant ELEVATION 真实来源可读",
+      "code": 200,
+      "passed": true
+    },
+    {
+      "name": "tenant ELEVATION 缓存结果一致",
+      "code": 200,
+      "passed": true
+    }
+  ],
+  "catalogs": {
+    "operation-SATELLITE": [
+      {
+        "id": "2344945282589520749",
+        "gisName": "全球影像（既有目录）",
+        "dataType": "SATELLITE",
+        "coordinate": "EPSG:4326",
+        "level": 8,
+        "tileSize": "256",
+        "path": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F",
+        "fileName": "tms.xml",
+        "sliceFlag": false,
+        "sliceRule": "tms",
+        "latitude": "",
+        "longitude": "",
+        "bounds": [
+          -180.0,
+          -90.0,
+          180.0,
+          90.0
+        ],
+        "fileExtension": "jpg"
+      },
+      {
+        "id": "2060096314025833328",
+        "gisName": "文昌市影像（既有目录）",
+        "dataType": "SATELLITE",
+        "coordinate": "EPSG:4326",
+        "level": 17,
+        "tileSize": "256",
+        "path": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82",
+        "fileName": "tms.xml",
+        "sliceFlag": false,
+        "sliceRule": "tms",
+        "latitude": "19.7589111325",
+        "longitude": "110.86990356449999",
+        "bounds": [
+          110.464782715,
+          19.351043701,
+          111.275024414,
+          20.166778564
+        ],
+        "fileExtension": "jpg"
+      },
+      {
+        "id": "1608497895306292076",
+        "gisName": "南山区影像（既有目录）",
+        "dataType": "SATELLITE",
+        "coordinate": "EPSG:4326",
+        "level": 12,
+        "tileSize": "256",
+        "path": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA",
+        "fileName": "tms.xml",
+        "sliceFlag": false,
+        "sliceRule": "tms",
+        "latitude": "22.527465820499998",
+        "longitude": "113.900756836",
+        "bounds": [
+          113.779907227,
+          22.398376465,
+          114.021606445,
+          22.656555176
+        ],
+        "fileExtension": "jpg"
+      }
+    ],
+    "operation-ELEVATION": [
+      {
+        "id": "3547026449859139549",
+        "gisName": "全球高程（既有目录1）",
+        "dataType": "ELEVATION",
+        "coordinate": "EPSG:4326",
+        "level": 7,
+        "tileSize": "",
+        "path": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/layer.json",
+        "fileName": "layer.json",
+        "sliceFlag": false,
+        "sliceRule": "tms",
+        "latitude": "",
+        "longitude": "",
+        "bounds": [],
+        "fileExtension": ""
+      },
+      {
+        "id": "6980010272698806032",
+        "gisName": "DEM 90m（既有120服务）",
+        "dataType": "ELEVATION",
+        "coordinate": "EPSG:4326",
+        "level": 12,
+        "tileSize": "",
+        "path": "https://192.168.10.148:9447/gis-source/terrain-dem/layer.json",
+        "fileName": "layer.json",
+        "sliceFlag": false,
+        "sliceRule": "tms",
+        "latitude": "0",
+        "longitude": "90",
+        "bounds": [
+          0.0,
+          -90.0,
+          180.0,
+          90.0
+        ],
+        "fileExtension": ""
+      }
+    ],
+    "tenant-SATELLITE": [
+      {
+        "id": "2344945282589520749",
+        "gisName": "全球影像（既有目录）",
+        "dataType": "SATELLITE",
+        "coordinate": "EPSG:4326",
+        "level": 8,
+        "tileSize": "256",
+        "path": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/World_%E5%BD%B1%E5%83%8F",
+        "fileName": "tms.xml",
+        "sliceFlag": false,
+        "sliceRule": "tms",
+        "latitude": "",
+        "longitude": "",
+        "bounds": [
+          -180.0,
+          -90.0,
+          180.0,
+          90.0
+        ],
+        "fileExtension": "jpg"
+      },
+      {
+        "id": "2060096314025833328",
+        "gisName": "文昌市影像（既有目录）",
+        "dataType": "SATELLITE",
+        "coordinate": "EPSG:4326",
+        "level": 17,
+        "tileSize": "256",
+        "path": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E6%96%87%E6%98%8C%E5%B8%82",
+        "fileName": "tms.xml",
+        "sliceFlag": false,
+        "sliceRule": "tms",
+        "latitude": "19.7589111325",
+        "longitude": "110.86990356449999",
+        "bounds": [
+          110.464782715,
+          19.351043701,
+          111.275024414,
+          20.166778564
+        ],
+        "fileExtension": "jpg"
+      },
+      {
+        "id": "1608497895306292076",
+        "gisName": "南山区影像（既有目录）",
+        "dataType": "SATELLITE",
+        "coordinate": "EPSG:4326",
+        "level": 12,
+        "tileSize": "256",
+        "path": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/satellite/tile/%E5%8D%97%E5%B1%B1%E5%8C%BA",
+        "fileName": "tms.xml",
+        "sliceFlag": false,
+        "sliceRule": "tms",
+        "latitude": "22.527465820499998",
+        "longitude": "113.900756836",
+        "bounds": [
+          113.779907227,
+          22.398376465,
+          114.021606445,
+          22.656555176
+        ],
+        "fileExtension": "jpg"
+      }
+    ],
+    "tenant-ELEVATION": [
+      {
+        "id": "3547026449859139549",
+        "gisName": "全球高程（既有目录1）",
+        "dataType": "ELEVATION",
+        "coordinate": "EPSG:4326",
+        "level": 7,
+        "tileSize": "",
+        "path": "https://192.168.10.148:9447/gis-source/v2.0.0/gis/elevation/tile/World_%E9%AB%98%E7%A8%8B/1/layer.json",
+        "fileName": "layer.json",
+        "sliceFlag": false,
+        "sliceRule": "tms",
+        "latitude": "",
+        "longitude": "",
+        "bounds": [],
+        "fileExtension": ""
+      },
+      {
+        "id": "6980010272698806032",
+        "gisName": "DEM 90m（既有120服务）",
+        "dataType": "ELEVATION",
+        "coordinate": "EPSG:4326",
+        "level": 12,
+        "tileSize": "",
+        "path": "https://192.168.10.148:9447/gis-source/terrain-dem/layer.json",
+        "fileName": "layer.json",
+        "sliceFlag": false,
+        "sliceRule": "tms",
+        "latitude": "0",
+        "longitude": "90",
+        "bounds": [
+          0.0,
+          -90.0,
+          180.0,
+          90.0
+        ],
+        "fileExtension": ""
+      }
+    ]
+  }
+}

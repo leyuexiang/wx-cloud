@@ -1,0 +1,48 @@
+{
+  "entry": {
+    "status": 200,
+    "sha256": "a8400bc3e3a64c81488a740f747af7eb5237ebd404dd59f01fdfef31233f4a12",
+    "type": "text/html",
+    "coop": "same-origin",
+    "coep": "credentialless"
+  },
+  "entryAssets": {
+    "/dts/assets/index-Du4yy-cO.js": {
+      "status": 200,
+      "sha256": "0647c7ebd153388a064dc13713b588b64cc9dce41d2d3b972bbce0aad6049aa4",
+      "type": "application/javascript",
+      "coop": "same-origin",
+      "coep": "credentialless"
+    },
+    "/dts/assets/index-DsfTEqvC.css": {
+      "status": 200,
+      "sha256": "c79213f1106a7aff1b0280faf681ca9a158939a534478777fc847b4a7e9afc9b",
+      "type": "text/css",
+      "coop": "same-origin",
+      "coep": "credentialless"
+    }
+  },
+  "preservedRoutes": {
+    "/threeWeb/": {
+      "status": 200,
+      "sha256": "c49c63d5bd66f32e6cf3755ab190aa66da26630788fef4f0abc71c3d9ae9944a",
+      "type": "text/html",
+      "coop": "same-origin",
+      "coep": "credentialless"
+    },
+    "/bootstrap": {
+      "status": 401,
+      "sha256": "0842c2d8fa2afa76b22b997c04c0ebf0625eeea91f6a613156416cdcd36f9431",
+      "type": "application/json",
+      "coop": "same-origin",
+      "coep": "credentialless"
+    },
+    "/dts/unity-runtime/bootstrap": {
+      "status": 401,
+      "sha256": "0842c2d8fa2afa76b22b997c04c0ebf0625eeea91f6a613156416cdcd36f9431",
+      "type": "application/json",
+      "coop": "same-origin",
+      "coep": "credentialless"
+    }
+  }
+}
